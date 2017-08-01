@@ -1,0 +1,205 @@
+---
+swagger: "2.0"
+info:
+  description: "A denbi portal client api (cloudcenter-side) for M2M communication.\n\
+    [http://denbi.de](http://denbi.de)\n"
+  version: "1.0.0"
+  title: "Portal Client API"
+  contact:
+    email: "mwiens@cebitec.uni-bielefeld.de"
+host: "portal-devdenbi.de"
+basePath: "/portal/api/v1"
+schemes:
+- "https"
+paths:
+  /resources/request:
+    get:
+      tags:
+      - "resources"
+      summary: "Requests free resource capacities"
+      description: "Asks the cloud center, if needed resources are available"
+      operationId: "controllers.resources_controller.resources_request_get"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "resources"
+        description: "Resource Request Object"
+        required: false
+        schema:
+          $ref: "#/definitions/ComputeResources"
+      responses:
+        200:
+          description: "request successfull"
+          schema:
+            $ref: "#/definitions/ResourceResponse"
+        400:
+          description: "Invalid status value"
+      security:
+      - m2m_auth: []
+      x-tags:
+      - tag: "resources"
+  /vm/schedule:
+    get:
+      tags:
+      - "vm"
+      summary: "schdules VM to the cloud center"
+      description: "Sends the full description of the VM and Elixir user in order\
+        \ to schedule the VM"
+      operationId: "controllers.vm_controller.vm_schedule_get"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "vm_request"
+        description: "The definition of the VM to schedule"
+        required: false
+        schema:
+          $ref: "#/definitions/VirtualMachineRequest"
+      responses:
+        200:
+          description: "Ok, wehen VM scheduled"
+      security:
+      - m2m_auth: []
+      x-tags:
+      - tag: "vm"
+  /vm/state:
+    get:
+      tags:
+      - "vm"
+      summary: "get state of the VM"
+      description: "Get detailed information about a singe VM on a cloud instance"
+      operationId: "controllers.vm_controller.vm_state_get"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: "query"
+        description: "Unique Identifier (UUID) of the VM on the specific cloud center"
+        required: true
+        type: "string"
+      - name: "elixir_id"
+        in: "query"
+        description: "Unique user identifier (elixir ID) of the VM"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/VirtualMachineState"
+      security:
+      - m2m_auth: []
+      x-tags:
+      - tag: "vm"
+    put:
+      tags:
+      - "vm"
+      summary: "set the state of the VM"
+      description: "Get detailed information about a singe VM on a cloud instance"
+      operationId: "controllers.vm_controller.vm_state_put"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: "query"
+        description: "Unique Identifier (UUID) of the VM on the specific cloud center"
+        required: true
+        type: "string"
+      - name: "elixir_id"
+        in: "query"
+        description: "Unique user identifier (elixir ID) of the VM"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/VirtualMachineState"
+      security:
+      - m2m_auth: []
+      x-tags:
+      - tag: "vm"
+securityDefinitions:
+  m2m_auth:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  ComputeResources:
+    type: "object"
+    properties:
+      ram:
+        type: "integer"
+        description: "RAM in GB"
+      cpu:
+        type: "integer"
+        description: "Number of CPU cores"
+      hdd:
+        type: "integer"
+        description: "Disk space in GB"
+  ResourceResponse:
+    type: "object"
+    properties:
+      request_response:
+        type: "string"
+      available_resources:
+        $ref: "#/definitions/ComputeResources"
+  UserInfo:
+    type: "object"
+    properties:
+      real_name:
+        type: "string"
+        description: "Real name of the user starting the VM (e.g. John Doe)"
+      elixir_id:
+        type: "string"
+        description: "Unique user identificator of the Exlixir AAI"
+  GroupInfo:
+    type: "object"
+    properties:
+      group_id:
+        type: "integer"
+        description: "Group ID belonging to the VM"
+      group_name:
+        type: "string"
+        description: "The human-readable name of the group"
+      group_leader:
+        $ref: "#/definitions/UserInfo"
+  VirtualMachine:
+    type: "object"
+    properties:
+      resources:
+        $ref: "#/definitions/ComputeResources"
+      flavor:
+        type: "string"
+        description: "flavor according to the resources"
+      os:
+        type: "string"
+        description: "desired Operation System for the VM"
+  VirtualMachineState:
+    type: "object"
+    properties:
+      state:
+        type: "string"
+        description: "The state of the vm"
+  VirtualMachineRequest:
+    type: "object"
+    properties:
+      vm:
+        $ref: "#/definitions/VirtualMachine"
+      flavor:
+        type: "string"
+        description: "VM flavor to start"
+      public_key:
+        type: "string"
+      user_info:
+        $ref: "#/definitions/UserInfo"
+      group_info:
+        $ref: "#/definitions/GroupInfo"
+externalDocs:
+  description: "More about de.NBI Portal Client"
+  url: "http://denbi.de"
