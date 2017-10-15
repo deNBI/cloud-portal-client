@@ -28,7 +28,7 @@ def create_keypair(conn,keyname):
 
     return keypair
 
-def create_server(conn,servername,keyname):
+def create_server(conn,username2,servername,keyname):
     print("Create Server:")
 
     image = conn.compute.find_image('Ubuntu 14.04 LTS (07/24/17)')
@@ -47,10 +47,13 @@ def create_server(conn,servername,keyname):
         print("ssh -i {key} root@{ip}".format(
         key=keyname,
         ip=server.access_ipv4))
+        meta={'username':username2,}
 
-
-    except Exception :
+        conn.compute.set_server_metadata(server,**meta)
+        print(conn.compute.get_server_metadata(server))
+    except Exception as e :
         print("erroroccured")
+        print(e.__str__())
         raise Exception
 
 def delete_server(conn,servername):

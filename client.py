@@ -21,9 +21,9 @@ def check_auth(username, password):
 def index():
     return u'Connected'
 @jsonrpc.method('App.createServer', authenticated=check_auth)
-def createServer(servername,keyname):
+def createServer(username2,servername, keyname):
     try :
-        opm.create_server(conn,servername,keyname)
+        opm.create_server(conn, username2, servername, keyname)
         return " Created Server"
     except Exception:
         return "Server wiht name " + servername + " already existing"
