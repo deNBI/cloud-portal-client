@@ -25,7 +25,7 @@ def createServer(username2,servername, keyname):
     try :
         opm.create_server(conn, username2, servername, keyname)
         return " Created Server"
-    except Exception:
+    except Exception as e:
         return "Server wiht name " + servername + " already existing"
 @jsonrpc.method('App.deleteServer', authenticated=check_auth)
 def deleteServer(servername):

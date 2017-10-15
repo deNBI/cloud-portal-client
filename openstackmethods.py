@@ -10,21 +10,10 @@ def create_keypair(conn,keyname):
 
     if not keypair:
         print("Create Key Pair:")
-
-        keypair = conn.compute.create_keypair(name='keyname')
-
+        keypair = conn.compute.create_keypair(name=keyname)
         print(keypair)
 
-        try:
-            os.mkdir(SSH_DIR)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise e
 
-        with open(PRIVATE_KEYPAIR_FILE, 'w') as f:
-            f.write("%s" % keypair.private_key)
-
-        os.chmod(PRIVATE_KEYPAIR_FILE, 0o400)
 
     return keypair
 
@@ -35,8 +24,10 @@ def create_server(conn,username2,servername,keyname):
     flavor = conn.compute.find_flavor('unibi.micro')
     network = conn.network.find_network('portalnetzwerk')
     keypair = create_keypair(conn,keyname)
+
     try:
-        serverexist=conn.compute.find_server(servername)
+        if   conn.compute.find_server(servername) is not None:
+            raise Exception
 
         server = conn.compute.create_server(
         name=servername, image_id=image.id, flavor_id=flavor.id,
@@ -52,8 +43,7 @@ def create_server(conn,username2,servername,keyname):
         conn.compute.set_server_metadata(server,**meta)
         print(conn.compute.get_server_metadata(server))
     except Exception as e :
-        print("erroroccured")
-        print(e.__str__())
+        print("Create_Server_Error: " + e.__str__())
         raise Exception
 
 def delete_server(conn,servername):
