@@ -26,16 +26,17 @@ def createServer(username2,servername, keyname):
         opm.create_server(conn, username2, servername, keyname)
         return " Created Server"
     except Exception as e:
-        return "Server wiht name " + servername + " already existing"
+        return "Server with name " + servername + " already existing"
 @jsonrpc.method('App.deleteServer', authenticated=check_auth)
+
 def deleteServer(servername):
     opm.delete_server(conn,servername)
     return " Deleted Server"
 
 @jsonrpc.method('App.stopServer', authenticated=check_auth)
 def stopServer(servername):
-    opm.stop_server(conn,servername)
-    return " Stopped Server"
+    feedback= opm.stop_server(conn,servername)
+    return feedback
 
 
 if __name__ == '__main__':

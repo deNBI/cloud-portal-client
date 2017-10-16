@@ -1,9 +1,9 @@
 from openstack import connection
 
-import os
+
 def create_connection(username,password):
-		conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
-		return conn
+    conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
+    return conn
 
 def create_keypair(conn,keyname):
     keypair = conn.compute.find_keypair(keyname)
@@ -53,6 +53,21 @@ def delete_server(conn,servername):
 		conn.compute.delete_server(server)
 
 def stop_server(conn,servername):
-    server = conn.compute.find_server(servername)
-    conn.compute.stop_server(server)
-    print("Stopped Server " + servername)
+        server = conn.compute.find_server(servername)
+        if server is None:
+            return ('Server ' + servername + ' not found')
+        server=conn.compute.get_server(server)
+        print(server.status)
+
+        #print(conn.compute._get_base_resource(server,_server.Server))
+       # res=conn.compute._get_base_resource(server,_server.Server)
+        #print(res.status)
+
+
+        if server.status == 'ACTIVE':
+            conn.compute.stop_server(server)
+            print("Stopped Server " + servername)
+            return "Stopped Server " + servername
+        elif server.status == 'PAUSED':
+            print('Server ' + servername + ' was already stopped')
+            return 'Server ' + servername + ' was already stopped'
