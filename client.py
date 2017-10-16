@@ -41,5 +41,5 @@ def stopServer(servername):
 
 if __name__ == '__main__':
 
-
+    check_auth('sgiller', 'vAk49IDo')
     app.run(debug=True)

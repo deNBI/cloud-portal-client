@@ -1,6 +1,5 @@
 from openstack import connection
 
-
 def create_connection(username,password):
     conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
     return conn
@@ -40,6 +39,12 @@ def create_server(conn,username2,servername,keyname):
         ip=server.access_ipv4))
         meta={'username':username2,}
 
+
+        networkID = conn.network.find_network('cebitec').id
+        floatingIp = conn.network.create_ip(floating_network_id=networkID)
+        floatingIp = conn.network.get_ip(floatingIp)
+        conn.compute.add_floating_ip_to_server(server, floatingIp.floating_ip_address)
+
         conn.compute.set_server_metadata(server,**meta)
         print(conn.compute.get_server_metadata(server))
     except Exception as e :
@@ -58,7 +63,6 @@ def stop_server(conn,servername):
             return ('Server ' + servername + ' not found')
         server=conn.compute.get_server(server)
         print(server.status)
-
         #print(conn.compute._get_base_resource(server,_server.Server))
        # res=conn.compute._get_base_resource(server,_server.Server)
         #print(res.status)
