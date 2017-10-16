@@ -49,7 +49,10 @@ def unPauseServer(servername):
     return feedback
 
 
+@jsonrpc.method('App.addFloatingIPtoServer', authenticated=check_auth)
+def add_floating_ip_to_Server(servername):
+    feedback=opm.add_floating_ip_to_server(conn,servername)
+    return feedback
 
 if __name__ == '__main__':
-
     app.run(debug=True)
