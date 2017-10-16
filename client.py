@@ -37,9 +37,12 @@ def deleteServer(servername):
 def stopServer(servername):
     feedback= opm.stop_server(conn,servername)
     return feedback
-
+@jsonrpc.method('App.addFloatingIPtoServer', authenticated=check_auth)
+def add_floating_ip_to_Server(servername):
+    feedback=opm.add_floating_ip_to_server(conn,servername)
+    return feedback
 
 if __name__ == '__main__':
 
-    check_auth('sgiller', 'vAk49IDo')
+
     app.run(debug=True)

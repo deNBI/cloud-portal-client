@@ -32,24 +32,43 @@ def create_server(conn,username2,servername,keyname):
         name=servername, image_id=image.id, flavor_id=flavor.id,
         networks=[{"uuid": network.id}], key_name=keypair.name)
 
-        server = conn.compute.wait_for_server(server)
+       #server = conn.compute.wait_for_server(server)
 
         print("ssh -i {key} root@{ip}".format(
         key=keyname,
         ip=server.access_ipv4))
         meta={'username':username2,}
 
-
-        networkID = conn.network.find_network('cebitec').id
-        floatingIp = conn.network.create_ip(floating_network_id=networkID)
-        floatingIp = conn.network.get_ip(floatingIp)
-        conn.compute.add_floating_ip_to_server(server, floatingIp.floating_ip_address)
-
         conn.compute.set_server_metadata(server,**meta)
         print(conn.compute.get_server_metadata(server))
     except Exception as e :
         print("Create_Server_Error: " + e.__str__())
         raise Exception
+
+def add_floating_ip_to_server(conn,servername):
+
+    server = conn.compute.find_server(servername)
+    if server is None:
+        return ('Server ' + servername + ' not found')
+    server = conn.compute.get_server(server)
+    print("Checking if Server already got an Floating IP")
+    for values in server.addresses.values():
+        for address in values:
+            if address['OS-EXT-IPS:type'] == 'floating':
+                return ('Server ' + servername + ' already got an Floating IP ' + address['addr'])
+    print("Checking if unused Floating IP exist")
+    for floating_ip in conn.network.ips():
+        if not floating_ip.fixed_ip_address:
+            conn.compute.add_floating_ip_to_server(server,floating_ip.floating_ip_address)
+            print("Adding existing Floating IP " + str(floating_ip.floating_ip_address)+  "to  " + servername)
+            return  'Added existing Floating IP ' + str(floating_ip.floating_ip_address) +" to Server " +servername
+    print("Adding Floating IP to  " + servername)
+
+    networkID = conn.network.find_network('cebitec').id
+    floating_ip = conn.network.create_ip(floating_network_id=networkID)
+    floating_ip = conn.network.get_ip(floating_ip)
+    conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+    return 'Added new Floating IP' + floating_ip +" to Server" +servername
 
 def delete_server(conn,servername):
 		print("Delete Server")
