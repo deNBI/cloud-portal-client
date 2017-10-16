@@ -1,5 +1,5 @@
 from openstack import connection
-
+import json
 def create_connection(username,password):
     conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
     return conn
@@ -30,17 +30,16 @@ def create_server(conn,username2,servername,keyname):
 
         server = conn.compute.create_server(
         name=servername, image_id=image.id, flavor_id=flavor.id,
-        networks=[{"uuid": network.id}], key_name=keypair.name)
+        networks=[{"uuid": network.id}], key_name=keypair.name,metadata={'username':username2,})
 
-       #server = conn.compute.wait_for_server(server)
+        #server = conn.compute.wait_for_server(server)
 
         print("ssh -i {key} root@{ip}".format(
         key=keyname,
         ip=server.access_ipv4))
-        meta={'username':username2,}
 
-        conn.compute.set_server_metadata(server,**meta)
-        print(conn.compute.get_server_metadata(server))
+
+
     except Exception as e :
         print("Create_Server_Error: " + e.__str__())
         raise Exception
@@ -97,22 +96,28 @@ def stop_server(conn,servername):
 
 def pause_server(conn, servername):
     server = conn.compute.find_server(servername)
+    if server is None:
+        return ('Server ' + servername + ' not found')
     server = conn.compute.get_server(server)
-    if server.status == 'ACTIVE':
+    status = server.status
+    if status == 'ACTIVE':
         conn.compute.pause_server(server)
-        print('paused server' + servername)
-        return 'paused server' + servername
-    else:
-        print('server' + servername + 'was already paused')
-        return 'server' + servername + 'was already paused'
+        return json.loads('{"server":"' + servername + '","status":"PAUSED}')
 
+    elif status == 'PAUSED':
+        return json.loads('{"server":"' + servername + '","status":"PAUSED"}')
+    else:
+        return json.loads('{"server":"' + servername + '","status":"TODO"}')
 def unpause_server(conn, servername):
     server = conn.compute.find_server(servername)
+    if server is None:
+        return ('Server ' + servername + ' not found')
     server = conn.compute.get_server(server)
-    if server.status == 'PAUSED':
+    status=server.status
+    if status=='ACTIVE':
+        return json.loads('{"server":"'+servername + '","status":"ACTIVE"}')
+    elif status == 'PAUSED':
         conn.compute.unpause_server(server)
-        print('unpaused server' + servername)
-        return 'unpaused server' + servername
+        return   json.loads('{"server":"'+servername + '","status":"ACTIVE"}')
     else:
-        print('server' + servername + 'wasnt paused')
-        return 'server' + servername + 'wasnt paused'
+        return  json.loads('{"server":"'+servername + '","status":"TODO"}')
