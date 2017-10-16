@@ -72,6 +72,28 @@ def stop_server(conn,servername):
             conn.compute.stop_server(server)
             print("Stopped Server " + servername)
             return "Stopped Server " + servername
-        elif server.status == 'PAUSED':
+        else:
             print('Server ' + servername + ' was already stopped')
             return 'Server ' + servername + ' was already stopped'
+
+def pause_server(conn, servername):
+    server = conn.compute.find_server(servername)
+    server = conn.compute.get_server(server)
+    if server.status == 'ACTIVE':
+        conn.compute.pause_server(server)
+        print('paused server' + servername)
+        return 'paused server' + servername
+    else:
+        print('server' + servername + 'was already paused')
+        return 'server' + servername + 'was already paused'
+
+def unpause_server(conn, servername):
+    server = conn.compute.find_server(servername)
+    server = conn.compute.get_server(server)
+    if server.status == 'PAUSED':
+        conn.compute.unpause_server(server)
+        print('unpaused server' + servername)
+        return 'unpaused server' + servername
+    else:
+        print('server' + servername + 'wasnt paused')
+        return 'server' + servername + 'wasnt paused'

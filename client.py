@@ -38,8 +38,18 @@ def stopServer(servername):
     feedback= opm.stop_server(conn,servername)
     return feedback
 
+@jsonrpc.method('App.pauseServer', authenticated=check_auth)
+def pauseServer(servername):
+    feedback= opm.pause_server(conn,servername)
+    return feedback
+
+@jsonrpc.method('App.unPauseServer', authenticated=check_auth)
+def unPauseServer(servername):
+    feedback= opm.unpause_server(conn,servername)
+    return feedback
+
+
 
 if __name__ == '__main__':
 
-    check_auth('sgiller', 'vAk49IDo')
     app.run(debug=True)
