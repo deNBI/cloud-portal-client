@@ -97,7 +97,7 @@ def stop_server(conn,servername):
 def pause_server(conn, servername):
     server = conn.compute.find_server(servername)
     if server is None:
-        return ('Server ' + servername + ' not found')
+        return json.loads('{"server":"' + servername + '","status":"NOTFOUND"}')
     server = conn.compute.get_server(server)
     status = server.status
     if status == 'ACTIVE':
@@ -111,7 +111,7 @@ def pause_server(conn, servername):
 def unpause_server(conn, servername):
     server = conn.compute.find_server(servername)
     if server is None:
-        return ('Server ' + servername + ' not found')
+        return json.loads('{"server":"' + servername + '","status":"NOTFOUND"}')
     server = conn.compute.get_server(server)
     status=server.status
     if status=='ACTIVE':
