@@ -79,13 +79,14 @@ def get_flavors(conn):
     dic=set()
     for flavor in conn.compute.flavors():
         dic.add(json.dumps(flavor.to_dict()))
-    d=0
-    t='{'
+    e=0
+    g='{"Flavors":['
     for i in dic :
-        d = json.loads(i)
-        t='"' + str(d)+'":[' + str(d) + ']'
-        print(t)
-        return d
+        g +='['+i + '],'
+    g=g[:-1]
+    g+=']}'
+    print (g)
+    return json.loads(g)
 def stop_server(conn,servername):
         server = conn.compute.find_server(servername)
         if server is None:
