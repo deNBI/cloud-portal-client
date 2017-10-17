@@ -53,6 +53,10 @@ def unPauseServer(servername):
 def add_floating_ip_to_Server(servername):
     feedback=opm.add_floating_ip_to_server(conn,servername)
     return feedback
+@jsonrpc.method('App.getFlavors', authenticated=check_auth)
+def get_flavors():
+    feedback=opm.get_flavors(conn)
+    return feedback
 
 if __name__ == '__main__':
     app.run(debug=True)

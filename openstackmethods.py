@@ -74,7 +74,18 @@ def delete_server(conn,servername):
 		server=conn.compute.find_server(servername)
 		print(server)
 		conn.compute.delete_server(server)
-
+def get_flavors(conn):
+    print("List Flavors:")
+    dic=set()
+    for flavor in conn.compute.flavors():
+        dic.add(json.dumps(flavor.to_dict()))
+    d=0
+    t='{'
+    for i in dic :
+        d = json.loads(i)
+        t='"' + str(d)+'":[' + str(d) + ']'
+        print(t)
+        return d
 def stop_server(conn,servername):
         server = conn.compute.find_server(servername)
         if server is None:
