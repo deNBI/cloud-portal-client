@@ -37,12 +37,13 @@ def create_server(conn,username2,servername,keyname):
         print("ssh -i {key} root@{ip}".format(
         key=keyname,
         ip=server.access_ipv4))
-
-
-
+        feedback=json.loads(json.dumps(server.to_dict()))
+        print(feedback)
+        return feedback
     except Exception as e :
         print("Create_Server_Error: " + e.__str__())
         raise Exception
+
 
 def add_floating_ip_to_server(conn,servername):
 

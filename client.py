@@ -23,8 +23,8 @@ def index():
 @jsonrpc.method('App.createServer', authenticated=check_auth)
 def createServer(username2,servername, keyname):
     try :
-        opm.create_server(conn, username2, servername, keyname)
-        return " Created Server"
+        feedback=opm.create_server(conn, username2, servername, keyname)
+        return feedback
     except Exception as e:
         return "Server with name " + servername + " already existing"
 @jsonrpc.method('App.deleteServer', authenticated=check_auth)
