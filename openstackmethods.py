@@ -85,8 +85,35 @@ def get_flavors(conn):
         g +='['+i + '],'
     g=g[:-1]
     g+=']}'
+   # print (g)
+    return json.loads(g)
+def get_images(conn):
+    print("List Images:")
+    dic=set()
+    for image in conn.compute.images():
+        dic.add(json.dumps(image.to_dict()))
+    e=0
+    g='{"Images":['
+    for i in dic :
+        g +='['+i + '],'
+    g=g[:-1]
+    g+=']}'
+   # print (g)
+    return json.loads(g)
+def get_images(conn):
+    print("List Servers:")
+    dic=set()
+    for server in conn.compute.servers():
+        dic.add(json.dumps(server.to_dict()))
+    e=0
+    g='{"Servers":['
+    for i in dic :
+        g +='['+i + '],'
+    g=g[:-1]
+    g+=']}'
     print (g)
     return json.loads(g)
+
 def stop_server(conn,servername):
         server = conn.compute.find_server(servername)
         if server is None:

@@ -57,6 +57,13 @@ def add_floating_ip_to_Server(servername):
 def get_flavors():
     feedback=opm.get_flavors(conn)
     return feedback
-
+@jsonrpc.method('App.getImages', authenticated=check_auth)
+def get_images():
+    feedback=opm.get_images(conn)
+    return feedback
+@jsonrpc.method('App.getServers', authenticated=check_auth)
+def get_servers():
+    feedback=opm.get_images(conn)
+    return feedback
 if __name__ == '__main__':
     app.run(debug=True)
