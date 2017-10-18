@@ -63,7 +63,7 @@ def get_images():
     return feedback
 @jsonrpc.method('App.getServers', authenticated=check_auth)
 def get_servers():
-    feedback=opm.get_images(conn)
+    feedback=opm.get_servers(conn)
     return feedback
 if __name__ == '__main__':
     app.run(debug=True)

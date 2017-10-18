@@ -100,7 +100,7 @@ def get_images(conn):
     g+=']}'
    # print (g)
     return json.loads(g)
-def get_images(conn):
+def get_servers(conn):
     print("List Servers:")
     dic=set()
     for server in conn.compute.servers():
