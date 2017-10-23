@@ -1,6 +1,9 @@
 from openstack import connection
 import json
-def create_connection(username,password):
+import client
+
+
+def create_connection(username,password,auth_url,project_name,user_domain_name,project_domain_name):
     conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
     return conn
 
@@ -16,12 +19,12 @@ def create_keypair(conn,keyname):
 
     return keypair
 
-def create_server(conn,username2,servername,keyname):
+def create_server(conn,servername,keyname,imagename,flavorname,networkname,username):
     print("Create Server:")
 
-    image = conn.compute.find_image('Ubuntu 14.04 LTS (07/24/17)')
-    flavor = conn.compute.find_flavor('unibi.micro')
-    network = conn.network.find_network('portalnetzwerk')
+    image = conn.compute.find_image(imagename)
+    flavor = conn.compute.find_flavor(flavorname)
+    network = conn.network.find_network(networkname)
     keypair = create_keypair(conn,keyname)
 
     try:
@@ -30,7 +33,7 @@ def create_server(conn,username2,servername,keyname):
 
         server = conn.compute.create_server(
         name=servername, image_id=image.id, flavor_id=flavor.id,
-        networks=[{"uuid": network.id}], key_name=keypair.name,metadata={'username':username2,})
+        networks=[{"uuid": network.id}], key_name=keypair.name,metadata={'username':username,})
 
         #server = conn.compute.wait_for_server(server)
 
@@ -42,7 +45,7 @@ def create_server(conn,username2,servername,keyname):
         return feedback
     except Exception as e :
         print("Create_Server_Error: " + e.__str__())
-        raise Exception
+        raise e
 
 
 def add_floating_ip_to_server(conn,servername):
