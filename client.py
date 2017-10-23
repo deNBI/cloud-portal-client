@@ -18,6 +18,7 @@ AUTH_URL=config.get('Connection','auth_url')
 PROJECT_NAME=config.get('Connection','project_name')
 USER_DOMAIN_NAME=config.get('Connection','user_domain_name')
 PROJECT_DOMAIN_NAME=config.get('Connection','project_domain_name')
+
 def check_auth():
         global conn
         conn=opm.create_connection(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_domain_name=PROJECT_DOMAIN_NAME,user_domain_name=USER_DOMAIN_NAME,project_name=PROJECT_NAME)
