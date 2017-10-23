@@ -4,7 +4,7 @@ import client
 
 
 def create_connection(username,password,auth_url,project_name,user_domain_name,project_domain_name):
-    conn=connection.Connection(auth_url='https://openstack.cebitec.uni-bielefeld.de:5000/v3/',project_name='PortalClient',username=username,password=password,user_domain_name='default',project_domain_name='default')
+    conn=connection.Connection(auth_url=auth_url,project_name=project_name,username=username,password=password,user_domain_name=user_domain_name,project_domain_name=project_domain_name)
     return conn
 
 def create_keypair(conn,keyname):
