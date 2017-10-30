@@ -38,8 +38,10 @@ def main():
     flavors=constants.FLAVOR_LIST
     images=constants.IMAGES_LIST
 
-    vm=VM(flavors[1],images[1])
-    print(vm)
-    print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,vm=vm,keyname='neutest',servername='thrifttest',network=NETWORK))
+    flavors = flavors[1]
+    images = images[1]
+
+
+    print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flavors, image=images,keyname='neutest',servername='thrifttest',network=NETWORK))
 
 main()

@@ -13,6 +13,69 @@ import sys
 from thrift.transport import TTransport
 
 
+class serverStatus(object):
+    ACTIVE = 1
+    BUilding = 2
+    DELETED = 3
+    ERROR = 4
+    HARD_REBOOT = 5
+    PASSWORD = 6
+    PAUSED = 7
+    REBOOT = 8
+    REBUILD = 9
+    RESCUED = 10
+    RESIZED = 11
+    REVERT_RESIZE = 12
+    SHUTOFF = 13
+    SOFT_DELETED = 14
+    STOPPED = 15
+    SUSPENDED = 16
+    UNKNOWN = 17
+    VERIFY_RESIZE = 18
+
+    _VALUES_TO_NAMES = {
+        1: "ACTIVE",
+        2: "BUilding",
+        3: "DELETED",
+        4: "ERROR",
+        5: "HARD_REBOOT",
+        6: "PASSWORD",
+        7: "PAUSED",
+        8: "REBOOT",
+        9: "REBUILD",
+        10: "RESCUED",
+        11: "RESIZED",
+        12: "REVERT_RESIZE",
+        13: "SHUTOFF",
+        14: "SOFT_DELETED",
+        15: "STOPPED",
+        16: "SUSPENDED",
+        17: "UNKNOWN",
+        18: "VERIFY_RESIZE",
+    }
+
+    _NAMES_TO_VALUES = {
+        "ACTIVE": 1,
+        "BUilding": 2,
+        "DELETED": 3,
+        "ERROR": 4,
+        "HARD_REBOOT": 5,
+        "PASSWORD": 6,
+        "PAUSED": 7,
+        "REBOOT": 8,
+        "REBUILD": 9,
+        "RESCUED": 10,
+        "RESIZED": 11,
+        "REVERT_RESIZE": 12,
+        "SHUTOFF": 13,
+        "SOFT_DELETED": 14,
+        "STOPPED": 15,
+        "SUSPENDED": 16,
+        "UNKNOWN": 17,
+        "VERIFY_RESIZE": 18,
+    }
+
+
 class Flavor(object):
     """
     structs are mapped by Thrift to classes or structs in your language of
@@ -126,17 +189,20 @@ class VM(object):
     Attributes:
      - flav: A unique identifier for this task.
      - img
+     - status
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRUCT, 'flav', (Flavor, Flavor.thrift_spec), None, ),  # 1
         (2, TType.STRING, 'img', 'UTF8', None, ),  # 2
+        (3, TType.I32, 'status', None, None, ),  # 3
     )
 
-    def __init__(self, flav=None, img=None,):
+    def __init__(self, flav=None, img=None, status=None,):
         self.flav = flav
         self.img = img
+        self.status = status
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -158,6 +224,11 @@ class VM(object):
                     self.img = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.I32:
+                    self.status = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -176,6 +247,10 @@ class VM(object):
             oprot.writeFieldBegin('img', TType.STRING, 2)
             oprot.writeString(self.img.encode('utf-8') if sys.version_info[0] == 2 else self.img)
             oprot.writeFieldEnd()
+        if self.status is not None:
+            oprot.writeFieldBegin('status', TType.I32, 3)
+            oprot.writeI32(self.status)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -184,6 +259,8 @@ class VM(object):
             raise TProtocolException(message='Required field flav is unset!')
         if self.img is None:
             raise TProtocolException(message='Required field img is unset!')
+        if self.status is None:
+            raise TProtocolException(message='Required field status is unset!')
         return
 
     def __repr__(self):

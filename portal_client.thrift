@@ -27,6 +27,28 @@ const list<string> IMAGES_LIST=[
 		'BiBiGrid master 14.04 (06/20/17)']
 
 
+enum serverStatus{
+    ACTIVE = 1,
+    BUilding = 2,
+    DELETED = 3,
+    ERROR = 4,
+    HARD_REBOOT = 5,
+    PASSWORD = 6,
+    PAUSED = 7,
+    REBOOT = 8,
+    REBUILD = 9,
+    RESCUED = 10,
+    RESIZED = 11,
+    REVERT_RESIZE = 12,
+    SHUTOFF = 13,
+    SOFT_DELETED = 14,
+    STOPPED = 15,
+    SUSPENDED = 16,
+    UNKNOWN = 17,
+    VERIFY_RESIZE = 18
+}
+
+
 
 
 /**
@@ -47,6 +69,7 @@ struct VM {
     
     1: required Flavor flav,
 	2: required string img,
+	3: required serverStatus status
 }
 
 
@@ -71,7 +94,6 @@ service VirtualMachineService {
      * It may throw a TaskException.
      */
 	string create_keypar(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string keyname)
-	VM create_vm(1:string flav ,2:string img)
 	list<Flavor> get_Flavors(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
 	list<string> get_Images(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
 	list<VM> get_servers(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
@@ -80,7 +102,7 @@ service VirtualMachineService {
 	string add_floating_ip_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername)
 	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:instanceException e), 
     bool start_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
-                          6:string project_domain_name,7:VM vm,8:string keyname,9:string servername,10:string network) throws (1:instanceException e),
+                          6:string project_domain_name,7:string flavor, 8:string image, 9:string keyname,10:string servername,11:string network) throws (1:instanceException e),
     bool stop_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,7:string servername) throws (1:instanceException e),
     bool pause_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,

@@ -12,21 +12,21 @@ import sys
 from ttypes import *
 FLAVOR_LIST = [
     Flavor(**{
-        "name": "de.NBI.large",
         "vcpus": 32,
-        "disk": 20,
         "ram": 64,
+        "disk": 20,
+        "name": "de.NBI.large",
     }),
     Flavor(**{
+        "vcpus": 2,
         "ram": 2,
         "disk": 25,
         "name": "BiBiGrid Debug",
-        "vcpus": 2,
     }),
     Flavor(**{
         "vcpus": 2,
-        "disk": 40,
         "ram": 2,
+        "disk": 40,
         "name": "unibi.mirco",
     }),
     Flavor(**{
@@ -48,28 +48,28 @@ FLAVOR_LIST = [
         "name": "unibi.large",
     }),
     Flavor(**{
-        "name": "de.NBI.medium",
         "vcpus": 16,
         "ram": 32,
         "disk": 20,
+        "name": "de.NBI.medium",
     }),
     Flavor(**{
-        "name": "de.NBI.default",
-        "disk": 20,
         "vcpus": 2,
         "ram": 2,
+        "disk": 20,
+        "name": "de.NBI.default",
     }),
     Flavor(**{
         "vcpus": 8,
-        "disk": 20,
         "ram": 16,
+        "disk": 20,
         "name": "de.NBI.small",
     }),
     Flavor(**{
-        "name": "unibi.tiny",
+        "vcpus": 4,
         "ram": 8,
         "disk": 70,
-        "vcpus": 4,
+        "name": "unibi.tiny",
     }),
 ]
 IMAGES_LIST = [

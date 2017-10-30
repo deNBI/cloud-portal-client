@@ -30,13 +30,14 @@ class VirtualMachineHandler(Iface):
 
         return keypair
 
-    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, vm, keyname, servername, network):
+    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         conn = self.create_connection(username=username, password=password, auth_url=auth_url,
                                       project_name=project_name, user_domain_name=user_domain_name,
                                       project_domain_name=project_domain_name)
 
-        image=conn.compute.find_image(vm.img)
-        flavor=conn.compute.find_flavor(vm.flav.name)
+
+        image=conn.compute.find_image(image)
+        flavor=conn.compute.find_flavor(flavor.name)
         network=conn.network.find_network(network)
         keypair=self.create_keypair(username, password, auth_url, project_name, user_domain_name, project_domain_name,keyname)
 

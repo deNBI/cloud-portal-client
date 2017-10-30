@@ -40,14 +40,6 @@ class Iface(object):
         """
         pass
 
-    def create_vm(self, flav, img):
-        """
-        Parameters:
-         - flav
-         - img
-        """
-        pass
-
     def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
         Parameters:
@@ -122,7 +114,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, vm, keyname, servername, network):
+    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         """
         Parameters:
          - username
@@ -131,7 +123,8 @@ class Iface(object):
          - project_name
          - user_domain_name
          - project_domain_name
-         - vm
+         - flavor
+         - image
          - keyname
          - servername
          - network
@@ -238,39 +231,6 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_keypar failed: unknown result")
-
-    def create_vm(self, flav, img):
-        """
-        Parameters:
-         - flav
-         - img
-        """
-        self.send_create_vm(flav, img)
-        return self.recv_create_vm()
-
-    def send_create_vm(self, flav, img):
-        self._oprot.writeMessageBegin('create_vm', TMessageType.CALL, self._seqid)
-        args = create_vm_args()
-        args.flav = flav
-        args.img = img
-        args.write(self._oprot)
-        self._oprot.writeMessageEnd()
-        self._oprot.trans.flush()
-
-    def recv_create_vm(self):
-        iprot = self._iprot
-        (fname, mtype, rseqid) = iprot.readMessageBegin()
-        if mtype == TMessageType.EXCEPTION:
-            x = TApplicationException()
-            x.read(iprot)
-            iprot.readMessageEnd()
-            raise x
-        result = create_vm_result()
-        result.read(iprot)
-        iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "create_vm failed: unknown result")
 
     def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
@@ -524,7 +484,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, vm, keyname, servername, network):
+    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         """
         Parameters:
          - username
@@ -533,15 +493,16 @@ class Client(Iface):
          - project_name
          - user_domain_name
          - project_domain_name
-         - vm
+         - flavor
+         - image
          - keyname
          - servername
          - network
         """
-        self.send_start_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, vm, keyname, servername, network)
+        self.send_start_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network)
         return self.recv_start_server()
 
-    def send_start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, vm, keyname, servername, network):
+    def send_start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.username = username
@@ -550,7 +511,8 @@ class Client(Iface):
         args.project_name = project_name
         args.user_domain_name = user_domain_name
         args.project_domain_name = project_domain_name
-        args.vm = vm
+        args.flavor = flavor
+        args.image = image
         args.keyname = keyname
         args.servername = servername
         args.network = network
@@ -716,7 +678,6 @@ class Processor(Iface, TProcessor):
         self._handler = handler
         self._processMap = {}
         self._processMap["create_keypar"] = Processor.process_create_keypar
-        self._processMap["create_vm"] = Processor.process_create_vm
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
         self._processMap["get_servers"] = Processor.process_get_servers
@@ -758,25 +719,6 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("create_keypar", msg_type, seqid)
-        result.write(oprot)
-        oprot.writeMessageEnd()
-        oprot.trans.flush()
-
-    def process_create_vm(self, seqid, iprot, oprot):
-        args = create_vm_args()
-        args.read(iprot)
-        iprot.readMessageEnd()
-        result = create_vm_result()
-        try:
-            result.success = self._handler.create_vm(args.flav, args.img)
-            msg_type = TMessageType.REPLY
-        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
-            raise
-        except Exception as ex:
-            msg_type = TMessageType.EXCEPTION
-            logging.exception(ex)
-            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("create_vm", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -904,7 +846,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.vm, args.keyname, args.servername, args.network)
+            result.success = self._handler.start_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.flavor, args.image, args.keyname, args.servername, args.network)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1161,138 +1103,6 @@ class create_keypar_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
-class create_vm_args(object):
-    """
-    Attributes:
-     - flav
-     - img
-    """
-
-    thrift_spec = (
-        None,  # 0
-        (1, TType.STRING, 'flav', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'img', 'UTF8', None, ),  # 2
-    )
-
-    def __init__(self, flav=None, img=None,):
-        self.flav = flav
-        self.img = img
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.flav = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.img = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
-            return
-        oprot.writeStructBegin('create_vm_args')
-        if self.flav is not None:
-            oprot.writeFieldBegin('flav', TType.STRING, 1)
-            oprot.writeString(self.flav.encode('utf-8') if sys.version_info[0] == 2 else self.flav)
-            oprot.writeFieldEnd()
-        if self.img is not None:
-            oprot.writeFieldBegin('img', TType.STRING, 2)
-            oprot.writeString(self.img.encode('utf-8') if sys.version_info[0] == 2 else self.img)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
-class create_vm_result(object):
-    """
-    Attributes:
-     - success
-    """
-
-    thrift_spec = (
-        (0, TType.STRUCT, 'success', (VM, VM.thrift_spec), None, ),  # 0
-    )
-
-    def __init__(self, success=None,):
-        self.success = success
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 0:
-                if ftype == TType.STRUCT:
-                    self.success = VM()
-                    self.success.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
-            return
-        oprot.writeStructBegin('create_vm_result')
-        if self.success is not None:
-            oprot.writeFieldBegin('success', TType.STRUCT, 0)
-            self.success.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2458,7 +2268,8 @@ class start_server_args(object):
      - project_name
      - user_domain_name
      - project_domain_name
-     - vm
+     - flavor
+     - image
      - keyname
      - servername
      - network
@@ -2472,20 +2283,22 @@ class start_server_args(object):
         (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
         (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRUCT, 'vm', (VM, VM.thrift_spec), None, ),  # 7
-        (8, TType.STRING, 'keyname', 'UTF8', None, ),  # 8
-        (9, TType.STRING, 'servername', 'UTF8', None, ),  # 9
-        (10, TType.STRING, 'network', 'UTF8', None, ),  # 10
+        (7, TType.STRING, 'flavor', 'UTF8', None, ),  # 7
+        (8, TType.STRING, 'image', 'UTF8', None, ),  # 8
+        (9, TType.STRING, 'keyname', 'UTF8', None, ),  # 9
+        (10, TType.STRING, 'servername', 'UTF8', None, ),  # 10
+        (11, TType.STRING, 'network', 'UTF8', None, ),  # 11
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, vm=None, keyname=None, servername=None, network=None,):
+    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, flavor=None, image=None, keyname=None, servername=None, network=None,):
         self.username = username
         self.password = password
         self.auth_url = auth_url
         self.project_name = project_name
         self.user_domain_name = user_domain_name
         self.project_domain_name = project_domain_name
-        self.vm = vm
+        self.flavor = flavor
+        self.image = image
         self.keyname = keyname
         self.servername = servername
         self.network = network
@@ -2530,22 +2343,26 @@ class start_server_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
-                if ftype == TType.STRUCT:
-                    self.vm = VM()
-                    self.vm.read(iprot)
+                if ftype == TType.STRING:
+                    self.flavor = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 10:
+                if ftype == TType.STRING:
+                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 11:
                 if ftype == TType.STRING:
                     self.network = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -2584,20 +2401,24 @@ class start_server_args(object):
             oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
             oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
             oprot.writeFieldEnd()
-        if self.vm is not None:
-            oprot.writeFieldBegin('vm', TType.STRUCT, 7)
-            self.vm.write(oprot)
+        if self.flavor is not None:
+            oprot.writeFieldBegin('flavor', TType.STRING, 7)
+            oprot.writeString(self.flavor.encode('utf-8') if sys.version_info[0] == 2 else self.flavor)
+            oprot.writeFieldEnd()
+        if self.image is not None:
+            oprot.writeFieldBegin('image', TType.STRING, 8)
+            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
         if self.keyname is not None:
-            oprot.writeFieldBegin('keyname', TType.STRING, 8)
+            oprot.writeFieldBegin('keyname', TType.STRING, 9)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 9)
+            oprot.writeFieldBegin('servername', TType.STRING, 10)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.network is not None:
-            oprot.writeFieldBegin('network', TType.STRING, 10)
+            oprot.writeFieldBegin('network', TType.STRING, 11)
             oprot.writeString(self.network.encode('utf-8') if sys.version_info[0] == 2 else self.network)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
