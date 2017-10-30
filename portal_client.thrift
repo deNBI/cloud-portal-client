@@ -102,7 +102,7 @@ service VirtualMachineService {
 	string add_floating_ip_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername)
 	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:instanceException e), 
     bool start_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
-                          6:string project_domain_name,7:string flavor, 8:string image, 9:string keyname,10:string servername,11:string network) throws (1:instanceException e),
+                          6:string project_domain_name,7:Flavor flavor, 8:string image, 9:string keyname,10:string servername,11:string network) throws (1:instanceException e),
     bool stop_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,7:string servername) throws (1:instanceException e),
     bool pause_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,

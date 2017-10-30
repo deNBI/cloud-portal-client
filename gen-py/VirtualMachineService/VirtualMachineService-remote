@@ -31,7 +31,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool delete_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
     print('  string add_floating_ip_to_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
     print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('  bool start_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string flavor, string image, string keyname, string servername, string network)')
+    print('  bool start_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, Flavor flavor, string image, string keyname, string servername, string network)')
     print('  bool stop_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
     print('  bool pause_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
     print('  bool unpause_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
@@ -160,7 +160,7 @@ elif cmd == 'start_server':
     if len(args) != 11:
         print('start_server requires 11 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10],))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4], args[5], eval(args[6]), args[7], args[8], args[9], args[10],))
 
 elif cmd == 'stop_server':
     if len(args) != 7:

@@ -2283,7 +2283,7 @@ class start_server_args(object):
         (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
         (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'flavor', 'UTF8', None, ),  # 7
+        (7, TType.STRUCT, 'flavor', (Flavor, Flavor.thrift_spec), None, ),  # 7
         (8, TType.STRING, 'image', 'UTF8', None, ),  # 8
         (9, TType.STRING, 'keyname', 'UTF8', None, ),  # 9
         (10, TType.STRING, 'servername', 'UTF8', None, ),  # 10
@@ -2343,8 +2343,9 @@ class start_server_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
-                if ftype == TType.STRING:
-                    self.flavor = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.STRUCT:
+                    self.flavor = Flavor()
+                    self.flavor.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
@@ -2402,8 +2403,8 @@ class start_server_args(object):
             oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
             oprot.writeFieldEnd()
         if self.flavor is not None:
-            oprot.writeFieldBegin('flavor', TType.STRING, 7)
-            oprot.writeString(self.flavor.encode('utf-8') if sys.version_info[0] == 2 else self.flavor)
+            oprot.writeFieldBegin('flavor', TType.STRUCT, 7)
+            self.flavor.write(oprot)
             oprot.writeFieldEnd()
         if self.image is not None:
             oprot.writeFieldBegin('image', TType.STRING, 8)
