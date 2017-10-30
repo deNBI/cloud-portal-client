@@ -26,7 +26,7 @@ class VM(object):
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'flav', 'UTF8', None, ),  # 1
+        (1, TType.STRUCT, 'flav', (Flavor, Flavor.thrift_spec), None, ),  # 1
         (2, TType.STRING, 'img', 'UTF8', None, ),  # 2
     )
 
@@ -44,8 +44,9 @@ class VM(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.flav = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.STRUCT:
+                    self.flav = Flavor()
+                    self.flav.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -64,8 +65,8 @@ class VM(object):
             return
         oprot.writeStructBegin('VM')
         if self.flav is not None:
-            oprot.writeFieldBegin('flav', TType.STRING, 1)
-            oprot.writeString(self.flav.encode('utf-8') if sys.version_info[0] == 2 else self.flav)
+            oprot.writeFieldBegin('flav', TType.STRUCT, 1)
+            self.flav.write(oprot)
             oprot.writeFieldEnd()
         if self.img is not None:
             oprot.writeFieldBegin('img', TType.STRING, 2)

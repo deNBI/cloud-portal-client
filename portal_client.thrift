@@ -37,7 +37,7 @@ const list<string> IMAGES_LIST=[
 struct VM {
     /** A unique identifier for this task. */
     
-    1: required string flav,
+    1: required Flavor flav,
 	2: required string img,
 }
 struct Flavor{
@@ -71,6 +71,11 @@ service VirtualMachineService {
      */
 	string create_keypar(1:string keyname)
 	VM create_vm(1:string flav ,2:string img)
+	list<Flavor> get_Flavors()
+	list<string> get_Images()
+	list<VM> get_servers()
+	bool delete_server(1:string servername)
+	string add_floating_ip_to_server(1:string servername)
 	bool create_connection(1:string username,2:string password ,3:string network,4:string auth_url,5:string project_name,6:string user_domain_name,7:string project_domain_name ) throws (1:instanceException e), 
     bool start_server(1:VM vm,2:string keyname,3:string servername) throws (1:instanceException e),
     bool stop_server(1:string servername) throws (1:instanceException e),

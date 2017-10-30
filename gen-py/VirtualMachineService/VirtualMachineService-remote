@@ -26,6 +26,11 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Functions:')
     print('  string create_keypar(string keyname)')
     print('  VM create_vm(string flav, string img)')
+    print('   get_Flavors()')
+    print('   get_Images()')
+    print('   get_servers()')
+    print('  bool delete_server(string servername)')
+    print('  string add_floating_ip_to_server(string servername)')
     print('  bool create_connection(string username, string password, string network, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
     print('  bool start_server(VM vm, string keyname, string servername)')
     print('  bool stop_server(string servername)')
@@ -121,6 +126,36 @@ elif cmd == 'create_vm':
         print('create_vm requires 2 args')
         sys.exit(1)
     pp.pprint(client.create_vm(args[0], args[1],))
+
+elif cmd == 'get_Flavors':
+    if len(args) != 0:
+        print('get_Flavors requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_Flavors())
+
+elif cmd == 'get_Images':
+    if len(args) != 0:
+        print('get_Images requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_Images())
+
+elif cmd == 'get_servers':
+    if len(args) != 0:
+        print('get_servers requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_servers())
+
+elif cmd == 'delete_server':
+    if len(args) != 1:
+        print('delete_server requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.delete_server(args[0],))
+
+elif cmd == 'add_floating_ip_to_server':
+    if len(args) != 1:
+        print('add_floating_ip_to_server requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.add_floating_ip_to_server(args[0],))
 
 elif cmd == 'create_connection':
     if len(args) != 7:

@@ -9,67 +9,67 @@
 from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
 from thrift.protocol.TProtocol import TProtocolException
 import sys
-from ttypes import *
+from .ttypes import *
 FLAVOR_LIST = [
     Flavor(**{
-        "ram": 64,
         "disk": 20,
         "name": "de.NBI.large",
         "vcpus": 32,
+        "ram": 64,
     }),
     Flavor(**{
         "vcpus": 2,
-        "ram": 2,
         "name": "BiBiGrid Debug",
+        "ram": 2,
         "disk": 25,
     }),
     Flavor(**{
+        "disk": 40,
+        "vcpus": 2,
         "name": "unibi.mirco",
         "ram": 2,
-        "vcpus": 2,
-        "disk": 40,
     }),
     Flavor(**{
-        "disk": 70,
+        "name": "unibi.small",
         "vcpus": 8,
         "ram": 16,
-        "name": "unibi.small",
+        "disk": 70,
     }),
     Flavor(**{
+        "vcpus": 16,
+        "ram": 32,
         "disk": 120,
-        "ram": 32,
         "name": "unibi.medium",
-        "vcpus": 16,
     }),
     Flavor(**{
-        "vcpus": 32,
         "ram": 64,
-        "name": "unibi.large",
         "disk": 220,
+        "name": "unibi.large",
+        "vcpus": 32,
     }),
     Flavor(**{
-        "name": "de.NBI.medium",
         "disk": 20,
-        "ram": 32,
         "vcpus": 16,
+        "ram": 32,
+        "name": "de.NBI.medium",
     }),
     Flavor(**{
-        "ram": 2,
         "disk": 20,
         "name": "de.NBI.default",
+        "ram": 2,
         "vcpus": 2,
     }),
     Flavor(**{
-        "name": "de.NBI.small",
         "vcpus": 8,
-        "disk": 20,
         "ram": 16,
+        "disk": 20,
+        "name": "de.NBI.small",
     }),
     Flavor(**{
         "vcpus": 4,
+        "ram": 8,
         "disk": 70,
         "name": "unibi.tiny",
-        "ram": 8,
     }),
 ]
 IMAGES_LIST = [
