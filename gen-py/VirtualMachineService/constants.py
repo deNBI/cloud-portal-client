@@ -12,28 +12,28 @@ import sys
 from ttypes import *
 FLAVOR_LIST = [
     Flavor(**{
-        "disk": 20,
         "name": "de.NBI.large",
-        "ram": 64,
         "vcpus": 32,
+        "disk": 20,
+        "ram": 64,
+    }),
+    Flavor(**{
+        "ram": 2,
+        "disk": 25,
+        "name": "BiBiGrid Debug",
+        "vcpus": 2,
     }),
     Flavor(**{
         "vcpus": 2,
-        "ram": 2,
-        "name": "BiBiGrid Debug",
-        "disk": 25,
-    }),
-    Flavor(**{
         "disk": 40,
         "ram": 2,
-        "vcpus": 2,
         "name": "unibi.mirco",
     }),
     Flavor(**{
-        "name": "unibi.small",
         "vcpus": 8,
         "ram": 16,
         "disk": 70,
+        "name": "unibi.small",
     }),
     Flavor(**{
         "vcpus": 16,
@@ -42,34 +42,34 @@ FLAVOR_LIST = [
         "name": "unibi.medium",
     }),
     Flavor(**{
-        "name": "unibi.large",
+        "vcpus": 32,
         "ram": 64,
         "disk": 220,
-        "vcpus": 32,
+        "name": "unibi.large",
     }),
     Flavor(**{
-        "ram": 32,
-        "vcpus": 16,
-        "disk": 20,
         "name": "de.NBI.medium",
+        "vcpus": 16,
+        "ram": 32,
+        "disk": 20,
     }),
     Flavor(**{
-        "ram": 2,
+        "name": "de.NBI.default",
         "disk": 20,
         "vcpus": 2,
-        "name": "de.NBI.default",
+        "ram": 2,
     }),
     Flavor(**{
-        "ram": 16,
-        "disk": 20,
         "vcpus": 8,
+        "disk": 20,
+        "ram": 16,
         "name": "de.NBI.small",
     }),
     Flavor(**{
-        "vcpus": 4,
-        "disk": 70,
-        "ram": 8,
         "name": "unibi.tiny",
+        "ram": 8,
+        "disk": 70,
+        "vcpus": 4,
     }),
 ]
 IMAGES_LIST = [
