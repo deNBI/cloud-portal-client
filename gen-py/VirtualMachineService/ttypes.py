@@ -13,89 +13,12 @@ import sys
 from thrift.transport import TTransport
 
 
-class VM(object):
+class Flavor(object):
     """
     structs are mapped by Thrift to classes or structs in your language of
     choice. This struct has two fields, an Identifier of type `id` and
     a Description of type `string`. The Identifier defaults to DEFAULT_ID.
 
-    Attributes:
-     - flav: A unique identifier for this task.
-     - img
-    """
-
-    thrift_spec = (
-        None,  # 0
-        (1, TType.STRUCT, 'flav', (Flavor, Flavor.thrift_spec), None, ),  # 1
-        (2, TType.STRING, 'img', 'UTF8', None, ),  # 2
-    )
-
-    def __init__(self, flav=None, img=None,):
-        self.flav = flav
-        self.img = img
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.STRUCT:
-                    self.flav = Flavor()
-                    self.flav.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.img = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
-            return
-        oprot.writeStructBegin('VM')
-        if self.flav is not None:
-            oprot.writeFieldBegin('flav', TType.STRUCT, 1)
-            self.flav.write(oprot)
-            oprot.writeFieldEnd()
-        if self.img is not None:
-            oprot.writeFieldBegin('img', TType.STRING, 2)
-            oprot.writeString(self.img.encode('utf-8') if sys.version_info[0] == 2 else self.img)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        if self.flav is None:
-            raise TProtocolException(message='Required field flav is unset!')
-        if self.img is None:
-            raise TProtocolException(message='Required field img is unset!')
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
-class Flavor(object):
-    """
     Attributes:
      - vcpus
      - ram
@@ -184,6 +107,83 @@ class Flavor(object):
             raise TProtocolException(message='Required field disk is unset!')
         if self.name is None:
             raise TProtocolException(message='Required field name is unset!')
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class VM(object):
+    """
+    Attributes:
+     - flav: A unique identifier for this task.
+     - img
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRUCT, 'flav', (Flavor, Flavor.thrift_spec), None, ),  # 1
+        (2, TType.STRING, 'img', 'UTF8', None, ),  # 2
+    )
+
+    def __init__(self, flav=None, img=None,):
+        self.flav = flav
+        self.img = img
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRUCT:
+                    self.flav = Flavor()
+                    self.flav.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.img = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('VM')
+        if self.flav is not None:
+            oprot.writeFieldBegin('flav', TType.STRUCT, 1)
+            self.flav.write(oprot)
+            oprot.writeFieldEnd()
+        if self.img is not None:
+            oprot.writeFieldBegin('img', TType.STRING, 2)
+            oprot.writeString(self.img.encode('utf-8') if sys.version_info[0] == 2 else self.img)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        if self.flav is None:
+            raise TProtocolException(message='Required field flav is unset!')
+        if self.img is None:
+            raise TProtocolException(message='Required field img is unset!')
         return
 
     def __repr__(self):

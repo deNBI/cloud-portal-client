@@ -34,13 +34,7 @@ const list<string> IMAGES_LIST=[
  * choice. This struct has two fields, an Identifier of type `id` and
  * a Description of type `string`. The Identifier defaults to DEFAULT_ID.
  */
-struct VM {
-    /** A unique identifier for this task. */
-    
-    1: required Flavor flav,
-	2: required string img,
-}
-struct Flavor{
+ struct Flavor{
 
 	1:required i32 vcpus,
 	2:required i32 ram,
@@ -48,6 +42,13 @@ struct Flavor{
 	4:required string name
 	
 }
+struct VM {
+    /** A unique identifier for this task. */
+    
+    1: required Flavor flav,
+	2: required string img,
+}
+
 
 /**
  * Exceptions inherit from language-specific base exceptions.

@@ -28,7 +28,7 @@ def main():
     flavors=constants.FLAVOR_LIST
     images=constants.IMAGES_LIST
 
-    vm=VM(flavors[1].name,images[1])
+    vm=VM(flavors[1],images[1])
     print(client.start_server(vm,'neutest','thrifttest'))
 
 main()

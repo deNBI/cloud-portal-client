@@ -20,7 +20,7 @@ class VirtualMachineHandler(Iface):
 
 
     def create_vm(self, flav, img):
-        vm = VM(0, flav, img)
+        vm = VM( flav, img)
         return vm
 
     def create_keypair(self, keyname):
@@ -34,7 +34,7 @@ class VirtualMachineHandler(Iface):
         return keypair
     def start_server(self, vm,keyname,servername):
         image=self.conn.compute.find_image(vm.img)
-        flavor=self.conn.compute.find_flavor(vm.flav)
+        flavor=self.conn.compute.find_flavor(vm.flav.name)
         network=self.conn.network.find_network(self.network)
         keypair=self.create_keypair(keyname)
 
