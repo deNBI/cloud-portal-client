@@ -1,5 +1,5 @@
 from VirtualMachineService import Iface
-from ttypes import VM
+from ttypes import VM,Flavor
 from openstack import connection
 
 
@@ -13,12 +13,16 @@ class VirtualMachineHandler(Iface):
         return conn
 
 
+    def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+            conn = self.create_connection(username=username, password=password, auth_url=auth_url, project_name=project_name,
+                                  user_domain_name=user_domain_name, project_domain_name=project_domain_name)
 
-
-    def create_vm(self, flav, img):
-        vm = VM( flav, img)
-        return vm
-
+            flavors=list()
+            for flav in conn.compute.flavors():
+                flav=flav.to_dict()
+                flavor=Flavor(flav['vcpus'],flav['ram'],flav['disk'],flav['name'])
+                flavors.append(flavor)
+            return flavors
     def create_keypair(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
         conn=self.create_connection(username=username,password=password,auth_url=auth_url,project_name=project_name,user_domain_name=user_domain_name,project_domain_name=project_domain_name)
         keypair = conn.compute.find_keypair(keyname)
