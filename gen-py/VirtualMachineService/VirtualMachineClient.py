@@ -45,5 +45,8 @@ def main():
     img=client.get_Images(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)[1]
     print(flav)
     print(img)
-    print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flav, image=img,keyname='neutest',servername='thrifttest',network=NETWORK))
+    #print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flav, image=img,keyname='neutest',servername='thrifttest',network=NETWORK))
+    print(client.get_servers(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME))
+    print(client.add_floating_ip_to_server(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,
+                             user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME,servername='thrifttest',network='cebitec'))
 main()

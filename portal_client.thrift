@@ -6,28 +6,6 @@ typedef i32 int
 
 
 
-enum serverStatus{
-    ACTIVE = 1,
-    BUilding = 2,
-    DELETED = 3,
-    ERROR = 4,
-    HARD_REBOOT = 5,
-    PASSWORD = 6,
-    PAUSED = 7,
-    REBOOT = 8,
-    REBUILD = 9,
-    RESCUED = 10,
-    RESIZED = 11,
-    REVERT_RESIZE = 12,
-    SHUTOFF = 13,
-    SOFT_DELETED = 14,
-    STOPPED = 15,
-    SUSPENDED = 16,
-    UNKNOWN = 17,
-    VERIFY_RESIZE = 18
-}
-
-
 
 
 /**
@@ -59,12 +37,10 @@ struct VM {
     
     1: required Flavor flav,
 	2: required Image img,
-	3: required serverStatus status
-	4: optional string image_id
-	5: optional string flavor_id
-	6: optional map<string,string> metadata
-	7: optional string project_id
-	8: required string keyname
+	3: required string status
+	4: optional map<string,string> metadata
+	5: optional string project_id
+	6: required string keyname
 	
 }
 
@@ -95,7 +71,7 @@ service VirtualMachineService {
 	list<VM> get_servers(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
 	bool delete_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername)
 	
-	string add_floating_ip_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername)
+	string add_floating_ip_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername,8:string network)
 	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:instanceException e), 
     bool start_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,7:Flavor flavor, 8:Image image, 9:string keyname,10:string servername,11:string network) throws (1:instanceException e),

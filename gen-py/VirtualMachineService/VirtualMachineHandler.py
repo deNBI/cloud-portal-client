@@ -23,6 +23,22 @@ class VirtualMachineHandler(Iface):
                 flavor=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id'])
                 flavors.append(flavor)
             return flavors
+    def get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+            conn = self.create_connection(username=username, password=password, auth_url=auth_url, project_name=project_name,
+                                  user_domain_name=user_domain_name, project_domain_name=project_domain_name)
+
+            servers=list()
+            for serv in conn.compute.servers():
+                serv=serv.to_dict()
+                flav=conn.compute.get_flavor(serv['flavor']['id']).to_dict()
+                print(flav)
+                img=conn.compute.get_image(serv['image']['id']).to_dict()
+                print(img)
+                server=VM(flav=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id']),
+                          img=Image(name=img['name'],min_disk=img['min_disk'],min_ram=img['min_ram'],status=img['status'],created_at=img['created_at'],updated_at=img['updated_at'],openstack_id=img['id']),
+                          status=serv['status'],metadata=serv['metadata'],project_id=serv['project_id'],keyname=serv['key_name'])
+                servers.append(server)
+            return servers
 
     def get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
             conn = self.create_connection(username=username, password=password, auth_url=auth_url, project_name=project_name,
@@ -71,3 +87,30 @@ class VirtualMachineHandler(Iface):
             print("Create_Server_Error: " + e.__str__())
             return False
 
+    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name,servername,network):
+        conn = self.create_connection(username=username, password=password, auth_url=auth_url, project_name=project_name, user_domain_name=user_domain_name,
+                                      project_domain_name=project_domain_name)
+        server = conn.compute.find_server(servername)
+        if server is None:
+            return ('Server ' + servername + ' not found')
+        server = conn.compute.get_server(server)
+        print("Checking if Server already got an Floating IP")
+        for values in server.addresses.values():
+            for address in values:
+                if address['OS-EXT-IPS:type'] == 'floating':
+                    return ('Server ' + servername + ' already got an Floating IP ' + address['addr'])
+        print("Checking if unused Floating IP exist")
+        for floating_ip in conn.network.ips():
+            if not floating_ip.fixed_ip_address:
+                conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+                print("Adding existing Floating IP " + str(floating_ip.floating_ip_address) + "to  " + servername)
+                return 'Added existing Floating IP ' + str(floating_ip.floating_ip_address) + " to Server " + servername
+        print("Adding Floating IP to  " + servername)
+
+        networkID = conn.network.find_network(network)
+        floating_ip = conn.network.create_ip(floating_network_id=networkID)
+        floating_ip = conn.network.get_ip(floating_ip)
+        conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+
+
+        return 'Added new Floating IP' + floating_ip + " to Server" + servername

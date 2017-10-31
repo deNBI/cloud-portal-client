@@ -89,7 +89,7 @@ class Iface(object):
         """
         pass
 
-    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
         """
         Parameters:
          - username
@@ -99,6 +99,7 @@ class Iface(object):
          - user_domain_name
          - project_domain_name
          - servername
+         - network
         """
         pass
 
@@ -398,7 +399,7 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_server failed: unknown result")
 
-    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
         """
         Parameters:
          - username
@@ -408,11 +409,12 @@ class Client(Iface):
          - user_domain_name
          - project_domain_name
          - servername
+         - network
         """
-        self.send_add_floating_ip_to_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername)
+        self.send_add_floating_ip_to_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network)
         return self.recv_add_floating_ip_to_server()
 
-    def send_add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def send_add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
         self._oprot.writeMessageBegin('add_floating_ip_to_server', TMessageType.CALL, self._seqid)
         args = add_floating_ip_to_server_args()
         args.username = username
@@ -422,6 +424,7 @@ class Client(Iface):
         args.user_domain_name = user_domain_name
         args.project_domain_name = project_domain_name
         args.servername = servername
+        args.network = network
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -805,7 +808,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = add_floating_ip_to_server_result()
         try:
-            result.success = self._handler.add_floating_ip_to_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername)
+            result.success = self._handler.add_floating_ip_to_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername, args.network)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1887,6 +1890,7 @@ class add_floating_ip_to_server_args(object):
      - user_domain_name
      - project_domain_name
      - servername
+     - network
     """
 
     thrift_spec = (
@@ -1898,9 +1902,10 @@ class add_floating_ip_to_server_args(object):
         (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
+        (8, TType.STRING, 'network', 'UTF8', None, ),  # 8
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None,):
+    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None, network=None,):
         self.username = username
         self.password = password
         self.auth_url = auth_url
@@ -1908,6 +1913,7 @@ class add_floating_ip_to_server_args(object):
         self.user_domain_name = user_domain_name
         self.project_domain_name = project_domain_name
         self.servername = servername
+        self.network = network
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1953,6 +1959,11 @@ class add_floating_ip_to_server_args(object):
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.STRING:
+                    self.network = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1990,6 +2001,10 @@ class add_floating_ip_to_server_args(object):
         if self.servername is not None:
             oprot.writeFieldBegin('servername', TType.STRING, 7)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+            oprot.writeFieldEnd()
+        if self.network is not None:
+            oprot.writeFieldBegin('network', TType.STRING, 8)
+            oprot.writeString(self.network.encode('utf-8') if sys.version_info[0] == 2 else self.network)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

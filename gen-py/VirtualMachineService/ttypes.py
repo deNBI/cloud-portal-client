@@ -13,69 +13,6 @@ import sys
 from thrift.transport import TTransport
 
 
-class serverStatus(object):
-    ACTIVE = 1
-    BUilding = 2
-    DELETED = 3
-    ERROR = 4
-    HARD_REBOOT = 5
-    PASSWORD = 6
-    PAUSED = 7
-    REBOOT = 8
-    REBUILD = 9
-    RESCUED = 10
-    RESIZED = 11
-    REVERT_RESIZE = 12
-    SHUTOFF = 13
-    SOFT_DELETED = 14
-    STOPPED = 15
-    SUSPENDED = 16
-    UNKNOWN = 17
-    VERIFY_RESIZE = 18
-
-    _VALUES_TO_NAMES = {
-        1: "ACTIVE",
-        2: "BUilding",
-        3: "DELETED",
-        4: "ERROR",
-        5: "HARD_REBOOT",
-        6: "PASSWORD",
-        7: "PAUSED",
-        8: "REBOOT",
-        9: "REBUILD",
-        10: "RESCUED",
-        11: "RESIZED",
-        12: "REVERT_RESIZE",
-        13: "SHUTOFF",
-        14: "SOFT_DELETED",
-        15: "STOPPED",
-        16: "SUSPENDED",
-        17: "UNKNOWN",
-        18: "VERIFY_RESIZE",
-    }
-
-    _NAMES_TO_VALUES = {
-        "ACTIVE": 1,
-        "BUilding": 2,
-        "DELETED": 3,
-        "ERROR": 4,
-        "HARD_REBOOT": 5,
-        "PASSWORD": 6,
-        "PAUSED": 7,
-        "REBOOT": 8,
-        "REBUILD": 9,
-        "RESCUED": 10,
-        "RESIZED": 11,
-        "REVERT_RESIZE": 12,
-        "SHUTOFF": 13,
-        "SOFT_DELETED": 14,
-        "STOPPED": 15,
-        "SUSPENDED": 16,
-        "UNKNOWN": 17,
-        "VERIFY_RESIZE": 18,
-    }
-
-
 class Flavor(object):
     """
     structs are mapped by Thrift to classes or structs in your language of
@@ -346,8 +283,6 @@ class VM(object):
      - flav: A unique identifier for this task.
      - img
      - status
-     - image_id
-     - flavor_id
      - metadata
      - project_id
      - keyname
@@ -357,20 +292,16 @@ class VM(object):
         None,  # 0
         (1, TType.STRUCT, 'flav', (Flavor, Flavor.thrift_spec), None, ),  # 1
         (2, TType.STRUCT, 'img', (Image, Image.thrift_spec), None, ),  # 2
-        (3, TType.I32, 'status', None, None, ),  # 3
-        (4, TType.STRING, 'image_id', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'flavor_id', 'UTF8', None, ),  # 5
-        (6, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 6
-        (7, TType.STRING, 'project_id', 'UTF8', None, ),  # 7
-        (8, TType.STRING, 'keyname', 'UTF8', None, ),  # 8
+        (3, TType.STRING, 'status', 'UTF8', None, ),  # 3
+        (4, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
+        (5, TType.STRING, 'project_id', 'UTF8', None, ),  # 5
+        (6, TType.STRING, 'keyname', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, flav=None, img=None, status=None, image_id=None, flavor_id=None, metadata=None, project_id=None, keyname=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None,):
         self.flav = flav
         self.img = img
         self.status = status
-        self.image_id = image_id
-        self.flavor_id = flavor_id
         self.metadata = metadata
         self.project_id = project_id
         self.keyname = keyname
@@ -397,21 +328,11 @@ class VM(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
-                if ftype == TType.I32:
-                    self.status = iprot.readI32()
+                if ftype == TType.STRING:
+                    self.status = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
-                if ftype == TType.STRING:
-                    self.image_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.flavor_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
                 if ftype == TType.MAP:
                     self.metadata = {}
                     (_ktype1, _vtype2, _size0) = iprot.readMapBegin()
@@ -422,12 +343,12 @@ class VM(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
-            elif fid == 7:
+            elif fid == 5:
                 if ftype == TType.STRING:
                     self.project_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
+            elif fid == 6:
                 if ftype == TType.STRING:
                     self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -451,19 +372,11 @@ class VM(object):
             self.img.write(oprot)
             oprot.writeFieldEnd()
         if self.status is not None:
-            oprot.writeFieldBegin('status', TType.I32, 3)
-            oprot.writeI32(self.status)
-            oprot.writeFieldEnd()
-        if self.image_id is not None:
-            oprot.writeFieldBegin('image_id', TType.STRING, 4)
-            oprot.writeString(self.image_id.encode('utf-8') if sys.version_info[0] == 2 else self.image_id)
-            oprot.writeFieldEnd()
-        if self.flavor_id is not None:
-            oprot.writeFieldBegin('flavor_id', TType.STRING, 5)
-            oprot.writeString(self.flavor_id.encode('utf-8') if sys.version_info[0] == 2 else self.flavor_id)
+            oprot.writeFieldBegin('status', TType.STRING, 3)
+            oprot.writeString(self.status.encode('utf-8') if sys.version_info[0] == 2 else self.status)
             oprot.writeFieldEnd()
         if self.metadata is not None:
-            oprot.writeFieldBegin('metadata', TType.MAP, 6)
+            oprot.writeFieldBegin('metadata', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
             for kiter7, viter8 in self.metadata.items():
                 oprot.writeString(kiter7.encode('utf-8') if sys.version_info[0] == 2 else kiter7)
@@ -471,11 +384,11 @@ class VM(object):
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.project_id is not None:
-            oprot.writeFieldBegin('project_id', TType.STRING, 7)
+            oprot.writeFieldBegin('project_id', TType.STRING, 5)
             oprot.writeString(self.project_id.encode('utf-8') if sys.version_info[0] == 2 else self.project_id)
             oprot.writeFieldEnd()
         if self.keyname is not None:
-            oprot.writeFieldBegin('keyname', TType.STRING, 8)
+            oprot.writeFieldBegin('keyname', TType.STRING, 6)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
