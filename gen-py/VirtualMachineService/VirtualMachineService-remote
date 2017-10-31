@@ -29,6 +29,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_Images(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
     print('   get_servers(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
     print('  bool delete_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
+    print('   add_metadata_to_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername,  metadata)')
+    print('   delete_metadata_from_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername,  keys)')
     print('  string add_floating_ip_to_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
     print('  bool start_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, Flavor flavor, Image image, string keyname, string servername, string network)')
@@ -143,6 +145,18 @@ elif cmd == 'delete_server':
         print('delete_server requires 7 args')
         sys.exit(1)
     pp.pprint(client.delete_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+
+elif cmd == 'add_metadata_to_server':
+    if len(args) != 8:
+        print('add_metadata_to_server requires 8 args')
+        sys.exit(1)
+    pp.pprint(client.add_metadata_to_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]),))
+
+elif cmd == 'delete_metadata_from_server':
+    if len(args) != 8:
+        print('delete_metadata_from_server requires 8 args')
+        sys.exit(1)
+    pp.pprint(client.delete_metadata_from_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]),))
 
 elif cmd == 'add_floating_ip_to_server':
     if len(args) != 8:

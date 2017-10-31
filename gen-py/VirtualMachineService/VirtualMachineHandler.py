@@ -114,3 +114,24 @@ class VirtualMachineHandler(Iface):
 
 
         return 'Added new Floating IP' + floating_ip + " to Server" + servername
+
+    def add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name,servername,metadata):
+        conn = self.create_connection(username=username, password=password, auth_url=auth_url,
+                                      project_name=project_name, user_domain_name=user_domain_name,
+                                      project_domain_name=project_domain_name)
+        server = conn.compute.find_server(servername)
+        if server is None:
+            return ('Server ' + servername + ' not found')
+        server = conn.compute.get_server(server)
+        conn.compute.set_server_metadata(server,**metadata)
+        server = conn.compute.get_server(server)
+        return server.metadata
+    def delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name,servername,keys):
+        conn = self.create_connection(username=username, password=password, auth_url=auth_url,
+                                      project_name=project_name, user_domain_name=user_domain_name,
+                                      project_domain_name=project_domain_name)
+        server = conn.compute.find_server(servername)
+        if server is None:
+            return ('Server ' + servername + ' not found')
+        conn.compute.delete_server_metadata(server,keys)
+        return keys
