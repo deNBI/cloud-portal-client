@@ -35,13 +35,15 @@ def main():
 
     # Connect!
     transport.open()
-    flavors=constants.FLAVOR_LIST
-    images=constants.IMAGES_LIST
-
-    flavor = flavors[1]
-    image = images[1]
 
 
-    #print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flavor, image=image,keyname='neutest',servername='thrifttest',network=NETWORK))
-    print(client.get_Flavors(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME))
+
+
+
+
+    flav=client.get_Flavors(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME)[1]
+    img=client.get_Images(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)[1]
+    print(flav)
+    print(img)
+    print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flav, image=img,keyname='neutest',servername='thrifttest',network=NETWORK))
 main()

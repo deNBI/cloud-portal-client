@@ -1267,11 +1267,11 @@ class get_Flavors_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype3, _size0) = iprot.readListBegin()
-                    for _i4 in range(_size0):
-                        _elem5 = Flavor()
-                        _elem5.read(iprot)
-                        self.success.append(_elem5)
+                    (_etype12, _size9) = iprot.readListBegin()
+                    for _i13 in range(_size9):
+                        _elem14 = Flavor()
+                        _elem14.read(iprot)
+                        self.success.append(_elem14)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -1288,8 +1288,8 @@ class get_Flavors_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter6 in self.success:
-                iter6.write(oprot)
+            for iter15 in self.success:
+                iter15.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1437,7 +1437,7 @@ class get_Images_result(object):
     """
 
     thrift_spec = (
-        (0, TType.LIST, 'success', (TType.STRING, 'UTF8', False), None, ),  # 0
+        (0, TType.LIST, 'success', (TType.STRUCT, (Image, Image.thrift_spec), False), None, ),  # 0
     )
 
     def __init__(self, success=None,):
@@ -1455,10 +1455,11 @@ class get_Images_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype10, _size7) = iprot.readListBegin()
-                    for _i11 in range(_size7):
-                        _elem12 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success.append(_elem12)
+                    (_etype19, _size16) = iprot.readListBegin()
+                    for _i20 in range(_size16):
+                        _elem21 = Image()
+                        _elem21.read(iprot)
+                        self.success.append(_elem21)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -1474,9 +1475,9 @@ class get_Images_result(object):
         oprot.writeStructBegin('get_Images_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
-            oprot.writeListBegin(TType.STRING, len(self.success))
-            for iter13 in self.success:
-                oprot.writeString(iter13.encode('utf-8') if sys.version_info[0] == 2 else iter13)
+            oprot.writeListBegin(TType.STRUCT, len(self.success))
+            for iter22 in self.success:
+                iter22.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1642,11 +1643,11 @@ class get_servers_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype17, _size14) = iprot.readListBegin()
-                    for _i18 in range(_size14):
-                        _elem19 = VM()
-                        _elem19.read(iprot)
-                        self.success.append(_elem19)
+                    (_etype26, _size23) = iprot.readListBegin()
+                    for _i27 in range(_size23):
+                        _elem28 = VM()
+                        _elem28.read(iprot)
+                        self.success.append(_elem28)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -1663,8 +1664,8 @@ class get_servers_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter20 in self.success:
-                iter20.write(oprot)
+            for iter29 in self.success:
+                iter29.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2284,7 +2285,7 @@ class start_server_args(object):
         (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
         (7, TType.STRUCT, 'flavor', (Flavor, Flavor.thrift_spec), None, ),  # 7
-        (8, TType.STRING, 'image', 'UTF8', None, ),  # 8
+        (8, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ),  # 8
         (9, TType.STRING, 'keyname', 'UTF8', None, ),  # 9
         (10, TType.STRING, 'servername', 'UTF8', None, ),  # 10
         (11, TType.STRING, 'network', 'UTF8', None, ),  # 11
@@ -2349,8 +2350,9 @@ class start_server_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
-                if ftype == TType.STRING:
-                    self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.STRUCT:
+                    self.image = Image()
+                    self.image.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
@@ -2407,8 +2409,8 @@ class start_server_args(object):
             self.flavor.write(oprot)
             oprot.writeFieldEnd()
         if self.image is not None:
-            oprot.writeFieldBegin('image', TType.STRING, 8)
-            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
+            oprot.writeFieldBegin('image', TType.STRUCT, 8)
+            self.image.write(oprot)
             oprot.writeFieldEnd()
         if self.keyname is not None:
             oprot.writeFieldBegin('keyname', TType.STRING, 9)
