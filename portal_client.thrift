@@ -9,9 +9,7 @@ typedef i32 int
 
 
 /**
- * structs are mapped by Thrift to classes or structs in your language of
- * choice. This struct has two fields, an Identifier of type `id` and
- * a Description of type `string`. The Identifier defaults to DEFAULT_ID.
+ * This Struct defines a Flavor.
  */
  struct Flavor{
 
@@ -23,6 +21,9 @@ typedef i32 int
 	
 	
 }
+/**
+ * This Struct defines an Image.
+ */
 struct Image{
 	1:required string name
 	2:required i32 min_disk
@@ -32,8 +33,11 @@ struct Image{
 	6:optional string updated_at
 	7:required string openstack_id
 }
+/**
+ * This Struct defines a VirtualMachine.
+ */
 struct VM {
-    /** A unique identifier for this task. */
+   
     
     1: required Flavor flav,
 	2: required Image img,
@@ -54,32 +58,64 @@ exception instanceException {
 }
 
 /**
- * A service defines the API that is exposed to clients.
  *
- * This TaskManager service has one available endpoint for creating a task.
+ * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
 service VirtualMachineService {
     /**@
-     * Create a new task.
-     *
-     * This method accepts a Task struct and returns an i64.
-     * It may throw a TaskException.
+     * This Method Creates a new keypair.
      */
 	string create_keypar(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string keyname)
+	 /**@
+     * This Method returns a list with all Flavors.
+     */
 	list<Flavor> get_Flavors(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
+	 /**@
+     * This Method returns a list with all Images.
+     */
 	list<Image> get_Images(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
+	 /**@
+     * This Method returns a list with all VirtualMachines.
+     */
 	list<VM> get_servers(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name )
+	 /**@
+     * This Method deletes a server.
+     */
 	bool delete_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername)
+	 /**@
+     * This Method adds Metadata to a Server
+     */
 	map<string,string> add_metadata_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername,8:map<string,string> metadata)
+	 /**@
+     * This Method deletey Metadata from a server.
+     */
 	set<string> delete_metadata_from_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername,8:set<string> keys)
+	 /**@
+     * This Method adds a floating IP to a Server.
+     */
 	string add_floating_ip_to_server(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ,7:string servername,8:string network)
+	 /**@
+     * This Method creates a connection to the openstack API.
+     */
 	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:instanceException e), 
+	 /**@
+     * This Method starts a VirtualMachine.
+     */
     bool start_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,7:Flavor flavor, 8:Image image, 9:string keyname,10:string servername,11:string network) throws (1:instanceException e),
+	/**@
+     * This Method stops a VirtualMachine.
+     */
     bool stop_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,7:string servername) throws (1:instanceException e),
+	/**@
+     * This Method pause a VirtualMachine.
+     */
     bool pause_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,8:string servername) throws (1:instanceException e),
+						  /**@
+     * This Method unpause a VirtualMachine.
+     */
     bool unpause_server(1:string username,2:string password,3:string auth_url,4:string project_name,5:string user_domain_name,
                           6:string project_domain_name,9:string servername) throws(1:instanceException e),
 }

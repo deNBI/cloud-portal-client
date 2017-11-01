@@ -17,17 +17,13 @@ from thrift.transport import TTransport
 
 class Iface(object):
     """
-    A service defines the API that is exposed to clients.
 
-    This TaskManager service has one available endpoint for creating a task.
+    This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
     def create_keypar(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
         """
         @
-        Create a new task.
-
-        This method accepts a Task struct and returns an i64.
-        It may throw a TaskException.
+        This Method Creates a new keypair.
 
         Parameters:
          - username
@@ -42,6 +38,9 @@ class Iface(object):
 
     def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all Flavors.
+
         Parameters:
          - username
          - password
@@ -54,6 +53,9 @@ class Iface(object):
 
     def get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all Images.
+
         Parameters:
          - username
          - password
@@ -66,6 +68,9 @@ class Iface(object):
 
     def get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all VirtualMachines.
+
         Parameters:
          - username
          - password
@@ -78,6 +83,9 @@ class Iface(object):
 
     def delete_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method deletes a server.
+
         Parameters:
          - username
          - password
@@ -91,6 +99,9 @@ class Iface(object):
 
     def add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata):
         """
+        @
+        This Method adds Metadata to a Server
+
         Parameters:
          - username
          - password
@@ -105,6 +116,9 @@ class Iface(object):
 
     def delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys):
         """
+        @
+        This Method deletey Metadata from a server.
+
         Parameters:
          - username
          - password
@@ -119,6 +133,9 @@ class Iface(object):
 
     def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
         """
+        @
+        This Method adds a floating IP to a Server.
+
         Parameters:
          - username
          - password
@@ -133,6 +150,9 @@ class Iface(object):
 
     def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method creates a connection to the openstack API.
+
         Parameters:
          - username
          - password
@@ -145,6 +165,9 @@ class Iface(object):
 
     def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         """
+        @
+        This Method starts a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -162,6 +185,9 @@ class Iface(object):
 
     def stop_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method stops a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -175,6 +201,9 @@ class Iface(object):
 
     def pause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method pause a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -188,6 +217,9 @@ class Iface(object):
 
     def unpause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method unpause a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -202,9 +234,8 @@ class Iface(object):
 
 class Client(Iface):
     """
-    A service defines the API that is exposed to clients.
 
-    This TaskManager service has one available endpoint for creating a task.
+    This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
     def __init__(self, iprot, oprot=None):
         self._iprot = self._oprot = iprot
@@ -215,10 +246,7 @@ class Client(Iface):
     def create_keypar(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
         """
         @
-        Create a new task.
-
-        This method accepts a Task struct and returns an i64.
-        It may throw a TaskException.
+        This Method Creates a new keypair.
 
         Parameters:
          - username
@@ -263,6 +291,9 @@ class Client(Iface):
 
     def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all Flavors.
+
         Parameters:
          - username
          - password
@@ -304,6 +335,9 @@ class Client(Iface):
 
     def get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all Images.
+
         Parameters:
          - username
          - password
@@ -345,6 +379,9 @@ class Client(Iface):
 
     def get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method returns a list with all VirtualMachines.
+
         Parameters:
          - username
          - password
@@ -386,6 +423,9 @@ class Client(Iface):
 
     def delete_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method deletes a server.
+
         Parameters:
          - username
          - password
@@ -429,6 +469,9 @@ class Client(Iface):
 
     def add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata):
         """
+        @
+        This Method adds Metadata to a Server
+
         Parameters:
          - username
          - password
@@ -474,6 +517,9 @@ class Client(Iface):
 
     def delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys):
         """
+        @
+        This Method deletey Metadata from a server.
+
         Parameters:
          - username
          - password
@@ -519,6 +565,9 @@ class Client(Iface):
 
     def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
         """
+        @
+        This Method adds a floating IP to a Server.
+
         Parameters:
          - username
          - password
@@ -564,6 +613,9 @@ class Client(Iface):
 
     def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
         """
+        @
+        This Method creates a connection to the openstack API.
+
         Parameters:
          - username
          - password
@@ -607,6 +659,9 @@ class Client(Iface):
 
     def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
         """
+        @
+        This Method starts a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -660,6 +715,9 @@ class Client(Iface):
 
     def stop_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method stops a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -705,6 +763,9 @@ class Client(Iface):
 
     def pause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method pause a VirtualMachine.
+
         Parameters:
          - username
          - password
@@ -750,6 +811,9 @@ class Client(Iface):
 
     def unpause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
         """
+        @
+        This Method unpause a VirtualMachine.
+
         Parameters:
          - username
          - password

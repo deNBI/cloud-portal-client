@@ -15,9 +15,7 @@ from thrift.transport import TTransport
 
 class Flavor(object):
     """
-    structs are mapped by Thrift to classes or structs in your language of
-    choice. This struct has two fields, an Identifier of type `id` and
-    a Description of type `string`. The Identifier defaults to DEFAULT_ID.
+    This Struct defines a Flavor.
 
     Attributes:
      - vcpus
@@ -137,6 +135,8 @@ class Flavor(object):
 
 class Image(object):
     """
+    This Struct defines an Image.
+
     Attributes:
      - name
      - min_disk
@@ -279,8 +279,10 @@ class Image(object):
 
 class VM(object):
     """
+    This Struct defines a VirtualMachine.
+
     Attributes:
-     - flav: A unique identifier for this task.
+     - flav
      - img
      - status
      - metadata
