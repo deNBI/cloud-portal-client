@@ -131,6 +131,7 @@ class VirtualMachineHandler(Iface):
         self.conn.compute.set_server_metadata(server,**metadata)
         server = self.conn.compute.get_server(server)
         return server.metadata
+
     def delete_metadata_from_server(self,servername,keys):
 
         server = self.conn.compute.find_server(servername)
@@ -138,3 +139,52 @@ class VirtualMachineHandler(Iface):
             return ('Server ' + servername + ' not found')
         self.conn.compute.delete_server_metadata(server,keys)
         return keys
+
+
+    def stop_server(self,servername):
+
+        server = self.conn.compute.find_server(servername)
+        if server is None:
+            return ('Server ' + servername + ' not found')
+        server = conn.compute.get_server(server)
+        print(server.status)
+
+        if server.status == 'ACTIVE':
+            conn.compute.stop_server(server)
+            print("Stopped Server " + servername)
+            return "Stopped Server " + servername
+        else:
+            print('Server ' + servername + ' was already stopped')
+            return 'Server ' + servername + ' was already stopped'
+
+    def pause_server(self, servername):
+
+        server = self.conn.compute.find_server(servername)
+        if server is None:
+            return 'server:' + servername + ' status:"NOTFOUND"'
+        server = conn.compute.get_server(server)
+        status = server.status
+        if status == 'ACTIVE':
+            conn.compute.pause_server(server)
+            return 'server:' + servername + ' status:"PAUSED"'
+
+        elif status == 'PAUSED':
+            return 'server:' + servername + ' status:"PAUSED"'
+        else:
+            return 'server:' + servername + ' status:"TODO"'
+
+    def unpause_server(self,servername):
+
+        server = self.conn.compute.find_server(servername)
+        if server is None:
+            return 'server:' + servername + ' status:"NOTFOUND"'
+        server = conn.compute.get_server(server)
+        status = server.status
+        if status == 'ACTIVE':
+            return 'server:' + servername + ' status:"ACTIVE"'
+        elif status == 'PAUSED':
+            conn.compute.unpause_server(server)
+            return 'server:' + servername + ' status:"ACTIVE"'
+        else:
+            return 'server:' + servername + ' status:"TODO"'
+
