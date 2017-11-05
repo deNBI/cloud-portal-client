@@ -24,19 +24,19 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  string create_keypar(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string keyname)')
-    print('   get_Flavors(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('   get_Images(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('   get_servers(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('  bool delete_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
-    print('   add_metadata_to_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername,  metadata)')
-    print('   delete_metadata_from_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername,  keys)')
-    print('  string add_floating_ip_to_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername, string network)')
+    print('  string create_keypar(string keyname)')
+    print('   get_Flavors()')
+    print('   get_Images()')
+    print('   get_servers()')
+    print('  bool delete_server(string servername)')
+    print('   add_metadata_to_server(string servername,  metadata)')
+    print('   delete_metadata_from_server(string servername,  keys)')
+    print('  string add_floating_ip_to_server(string servername, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('  bool start_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, Flavor flavor, Image image, string keyname, string servername, string network)')
-    print('  bool stop_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
-    print('  bool pause_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
-    print('  bool unpause_server(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name, string servername)')
+    print('  bool start_server(Flavor flavor, Image image, string keyname, string servername, string network)')
+    print('  bool stop_server(string servername)')
+    print('  bool pause_server(string servername)')
+    print('  bool unpause_server(string servername)')
     print('')
     sys.exit(0)
 
@@ -117,52 +117,52 @@ client = VirtualMachineService.Client(protocol)
 transport.open()
 
 if cmd == 'create_keypar':
-    if len(args) != 7:
-        print('create_keypar requires 7 args')
+    if len(args) != 1:
+        print('create_keypar requires 1 args')
         sys.exit(1)
-    pp.pprint(client.create_keypar(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.create_keypar(args[0],))
 
 elif cmd == 'get_Flavors':
-    if len(args) != 6:
-        print('get_Flavors requires 6 args')
+    if len(args) != 0:
+        print('get_Flavors requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_Flavors(args[0], args[1], args[2], args[3], args[4], args[5],))
+    pp.pprint(client.get_Flavors())
 
 elif cmd == 'get_Images':
-    if len(args) != 6:
-        print('get_Images requires 6 args')
+    if len(args) != 0:
+        print('get_Images requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_Images(args[0], args[1], args[2], args[3], args[4], args[5],))
+    pp.pprint(client.get_Images())
 
 elif cmd == 'get_servers':
-    if len(args) != 6:
-        print('get_servers requires 6 args')
+    if len(args) != 0:
+        print('get_servers requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_servers(args[0], args[1], args[2], args[3], args[4], args[5],))
+    pp.pprint(client.get_servers())
 
 elif cmd == 'delete_server':
-    if len(args) != 7:
-        print('delete_server requires 7 args')
+    if len(args) != 1:
+        print('delete_server requires 1 args')
         sys.exit(1)
-    pp.pprint(client.delete_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.delete_server(args[0],))
 
 elif cmd == 'add_metadata_to_server':
-    if len(args) != 8:
-        print('add_metadata_to_server requires 8 args')
+    if len(args) != 2:
+        print('add_metadata_to_server requires 2 args')
         sys.exit(1)
-    pp.pprint(client.add_metadata_to_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]),))
+    pp.pprint(client.add_metadata_to_server(args[0], eval(args[1]),))
 
 elif cmd == 'delete_metadata_from_server':
-    if len(args) != 8:
-        print('delete_metadata_from_server requires 8 args')
+    if len(args) != 2:
+        print('delete_metadata_from_server requires 2 args')
         sys.exit(1)
-    pp.pprint(client.delete_metadata_from_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]),))
+    pp.pprint(client.delete_metadata_from_server(args[0], eval(args[1]),))
 
 elif cmd == 'add_floating_ip_to_server':
-    if len(args) != 8:
-        print('add_floating_ip_to_server requires 8 args')
+    if len(args) != 2:
+        print('add_floating_ip_to_server requires 2 args')
         sys.exit(1)
-    pp.pprint(client.add_floating_ip_to_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7],))
+    pp.pprint(client.add_floating_ip_to_server(args[0], args[1],))
 
 elif cmd == 'create_connection':
     if len(args) != 6:
@@ -171,28 +171,28 @@ elif cmd == 'create_connection':
     pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4], args[5],))
 
 elif cmd == 'start_server':
-    if len(args) != 11:
-        print('start_server requires 11 args')
+    if len(args) != 5:
+        print('start_server requires 5 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4], args[5], eval(args[6]), eval(args[7]), args[8], args[9], args[10],))
+    pp.pprint(client.start_server(eval(args[0]), eval(args[1]), args[2], args[3], args[4],))
 
 elif cmd == 'stop_server':
-    if len(args) != 7:
-        print('stop_server requires 7 args')
+    if len(args) != 1:
+        print('stop_server requires 1 args')
         sys.exit(1)
-    pp.pprint(client.stop_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.stop_server(args[0],))
 
 elif cmd == 'pause_server':
-    if len(args) != 7:
-        print('pause_server requires 7 args')
+    if len(args) != 1:
+        print('pause_server requires 1 args')
         sys.exit(1)
-    pp.pprint(client.pause_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.pause_server(args[0],))
 
 elif cmd == 'unpause_server':
-    if len(args) != 7:
-        print('unpause_server requires 7 args')
+    if len(args) != 1:
+        print('unpause_server requires 1 args')
         sys.exit(1)
-    pp.pprint(client.unpause_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.unpause_server(args[0],))
 
 else:
     print('Unrecognized method %s' % cmd)

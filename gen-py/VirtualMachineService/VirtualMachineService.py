@@ -20,129 +20,75 @@ class Iface(object):
 
     This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
-    def create_keypar(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
+    def create_keypar(self, keyname):
         """
         @
         This Method Creates a new keypair.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - keyname
         """
         pass
 
-    def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_Flavors(self):
         """
         @
         This Method returns a list with all Flavors.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
         pass
 
-    def get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_Images(self):
         """
         @
         This Method returns a list with all Images.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
         pass
 
-    def get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_servers(self):
         """
         @
         This Method returns a list with all VirtualMachines.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
         pass
 
-    def delete_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def delete_server(self, servername):
         """
         @
         This Method deletes a server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
         pass
 
-    def add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata):
+    def add_metadata_to_server(self, servername, metadata):
         """
         @
         This Method adds Metadata to a Server
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - metadata
         """
         pass
 
-    def delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys):
+    def delete_metadata_from_server(self, servername, keys):
         """
         @
         This Method deletey Metadata from a server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - keys
         """
         pass
 
-    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
+    def add_floating_ip_to_server(self, servername, network):
         """
         @
         This Method adds a floating IP to a Server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - network
         """
@@ -163,18 +109,12 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
+    def start_server(self, flavor, image, keyname, servername, network):
         """
         @
         This Method starts a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - flavor
          - image
          - keyname
@@ -183,50 +123,32 @@ class Iface(object):
         """
         pass
 
-    def stop_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def stop_server(self, servername):
         """
         @
         This Method stops a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
         pass
 
-    def pause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def pause_server(self, servername):
         """
         @
         This Method pause a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
         pass
 
-    def unpause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def unpause_server(self, servername):
         """
         @
         This Method unpause a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
         pass
@@ -243,32 +165,20 @@ class Client(Iface):
             self._oprot = oprot
         self._seqid = 0
 
-    def create_keypar(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
+    def create_keypar(self, keyname):
         """
         @
         This Method Creates a new keypair.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - keyname
         """
-        self.send_create_keypar(username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname)
+        self.send_create_keypar(keyname)
         return self.recv_create_keypar()
 
-    def send_create_keypar(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, keyname):
+    def send_create_keypar(self, keyname):
         self._oprot.writeMessageBegin('create_keypar', TMessageType.CALL, self._seqid)
         args = create_keypar_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.keyname = keyname
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -289,31 +199,17 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_keypar failed: unknown result")
 
-    def get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_Flavors(self):
         """
         @
         This Method returns a list with all Flavors.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
-        self.send_get_Flavors(username, password, auth_url, project_name, user_domain_name, project_domain_name)
+        self.send_get_Flavors()
         return self.recv_get_Flavors()
 
-    def send_get_Flavors(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def send_get_Flavors(self):
         self._oprot.writeMessageBegin('get_Flavors', TMessageType.CALL, self._seqid)
         args = get_Flavors_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -333,31 +229,17 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_Flavors failed: unknown result")
 
-    def get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_Images(self):
         """
         @
         This Method returns a list with all Images.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
-        self.send_get_Images(username, password, auth_url, project_name, user_domain_name, project_domain_name)
+        self.send_get_Images()
         return self.recv_get_Images()
 
-    def send_get_Images(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def send_get_Images(self):
         self._oprot.writeMessageBegin('get_Images', TMessageType.CALL, self._seqid)
         args = get_Images_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -377,31 +259,17 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_Images failed: unknown result")
 
-    def get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def get_servers(self):
         """
         @
         This Method returns a list with all VirtualMachines.
-
-        Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
         """
-        self.send_get_servers(username, password, auth_url, project_name, user_domain_name, project_domain_name)
+        self.send_get_servers()
         return self.recv_get_servers()
 
-    def send_get_servers(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def send_get_servers(self):
         self._oprot.writeMessageBegin('get_servers', TMessageType.CALL, self._seqid)
         args = get_servers_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -421,32 +289,20 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers failed: unknown result")
 
-    def delete_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def delete_server(self, servername):
         """
         @
         This Method deletes a server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
-        self.send_delete_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername)
+        self.send_delete_server(servername)
         return self.recv_delete_server()
 
-    def send_delete_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def send_delete_server(self, servername):
         self._oprot.writeMessageBegin('delete_server', TMessageType.CALL, self._seqid)
         args = delete_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -467,33 +323,21 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_server failed: unknown result")
 
-    def add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata):
+    def add_metadata_to_server(self, servername, metadata):
         """
         @
         This Method adds Metadata to a Server
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - metadata
         """
-        self.send_add_metadata_to_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata)
+        self.send_add_metadata_to_server(servername, metadata)
         return self.recv_add_metadata_to_server()
 
-    def send_add_metadata_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, metadata):
+    def send_add_metadata_to_server(self, servername, metadata):
         self._oprot.writeMessageBegin('add_metadata_to_server', TMessageType.CALL, self._seqid)
         args = add_metadata_to_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.metadata = metadata
         args.write(self._oprot)
@@ -515,33 +359,21 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "add_metadata_to_server failed: unknown result")
 
-    def delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys):
+    def delete_metadata_from_server(self, servername, keys):
         """
         @
         This Method deletey Metadata from a server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - keys
         """
-        self.send_delete_metadata_from_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys)
+        self.send_delete_metadata_from_server(servername, keys)
         return self.recv_delete_metadata_from_server()
 
-    def send_delete_metadata_from_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, keys):
+    def send_delete_metadata_from_server(self, servername, keys):
         self._oprot.writeMessageBegin('delete_metadata_from_server', TMessageType.CALL, self._seqid)
         args = delete_metadata_from_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.keys = keys
         args.write(self._oprot)
@@ -563,33 +395,21 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_metadata_from_server failed: unknown result")
 
-    def add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
+    def add_floating_ip_to_server(self, servername, network):
         """
         @
         This Method adds a floating IP to a Server.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
          - network
         """
-        self.send_add_floating_ip_to_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network)
+        self.send_add_floating_ip_to_server(servername, network)
         return self.recv_add_floating_ip_to_server()
 
-    def send_add_floating_ip_to_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername, network):
+    def send_add_floating_ip_to_server(self, servername, network):
         self._oprot.writeMessageBegin('add_floating_ip_to_server', TMessageType.CALL, self._seqid)
         args = add_floating_ip_to_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.network = network
         args.write(self._oprot)
@@ -657,36 +477,24 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
+    def start_server(self, flavor, image, keyname, servername, network):
         """
         @
         This Method starts a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - flavor
          - image
          - keyname
          - servername
          - network
         """
-        self.send_start_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network)
+        self.send_start_server(flavor, image, keyname, servername, network)
         return self.recv_start_server()
 
-    def send_start_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, flavor, image, keyname, servername, network):
+    def send_start_server(self, flavor, image, keyname, servername, network):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.flavor = flavor
         args.image = image
         args.keyname = keyname
@@ -713,32 +521,20 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
 
-    def stop_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def stop_server(self, servername):
         """
         @
         This Method stops a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
-        self.send_stop_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername)
+        self.send_stop_server(servername)
         return self.recv_stop_server()
 
-    def send_stop_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def send_stop_server(self, servername):
         self._oprot.writeMessageBegin('stop_server', TMessageType.CALL, self._seqid)
         args = stop_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -761,32 +557,20 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def pause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def pause_server(self, servername):
         """
         @
         This Method pause a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
-        self.send_pause_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername)
+        self.send_pause_server(servername)
         return self.recv_pause_server()
 
-    def send_pause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def send_pause_server(self, servername):
         self._oprot.writeMessageBegin('pause_server', TMessageType.CALL, self._seqid)
         args = pause_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -809,32 +593,20 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "pause_server failed: unknown result")
 
-    def unpause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def unpause_server(self, servername):
         """
         @
         This Method unpause a VirtualMachine.
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
          - servername
         """
-        self.send_unpause_server(username, password, auth_url, project_name, user_domain_name, project_domain_name, servername)
+        self.send_unpause_server(servername)
         return self.recv_unpause_server()
 
-    def send_unpause_server(self, username, password, auth_url, project_name, user_domain_name, project_domain_name, servername):
+    def send_unpause_server(self, servername):
         self._oprot.writeMessageBegin('unpause_server', TMessageType.CALL, self._seqid)
         args = unpause_server_args()
-        args.username = username
-        args.password = password
-        args.auth_url = auth_url
-        args.project_name = project_name
-        args.user_domain_name = user_domain_name
-        args.project_domain_name = project_domain_name
         args.servername = servername
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -897,7 +669,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_keypar_result()
         try:
-            result.success = self._handler.create_keypar(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.keyname)
+            result.success = self._handler.create_keypar(args.keyname)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -916,7 +688,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = get_Flavors_result()
         try:
-            result.success = self._handler.get_Flavors(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name)
+            result.success = self._handler.get_Flavors()
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -935,7 +707,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = get_Images_result()
         try:
-            result.success = self._handler.get_Images(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name)
+            result.success = self._handler.get_Images()
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -954,7 +726,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = get_servers_result()
         try:
-            result.success = self._handler.get_servers(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name)
+            result.success = self._handler.get_servers()
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -973,7 +745,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_server_result()
         try:
-            result.success = self._handler.delete_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername)
+            result.success = self._handler.delete_server(args.servername)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -992,7 +764,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = add_metadata_to_server_result()
         try:
-            result.success = self._handler.add_metadata_to_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername, args.metadata)
+            result.success = self._handler.add_metadata_to_server(args.servername, args.metadata)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1011,7 +783,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_metadata_from_server_result()
         try:
-            result.success = self._handler.delete_metadata_from_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername, args.keys)
+            result.success = self._handler.delete_metadata_from_server(args.servername, args.keys)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1030,7 +802,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = add_floating_ip_to_server_result()
         try:
-            result.success = self._handler.add_floating_ip_to_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername, args.network)
+            result.success = self._handler.add_floating_ip_to_server(args.servername, args.network)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1071,7 +843,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.flavor, args.image, args.keyname, args.servername, args.network)
+            result.success = self._handler.start_server(args.flavor, args.image, args.keyname, args.servername, args.network)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1093,7 +865,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = stop_server_result()
         try:
-            result.success = self._handler.stop_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername)
+            result.success = self._handler.stop_server(args.servername)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1115,7 +887,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = pause_server_result()
         try:
-            result.success = self._handler.pause_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername)
+            result.success = self._handler.pause_server(args.servername)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1137,7 +909,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = unpause_server_result()
         try:
-            result.success = self._handler.unpause_server(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name, args.servername)
+            result.success = self._handler.unpause_server(args.servername)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1159,33 +931,15 @@ class Processor(Iface, TProcessor):
 class create_keypar_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - keyname
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'keyname', 'UTF8', None, ),  # 7
+        (1, TType.STRING, 'keyname', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, keyname=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, keyname=None,):
         self.keyname = keyname
 
     def read(self, iprot):
@@ -1198,36 +952,6 @@ class create_keypar_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
                 if ftype == TType.STRING:
                     self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -1242,32 +966,8 @@ class create_keypar_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('create_keypar_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.keyname is not None:
-            oprot.writeFieldBegin('keyname', TType.STRING, 7)
+            oprot.writeFieldBegin('keyname', TType.STRING, 1)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1348,33 +1048,9 @@ class create_keypar_result(object):
 
 
 class get_Flavors_args(object):
-    """
-    Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
-    """
 
     thrift_spec = (
-        None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
     )
-
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1385,36 +1061,6 @@ class get_Flavors_args(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1425,30 +1071,6 @@ class get_Flavors_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('get_Flavors_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -1536,33 +1158,9 @@ class get_Flavors_result(object):
 
 
 class get_Images_args(object):
-    """
-    Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
-    """
 
     thrift_spec = (
-        None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
     )
-
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1573,36 +1171,6 @@ class get_Images_args(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1613,30 +1181,6 @@ class get_Images_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('get_Images_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -1724,33 +1268,9 @@ class get_Images_result(object):
 
 
 class get_servers_args(object):
-    """
-    Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
-    """
 
     thrift_spec = (
-        None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
     )
-
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1761,36 +1281,6 @@ class get_servers_args(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1801,30 +1291,6 @@ class get_servers_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('get_servers_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -1914,33 +1380,15 @@ class get_servers_result(object):
 class delete_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None,):
         self.servername = servername
 
     def read(self, iprot):
@@ -1953,36 +1401,6 @@ class delete_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -1997,32 +1415,8 @@ class delete_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('delete_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 7)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2105,35 +1499,17 @@ class delete_server_result(object):
 class add_metadata_to_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
      - metadata
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
-        (8, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 8
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+        (2, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 2
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None, metadata=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None, metadata=None,):
         self.servername = servername
         self.metadata = metadata
 
@@ -2148,40 +1524,10 @@ class add_metadata_to_server_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
-                if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
+            elif fid == 2:
                 if ftype == TType.MAP:
                     self.metadata = {}
                     (_ktype31, _vtype32, _size30) = iprot.readMapBegin()
@@ -2202,36 +1548,12 @@ class add_metadata_to_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('add_metadata_to_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 7)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.metadata is not None:
-            oprot.writeFieldBegin('metadata', TType.MAP, 8)
+            oprot.writeFieldBegin('metadata', TType.MAP, 2)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
             for kiter37, viter38 in self.metadata.items():
                 oprot.writeString(kiter37.encode('utf-8') if sys.version_info[0] == 2 else kiter37)
@@ -2328,35 +1650,17 @@ class add_metadata_to_server_result(object):
 class delete_metadata_from_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
      - keys
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
-        (8, TType.SET, 'keys', (TType.STRING, 'UTF8', False), None, ),  # 8
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+        (2, TType.SET, 'keys', (TType.STRING, 'UTF8', False), None, ),  # 2
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None, keys=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None, keys=None,):
         self.servername = servername
         self.keys = keys
 
@@ -2371,40 +1675,10 @@ class delete_metadata_from_server_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
-                if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
+            elif fid == 2:
                 if ftype == TType.SET:
                     self.keys = set()
                     (_etype51, _size48) = iprot.readSetBegin()
@@ -2424,36 +1698,12 @@ class delete_metadata_from_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('delete_metadata_from_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 7)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.keys is not None:
-            oprot.writeFieldBegin('keys', TType.SET, 8)
+            oprot.writeFieldBegin('keys', TType.SET, 2)
             oprot.writeSetBegin(TType.STRING, len(self.keys))
             for iter54 in self.keys:
                 oprot.writeString(iter54.encode('utf-8') if sys.version_info[0] == 2 else iter54)
@@ -2547,35 +1797,17 @@ class delete_metadata_from_server_result(object):
 class add_floating_ip_to_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
      - network
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
-        (8, TType.STRING, 'network', 'UTF8', None, ),  # 8
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'network', 'UTF8', None, ),  # 2
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None, network=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None, network=None,):
         self.servername = servername
         self.network = network
 
@@ -2590,40 +1822,10 @@ class add_floating_ip_to_server_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
-                if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
+            elif fid == 2:
                 if ftype == TType.STRING:
                     self.network = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -2638,36 +1840,12 @@ class add_floating_ip_to_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('add_floating_ip_to_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 7)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.network is not None:
-            oprot.writeFieldBegin('network', TType.STRING, 8)
+            oprot.writeFieldBegin('network', TType.STRING, 2)
             oprot.writeString(self.network.encode('utf-8') if sys.version_info[0] == 2 else self.network)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2942,12 +2120,6 @@ class create_connection_result(object):
 class start_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - flavor
      - image
      - keyname
@@ -2957,26 +2129,14 @@ class start_server_args(object):
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRUCT, 'flavor', (Flavor, Flavor.thrift_spec), None, ),  # 7
-        (8, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ),  # 8
-        (9, TType.STRING, 'keyname', 'UTF8', None, ),  # 9
-        (10, TType.STRING, 'servername', 'UTF8', None, ),  # 10
-        (11, TType.STRING, 'network', 'UTF8', None, ),  # 11
+        (1, TType.STRUCT, 'flavor', (Flavor, Flavor.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ),  # 2
+        (3, TType.STRING, 'keyname', 'UTF8', None, ),  # 3
+        (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
+        (5, TType.STRING, 'network', 'UTF8', None, ),  # 5
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, flavor=None, image=None, keyname=None, servername=None, network=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, flavor=None, image=None, keyname=None, servername=None, network=None,):
         self.flavor = flavor
         self.image = image
         self.keyname = keyname
@@ -2993,58 +2153,28 @@ class start_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
                 if ftype == TType.STRUCT:
                     self.flavor = Flavor()
                     self.flavor.read(iprot)
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
+            elif fid == 2:
                 if ftype == TType.STRUCT:
                     self.image = Image()
                     self.image.read(iprot)
                 else:
                     iprot.skip(ftype)
-            elif fid == 9:
+            elif fid == 3:
                 if ftype == TType.STRING:
                     self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 10:
+            elif fid == 4:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 11:
+            elif fid == 5:
                 if ftype == TType.STRING:
                     self.network = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -3059,48 +2189,24 @@ class start_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('start_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.flavor is not None:
-            oprot.writeFieldBegin('flavor', TType.STRUCT, 7)
+            oprot.writeFieldBegin('flavor', TType.STRUCT, 1)
             self.flavor.write(oprot)
             oprot.writeFieldEnd()
         if self.image is not None:
-            oprot.writeFieldBegin('image', TType.STRUCT, 8)
+            oprot.writeFieldBegin('image', TType.STRUCT, 2)
             self.image.write(oprot)
             oprot.writeFieldEnd()
         if self.keyname is not None:
-            oprot.writeFieldBegin('keyname', TType.STRING, 9)
+            oprot.writeFieldBegin('keyname', TType.STRING, 3)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 10)
+            oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.network is not None:
-            oprot.writeFieldBegin('network', TType.STRING, 11)
+            oprot.writeFieldBegin('network', TType.STRING, 5)
             oprot.writeString(self.network.encode('utf-8') if sys.version_info[0] == 2 else self.network)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3196,33 +2302,15 @@ class start_server_result(object):
 class stop_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'servername', 'UTF8', None, ),  # 7
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None,):
         self.servername = servername
 
     def read(self, iprot):
@@ -3235,36 +2323,6 @@ class stop_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -3279,32 +2337,8 @@ class stop_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('stop_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 7)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3400,34 +2434,15 @@ class stop_server_result(object):
 class pause_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        None,  # 7
-        (8, TType.STRING, 'servername', 'UTF8', None, ),  # 8
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None,):
         self.servername = servername
 
     def read(self, iprot):
@@ -3440,36 +2455,6 @@ class pause_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 8:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -3484,32 +2469,8 @@ class pause_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('pause_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 8)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3605,35 +2566,15 @@ class pause_server_result(object):
 class unpause_server_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
      - servername
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
-        None,  # 7
-        None,  # 8
-        (9, TType.STRING, 'servername', 'UTF8', None, ),  # 9
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None, servername=None,):
-        self.username = username
-        self.password = password
-        self.auth_url = auth_url
-        self.project_name = project_name
-        self.user_domain_name = user_domain_name
-        self.project_domain_name = project_domain_name
+    def __init__(self, servername=None,):
         self.servername = servername
 
     def read(self, iprot):
@@ -3646,36 +2587,6 @@ class unpause_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRING:
-                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.user_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.project_domain_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 9:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -3690,32 +2601,8 @@ class unpause_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('unpause_server_args')
-        if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 1)
-            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        if self.auth_url is not None:
-            oprot.writeFieldBegin('auth_url', TType.STRING, 3)
-            oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
-            oprot.writeFieldEnd()
-        if self.user_domain_name is not None:
-            oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
-            oprot.writeString(self.user_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.user_domain_name)
-            oprot.writeFieldEnd()
-        if self.project_domain_name is not None:
-            oprot.writeFieldBegin('project_domain_name', TType.STRING, 6)
-            oprot.writeString(self.project_domain_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_domain_name)
-            oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 9)
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()

@@ -8,17 +8,9 @@ from thrift import Thrift
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
-import configparser
 
-config=configparser.ConfigParser()
-config.read('config.cfg')
-NETWORK=config.get('Connection','network')
-USERNAME=config.get('Connection','username')
-PASSWORD=config.get('Connection','password')
-AUTH_URL=config.get('Connection','auth_url')
-PROJECT_NAME=config.get('Connection','project_name')
-USER_DOMAIN_NAME=config.get('Connection','user_domain_name')
-PROJECT_DOMAIN_NAME=config.get('Connection','project_domain_name')
+
+
 
 def main():
     # Make socket
@@ -41,18 +33,16 @@ def main():
 
 
 
-    flav=client.get_Flavors(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME)[1]
-    img=client.get_Images(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)[1]
+    flav=client.get_Flavors()[1]
+    img=client.get_Images()[1]
     print(flav)
     print(img)
     keys={'username'}
     metadata={"username":"dweere"}
-    #print(client.start_server(username=USERNAME,password=PASSWORD,auth_url=AUTH_URL,project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME,project_domain_name=PROJECT_DOMAIN_NAME,flavor=flav, image=img,keyname='neutest',servername='thrifttest',network=NETWORK))
-    print(client.get_servers(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME))
-   # print(client.add_floating_ip_to_server(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME,servername='thrifttest',network='cebitec'))
-    print(client.add_metadata_to_server(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL, project_name=PROJECT_NAME,user_domain_name = USER_DOMAIN_NAME, project_domain_name = PROJECT_DOMAIN_NAME,servername='thrifttest',metadata=metadata))
-    print(client.delete_metadata_from_server(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
-                                       project_name=PROJECT_NAME, user_domain_name=USER_DOMAIN_NAME,
-                                    project_domain_name=PROJECT_DOMAIN_NAME, servername='thrifttest',
-                                       keys=keys))
+    #print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thrift',network='portalnetzwerk'))
+    print(client.get_servers())
+    print(client.add_floating_ip_to_server(servername='thrift',network='cebitec'))
+    print(client.add_metadata_to_server(servername='thrift',metadata=metadata))
+   # print(client.delete_metadata_from_server( servername='thrifttest',keys=keys))
+
 main()
