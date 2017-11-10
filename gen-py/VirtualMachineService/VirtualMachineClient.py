@@ -33,16 +33,16 @@ def main():
 
 
 
-    flav=client.get_Flavors()[1]
-    img=client.get_Images()[1]
+    flav=client.get_Flavors()[3]
+    img=client.get_Images()[3]
     print(flav)
     print(img)
     keys={'username'}
     metadata={"username":"dweere"}
-    #print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thrift',network='portalnetzwerk'))
-    print(client.get_servers())
-    print(client.add_floating_ip_to_server(servername='thrift',network='cebitec'))
-    print(client.add_metadata_to_server(servername='thrift',metadata=metadata))
+    print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thriftiiis'))
+   # print(client.get_servers())
+    #print(client.add_floating_ip_to_server(servername='thriftii',network='cebitec'))
+    #print(client.add_metadata_to_server(servername='thrift',metadata=metadata))
    # print(client.delete_metadata_from_server( servername='thrifttest',keys=keys))
 
 main()

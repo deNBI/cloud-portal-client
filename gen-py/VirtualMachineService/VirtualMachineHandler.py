@@ -45,13 +45,12 @@ class VirtualMachineHandler(Iface):
             servers=list()
             for serv in self.conn.compute.servers():
                 serv=serv.to_dict()
+                print(serv)
                 flav=self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
-                print(flav)
                 img=self.conn.compute.get_image(serv['image']['id']).to_dict()
-                print(img)
                 server=VM(flav=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id']),
                           img=Image(name=img['name'],min_disk=img['min_disk'],min_ram=img['min_ram'],status=img['status'],created_at=img['created_at'],updated_at=img['updated_at'],openstack_id=img['id']),
-                          status=serv['status'],metadata=serv['metadata'],project_id=serv['project_id'],keyname=serv['key_name'])
+                          status=serv['status'],metadata=serv['metadata'],project_id=serv['project_id'],keyname=serv['key_name'],openstack_id=serv['id'],name=serv['name'])
                 servers.append(server)
             return servers
 
@@ -73,13 +72,26 @@ class VirtualMachineHandler(Iface):
             print(keypair)
 
         return keypair
-
-    def start_server(self, flavor, image, keyname, servername, network):
+    def get_server(self,servername):
+        server=self.conn.compute.find_server(servername)
+        server=self.conn.compute.get_server(server)
+        serv = server.to_dict()
+        print(serv)
+        flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
+        img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+        server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                openstack_id=flav['id']),
+                    img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
+                              created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
+                    status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
+                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'])
+        return server
+    def start_server(self, flavor, image, keyname, servername):
 
 
         image=self.conn.compute.find_image(image.name)
         flavor=self.conn.compute.find_flavor(flavor.name)
-        network=self.conn.network.find_network(network)
+        network=self.conn.network.find_network(NETWORK)
         keypair=self.create_keypair(keyname)
 
         try:
@@ -91,7 +103,6 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name)
 
             # server = conn.compute.wait_for_server(server)
-
             return True
         except Exception as e:
             print("Create_Server_Error: " + e.__str__())

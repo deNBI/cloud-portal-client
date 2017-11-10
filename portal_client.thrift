@@ -45,6 +45,8 @@ struct VM {
 	4: optional map<string,string> metadata
 	5: optional string project_id
 	6: required string keyname
+	7: required string openstack_id
+	8: required string name
 	
 }
 
@@ -101,7 +103,11 @@ service VirtualMachineService {
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:Flavor flavor, 2:Image image,3:string keyname,4:string servername,5:string network) throws (1:instanceException e),
+    bool start_server(1:Flavor flavor, 2:Image image,3:string keyname,4:string servername) throws (1:instanceException e),
+	/**
+	*This Method returns a Server with specific Openstack_ID
+	*/
+	VM get_server(1:string servername) throws (1:instanceException e),
 	/**@
      * This Method stops a VirtualMachine.
      */

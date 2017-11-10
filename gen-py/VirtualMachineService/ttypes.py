@@ -288,6 +288,8 @@ class VM(object):
      - metadata
      - project_id
      - keyname
+     - openstack_id
+     - name
     """
 
     thrift_spec = (
@@ -298,15 +300,19 @@ class VM(object):
         (4, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
         (5, TType.STRING, 'project_id', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'keyname', 'UTF8', None, ),  # 6
+        (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
+        (8, TType.STRING, 'name', 'UTF8', None, ),  # 8
     )
 
-    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None,):
         self.flav = flav
         self.img = img
         self.status = status
         self.metadata = metadata
         self.project_id = project_id
         self.keyname = keyname
+        self.openstack_id = openstack_id
+        self.name = name
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -355,6 +361,16 @@ class VM(object):
                     self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.STRING:
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.STRING:
+                    self.name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -393,6 +409,14 @@ class VM(object):
             oprot.writeFieldBegin('keyname', TType.STRING, 6)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 7)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.name is not None:
+            oprot.writeFieldBegin('name', TType.STRING, 8)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -405,6 +429,10 @@ class VM(object):
             raise TProtocolException(message='Required field status is unset!')
         if self.keyname is None:
             raise TProtocolException(message='Required field keyname is unset!')
+        if self.openstack_id is None:
+            raise TProtocolException(message='Required field openstack_id is unset!')
+        if self.name is None:
+            raise TProtocolException(message='Required field name is unset!')
         return
 
     def __repr__(self):
