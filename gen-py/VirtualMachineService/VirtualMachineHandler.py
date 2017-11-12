@@ -88,9 +88,9 @@ class VirtualMachineHandler(Iface):
         return server
     def start_server(self, flavor, image, keyname, servername):
 
-
-        image=self.conn.compute.find_image(image.name)
-        flavor=self.conn.compute.find_flavor(flavor.name)
+        image=self.conn.compute.find_image(image)
+        print(image)
+        flavor=self.conn.compute.find_flavor(flavor)
         network=self.conn.network.find_network(NETWORK)
         keypair=self.create_keypair(keyname)
 

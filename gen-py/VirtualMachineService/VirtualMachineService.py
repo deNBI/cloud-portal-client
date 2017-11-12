@@ -2192,8 +2192,8 @@ class start_server_args(object):
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRUCT, 'flavor', (Flavor, Flavor.thrift_spec), None, ),  # 1
-        (2, TType.STRUCT, 'image', (Image, Image.thrift_spec), None, ),  # 2
+        (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
         (3, TType.STRING, 'keyname', 'UTF8', None, ),  # 3
         (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
     )
@@ -2214,15 +2214,13 @@ class start_server_args(object):
             if ftype == TType.STOP:
                 break
             if fid == 1:
-                if ftype == TType.STRUCT:
-                    self.flavor = Flavor()
-                    self.flavor.read(iprot)
+                if ftype == TType.STRING:
+                    self.flavor = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.STRUCT:
-                    self.image = Image()
-                    self.image.read(iprot)
+                if ftype == TType.STRING:
+                    self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -2246,12 +2244,12 @@ class start_server_args(object):
             return
         oprot.writeStructBegin('start_server_args')
         if self.flavor is not None:
-            oprot.writeFieldBegin('flavor', TType.STRUCT, 1)
-            self.flavor.write(oprot)
+            oprot.writeFieldBegin('flavor', TType.STRING, 1)
+            oprot.writeString(self.flavor.encode('utf-8') if sys.version_info[0] == 2 else self.flavor)
             oprot.writeFieldEnd()
         if self.image is not None:
-            oprot.writeFieldBegin('image', TType.STRUCT, 2)
-            self.image.write(oprot)
+            oprot.writeFieldBegin('image', TType.STRING, 2)
+            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
         if self.keyname is not None:
             oprot.writeFieldBegin('keyname', TType.STRING, 3)

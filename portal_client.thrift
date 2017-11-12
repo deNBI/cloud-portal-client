@@ -103,7 +103,7 @@ service VirtualMachineService {
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:Flavor flavor, 2:Image image,3:string keyname,4:string servername) throws (1:instanceException e),
+    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername) throws (1:instanceException e),
 	/**
 	*This Method returns a Server with specific Openstack_ID
 	*/
