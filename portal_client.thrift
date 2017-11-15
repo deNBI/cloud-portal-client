@@ -54,8 +54,33 @@ struct VM {
 /**
  * Exceptions inherit from language-specific base exceptions.
  */
-exception instanceException {
-    /**@ The reason for this exception. */
+exception nameException {
+    /**@ Name already used. */
+    1: string Reason
+}
+
+exception serverNotFoundException {
+    /**@ Server not found. */
+    1: string Reason
+}
+
+exception networkNotFoundException{
+    /**@ Network not found. */
+    1: string Reason
+}
+
+exception imageNotFoundException {
+    /**@ Image not found. */
+    1: string Reason
+}
+
+exception flavorNotFoundException {
+    /**@ flavor not found. */
+    1: string Reason
+}
+
+exception authenticationException {
+    /**@ Authentication failed */
     1: string Reason
 }
 
@@ -83,41 +108,41 @@ service VirtualMachineService {
 	 /**@
      * This Method deletes a server.
      */
-	bool delete_server(1:string servername)
+	bool delete_server(1:string servername) throws (1:serverNotFoundException e)
 	 /**@
      * This Method adds Metadata to a Server
      */
-	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata)
+	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
 	 /**@
      * This Method deletey Metadata from a server.
      */
-	set<string> delete_metadata_from_server(1:string servername,2:set<string> keys)
+	set<string> delete_metadata_from_server(1:string servername,2:set<string> keys) throws (1:serverNotFoundException e)
 	 /**@
      * This Method adds a floating IP to a Server.
      */
-	string add_floating_ip_to_server(1:string servername,2:string network)
+	string add_floating_ip_to_server(1:string servername,2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
 	 /**@
      * This Method creates a connection to the openstack API.
      */
-	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:instanceException e), 
+	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:authenticationException e),
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername) throws (1:instanceException e),
+    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername) throws (1:nameException e),
 	/**
 	*This Method returns a Server with specific Openstack_ID
 	*/
-	VM get_server(1:string servername) throws (1:instanceException e),
+	VM get_server(1:string servername) throws (1:serverNotFoundException e),
 	/**@
      * This Method stops a VirtualMachine.
      */
-    bool stop_server(1:string servername) throws (1:instanceException e),
+    bool stop_server(1:string servername) throws (1:serverNotFoundException e),
 	/**@
      * This Method pause a VirtualMachine.
      */
-    bool pause_server(1:string servername) throws (1:instanceException e),
+    bool pause_server(1:string servername) throws (1:serverNotFoundException e),
 						  /**@
      * This Method unpause a VirtualMachine.
      */
-    bool unpause_server(1:string servername) throws(1:instanceException e),
+    bool unpause_server(1:string servername) throws (1:serverNotFoundException e),
 }

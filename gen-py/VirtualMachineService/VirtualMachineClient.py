@@ -37,9 +37,10 @@ def main():
     img=client.get_Images()[3]
     print(flav)
     print(img)
+    print(client.get_server('testasdasd'))
     keys={'username'}
     metadata={"username":"dweere"}
-    print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thriftiiis'))
+    #print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thriftiiis'))
    # print(client.get_servers())
     #print(client.add_floating_ip_to_server(servername='thriftii',network='cebitec'))
     #print(client.add_metadata_to_server(servername='thrift',metadata=metadata))

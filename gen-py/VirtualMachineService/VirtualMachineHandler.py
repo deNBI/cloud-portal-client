@@ -1,5 +1,5 @@
 from VirtualMachineService import Iface
-from ttypes import VM,Flavor,Image
+from ttypes import *
 from openstack import connection
 import configparser
 
@@ -17,9 +17,13 @@ class VirtualMachineHandler(Iface):
 
 
     def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
-        conn = connection.Connection(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
-                                      project_name=PROJECT_NAME,
-                                      user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
+        try:
+            conn = connection.Connection(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
+                                          project_name=PROJECT_NAME,
+                                          user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
+        except Exception:
+            raise authenticationException
+
         print(conn)
         return conn
 
@@ -33,15 +37,17 @@ class VirtualMachineHandler(Iface):
 
 
     def get_Flavors(self):
-            print (self.conn)
+            print("Get Flavors")
             flavors=list()
             for flav in self.conn.compute.flavors():
                 flav=flav.to_dict()
+                flav.pop('links',None)
+                print(flav)
                 flavor=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id'])
                 flavors.append(flavor)
             return flavors
     def get_servers(self):
-
+            print("Get Servers")
             servers=list()
             for serv in self.conn.compute.servers():
                 serv=serv.to_dict()
@@ -55,10 +61,12 @@ class VirtualMachineHandler(Iface):
             return servers
 
     def get_Images(self):
-
+            print("Get Images")
             images=list()
             for img in self.conn.compute.images():
                 img=img.to_dict()
+                img.pop('links',None)
+               # print(img)
                 image=Image(name=img['name'],min_disk=img['min_disk'],min_ram=img['min_ram'],status=img['status'],created_at=img['created_at'],updated_at=img['updated_at'],openstack_id=img['id'])
                 images.append(image)
             return images
@@ -73,7 +81,10 @@ class VirtualMachineHandler(Iface):
 
         return keypair
     def get_server(self,servername):
+        print("Get Server " + servername)
         server=self.conn.compute.find_server(servername)
+        if server is None:
+            raise serverNotFoundException
         server=self.conn.compute.get_server(server)
         serv = server.to_dict()
         print(serv)
@@ -87,32 +98,36 @@ class VirtualMachineHandler(Iface):
                     keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'])
         return server
     def start_server(self, flavor, image, keyname, servername):
-
+        print("Start Server "+ servername)
 
         image=self.conn.compute.find_image(image)
-        print(image)
+        if image is None:
+            raise imageNotFoundException
         flavor=self.conn.compute.find_flavor(flavor)
+        if flavor is None:
+            raise flavorNotFoundException
         network=self.conn.network.find_network(NETWORK)
-        keypair=self.create_keypair(keyname)
+        if network is None:
+            raise networkNotFoundException
 
-        try:
-            if self.conn.compute.find_server(servername) is not None:
-                raise Exception
 
-            server = self.conn.compute.create_server(
+
+        if self.conn.compute.find_server(servername) is not None:
+                raise nameException
+
+        keypair = self.create_keypair(keyname)
+        server = self.conn.compute.create_server(
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name)
 
             # server = conn.compute.wait_for_server(server)
-            return True
-        except Exception as e:
-            print("Create_Server_Error: " + e.__str__())
-            return False
+        return True
+
 
     def add_floating_ip_to_server(self,servername,network):
         server = self.conn.compute.find_server(servername)
         if server is None:
-            return ('Server ' + servername + ' not found')
+            raise serverNotFoundException
         server = self.conn.compute.get_server(server)
         print("Checking if Server already got an Floating IP")
         for values in server.addresses.values():
@@ -128,9 +143,11 @@ class VirtualMachineHandler(Iface):
         print("Adding Floating IP to  " + servername)
 
         networkID = self.conn.network.find_network(network)
+        if networkID is None:
+            raise networkNotFoundException
         floating_ip = self.conn.network.create_ip(floating_network_id=networkID)
         floating_ip = self.conn.network.get_ip(floating_ip)
-        conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+        self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
 
 
         return 'Added new Floating IP' + floating_ip + " to Server" + servername
@@ -138,7 +155,7 @@ class VirtualMachineHandler(Iface):
     def add_metadata_to_server(self,servername,metadata):
         server = self.conn.compute.find_server(servername)
         if server is None:
-            return ('Server ' + servername + ' not found')
+            raise serverNotFoundException
         server = self.conn.compute.get_server(server)
         self.conn.compute.set_server_metadata(server,**metadata)
         server = self.conn.compute.get_server(server)
@@ -148,7 +165,7 @@ class VirtualMachineHandler(Iface):
 
         server = self.conn.compute.find_server(servername)
         if server is None:
-            return ('Server ' + servername + ' not found')
+            raise serverNotFoundException
         self.conn.compute.delete_server_metadata(server,keys)
         return keys
 
@@ -157,12 +174,12 @@ class VirtualMachineHandler(Iface):
 
         server = self.conn.compute.find_server(servername)
         if server is None:
-            return ('Server ' + servername + ' not found')
-        server = conn.compute.get_server(server)
+            raise serverNotFoundException
+        server = self.conn.compute.get_server(server)
         print(server.status)
 
         if server.status == 'ACTIVE':
-            conn.compute.stop_server(server)
+            self.conn.compute.stop_server(server)
             print("Stopped Server " + servername)
             return "Stopped Server " + servername
         else:
@@ -173,11 +190,11 @@ class VirtualMachineHandler(Iface):
 
         server = self.conn.compute.find_server(servername)
         if server is None:
-            return 'server:' + servername + ' status:"NOTFOUND"'
-        server = conn.compute.get_server(server)
+            raise serverNotFoundException
+        server = self.conn.compute.get_server(server)
         status = server.status
         if status == 'ACTIVE':
-            conn.compute.pause_server(server)
+            self.conn.compute.pause_server(server)
             return 'server:' + servername + ' status:"PAUSED"'
 
         elif status == 'PAUSED':
@@ -195,7 +212,7 @@ class VirtualMachineHandler(Iface):
         if status == 'ACTIVE':
             return 'server:' + servername + ' status:"ACTIVE"'
         elif status == 'PAUSED':
-            conn.compute.unpause_server(server)
+            self.conn.compute.unpause_server(server)
             return 'server:' + servername + ' status:"ACTIVE"'
         else:
             return 'server:' + servername + ' status:"TODO"'

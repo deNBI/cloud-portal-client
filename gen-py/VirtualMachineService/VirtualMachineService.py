@@ -329,6 +329,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_server failed: unknown result")
 
     def add_metadata_to_server(self, servername, metadata):
@@ -365,6 +367,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "add_metadata_to_server failed: unknown result")
 
     def delete_metadata_from_server(self, servername, keys):
@@ -401,6 +405,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_metadata_from_server failed: unknown result")
 
     def add_floating_ip_to_server(self, servername, network):
@@ -437,6 +443,10 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
+        if result.f is not None:
+            raise result.f
         raise TApplicationException(TApplicationException.MISSING_RESULT, "add_floating_ip_to_server failed: unknown result")
 
     def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
@@ -791,6 +801,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -810,6 +823,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -829,6 +845,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -848,6 +867,12 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except networkNotFoundException as f:
+            msg_type = TMessageType.REPLY
+            result.f = f
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -867,7 +892,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except authenticationException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -889,7 +914,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except nameException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -911,7 +936,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -933,7 +958,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -955,7 +980,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -977,7 +1002,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
-        except instanceException as e:
+        except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except Exception as ex:
@@ -1505,14 +1530,17 @@ class delete_server_result(object):
     """
     Attributes:
      - success
+     - e
     """
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None,):
         self.success = success
+        self.e = e
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1528,6 +1556,12 @@ class delete_server_result(object):
                     self.success = iprot.readBool()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1541,6 +1575,10 @@ class delete_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 0)
             oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1646,14 +1684,17 @@ class add_metadata_to_server_result(object):
     """
     Attributes:
      - success
+     - e
     """
 
     thrift_spec = (
         (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None,):
         self.success = success
+        self.e = e
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1675,6 +1716,12 @@ class add_metadata_to_server_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1692,6 +1739,10 @@ class add_metadata_to_server_result(object):
                 oprot.writeString(kiter46.encode('utf-8') if sys.version_info[0] == 2 else kiter46)
                 oprot.writeString(viter47.encode('utf-8') if sys.version_info[0] == 2 else viter47)
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1795,14 +1846,17 @@ class delete_metadata_from_server_result(object):
     """
     Attributes:
      - success
+     - e
     """
 
     thrift_spec = (
         (0, TType.SET, 'success', (TType.STRING, 'UTF8', False), None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None,):
         self.success = success
+        self.e = e
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1823,6 +1877,12 @@ class delete_metadata_from_server_result(object):
                     iprot.readSetEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1839,6 +1899,10 @@ class delete_metadata_from_server_result(object):
             for iter61 in self.success:
                 oprot.writeString(iter61.encode('utf-8') if sys.version_info[0] == 2 else iter61)
             oprot.writeSetEnd()
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1934,14 +1998,20 @@ class add_floating_ip_to_server_result(object):
     """
     Attributes:
      - success
+     - e
+     - f
     """
 
     thrift_spec = (
         (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'f', (networkNotFoundException, networkNotFoundException.thrift_spec), None, ),  # 2
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None, f=None,):
         self.success = success
+        self.e = e
+        self.f = f
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1957,6 +2027,18 @@ class add_floating_ip_to_server_result(object):
                     self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.f = networkNotFoundException()
+                    self.f.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1970,6 +2052,14 @@ class add_floating_ip_to_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        if self.f is not None:
+            oprot.writeFieldBegin('f', TType.STRUCT, 2)
+            self.f.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2118,7 +2208,7 @@ class create_connection_result(object):
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (authenticationException, authenticationException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2141,7 +2231,7 @@ class create_connection_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = authenticationException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -2286,7 +2376,7 @@ class start_server_result(object):
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (nameException, nameException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2309,7 +2399,7 @@ class start_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = nameException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -2418,7 +2508,7 @@ class get_server_result(object):
 
     thrift_spec = (
         (0, TType.STRUCT, 'success', (VM, VM.thrift_spec), None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2442,7 +2532,7 @@ class get_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = serverNotFoundException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -2551,7 +2641,7 @@ class stop_server_result(object):
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2574,7 +2664,7 @@ class stop_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = serverNotFoundException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -2683,7 +2773,7 @@ class pause_server_result(object):
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2706,7 +2796,7 @@ class pause_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = serverNotFoundException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
@@ -2815,7 +2905,7 @@ class unpause_server_result(object):
 
     thrift_spec = (
         (0, TType.BOOL, 'success', None, None, ),  # 0
-        (1, TType.STRUCT, 'e', (instanceException, instanceException.thrift_spec), None, ),  # 1
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
     def __init__(self, success=None, e=None,):
@@ -2838,7 +2928,7 @@ class unpause_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = instanceException()
+                    self.e = serverNotFoundException()
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
