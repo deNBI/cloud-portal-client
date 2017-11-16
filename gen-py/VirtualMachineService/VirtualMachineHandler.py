@@ -1,17 +1,17 @@
 from VirtualMachineService import Iface
 from ttypes import *
 from openstack import connection
-import configparser
+import config
 
-config=configparser.ConfigParser()
-config.read('config.cfg')
-NETWORK=config.get('Connection','network')
-USERNAME=config.get('Connection','username')
-PASSWORD=config.get('Connection','password')
-AUTH_URL=config.get('Connection','auth_url')
-PROJECT_NAME=config.get('Connection','project_name')
-USER_DOMAIN_NAME=config.get('Connection','user_domain_name')
-PROJECT_DOMAIN_NAME=config.get('Connection','project_domain_name')
+
+NETWORK=config.network
+USERNAME=config.username
+PASSWORD=config.password
+AUTH_URL=config.auth_url
+PROJECT_NAME=config.project_name
+USER_DOMAIN_NAME=config.user_domain_name
+PROJECT_DOMAIN_NAME=config.project_domain_name
+FLAVOR_FILTER=config.flavor_filter
 
 class VirtualMachineHandler(Iface):
 
@@ -40,11 +40,16 @@ class VirtualMachineHandler(Iface):
             print("Get Flavors")
             flavors=list()
             for flav in self.conn.compute.flavors():
+
                 flav=flav.to_dict()
                 flav.pop('links',None)
-                print(flav)
-                flavor=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id'])
-                flavors.append(flavor)
+
+
+                if any(x in flav['name'] for x in FLAVOR_FILTER):
+
+                    print(flav)
+                    flavor=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id'])
+                    flavors.append(flavor)
             return flavors
     def get_servers(self):
             print("Get Servers")

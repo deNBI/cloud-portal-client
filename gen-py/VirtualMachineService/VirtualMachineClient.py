@@ -33,11 +33,11 @@ def main():
 
 
 
-    flav=client.get_Flavors()[3]
-    img=client.get_Images()[3]
-    print(flav)
-    print(img)
-    print(client.get_server('testasdasd'))
+    #flav=client.get_Flavors()[3]
+    #img=client.get_Images()[3]
+    print(client.get_Flavors())
+   # print(img)
+   # print(client.get_server('Webapp2'))
     keys={'username'}
     metadata={"username":"dweere"}
     #print(client.start_server(flavor=flav, image=img,keyname='neu',servername='thriftiiis'))
