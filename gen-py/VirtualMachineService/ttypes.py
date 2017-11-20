@@ -23,6 +23,7 @@ class Flavor(object):
      - disk
      - name
      - openstack_id
+     - description
     """
 
     thrift_spec = (
@@ -32,14 +33,16 @@ class Flavor(object):
         (3, TType.I32, 'disk', None, None, ),  # 3
         (4, TType.STRING, 'name', 'UTF8', None, ),  # 4
         (5, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 5
+        (6, TType.STRING, 'description', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, vcpus=None, ram=None, disk=None, name=None, openstack_id=None,):
+    def __init__(self, vcpus=None, ram=None, disk=None, name=None, openstack_id=None, description=None,):
         self.vcpus = vcpus
         self.ram = ram
         self.disk = disk
         self.name = name
         self.openstack_id = openstack_id
+        self.description = description
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -75,6 +78,11 @@ class Flavor(object):
                     self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRING:
+                    self.description = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -104,6 +112,10 @@ class Flavor(object):
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 5)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.description is not None:
+            oprot.writeFieldBegin('description', TType.STRING, 6)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -145,6 +157,7 @@ class Image(object):
      - created_at
      - updated_at
      - openstack_id
+     - description
     """
 
     thrift_spec = (
@@ -156,9 +169,10 @@ class Image(object):
         (5, TType.STRING, 'created_at', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
+        (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
     )
 
-    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None,):
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -166,6 +180,7 @@ class Image(object):
         self.created_at = created_at
         self.updated_at = updated_at
         self.openstack_id = openstack_id
+        self.description = description
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -211,6 +226,11 @@ class Image(object):
                     self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.STRING:
+                    self.description = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -248,6 +268,10 @@ class Image(object):
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 7)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.description is not None:
+            oprot.writeFieldBegin('description', TType.STRING, 8)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

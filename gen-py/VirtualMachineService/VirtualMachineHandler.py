@@ -71,9 +71,21 @@ class VirtualMachineHandler(Iface):
             for img in self.conn.compute.images():
                 img=img.to_dict()
                 img.pop('links',None)
-               # print(img)
-                image=Image(name=img['name'],min_disk=img['min_disk'],min_ram=img['min_ram'],status=img['status'],created_at=img['created_at'],updated_at=img['updated_at'],openstack_id=img['id'])
+                #print(img)
+
+                try:
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'],description=img['metadata']['description'])
+
+                    print(image)
+                except KeyError :
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'])
+
                 images.append(image)
+            print(images)
             return images
     def create_keypair(self, keyname):
 

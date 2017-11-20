@@ -18,6 +18,7 @@ typedef i32 int
 	3:required i32 disk,
 	4:required string name
 	5:required string openstack_id
+	6:optional string description
 	
 	
 }
@@ -32,6 +33,7 @@ struct Image{
 	5:optional string created_at
 	6:optional string updated_at
 	7:required string openstack_id
+	8:optional string description
 }
 /**
  * This Struct defines a VirtualMachine.
