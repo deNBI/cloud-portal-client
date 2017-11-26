@@ -3,6 +3,8 @@ from ttypes import *
 from openstack import connection
 import config
 
+import os
+
 
 NETWORK=config.network
 USERNAME=config.username
@@ -31,7 +33,6 @@ class VirtualMachineHandler(Iface):
         self.conn =self.create_connection(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
                                       project_name=PROJECT_NAME,
                                       user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
-
 
 
 
@@ -85,16 +86,30 @@ class VirtualMachineHandler(Iface):
                                   openstack_id=img['id'])
 
                 images.append(image)
-            print(images)
+            #print(images)
+            print("Done Images")
             return images
+    def import_keypair(self,keyname,public_key):
+        keypair = self.conn.compute.find_keypair(keyname)
+        if not keypair:
+            print("Create Key Pair")
+            keypair=self.conn.compute.create_keypair(name=keypair,public_key=public_key)
+            return keypair
+        return keypair
     def create_keypair(self, keyname):
-
+        print("Create Keypair")
+        SSH_DIR= '{home}/.ssh'.format(home=os.path.expanduser("~"))
+        PRIVATE_KEYPAIR='{ssh_dir}/id_rsa.{key}'.format(
+            ssh_dir=SSH_DIR, key=keyname)
         keypair = self.conn.compute.find_keypair(keyname)
 
         if not keypair:
             print("Create Key Pair:")
             keypair = self.conn.compute.create_keypair(name=keyname)
             print(keypair)
+
+
+
 
         return keypair
     def get_server(self,servername):
@@ -114,31 +129,39 @@ class VirtualMachineHandler(Iface):
                     status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                     keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'])
         return server
-    def start_server(self, flavor, image, keyname, servername):
+    def start_server(self, flavor, image, keyname, servername,username,elixir_id):
         print("Start Server "+ servername)
+        try:
+            metadata={'username':username,'elixir_id':elixir_id}
+            image=self.conn.compute.find_image(image)
+            if image is None:
+                raise imageNotFoundException
+            flavor=self.conn.compute.find_flavor(flavor)
+            if flavor is None:
+                raise flavorNotFoundException
+            network=self.conn.network.find_network(NETWORK)
+            if network is None:
+                print("Network not found")
+                raise networkNotFoundException
 
-        image=self.conn.compute.find_image(image)
-        if image is None:
-            raise imageNotFoundException
-        flavor=self.conn.compute.find_flavor(flavor)
-        if flavor is None:
-            raise flavorNotFoundException
-        network=self.conn.network.find_network(NETWORK)
-        if network is None:
-            raise networkNotFoundException
+
+
+            if self.conn.compute.find_server(servername) is not None:
+                    print(self.conn.compute.find_server(servername))
+                    raise nameException
+
+            keypair = self.create_keypair(keyname)
+            server = self.conn.compute.create_server(
+                    name=servername, image_id=image.id, flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
+
+                # server = conn.compute.wait_for_server(server)
+            return True
+        except Exception as e:
+            raise nameException(Reason=str(e))
 
 
 
-        if self.conn.compute.find_server(servername) is not None:
-                raise nameException
-
-        keypair = self.create_keypair(keyname)
-        server = self.conn.compute.create_server(
-                name=servername, image_id=image.id, flavor_id=flavor.id,
-                networks=[{"uuid": network.id}], key_name=keypair.name)
-
-            # server = conn.compute.wait_for_server(server)
-        return True
 
 
     def add_floating_ip_to_server(self,servername,network):

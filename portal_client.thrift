@@ -91,10 +91,11 @@ exception authenticationException {
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
 service VirtualMachineService {
+    string import_keypair(1:string keyname,2:string public_key)
     /**@
      * This Method Creates a new keypair.
      */
-	string create_keypar(1:string keyname)
+	string create_keypair(1:string keyname)
 	 /**@
      * This Method returns a list with all Flavors.
      */
@@ -130,7 +131,7 @@ service VirtualMachineService {
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername) throws (1:nameException e),
+    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername,5:string username,6:string elixir_id) throws (1:nameException e),
 	/**
 	*This Method returns a Server with specific Openstack_ID
 	*/

@@ -20,7 +20,15 @@ class Iface(object):
 
     This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
-    def create_keypar(self, keyname):
+    def import_keypair(self, keyname, public_key):
+        """
+        Parameters:
+         - keyname
+         - public_key
+        """
+        pass
+
+    def create_keypair(self, keyname):
         """
         @
         This Method Creates a new keypair.
@@ -109,7 +117,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, keyname, servername):
+    def start_server(self, flavor, image, keyname, servername, username, elixir_id):
         """
         @
         This Method starts a VirtualMachine.
@@ -119,6 +127,8 @@ class Iface(object):
          - image
          - keyname
          - servername
+         - username
+         - elixir_id
         """
         pass
 
@@ -173,26 +183,25 @@ class Client(Iface):
             self._oprot = oprot
         self._seqid = 0
 
-    def create_keypar(self, keyname):
+    def import_keypair(self, keyname, public_key):
         """
-        @
-        This Method Creates a new keypair.
-
         Parameters:
          - keyname
+         - public_key
         """
-        self.send_create_keypar(keyname)
-        return self.recv_create_keypar()
+        self.send_import_keypair(keyname, public_key)
+        return self.recv_import_keypair()
 
-    def send_create_keypar(self, keyname):
-        self._oprot.writeMessageBegin('create_keypar', TMessageType.CALL, self._seqid)
-        args = create_keypar_args()
+    def send_import_keypair(self, keyname, public_key):
+        self._oprot.writeMessageBegin('import_keypair', TMessageType.CALL, self._seqid)
+        args = import_keypair_args()
         args.keyname = keyname
+        args.public_key = public_key
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_create_keypar(self):
+    def recv_import_keypair(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -200,12 +209,46 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = create_keypar_result()
+        result = import_keypair_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "create_keypar failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "import_keypair failed: unknown result")
+
+    def create_keypair(self, keyname):
+        """
+        @
+        This Method Creates a new keypair.
+
+        Parameters:
+         - keyname
+        """
+        self.send_create_keypair(keyname)
+        return self.recv_create_keypair()
+
+    def send_create_keypair(self, keyname):
+        self._oprot.writeMessageBegin('create_keypair', TMessageType.CALL, self._seqid)
+        args = create_keypair_args()
+        args.keyname = keyname
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_create_keypair(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = create_keypair_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "create_keypair failed: unknown result")
 
     def get_Flavors(self):
         """
@@ -495,7 +538,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, keyname, servername):
+    def start_server(self, flavor, image, keyname, servername, username, elixir_id):
         """
         @
         This Method starts a VirtualMachine.
@@ -505,17 +548,21 @@ class Client(Iface):
          - image
          - keyname
          - servername
+         - username
+         - elixir_id
         """
-        self.send_start_server(flavor, image, keyname, servername)
+        self.send_start_server(flavor, image, keyname, servername, username, elixir_id)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, keyname, servername):
+    def send_start_server(self, flavor, image, keyname, servername, username, elixir_id):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
         args.image = image
         args.keyname = keyname
         args.servername = servername
+        args.username = username
+        args.elixir_id = elixir_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -685,7 +732,8 @@ class Processor(Iface, TProcessor):
     def __init__(self, handler):
         self._handler = handler
         self._processMap = {}
-        self._processMap["create_keypar"] = Processor.process_create_keypar
+        self._processMap["import_keypair"] = Processor.process_import_keypair
+        self._processMap["create_keypair"] = Processor.process_create_keypair
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
         self._processMap["get_servers"] = Processor.process_get_servers
@@ -715,13 +763,13 @@ class Processor(Iface, TProcessor):
             self._processMap[name](self, seqid, iprot, oprot)
         return True
 
-    def process_create_keypar(self, seqid, iprot, oprot):
-        args = create_keypar_args()
+    def process_import_keypair(self, seqid, iprot, oprot):
+        args = import_keypair_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = create_keypar_result()
+        result = import_keypair_result()
         try:
-            result.success = self._handler.create_keypar(args.keyname)
+            result.success = self._handler.import_keypair(args.keyname, args.public_key)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -729,7 +777,26 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("create_keypar", msg_type, seqid)
+        oprot.writeMessageBegin("import_keypair", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_create_keypair(self, seqid, iprot, oprot):
+        args = create_keypair_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = create_keypair_result()
+        try:
+            result.success = self._handler.create_keypair(args.keyname)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("create_keypair", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -910,7 +977,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.keyname, args.servername)
+            result.success = self._handler.start_server(args.flavor, args.image, args.keyname, args.servername, args.username, args.elixir_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1017,7 +1084,138 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
-class create_keypar_args(object):
+class import_keypair_args(object):
+    """
+    Attributes:
+     - keyname
+     - public_key
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'keyname', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'public_key', 'UTF8', None, ),  # 2
+    )
+
+    def __init__(self, keyname=None, public_key=None,):
+        self.keyname = keyname
+        self.public_key = public_key
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('import_keypair_args')
+        if self.keyname is not None:
+            oprot.writeFieldBegin('keyname', TType.STRING, 1)
+            oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
+            oprot.writeFieldEnd()
+        if self.public_key is not None:
+            oprot.writeFieldBegin('public_key', TType.STRING, 2)
+            oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class import_keypair_result(object):
+    """
+    Attributes:
+     - success
+    """
+
+    thrift_spec = (
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+    )
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('import_keypair_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class create_keypair_args(object):
     """
     Attributes:
      - keyname
@@ -1054,7 +1252,7 @@ class create_keypar_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('create_keypar_args')
+        oprot.writeStructBegin('create_keypair_args')
         if self.keyname is not None:
             oprot.writeFieldBegin('keyname', TType.STRING, 1)
             oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
@@ -1077,7 +1275,7 @@ class create_keypar_args(object):
         return not (self == other)
 
 
-class create_keypar_result(object):
+class create_keypair_result(object):
     """
     Attributes:
      - success
@@ -1113,7 +1311,7 @@ class create_keypar_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('create_keypar_result')
+        oprot.writeStructBegin('create_keypair_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
@@ -2278,6 +2476,8 @@ class start_server_args(object):
      - image
      - keyname
      - servername
+     - username
+     - elixir_id
     """
 
     thrift_spec = (
@@ -2286,13 +2486,17 @@ class start_server_args(object):
         (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
         (3, TType.STRING, 'keyname', 'UTF8', None, ),  # 3
         (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
+        (5, TType.STRING, 'username', 'UTF8', None, ),  # 5
+        (6, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, flavor=None, image=None, keyname=None, servername=None,):
+    def __init__(self, flavor=None, image=None, keyname=None, servername=None, username=None, elixir_id=None,):
         self.flavor = flavor
         self.image = image
         self.keyname = keyname
         self.servername = servername
+        self.username = username
+        self.elixir_id = elixir_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2323,6 +2527,16 @@ class start_server_args(object):
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRING:
+                    self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -2348,6 +2562,14 @@ class start_server_args(object):
         if self.servername is not None:
             oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+            oprot.writeFieldEnd()
+        if self.username is not None:
+            oprot.writeFieldBegin('username', TType.STRING, 5)
+            oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
+            oprot.writeFieldEnd()
+        if self.elixir_id is not None:
+            oprot.writeFieldBegin('elixir_id', TType.STRING, 6)
+            oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
