@@ -131,7 +131,7 @@ service VirtualMachineService {
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string servername,5:string username,6:string elixir_id) throws (1:nameException e),
+    bool start_server(1:string flavor, 2:string image,3:string keyname,4:string public_key,5:string servername,6:string username,7:string elixir_id) throws (1:nameException e),
 	/**
 	*This Method returns a Server with specific Openstack_ID
 	*/
