@@ -117,7 +117,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, keyname, public_key, servername, username, elixir_id):
+    def start_server(self, flavor, image, public_key, servername, username, elixir_id):
         """
         @
         This Method starts a VirtualMachine.
@@ -125,7 +125,6 @@ class Iface(object):
         Parameters:
          - flavor
          - image
-         - keyname
          - public_key
          - servername
          - username
@@ -539,7 +538,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, keyname, public_key, servername, username, elixir_id):
+    def start_server(self, flavor, image, public_key, servername, username, elixir_id):
         """
         @
         This Method starts a VirtualMachine.
@@ -547,21 +546,19 @@ class Client(Iface):
         Parameters:
          - flavor
          - image
-         - keyname
          - public_key
          - servername
          - username
          - elixir_id
         """
-        self.send_start_server(flavor, image, keyname, public_key, servername, username, elixir_id)
+        self.send_start_server(flavor, image, public_key, servername, username, elixir_id)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, keyname, public_key, servername, username, elixir_id):
+    def send_start_server(self, flavor, image, public_key, servername, username, elixir_id):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
         args.image = image
-        args.keyname = keyname
         args.public_key = public_key
         args.servername = servername
         args.username = username
@@ -980,7 +977,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.keyname, args.public_key, args.servername, args.username, args.elixir_id)
+            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.username, args.elixir_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -2477,7 +2474,6 @@ class start_server_args(object):
     Attributes:
      - flavor
      - image
-     - keyname
      - public_key
      - servername
      - username
@@ -2488,17 +2484,15 @@ class start_server_args(object):
         None,  # 0
         (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'keyname', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'public_key', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'servername', 'UTF8', None, ),  # 5
-        (6, TType.STRING, 'username', 'UTF8', None, ),  # 6
-        (7, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 7
+        (3, TType.STRING, 'public_key', 'UTF8', None, ),  # 3
+        (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
+        (5, TType.STRING, 'username', 'UTF8', None, ),  # 5
+        (6, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, flavor=None, image=None, keyname=None, public_key=None, servername=None, username=None, elixir_id=None,):
+    def __init__(self, flavor=None, image=None, public_key=None, servername=None, username=None, elixir_id=None,):
         self.flavor = flavor
         self.image = image
-        self.keyname = keyname
         self.public_key = public_key
         self.servername = servername
         self.username = username
@@ -2525,25 +2519,20 @@ class start_server_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.keyname = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
                     self.username = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 7:
+            elif fid == 6:
                 if ftype == TType.STRING:
                     self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -2566,24 +2555,20 @@ class start_server_args(object):
             oprot.writeFieldBegin('image', TType.STRING, 2)
             oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
-        if self.keyname is not None:
-            oprot.writeFieldBegin('keyname', TType.STRING, 3)
-            oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
-            oprot.writeFieldEnd()
         if self.public_key is not None:
-            oprot.writeFieldBegin('public_key', TType.STRING, 4)
+            oprot.writeFieldBegin('public_key', TType.STRING, 3)
             oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
             oprot.writeFieldEnd()
         if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 5)
+            oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
         if self.username is not None:
-            oprot.writeFieldBegin('username', TType.STRING, 6)
+            oprot.writeFieldBegin('username', TType.STRING, 5)
             oprot.writeString(self.username.encode('utf-8') if sys.version_info[0] == 2 else self.username)
             oprot.writeFieldEnd()
         if self.elixir_id is not None:
-            oprot.writeFieldBegin('elixir_id', TType.STRING, 7)
+            oprot.writeFieldBegin('elixir_id', TType.STRING, 6)
             oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()

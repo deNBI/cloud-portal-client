@@ -129,7 +129,7 @@ class VirtualMachineHandler(Iface):
                     status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                     keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'])
         return server
-    def start_server(self, flavor, image, keyname,public_key, servername,username,elixir_id):
+    def start_server(self, flavor, image,public_key, servername,username,elixir_id):
         print("Start Server "+ servername)
         try:
             metadata={'username':username,'elixir_id':elixir_id}
@@ -150,7 +150,7 @@ class VirtualMachineHandler(Iface):
                     print(self.conn.compute.find_server(servername))
                     raise nameException
 
-            keypair = self.import_keypair(keyname,public_key)
+            keypair = self.import_keypair(elixir_id,public_key)
             server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
