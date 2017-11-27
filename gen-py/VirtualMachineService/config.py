@@ -1,7 +1,7 @@
 
 
-username = 'user'
-password = 'password!'
+username = 'dweinholz'
+password = 'dweinpass!'
 network= 'portalnetzwerk'
 auth_url= 'https://openstack.cebitec.uni-bielefeld.de:5000/v3/'
 project_name= 'PortalClient'

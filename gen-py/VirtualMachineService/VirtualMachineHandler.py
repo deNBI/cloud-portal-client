@@ -2,7 +2,7 @@ from VirtualMachineService import Iface
 from ttypes import *
 from openstack import connection
 import config
-
+import urllib
 import os
 
 
@@ -93,7 +93,9 @@ class VirtualMachineHandler(Iface):
         keypair = self.conn.compute.find_keypair(keyname)
         if not keypair:
             print("Create Key Pair")
-            keypair=self.conn.compute.create_keypair(name=keypair,public_key=public_key)
+            print("Keyname " + keyname)
+            print("Key " + public_key)
+            keypair=self.conn.compute.create_keypair(name=keyname,public_key=public_key)
             return keypair
         return keypair
     def create_keypair(self, keyname):
@@ -149,8 +151,9 @@ class VirtualMachineHandler(Iface):
             if self.conn.compute.find_server(servername) is not None:
                     print(self.conn.compute.find_server(servername))
                     raise nameException
-
-            keypair = self.import_keypair(elixir_id,public_key)
+            keyname=elixir_id[:-18]
+            public_key=urllib.parse.unquote(public_key)
+            keypair = self.import_keypair(keyname,public_key)
             server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
