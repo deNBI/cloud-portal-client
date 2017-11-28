@@ -4,6 +4,8 @@ from openstack import connection
 import config
 import urllib
 import os
+import time
+import datetime
 
 
 NETWORK=config.network
@@ -116,11 +118,17 @@ class VirtualMachineHandler(Iface):
         return keypair
     def get_server(self,servername):
         print("Get Server " + servername)
+
         server=self.conn.compute.find_server(servername)
         if server is None:
             raise serverNotFoundException
         server=self.conn.compute.get_server(server)
         serv = server.to_dict()
+        dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
+        timestamp = time.mktime(dt.timetuple())
+
+        print(timestamp)
+        print(datetime.datetime.fromtimestamp(timestamp).isoformat())
         print(serv)
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
@@ -129,7 +137,7 @@ class VirtualMachineHandler(Iface):
                     img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
                               created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                     status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
-                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'])
+                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],created_at=str(timestamp))
         return server
     def start_server(self, flavor, image,public_key, servername,username,elixir_id):
         print("Start Server "+ servername)
@@ -158,7 +166,7 @@ class VirtualMachineHandler(Iface):
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
 
-                # server = conn.compute.wait_for_server(server)
+            #server = self.conn.compute.wait_for_server(server)
             return True
         except Exception as e:
             raise nameException(Reason=str(e))

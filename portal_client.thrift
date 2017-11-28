@@ -49,6 +49,7 @@ struct VM {
 	6: required string keyname
 	7: required string openstack_id
 	8: required string name
+	9: required string created_at
 	
 }
 

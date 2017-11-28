@@ -13,7 +13,7 @@ from thrift.server import TServer
 if __name__ == '__main__':
     handler=VirtualMachineHandler()
     processor=Processor(handler)
-    transport = TSocket.TServerSocket( port=9090)
+    transport = TSocket.TServerSocket( port=9092)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
