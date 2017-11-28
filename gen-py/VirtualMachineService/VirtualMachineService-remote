@@ -36,7 +36,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
     print('  bool start_server(string flavor, string image, string public_key, string servername, string username, string elixir_id)')
     print('  VM get_server(string servername)')
-    print('  bool stop_server(string servername)')
+    print('  bool stop_server(string openstack_id)')
     print('  bool pause_server(string servername)')
     print('  bool unpause_server(string servername)')
     print('')

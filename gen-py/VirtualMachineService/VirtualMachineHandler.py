@@ -71,10 +71,12 @@ class VirtualMachineHandler(Iface):
     def get_Images(self):
             print("Get Images")
             images=list()
+            print(self.conn.compute.images())
             for img in self.conn.compute.images():
+                print('inside')
                 img=img.to_dict()
                 img.pop('links',None)
-                #print(img)
+                print(img)
 
                 try:
                     image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
@@ -166,7 +168,7 @@ class VirtualMachineHandler(Iface):
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
 
-            #server = self.conn.compute.wait_for_server(server)
+            server = self.conn.compute.wait_for_server(server)
             return True
         except Exception as e:
             raise nameException(Reason=str(e))
@@ -221,20 +223,20 @@ class VirtualMachineHandler(Iface):
         return keys
 
 
-    def stop_server(self,servername):
+    def stop_server(self,openstack_id):
 
-        server = self.conn.compute.find_server(servername)
+
+        server = self.conn.compute.get_server(openstack_id)
         if server is None:
             raise serverNotFoundException
-        server = self.conn.compute.get_server(server)
         print(server.status)
 
         if server.status == 'ACTIVE':
             self.conn.compute.stop_server(server)
-            print("Stopped Server " + servername)
-            return "Stopped Server " + servername
+
+            return "Stopped Server "
         else:
-            print('Server ' + servername + ' was already stopped')
+
             return 'Server ' + servername + ' was already stopped'
 
     def pause_server(self, servername):

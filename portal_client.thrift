@@ -140,7 +140,7 @@ service VirtualMachineService {
 	/**@
      * This Method stops a VirtualMachine.
      */
-    bool stop_server(1:string servername) throws (1:serverNotFoundException e),
+    bool stop_server(1:string openstack_id) throws (1:serverNotFoundException e),
 	/**@
      * This Method pause a VirtualMachine.
      */
