@@ -139,7 +139,7 @@ class VirtualMachineHandler(Iface):
                     img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
                               created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                     status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
-                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],created_at=timestamp)
+                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],created_at=str(timestamp))
         return server
     def start_server(self, flavor, image,public_key, servername,username,elixir_id):
         print("Start Server "+ servername)
