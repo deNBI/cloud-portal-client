@@ -161,13 +161,13 @@ class Iface(object):
         """
         pass
 
-    def unpause_server(self, servername):
+    def resume_server(self, openstack_id):
         """
         @
         This Method unpause a VirtualMachine.
 
         Parameters:
-         - servername
+         - openstack_id
         """
         pass
 
@@ -691,26 +691,26 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "pause_server failed: unknown result")
 
-    def unpause_server(self, servername):
+    def resume_server(self, openstack_id):
         """
         @
         This Method unpause a VirtualMachine.
 
         Parameters:
-         - servername
+         - openstack_id
         """
-        self.send_unpause_server(servername)
-        return self.recv_unpause_server()
+        self.send_resume_server(openstack_id)
+        return self.recv_resume_server()
 
-    def send_unpause_server(self, servername):
-        self._oprot.writeMessageBegin('unpause_server', TMessageType.CALL, self._seqid)
-        args = unpause_server_args()
-        args.servername = servername
+    def send_resume_server(self, openstack_id):
+        self._oprot.writeMessageBegin('resume_server', TMessageType.CALL, self._seqid)
+        args = resume_server_args()
+        args.openstack_id = openstack_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_unpause_server(self):
+    def recv_resume_server(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -718,14 +718,14 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = unpause_server_result()
+        result = resume_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
         if result.e is not None:
             raise result.e
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "unpause_server failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "resume_server failed: unknown result")
 
 
 class Processor(Iface, TProcessor):
@@ -746,7 +746,7 @@ class Processor(Iface, TProcessor):
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["pause_server"] = Processor.process_pause_server
-        self._processMap["unpause_server"] = Processor.process_unpause_server
+        self._processMap["resume_server"] = Processor.process_resume_server
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
@@ -1059,13 +1059,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_unpause_server(self, seqid, iprot, oprot):
-        args = unpause_server_args()
+    def process_resume_server(self, seqid, iprot, oprot):
+        args = resume_server_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = unpause_server_result()
+        result = resume_server_result()
         try:
-            result.success = self._handler.unpause_server(args.servername)
+            result.success = self._handler.resume_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1076,7 +1076,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("unpause_server", msg_type, seqid)
+        oprot.writeMessageBegin("resume_server", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -3058,19 +3058,19 @@ class pause_server_result(object):
         return not (self == other)
 
 
-class unpause_server_args(object):
+class resume_server_args(object):
     """
     Attributes:
-     - servername
+     - openstack_id
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+        (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, servername=None,):
-        self.servername = servername
+    def __init__(self, openstack_id=None,):
+        self.openstack_id = openstack_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3083,7 +3083,7 @@ class unpause_server_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -3095,10 +3095,10 @@ class unpause_server_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('unpause_server_args')
-        if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 1)
-            oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+        oprot.writeStructBegin('resume_server_args')
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3118,7 +3118,7 @@ class unpause_server_args(object):
         return not (self == other)
 
 
-class unpause_server_result(object):
+class resume_server_result(object):
     """
     Attributes:
      - success
@@ -3163,7 +3163,7 @@ class unpause_server_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('unpause_server_result')
+        oprot.writeStructBegin('resume_server_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 0)
             oprot.writeBool(self.success)

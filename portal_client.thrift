@@ -148,5 +148,5 @@ service VirtualMachineService {
 						  /**@
      * This Method unpause a VirtualMachine.
      */
-    bool unpause_server(1:string servername) throws (1:serverNotFoundException e),
+    bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e),
 }

@@ -38,7 +38,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  VM get_server(string servername)')
     print('  bool stop_server(string openstack_id)')
     print('  bool pause_server(string servername)')
-    print('  bool unpause_server(string servername)')
+    print('  bool resume_server(string openstack_id)')
     print('')
     sys.exit(0)
 
@@ -202,11 +202,11 @@ elif cmd == 'pause_server':
         sys.exit(1)
     pp.pprint(client.pause_server(args[0],))
 
-elif cmd == 'unpause_server':
+elif cmd == 'resume_server':
     if len(args) != 1:
-        print('unpause_server requires 1 args')
+        print('resume_server requires 1 args')
         sys.exit(1)
-    pp.pprint(client.unpause_server(args[0],))
+    pp.pprint(client.resume_server(args[0],))
 
 else:
     print('Unrecognized method %s' % cmd)

@@ -232,7 +232,7 @@ class VirtualMachineHandler(Iface):
         print(server.status)
 
         if server.status == 'ACTIVE':
-            self.conn.compute.stop_server(server)
+            self.conn.compute.suspend_server(server)
 
             return True
         else:
@@ -255,18 +255,18 @@ class VirtualMachineHandler(Iface):
         else:
             return 'server:' + servername + ' status:"TODO"'
 
-    def unpause_server(self,servername):
+    def resume_server(self,openstack_id):
 
-        server = self.conn.compute.find_server(servername)
+        server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            return 'server:' + servername + ' status:"NOTFOUND"'
-        server = conn.compute.get_server(server)
-        status = server.status
-        if status == 'ACTIVE':
-            return 'server:' + servername + ' status:"ACTIVE"'
-        elif status == 'PAUSED':
-            self.conn.compute.unpause_server(server)
-            return 'server:' + servername + ' status:"ACTIVE"'
+            raise serverNotFoundException
+        print(server.status)
+
+        if server.status == 'SUSPENDED':
+            self.conn.compute.resume_server(server)
+
+            return True
         else:
-            return 'server:' + servername + ' status:"TODO"'
+
+            return False
 
