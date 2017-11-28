@@ -33,19 +33,19 @@ def main():
 
 
 
-    flav=vars(client.get_Flavors()[3])
-    img=vars(client.get_Images()[3])
-    print(flav)
+   # flav=vars(client.get_Flavors()[3])
+    #img=vars(client.get_Images()[3])
+   # print(flav)
     #print(client.get_Flavors())
    # print(client.create_keypair("test3"))
    # print(img)
    # print(client.get_server('Webapp2'))
     #keys={'username'}
-    metadata={"username":"dweere"}
-    print("----------------------------")
-    print(client.start_server(flavor=flav['name'], image=img['name'],keyname='neu',servername='thrif',metadata=metadata))
-   # print(client.get_servers())
-    #print(client.add_floating_ip_to_server(servername='thriftii',network='cebitec'))
+    #metadata={"username":"dweere"}
+    #print("----------------------------")
+    #print(client.start_server(flavor=flav['name'], image=img['name'],keyname='neu',servername='thrif',metadata=metadata))
+    print(client.get_servers())
+    #print(client.add_floating_ip_to_server(servername='qwe4',network='cebitec'))
     #print(client.add_metadata_to_server(servername='thrift',metadata=metadata))
    # print(client.delete_metadata_from_server( servername='thrifttest',keys=keys))
 

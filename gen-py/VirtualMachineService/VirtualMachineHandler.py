@@ -57,14 +57,22 @@ class VirtualMachineHandler(Iface):
     def get_servers(self):
             print("Get Servers")
             servers=list()
-            for serv in self.conn.compute.servers():
-                serv=serv.to_dict()
-                print(serv)
-                flav=self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
-                img=self.conn.compute.get_image(serv['image']['id']).to_dict()
-                server=VM(flav=Flavor(vcpus=flav['vcpus'],ram=flav['ram'],disk=flav['disk'],name=flav['name'],openstack_id=flav['id']),
-                          img=Image(name=img['name'],min_disk=img['min_disk'],min_ram=img['min_ram'],status=img['status'],created_at=img['created_at'],updated_at=img['updated_at'],openstack_id=img['id']),
-                          status=serv['status'],metadata=serv['metadata'],project_id=serv['project_id'],keyname=serv['key_name'],openstack_id=serv['id'],name=serv['name'])
+            for server in self.conn.compute.servers():
+                serv = server.to_dict()
+                dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
+                timestamp = time.mktime(dt.timetuple())
+
+                flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
+                img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+                server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                        openstack_id=flav['id']),
+                            img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                      status=img['status'],
+                                      created_at=img['created_at'], updated_at=img['updated_at'],
+                                      openstack_id=img['id']),
+                            status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
+                            keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],
+                            created_at=str(timestamp))
                 servers.append(server)
             return servers
 
@@ -129,9 +137,7 @@ class VirtualMachineHandler(Iface):
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
-        print(timestamp)
-        print(datetime.datetime.fromtimestamp(timestamp).isoformat())
-        print(serv)
+
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
         server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
@@ -169,8 +175,10 @@ class VirtualMachineHandler(Iface):
                     networks=[{"uuid": network.id}], key_name=keypair.name,metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
+            self.add_floating_ip_to_server(servername,'cebitec')
             return True
         except Exception as e:
+            print(e)
             raise nameException(Reason=str(e))
 
 
@@ -188,6 +196,9 @@ class VirtualMachineHandler(Iface):
                 if address['OS-EXT-IPS:type'] == 'floating':
                     return ('Server ' + servername + ' already got an Floating IP ' + address['addr'])
         print("Checking if unused Floating IP exist")
+
+        for floating_ip in self.conn.network.ips():
+            print(floating_ip)
         for floating_ip in self.conn.network.ips():
             if not floating_ip.fixed_ip_address:
                 self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
@@ -198,7 +209,9 @@ class VirtualMachineHandler(Iface):
         networkID = self.conn.network.find_network(network)
         if networkID is None:
             raise networkNotFoundException
+        networkID=networkID.to_dict()['id']
         floating_ip = self.conn.network.create_ip(floating_network_id=networkID)
+        print("Done")
         floating_ip = self.conn.network.get_ip(floating_ip)
         self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
 

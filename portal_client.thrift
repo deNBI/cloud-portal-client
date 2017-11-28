@@ -50,6 +50,7 @@ struct VM {
 	7: required string openstack_id
 	8: required string name
 	9: required string created_at
+	10: required string floating_ip
 	
 }
 
