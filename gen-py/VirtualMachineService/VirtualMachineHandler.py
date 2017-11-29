@@ -58,12 +58,18 @@ class VirtualMachineHandler(Iface):
             print("Get Servers")
             servers=list()
             for server in self.conn.compute.servers():
+
                 serv = server.to_dict()
+                print(serv)
                 dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
                 timestamp = time.mktime(dt.timetuple())
 
                 flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
                 img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+                for values in server.addresses.values():
+                    for address in values:
+                        if address['OS-EXT-IPS:type'] == 'floating':
+                            floating_ip = address['addr']
                 server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                         openstack_id=flav['id']),
                             img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
@@ -72,8 +78,9 @@ class VirtualMachineHandler(Iface):
                                       openstack_id=img['id']),
                             status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                             keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],
-                            created_at=str(timestamp))
+                            created_at=str(timestamp), floating_ip=floating_ip)
                 servers.append(server)
+                print(servers)
             return servers
 
     def get_Images(self):
@@ -134,18 +141,23 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException
         server=self.conn.compute.get_server(server)
         serv = server.to_dict()
+        print(serv)
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
 
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+        for values in server.addresses.values():
+            for address in values:
+                if address['OS-EXT-IPS:type'] == 'floating':
+                    floating_ip=address['addr']
         server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                 openstack_id=flav['id']),
                     img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
                               created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                     status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
-                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],created_at=str(timestamp))
+                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'],created_at=str(timestamp),floating_ip=floating_ip)
         return server
     def start_server(self, flavor, image,public_key, servername,username,elixir_id):
         print("Start Server "+ servername)
@@ -194,7 +206,7 @@ class VirtualMachineHandler(Iface):
         for values in server.addresses.values():
             for address in values:
                 if address['OS-EXT-IPS:type'] == 'floating':
-                    return ('Server ' + servername + ' already got an Floating IP ' + address['addr'])
+                    return address['addr']
         print("Checking if unused Floating IP exist")
 
         for floating_ip in self.conn.network.ips():
@@ -204,7 +216,7 @@ class VirtualMachineHandler(Iface):
                 self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
                 print("Adding existing Floating IP " + str(floating_ip.floating_ip_address) + "to  " + servername)
                 return 'Added existing Floating IP ' + str(floating_ip.floating_ip_address) + " to Server " + servername
-        print("Adding Floating IP to  " + servername)
+
 
         networkID = self.conn.network.find_network(network)
         if networkID is None:
@@ -216,7 +228,7 @@ class VirtualMachineHandler(Iface):
         self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
 
 
-        return 'Added new Floating IP' + floating_ip + " to Server" + servername
+        return  floating_ip
 
     def add_metadata_to_server(self,servername,metadata):
         server = self.conn.compute.find_server(servername)
