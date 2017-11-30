@@ -58,6 +58,12 @@ struct VM {
 /**
  * Exceptions inherit from language-specific base exceptions.
  */
+
+exception otherException {
+    /**@ Name already used. */
+    1: string Reason
+}
+
 exception nameException {
     /**@ Name already used. */
     1: string Reason
@@ -82,6 +88,8 @@ exception flavorNotFoundException {
     /**@ flavor not found. */
     1: string Reason
 }
+
+
 
 exception authenticationException {
     /**@ Authentication failed */
@@ -133,7 +141,7 @@ service VirtualMachineService {
 	 /**@
      * This Method starts a VirtualMachine.
      */
-    bool start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string username,6:string elixir_id) throws (1:nameException e),
+    bool start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string username,6:string elixir_id) throws (1:nameException e,2:otherException o,3:serverNotFoundException q),
 	/**
 	*This Method returns a Server with specific Openstack_ID
 	*/

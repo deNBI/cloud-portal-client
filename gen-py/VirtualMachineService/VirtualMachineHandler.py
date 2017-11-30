@@ -26,7 +26,7 @@ class VirtualMachineHandler(Iface):
                                           project_name=PROJECT_NAME,
                                           user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
         except Exception:
-            raise authenticationException
+            raise authenticationException(Reason='Client failed authentication at Openstack')
 
         print(conn)
         return conn
@@ -66,6 +66,7 @@ class VirtualMachineHandler(Iface):
 
                 flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
                 img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+                floating_ip="DEFAULT"
                 for values in server.addresses.values():
                     for address in values:
                         if address['OS-EXT-IPS:type'] == 'floating':
@@ -165,20 +166,20 @@ class VirtualMachineHandler(Iface):
             metadata={'username':username,'elixir_id':elixir_id}
             image=self.conn.compute.find_image(image)
             if image is None:
-                raise imageNotFoundException
+                raise imageNotFoundException(Reason='Image ' + image + ' was not found!')
             flavor=self.conn.compute.find_flavor(flavor)
             if flavor is None:
-                raise flavorNotFoundException
+                raise flavorNotFoundException(Reason='Flavor' + flavor +' was not found!')
             network=self.conn.network.find_network(NETWORK)
             if network is None:
                 print("Network not found")
-                raise networkNotFoundException
+                raise networkNotFoundException(Reason='Network ' + network + 'was not found!')
 
 
 
             if self.conn.compute.find_server(servername) is not None:
                     print(self.conn.compute.find_server(servername))
-                    raise nameException
+                    raise nameException(Reason='Another Instance with name : ' + servername + ' already exist')
             keyname=elixir_id[:-18]
             public_key=urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname,public_key)
@@ -191,7 +192,10 @@ class VirtualMachineHandler(Iface):
             return True
         except Exception as e:
             print(e)
-            raise nameException(Reason=str(e))
+            print(otherException(Reason=str(e)))
+
+
+            raise otherException(Reason=str(e))
 
 
 
