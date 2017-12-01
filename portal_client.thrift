@@ -104,11 +104,11 @@ exception authenticationException {
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
 service VirtualMachineService {
-    string import_keypair(1:string keyname,2:string public_key)
     /**@
-     * This Method Creates a new keypair.
+     * This Method  imports a new keypair.
      */
-	string create_keypair(1:string keyname)
+    string import_keypair(1:string keyname,2:string public_key)
+
 	 /**@
      * This Method returns a list with all Flavors.
      */
