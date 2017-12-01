@@ -191,8 +191,8 @@ class VirtualMachineHandler(Iface):
             self.add_floating_ip_to_server(servername,'cebitec')
             return True
         except Exception as e:
-            print(e)
-            print(otherException(Reason=str(e)))
+            if  'Quota exceeded ' in e:
+                raise ressourceException(Reason=str(e))
 
 
             raise otherException(Reason=str(e))
