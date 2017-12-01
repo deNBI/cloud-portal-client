@@ -25,7 +25,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
     print('Functions:')
     print('  string import_keypair(string keyname, string public_key)')
-    print('  string create_keypair(string keyname)')
     print('   get_Flavors()')
     print('   get_Images()')
     print('   get_servers()')
@@ -123,12 +122,6 @@ if cmd == 'import_keypair':
         print('import_keypair requires 2 args')
         sys.exit(1)
     pp.pprint(client.import_keypair(args[0], args[1],))
-
-elif cmd == 'create_keypair':
-    if len(args) != 1:
-        print('create_keypair requires 1 args')
-        sys.exit(1)
-    pp.pprint(client.create_keypair(args[0],))
 
 elif cmd == 'get_Flavors':
     if len(args) != 0:

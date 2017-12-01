@@ -85,7 +85,7 @@ class VirtualMachineHandler(Iface):
         images = list()
         print(self.conn.compute.images())
         for img in self.conn.compute.images():
-            print('inside')
+
             img = img.to_dict()
             img.pop('links', None)
             # print(img)
@@ -112,10 +112,15 @@ class VirtualMachineHandler(Iface):
             print("Create Key Pair")
            # print("Keyname " + keyname)
             #print("Key " + public_key)
+
+            keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
+            return keypair
+        elif keypair.public_key != public_key:
+            print('!!!')
+            self.conn.compute.delete_keypair(keypair)
             keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
             return keypair
         return keypair
-
     def get_server(self, servername):
         print("Get Server " + servername)
 
