@@ -5,16 +5,17 @@ from VirtualMachineService import Client
 from ttypes import VM
 import constants
 from thrift import Thrift
-from thrift.transport import TSocket
+from thrift.transport import TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
+import ssl
 
 
 
 
 def main():
     # Make socket
-    transport = TSocket.TSocket('localhost', 9090)
+    transport = TSSLSocket.TSSLSocket('localhost', 9090,cert_reqs=ssl.CERT_REQUIRED,certfile='test/keys/client.pem',ca_certs='test/keys/CA.pem')
     print('ping()')
     # Buffering is critical. Raw sockets are very slow
     transport = TTransport.TBufferedTransport(transport)
