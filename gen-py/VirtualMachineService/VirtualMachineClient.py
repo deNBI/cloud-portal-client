@@ -8,7 +8,6 @@ from thrift import Thrift
 from thrift.transport import TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
-import ssl
 
 
 
