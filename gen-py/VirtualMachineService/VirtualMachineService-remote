@@ -28,7 +28,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_Flavors()')
     print('   get_Images()')
     print('   get_servers()')
-    print('  bool delete_server(string servername)')
+    print('  bool delete_server(string openstack_id)')
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string servername, string network)')

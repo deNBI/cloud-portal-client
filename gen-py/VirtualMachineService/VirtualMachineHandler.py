@@ -230,6 +230,15 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException
         self.conn.compute.delete_server_metadata(server, keys)
         return keys
+    def delete_server(self, openstack_id):
+        print ("Delete Server " + openstack_id )
+        server = self.conn.compute.get_server(openstack_id)
+        if server is None:
+            raise serverNotFoundException
+        print(server.status)
+
+        self.conn.compute.delete_server(server)
+        return True
 
     def stop_server(self, openstack_id):
 

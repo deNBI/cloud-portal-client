@@ -124,7 +124,7 @@ service VirtualMachineService {
 	 /**@
      * This Method deletes a server.
      */
-	bool delete_server(1:string servername) throws (1:serverNotFoundException e)
+	bool delete_server(1:string openstack_id) throws (1:serverNotFoundException e)
 	 /**@
      * This Method adds Metadata to a Server
      */

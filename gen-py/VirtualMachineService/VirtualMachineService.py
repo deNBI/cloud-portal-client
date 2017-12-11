@@ -10,7 +10,7 @@ from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplica
 from thrift.protocol.TProtocol import TProtocolException
 import sys
 import logging
-from ttypes import *
+from .ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
 
@@ -52,13 +52,13 @@ class Iface(object):
         """
         pass
 
-    def delete_server(self, servername):
+    def delete_server(self, openstack_id):
         """
         @
         This Method deletes a server.
 
         Parameters:
-         - servername
+         - openstack_id
         """
         pass
 
@@ -302,21 +302,21 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers failed: unknown result")
 
-    def delete_server(self, servername):
+    def delete_server(self, openstack_id):
         """
         @
         This Method deletes a server.
 
         Parameters:
-         - servername
+         - openstack_id
         """
-        self.send_delete_server(servername)
+        self.send_delete_server(openstack_id)
         return self.recv_delete_server()
 
-    def send_delete_server(self, servername):
+    def send_delete_server(self, openstack_id):
         self._oprot.writeMessageBegin('delete_server', TMessageType.CALL, self._seqid)
         args = delete_server_args()
-        args.servername = servername
+        args.openstack_id = openstack_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -818,7 +818,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_server_result()
         try:
-            result.success = self._handler.delete_server(args.servername)
+            result.success = self._handler.delete_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1520,16 +1520,16 @@ class get_servers_result(object):
 class delete_server_args(object):
     """
     Attributes:
-     - servername
+     - openstack_id
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+        (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
     )
 
-    def __init__(self, servername=None,):
-        self.servername = servername
+    def __init__(self, openstack_id=None,):
+        self.openstack_id = openstack_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -1542,7 +1542,7 @@ class delete_server_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1555,9 +1555,9 @@ class delete_server_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('delete_server_args')
-        if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 1)
-            oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
