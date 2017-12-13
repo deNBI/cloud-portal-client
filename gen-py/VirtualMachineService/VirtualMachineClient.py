@@ -14,7 +14,7 @@ from thrift.protocol import TBinaryProtocol
 
 def main():
     # Make socket
-    transport = TSSLSocket.TSSLSocket('localhost', 9090,cert_reqs=ssl.CERT_REQUIRED,certfile='test/keys/client.pem',ca_certs='test/keys/CA.pem')
+    transport = TSSLSocket.TSSLSocket('localhost', 9090)
     print('ping()')
     # Buffering is critical. Raw sockets are very slow
     transport = TTransport.TBufferedTransport(transport)
