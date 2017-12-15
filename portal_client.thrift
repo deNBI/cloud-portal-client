@@ -1,9 +1,9 @@
 namespace	py VirtualMachineService
 
 
-typedef i64 id
-typedef i32 int
 
+typedef i32 int
+const double VERSION=1.0
 
 
 
@@ -104,6 +104,7 @@ exception authenticationException {
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
 service VirtualMachineService {
+    bool check_Version(1:double version)
     /**@
      * This Method  imports a new keypair.
      */
@@ -117,10 +118,6 @@ service VirtualMachineService {
      * This Method returns a list with all Images.
      */
 	list<Image> get_Images()
-	 /**@
-     * This Method returns a list with all VirtualMachines.
-     */
-	list<VM> get_servers( )
 	 /**@
      * This Method deletes a server.
      */
@@ -153,10 +150,6 @@ service VirtualMachineService {
      * This Method stops a VirtualMachine.
      */
     bool stop_server(1:string openstack_id) throws (1:serverNotFoundException e),
-	/**@
-     * This Method pause a VirtualMachine.
-     */
-    bool pause_server(1:string servername) throws (1:serverNotFoundException e),
 						  /**@
      * This Method unpause a VirtualMachine.
      */

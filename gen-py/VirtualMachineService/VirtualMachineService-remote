@@ -24,10 +24,10 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
+    print('  bool check_Version(double version)')
     print('  string import_keypair(string keyname, string public_key)')
     print('   get_Flavors()')
     print('   get_Images()')
-    print('   get_servers()')
     print('  bool delete_server(string openstack_id)')
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
@@ -36,7 +36,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool start_server(string flavor, string image, string public_key, string servername, string username, string elixir_id)')
     print('  VM get_server(string servername)')
     print('  bool stop_server(string openstack_id)')
-    print('  bool pause_server(string servername)')
     print('  bool resume_server(string openstack_id)')
     print('')
     sys.exit(0)
@@ -117,7 +116,13 @@ protocol = TBinaryProtocol(transport)
 client = VirtualMachineService.Client(protocol)
 transport.open()
 
-if cmd == 'import_keypair':
+if cmd == 'check_Version':
+    if len(args) != 1:
+        print('check_Version requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.check_Version(eval(args[0]),))
+
+elif cmd == 'import_keypair':
     if len(args) != 2:
         print('import_keypair requires 2 args')
         sys.exit(1)
@@ -134,12 +139,6 @@ elif cmd == 'get_Images':
         print('get_Images requires 0 args')
         sys.exit(1)
     pp.pprint(client.get_Images())
-
-elif cmd == 'get_servers':
-    if len(args) != 0:
-        print('get_servers requires 0 args')
-        sys.exit(1)
-    pp.pprint(client.get_servers())
 
 elif cmd == 'delete_server':
     if len(args) != 1:
@@ -188,12 +187,6 @@ elif cmd == 'stop_server':
         print('stop_server requires 1 args')
         sys.exit(1)
     pp.pprint(client.stop_server(args[0],))
-
-elif cmd == 'pause_server':
-    if len(args) != 1:
-        print('pause_server requires 1 args')
-        sys.exit(1)
-    pp.pprint(client.pause_server(args[0],))
 
 elif cmd == 'resume_server':
     if len(args) != 1:
