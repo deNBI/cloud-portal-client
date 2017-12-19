@@ -6,15 +6,16 @@ from thrift.transport import TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
-import config
-
-HOST=config.server_host
-PORT=config.server_port
-CERTFILE=config.server_cert
+import yaml
 
 
 
 if __name__ == '__main__':
+    with open("config.yml", 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+        HOST = cfg['openstack_connection']['host']
+        PORT = cfg['openstack_connection']['port']
+        CERTFILE = cfg['openstack_connection']['certfile']
     handler=VirtualMachineHandler()
     processor=Processor(handler)
     transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT,certfile=CERTFILE)

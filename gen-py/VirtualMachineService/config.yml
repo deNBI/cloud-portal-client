@@ -1,0 +1,6 @@
+openstack_connection:
+    host: 0.0.0.0
+    port: 9090
+    network: portalnetzwerk
+    floating_ip_network: cebitec
+    certfile: test/keys/server.pem

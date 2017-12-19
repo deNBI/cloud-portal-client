@@ -8,24 +8,20 @@ import os
 import time
 import datetime
 import logging
+import subprocess
+import yaml
 
-NETWORK = config.network
-USERNAME = config.username
-PASSWORD = config.password
-AUTH_URL = config.auth_url
-PROJECT_NAME = config.project_name
-USER_DOMAIN_NAME = config.user_domain_name
-PROJECT_DOMAIN_NAME = config.project_domain_name
 FLAVOR_FILTER = config.flavor_filter
-FLOATING_IP_NETWORK='cebitec'
 
 
 class VirtualMachineHandler(Iface):
-    def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def create_connection(self):
         try:
-            conn = connection.Connection(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
-                                         project_name=PROJECT_NAME,
-                                         user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
+
+
+            conn = connection.Connection(username=self.USERNAME, password=self.PASSWORD, auth_url=self.AUTH_URL,
+                                         project_name=self.PROJECT_NAME,
+                                         user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
             conn.authorize()
         except Exception:
             self.logger.error('Client failed authentication at Openstack')
@@ -35,12 +31,36 @@ class VirtualMachineHandler(Iface):
         return conn
 
     def __init__(self):
-        logging.basicConfig(level=logging.INFO)
+        # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        # create file handler which logs even debug messages
+        self.fh = logging.FileHandler('log.log')
+        self.fh.setLevel(logging.DEBUG)
+        # create console handler with a higher log level
+        self.ch = logging.StreamHandler()
+        self.ch.setLevel(logging.INFO)
+        # create formatter and add it to the handlers
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.fh.setFormatter(self.formatter)
+        self.ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(self.fh)
+        self.logger.addHandler(self.ch)
+        self.logger.info("Call shell rc script")
 
-        self.conn = self.create_connection(username=USERNAME, password=PASSWORD, auth_url=AUTH_URL,
-                                           project_name=PROJECT_NAME,
-                                           user_domain_name=USER_DOMAIN_NAME, project_domain_name=PROJECT_DOMAIN_NAME)
+        subprocess.call(['./openstackrc.sh'])
+        self.USERNAME = os.environ['OS_USERNAME']
+        self.PASSWORD = os.environ['OS_PASSWORD']
+        self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
+        self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
+        self.AUTH_URL = os.environ['OS_AUTH_URL']
+
+        with open("config.yml", 'r') as ymlfile:
+            cfg = yaml.load(ymlfile)
+            self.NETWORK = cfg['openstack_connection']['network']
+            self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
+        self.conn = self.create_connection()
 
 
     def get_Flavors(self):
@@ -145,7 +165,7 @@ class VirtualMachineHandler(Iface):
             if flavor is None:
                 self.logger.error("Flavor " + image + " not found")
                 raise flavorNotFoundException(Reason='Flavor' + flavor + ' was not found!')
-            network = self.conn.network.find_network(NETWORK)
+            network = self.conn.network.find_network(self.NETWORK)
             if network is None:
                 self.logger.error("Network " + image + " not found")
                 raise networkNotFoundException(Reason='Network ' + network + 'was not found!')
@@ -161,7 +181,7 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
-            self.add_floating_ip_to_server(servername, FLOATING_IP_NETWORK)
+            self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             return True
         except Exception as e:
             if 'Quota exceeded ' in str(e):
