@@ -11,7 +11,7 @@ import yaml
 
 
 if __name__ == '__main__':
-    with open("config.yml", 'r') as ymlfile:
+    with open("../../config.yml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']

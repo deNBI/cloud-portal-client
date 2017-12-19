@@ -49,7 +49,7 @@ class VirtualMachineHandler(Iface):
         self.logger.addHandler(self.ch)
         self.logger.info("Call shell rc script")
 
-        subprocess.call(['./openstackrc.sh'])
+        subprocess.call(['../../openstackrc.sh'])
         self.USERNAME = os.environ['OS_USERNAME']
         self.PASSWORD = os.environ['OS_PASSWORD']
         self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
