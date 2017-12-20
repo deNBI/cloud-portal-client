@@ -47,16 +47,13 @@ class VirtualMachineHandler(Iface):
         # add the handlers to the logger
         self.logger.addHandler(self.fh)
         self.logger.addHandler(self.ch)
-        self.logger.info("Call shell rc script")
-
-        subprocess.call(['../../openstackrc.sh'])
         self.USERNAME = os.environ['OS_USERNAME']
         self.PASSWORD = os.environ['OS_PASSWORD']
         self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
 
-        with open("config.yml", 'r') as ymlfile:
+        with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
