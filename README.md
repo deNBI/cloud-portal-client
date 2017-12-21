@@ -2,7 +2,7 @@
 
 ## Thrift developement
 You need thrift installed.
-A detailed instruction can be found under [thrift-installation] (http://thrift-tutorial.readthedocs.io/en/latest/installation.html)
+A detailed instruction can be found under [thrift-installation](http://thrift-tutorial.readthedocs.io/en/latest/installation.html)
 With the portal_client.thrift you can autogenerate your code. 
 
 ~~~BASH
