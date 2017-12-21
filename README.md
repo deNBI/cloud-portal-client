@@ -1,5 +1,16 @@
 # cloud-portal-client
 
+## Thrift developement
+
+There is a Thrift file which can autogenerate code.
+
+~~~BASH
+thrift -r --gen py tutorial.thrift
+~~~
+
+This command will generate python depending of your Thrift file.
+A detailed instruction, how to writte and install a thrift file you can see on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
+
 ## Deployment
 There are 2 ways to run the cloud-portal-client.
 
