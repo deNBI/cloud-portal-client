@@ -1,15 +1,36 @@
 # cloud-portal-client
 
 ## Thrift developement
-
-There is a Thrift file which can autogenerate code.
+You need thrift installed.
+A detailed instruction can be found under [thrift-installation] (http://thrift-tutorial.readthedocs.io/en/latest/installation.html)
+With the portal_client.thrift you can autogenerate your code. 
 
 ~~~BASH
-thrift -r --gen py tutorial.thrift
+thrift -r --gen py portal_client.thrift
 ~~~
 
-This command will generate python depending of your Thrift file.
-A detailed instruction, how to writte and install a thrift file you can see on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
+This command will generate python code from the thrift file.
+A detailed instruction, how to write a thrift file can be found on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
+
+To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService. 
+Then you can start a server which uses your handler.
+Example python code for the server:
+```python
+
+if __name__ == '__main__':
+    with open("../../config.yml", 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+        HOST = cfg['openstack_connection']['host']
+        PORT = cfg['openstack_connection']['port']
+        CERTFILE = cfg['openstack_connection']['certfile']
+    handler=VirtualMachineHandler()
+    processor=Processor(handler)
+    transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT,certfile=CERTFILE)
+    tfactory = TTransport.TBufferedTransportFactory()
+    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
+    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    server.serve()
+```
 
 ## Deployment
 There are 2 ways to run the cloud-portal-client.
