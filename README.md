@@ -12,7 +12,7 @@ thrift -r --gen py portal_client.thrift
 This command will generate python code from the thrift file.
 A detailed instruction, how to write a thrift file can be found on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
 
-To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService. 
+To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService. The handler contains the logic for the methods.
 Then you can start a server which uses your handler.
 Example python code for the server:
 ```python
