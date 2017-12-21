@@ -4,3 +4,6 @@ openstack_connection:
     network: portalnetzwerk
     floating_ip_network: cebitec
     certfile: test/keys/server.pem
+    flavor_filter:
+        - de.NBI
+        

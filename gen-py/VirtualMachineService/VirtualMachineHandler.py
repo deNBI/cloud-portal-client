@@ -2,16 +2,16 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
-import config
+
 import urllib
 import os
 import time
 import datetime
 import logging
-import subprocess
+
 import yaml
 
-FLAVOR_FILTER = config.flavor_filter
+
 
 
 class VirtualMachineHandler(Iface):
@@ -35,7 +35,7 @@ class VirtualMachineHandler(Iface):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
-        self.fh = logging.FileHandler('log.log')
+        self.fh = logging.FileHandler('debug.log')
         self.fh.setLevel(logging.DEBUG)
         # create console handler with a higher log level
         self.ch = logging.StreamHandler()
@@ -57,6 +57,8 @@ class VirtualMachineHandler(Iface):
             cfg = yaml.load(ymlfile)
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
+            self.FLAVOR_FILTER=cfg['openstack_connection']['flavor_filter']
+           
         self.conn = self.create_connection()
 
 
@@ -68,7 +70,7 @@ class VirtualMachineHandler(Iface):
             flav = flav.to_dict()
             flav.pop('links', None)
 
-            if any(x in flav['name'] for x in FLAVOR_FILTER):
+            if any(x in flav['name'] for x in self.FLAVOR_FILTER):
 
                 flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                 openstack_id=flav['id'])
