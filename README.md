@@ -32,7 +32,7 @@ if __name__ == '__main__':
     server.serve()
 ```
 # 2. Run without docker:
- you will need to have python 3.6 and pip installed.
+ You will need to have python 3.6 and pip installed.
 
 #### Install python3
  Linux:
@@ -61,7 +61,7 @@ Since the current version is developed in the dev branch you need to checkout it
 $>git checkout dev
 ~~~
 
-_**Attention**_: You need to create your own `Server.pem`,
+_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`.
 for testing / play around purposes **only**.
 
 
@@ -114,9 +114,9 @@ $> cd ./gen-py/VirtualMachineService
 $> python3 VirtualMachineServer.py 
 ~~~
 
-_**Attention**_: you need to use the same Terminal you used to source the rc file.
+_**Attention**_: You need to use the same Terminal you used to source the rc file.
 
-## Deployment
+## Production Deployment
 
 # 1.Run with docker: 
    You will need a `docker` service up and running to start the client with docker.
@@ -145,7 +145,7 @@ Since the current version is developed in the dev branch you need to checkout it
 $>git checkout dev
 ~~~
 
-_**Attention**_: You need to create your own `Server.pem` and your client need the appropriate `Client.pem` and `CA.pem`,
+_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
 
 ### Create certificates
 
@@ -176,7 +176,7 @@ To start application your terminal need to be in the 'cloud-portal-client' folde
 $> sudo docker build -t cloud-portal-client .
 $> sudo docker run -p 9090:9090 -it cloud-portal-client
 ~~~
-_**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml!.
+_**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml !
 The terminal will ask you now to enter your openstack password to finish your  configuration.
 
 
