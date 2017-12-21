@@ -8,7 +8,7 @@ There are 2 ways to run the cloud-portal-client.
    
 #### Installing Docker
 
-You can find a detailed instruction how to install docker on [install docker](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
+You can find a detailed instruction how to install docker on this website: [docker](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 
 #### Obtaining the software components
 
@@ -35,15 +35,15 @@ for testing / play around purposes **only**.
 
 ### create certificates
 
-To create your own certificates follow the instructions on this Website: [create certificates](https://thrift.apache.org/test/keys)
+To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
 
 ### download rc file 
 
 Download your openstack rc file which contains your openstack configuration.
-you can find the rc file, by logging into openstack [openstack login](https://openstack.cebitec.uni-bielefeld.de)
-then going to the access & security tab: [access & security](https://openstack.cebitec.uni-bielefeld.de/horizon/project/access_and_security/)
-choose API Access and press the button: Download Openstack RC FILE v3
-finally move this file into the cloud-portal-client folder.
+you can find the rc file, by logging into [openstack](https://openstack.cebitec.uni-bielefeld.de)
+then going to the [access & security](https://openstack.cebitec.uni-bielefeld.de/horizon/project/access_and_security/) tab.
+Choose API Access and press the button: Download Openstack RC FILE v3.
+Finally move this file into the cloud-portal-client folder.
 
 ### Configuration
 
@@ -55,7 +55,7 @@ Before starting the client you need to set your configuration in the config.yml 
 
 ### Starting the cloud-portal-client
 
-To start application your terminal need to be in the 'cloud-portal-client' folder then excecute the following commands
+To start application your terminal need to be in the 'cloud-portal-client' folder then execute the following commands
 ~~~BASH
 $> sudo docker build -t cloud-portal-client .
 $> sudo docker run -p 9090:9090 -it cloud-portal-client
@@ -97,9 +97,10 @@ $>git checkout dev
 _**Attention**_: You need to create your own `Server.pem`,
 for testing / play around purposes **only**.
 
+
 ### create certificates
 
-To create your own certificates follow the instructions on this Website: [certificates](https://thrift.apache.org/test/keys)
+To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
 
 ### installing required libraries
 
@@ -108,13 +109,14 @@ to install all required python libraries run the following command:
 $> pip install -r requirements.txt
 ~~~
 
+
 ### download rc file 
 
 Download your openstack rc file which contains your openstack configuration.
-you can find the rc file, by logging into openstack [openstack login](https://openstack.cebitec.uni-bielefeld.de)
-then going to the access & security tab: [access & security](https://openstack.cebitec.uni-bielefeld.de/horizon/project/access_and_security/)
-choose API Access and press the button: Download Openstack RC FILE v3
-finally move this file into the cloud-portal-client folder.
+you can find the rc file, by logging into [openstack](https://openstack.cebitec.uni-bielefeld.de)
+then going to the [access & security](https://openstack.cebitec.uni-bielefeld.de/horizon/project/access_and_security/) tab.
+Choose API Access and press the button: Download Openstack RC FILE v3.
+Finally move this file into the cloud-portal-client folder.
 
 ### source rc file
 
