@@ -26,6 +26,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Functions:')
     print('  bool check_Version(double version)')
     print('  string import_keypair(string keyname, string public_key)')
+    print('  string generate_SSH_Login_String(string servername)')
     print('   get_Flavors()')
     print('   get_Images()')
     print('  bool delete_server(string openstack_id)')
@@ -127,6 +128,12 @@ elif cmd == 'import_keypair':
         print('import_keypair requires 2 args')
         sys.exit(1)
     pp.pprint(client.import_keypair(args[0], args[1],))
+
+elif cmd == 'generate_SSH_Login_String':
+    if len(args) != 1:
+        print('generate_SSH_Login_String requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.generate_SSH_Login_String(args[0],))
 
 elif cmd == 'get_Flavors':
     if len(args) != 0:

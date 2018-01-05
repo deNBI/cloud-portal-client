@@ -55,9 +55,14 @@ class VirtualMachineHandler(Iface):
 
         with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
+            self.USE_JUMPHOST=cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-            self.FLAVOR_FILTER=cfg['openstack_connection']['flavor_filter']
+            self.FLAVOR_FILTER = cfg['openstack_connection']['flavor_filter']
+            if 'True' == str(self.USE_JUMPHOST):
+
+                self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
+                self.JUMPHOST_IP= cfg['openstack_connection']['jumphost_ip']
            
         self.conn = self.create_connection()
 
@@ -119,12 +124,14 @@ class VirtualMachineHandler(Iface):
             keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
             return keypair
         elif keypair.public_key != public_key:
-            self.logger.info("Key has changed.Replace old Key")
+            self.logger.info("Key has changed. Replace old Key")
             self.conn.compute.delete_keypair(keypair)
             keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
             return keypair
         return keypair
     def get_server(self, servername):
+        floating_ip=None
+        fixed_ip=None
         self.logger.info("Get Server " + servername)
 
         server = self.conn.compute.find_server(servername)
@@ -141,19 +148,33 @@ class VirtualMachineHandler(Iface):
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
         for values in server.addresses.values():
             for address in values:
+
                 if address['OS-EXT-IPS:type'] == 'floating':
                     floating_ip = address['addr']
-        server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
-                                openstack_id=flav['id']),
-                    img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
-                              created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
-                    status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
-                    keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                    floating_ip=floating_ip)
+                elif address['OS-EXT-IPS:type'] == 'fixed':
+                    fixed_ip =address['addr']
+
+        if floating_ip:
+            server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                    openstack_id=flav['id']),
+                        img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
+                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
+                        status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
+                        keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
+                        floating_ip=floating_ip, fixed_ip=fixed_ip)
+        else:
+            server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                    openstack_id=flav['id']),
+                        img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'],
+                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
+                        status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
+                        keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
+                        fixed_ip=fixed_ip)
         return server
 
     def start_server(self, flavor, image, public_key, servername, username, elixir_id):
-        self.logger.info("Start Server" +  servername)
+        self.logger.info("Start Server " +  servername)
         try:
             metadata = {'username': username, 'elixir_id': elixir_id}
             image = self.conn.compute.find_image(image)
@@ -180,7 +201,7 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
-            self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
+           # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             return True
         except Exception as e:
             if 'Quota exceeded ' in str(e):
@@ -188,6 +209,19 @@ class VirtualMachineHandler(Iface):
                 raise ressourceException(Reason=str(e))
 
             raise otherException(Reason=str(e))
+    def generate_SSH_Login_String(self,servername):
+        #check if jumphost is active
+
+        if 'True' == str(self.USE_JUMPHOST):
+            server_base = self.get_server(servername=servername).fixed_ip.split(".")[-1]
+            port=int(self.JUMPHOST_BASE) + int (server_base)*3 + 2 + 1
+            ssh_command="ssh -i private_key_file ubuntu@" + str(self.JUMPHOST_IP) + " -p " + str(port)
+
+            return ssh_command
+
+        else:
+            floating_ip=self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
+            return "ssh -i private_key_file ubuntu@" + floating_ip
 
     def add_floating_ip_to_server(self, servername, network):
         server = self.conn.compute.find_server(servername)
@@ -207,7 +241,7 @@ class VirtualMachineHandler(Iface):
             if not floating_ip.fixed_ip_address:
                 self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
                 self.logger.info("Adding existing Floating IP " + str(floating_ip.floating_ip_address) + "to  " + servername)
-                return 'Added existing Floating IP ' + str(floating_ip.floating_ip_address) + " to Server " + servername
+                return str(floating_ip.floating_ip_address)
 
         networkID = self.conn.network.find_network(network)
         if networkID is None:

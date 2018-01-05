@@ -1,6 +1,9 @@
 openstack_connection:
     host: 0.0.0.0
-    port: 9090
+    port: 9091
+    jumphost_base: 30000
+    jumphost_ip: 172.21.40.14
+    use_jumphost: True
     network: portalnetzwerk
     floating_ip_network: cebitec
     certfile: test/keys/server.pem

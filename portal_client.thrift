@@ -50,7 +50,8 @@ struct VM {
 	7: required string openstack_id
 	8: required string name
 	9: required string created_at
-	10: required string floating_ip
+	10: optional string floating_ip
+	11: required string fixed_ip
 	
 }
 
@@ -110,6 +111,10 @@ service VirtualMachineService {
      */
     string import_keypair(1:string keyname,2:string public_key)
 
+    /**@
+     * This Method generates a String the user can use to login in in the instance
+     */
+    string generate_SSH_Login_String(1: string servername)
 	 /**@
      * This Method returns a list with all Flavors.
      */
