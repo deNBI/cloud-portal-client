@@ -6,7 +6,7 @@ openstack_connection:
     use_jumphost: True
     network: portalnetzwerk
     floating_ip_network: cebitec
-    certfile: test/keys/server.pem
+    certfile: ../../test/keys/server.pem
     flavor_filter:
         - de.NBI
         

@@ -159,6 +159,15 @@ then going to the access & security tab.
 Choose API Access and press the button: Download Openstack RC FILE v3.
 Finally move this file into the cloud-portal-client folder.
 
+### Source rc file
+
+To load your openstack configuration you need to run the following command in the terminal:
+
+ ~~~BASH
+$> source NameOfRcFile.sh
+~~~
+
+
 ### Configuration
 
 Before starting the client you need to set your configuration in the config.yml file.
@@ -174,7 +183,7 @@ Before starting the client you need to set your configuration in the config.yml 
 To start application your terminal need to be in the 'cloud-portal-client' folder then execute the following commands
 ~~~BASH
 $> sudo docker build -t cloud-portal-client .
-$> sudo docker run -p 9090:9090 -it cloud-portal-client
+$> sudo docker run -p 9090:9090 -e OS_AUTH_URL=$OS_AUTH_URL -e OS_PROJECT_ID=$OS_PROJECT_ID -e OS_PROJECT_NAME=$OS_PROJECT_NAME -e OS_USERNAME=$OS_USERNAME -e OS_PASSWORD=$OS_PASSWORD -e OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME -it cloud-portal-client python3 VirtualMachineServer.py
 ~~~
 _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml !
 The terminal will ask you now to enter your openstack password to finish your  configuration.
