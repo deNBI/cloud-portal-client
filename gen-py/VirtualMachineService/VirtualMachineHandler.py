@@ -214,14 +214,14 @@ class VirtualMachineHandler(Iface):
 
         if 'True' == str(self.USE_JUMPHOST):
             server_base = self.get_server(servername=servername).fixed_ip.split(".")[-1]
-            port=int(self.JUMPHOST_BASE) + int (server_base)*3 + 2 + 1
+            port=int(self.JUMPHOST_BASE) + int (server_base)*3
             ssh_command="ssh -i private_key_file ubuntu@" + str(self.JUMPHOST_IP) + " -p " + str(port)
 
             return ssh_command
 
         else:
             floating_ip=self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            return "ssh -i private_key_file ubuntu@" + floating_ip
+            return "ssh -i private_key_file ubuntu@" + str(floating_ip)
 
     def add_floating_ip_to_server(self, servername, network):
         server = self.conn.compute.find_server(servername)
