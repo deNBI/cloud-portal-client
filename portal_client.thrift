@@ -34,6 +34,7 @@ struct Image{
 	6:optional string updated_at
 	7:required string openstack_id
 	8:optional string description
+	9:optional string default_user
 }
 /**
  * This Struct defines a VirtualMachine.
@@ -52,6 +53,7 @@ struct VM {
 	9: required string created_at
 	10: optional string floating_ip
 	11: required string fixed_ip
+
 	
 }
 

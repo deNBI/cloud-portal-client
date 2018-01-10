@@ -98,19 +98,34 @@ class VirtualMachineHandler(Iface):
 
             img = img.to_dict()
             img.pop('links', None)
+            metadata=img['metadata']
 
-
-            try:
+            if 'description' in metadata and 'default_user' in metadata:
                 image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                               status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=img['metadata']['description'])
+                              openstack_id=img['id'], description=metadata['description'],default_user=metadata['default_user'])
 
 
-            except KeyError:
+            elif 'description' in metadata:
+                self.logger.warning("No default_user for " + img['name'])
+                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                              openstack_id=img['id'], description=metadata['description'],
+                             )
+            elif 'default_user' in metadata:
                 self.logger.warning("No Description for " + img['name'])
                 image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                               status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'])
+                              openstack_id=img['id'],
+                              default_user=metadata['default_user'])
+            else:
+                self.logger.warning("No Description and default_user for " + img['name'])
+                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                              openstack_id=img['id'],
+                             )
+
+
 
             images.append(image)
         return images
@@ -146,6 +161,11 @@ class VirtualMachineHandler(Iface):
 
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
+        default_user='default'
+        try:
+            default_user=img['metadata']['default_user']
+        except Exception:
+            pass
         for values in server.addresses.values():
             for address in values:
 
@@ -158,7 +178,7 @@ class VirtualMachineHandler(Iface):
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
                         img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'], status=img['status'],
-                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
+                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],default_user=default_user),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
                         floating_ip=floating_ip, fixed_ip=fixed_ip)
@@ -166,7 +186,7 @@ class VirtualMachineHandler(Iface):
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
                         img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                                  status=img['status'],
+                                  status=img['status'],default_user=default_user,
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
@@ -212,16 +232,25 @@ class VirtualMachineHandler(Iface):
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
 
+
         if 'True' == str(self.USE_JUMPHOST):
-            server_base = self.get_server(servername=servername).fixed_ip.split(".")[-1]
+            server = self.get_server(servername=servername)
+            img=server.img
+            default_user=img.default_user
+            server_base = server.fixed_ip.split(".")[-1]
             port=int(self.JUMPHOST_BASE) + int (server_base)*3
-            ssh_command="ssh -i private_key_file ubuntu@" + str(self.JUMPHOST_IP) + " -p " + str(port)
+            ssh_command="ssh -i private_key_file " + str(default_user)+"@" + str(self.JUMPHOST_IP) + " -p " + str(port)
 
             return ssh_command
 
         else:
             floating_ip=self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            return "ssh -i private_key_file ubuntu@" + str(floating_ip)
+            server = self.get_server(servername=servername)
+            img = server.img
+
+            default_user=img.default_user
+
+            return "ssh -i private_key_file " + str(default_user)+"@" + str(floating_ip)
 
     def add_floating_ip_to_server(self, servername, network):
         server = self.conn.compute.find_server(servername)

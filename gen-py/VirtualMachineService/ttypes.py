@@ -158,6 +158,7 @@ class Image(object):
      - updated_at
      - openstack_id
      - description
+     - default_user
     """
 
     thrift_spec = (
@@ -170,9 +171,10 @@ class Image(object):
         (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
         (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
+        (9, TType.STRING, 'default_user', 'UTF8', None, ),  # 9
     )
 
-    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None,):
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, default_user=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -181,6 +183,7 @@ class Image(object):
         self.updated_at = updated_at
         self.openstack_id = openstack_id
         self.description = description
+        self.default_user = default_user
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -231,6 +234,11 @@ class Image(object):
                     self.description = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 9:
+                if ftype == TType.STRING:
+                    self.default_user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -272,6 +280,10 @@ class Image(object):
         if self.description is not None:
             oprot.writeFieldBegin('description', TType.STRING, 8)
             oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
+            oprot.writeFieldEnd()
+        if self.default_user is not None:
+            oprot.writeFieldBegin('default_user', TType.STRING, 9)
+            oprot.writeString(self.default_user.encode('utf-8') if sys.version_info[0] == 2 else self.default_user)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
