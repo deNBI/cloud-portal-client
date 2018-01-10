@@ -1,5 +1,5 @@
 # cloud-portal-client
-#Development
+# Development
 ## Thrift Development
 You need thrift installed.
 A detailed instruction can be found under [thrift-installation](http://thrift-tutorial.readthedocs.io/en/latest/installation.html).
@@ -174,6 +174,9 @@ Before starting the client you need to set your configuration in the config.yml 
 
 * port= Port to host
 * host= Host ip
+* jumphost_base= Port to Jumphost
+* Jumphost_Ip= Jumphost ip
+* use_jumphost= If "True" Jumphost will be used. If "False" Jumphost wont be used
 * certfile= Path to server.pem
 * network = Network where the project is located
 * flavor_filter= List of allowed flavor names
@@ -186,7 +189,5 @@ $> sudo docker build -t cloud-portal-client .
 $> sudo docker run -p 9090:9090 -e OS_AUTH_URL=$OS_AUTH_URL -e OS_PROJECT_ID=$OS_PROJECT_ID -e OS_PROJECT_NAME=$OS_PROJECT_NAME -e OS_USERNAME=$OS_USERNAME -e OS_PASSWORD=$OS_PASSWORD -e OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME -it cloud-portal-client python3 VirtualMachineServer.py
 ~~~
 _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml !
-The terminal will ask you now to enter your openstack password to finish your  configuration.
-
 
 
