@@ -173,10 +173,10 @@ class VirtualMachineHandler(Iface):
                         fixed_ip=fixed_ip)
         return server
 
-    def start_server(self, flavor, image, public_key, servername, username, elixir_id):
+    def start_server(self, flavor, image, public_key, servername, elixir_id):
         self.logger.info("Start Server " +  servername)
         try:
-            metadata = {'username': username, 'elixir_id': elixir_id}
+            metadata = { 'elixir_id': elixir_id}
             image = self.conn.compute.find_image(image)
             if image is None:
                 self.logger.error("Image " + image + " not found")
