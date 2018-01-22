@@ -199,16 +199,16 @@ class VirtualMachineHandler(Iface):
             metadata = { 'elixir_id': elixir_id}
             image = self.conn.compute.find_image(image)
             if image is None:
-                self.logger.error("Image " + image + " not found")
-                raise imageNotFoundException(Reason='Image ' + image + ' was not found!')
+                self.logger.error("Image " + str(image) + " not found")
+                raise imageNotFoundException(Reason='Image ' + str(image) + ' was not found!')
             flavor = self.conn.compute.find_flavor(flavor)
             if flavor is None:
-                self.logger.error("Flavor " + image + " not found")
-                raise flavorNotFoundException(Reason='Flavor' + flavor + ' was not found!')
+                self.logger.error("Flavor " + str(flavor) + " not found")
+                raise flavorNotFoundException(Reason='Flavor' + str(flavor) + ' was not found!')
             network = self.conn.network.find_network(self.NETWORK)
             if network is None:
-                self.logger.error("Network " + image + " not found")
-                raise networkNotFoundException(Reason='Network ' + network + 'was not found!')
+                self.logger.error("Network " + str(network) + " not found")
+                raise networkNotFoundException(Reason='Network ' + str(network) + 'was not found!')
 
             if self.conn.compute.find_server(servername) is not None:
                 self.logger.error("Instance with name " + servername + ' already exist')
