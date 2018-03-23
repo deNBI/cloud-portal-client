@@ -2,6 +2,9 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
+from keystoneauth1.identity import v3
+from keystoneauth1 import session
+from keystoneclient.v3 import client
 
 import urllib
 import os
@@ -64,9 +67,22 @@ class VirtualMachineHandler(Iface):
                 self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
                 self.JUMPHOST_IP= cfg['openstack_connection']['jumphost_ip']
            
-        self.conn = self.create_connection()
+        #self.conn = self.create_connection()
+
+    def setUserPassword(self, user, password):
+            auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
 
 
+            sess=session.Session(auth=auth)
+            def findUser(keystone,name):
+                users=keystone.users.list()
+                for user in users:
+                    if user.__dict__['name'] == name:
+                        return user
+            keystone= client.Client(session=sess)
+            user=findUser(keystone,user)
+            keystone.users.update(user,password=password)
+            return password
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors = list()
