@@ -25,8 +25,9 @@ class VirtualMachineHandler(Iface):
             conn = connection.Connection(username=self.USERNAME, password=self.PASSWORD, auth_url=self.AUTH_URL,
                                          project_name=self.PROJECT_NAME,
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
-            conn.authorize()
-        except Exception:
+            #conn.authorize()
+        except Exception as e:
+            print(e.__str__)
             self.logger.error('Client failed authentication at Openstack')
             raise authenticationException(Reason='Client failed authentication at Openstack')
 
@@ -67,9 +68,10 @@ class VirtualMachineHandler(Iface):
                 self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
                 self.JUMPHOST_IP= cfg['openstack_connection']['jumphost_ip']
            
-        #self.conn = self.create_connection()
+        self.conn = self.create_connection()
 
     def setUserPassword(self, user, password):
+        try:
             auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
 
 
@@ -83,6 +85,8 @@ class VirtualMachineHandler(Iface):
             user=findUser(keystone,user)
             keystone.users.update(user,password=password)
             return password
+        except Exception as e:
+            raise otherException(Reason=str(e))
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors = list()
