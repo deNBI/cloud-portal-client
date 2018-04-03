@@ -2,8 +2,9 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
-
+import socket
 import urllib
+from contextlib  import closing
 import os
 import time
 import datetime
@@ -52,6 +53,7 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
+        self.SSH_PORT=22
 
         with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
@@ -239,6 +241,9 @@ class VirtualMachineHandler(Iface):
             default_user=img.default_user
             server_base = server.fixed_ip.split(".")[-1]
             port=int(self.JUMPHOST_BASE) + int (server_base)*3
+            while self.netcat(self.JUMPHOST_IP, port) != 0:
+                time.sleep(5)
+
             ssh_command="ssh -i private_key_file " + str(default_user)+"@" + str(self.JUMPHOST_IP) + " -p " + str(port)
 
             return ssh_command
@@ -246,6 +251,8 @@ class VirtualMachineHandler(Iface):
         else:
             floating_ip=self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             server = self.get_server(servername=servername)
+            while self.netcat(floating_ip,self.SSH_PORT) != 0:
+                time.sleep(5)
             img = server.img
 
             default_user=img.default_user
@@ -282,6 +289,11 @@ class VirtualMachineHandler(Iface):
         self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
 
         return floating_ip
+
+
+    def netcat(self,host,port):
+      with closing(socket.socket(socket.AF_INET,socket.SOCK_STREAM)) as sock:
+          return sock.connect_ex((host,port))
 
 
     def delete_server(self, openstack_id):
