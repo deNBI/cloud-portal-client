@@ -60,7 +60,6 @@ class VirtualMachineHandler(Iface):
             self.USE_JUMPHOST=cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-            self.FLAVOR_FILTER = cfg['openstack_connection']['flavor_filter']
             self.TAG= cfg['openstack_connection']['tag']
             if 'True' == str(self.USE_JUMPHOST):
 
