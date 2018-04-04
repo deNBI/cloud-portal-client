@@ -179,7 +179,6 @@ Before starting the client you need to set your configuration in the config.yml 
 * use_jumphost= If "True" Jumphost will be used. If "False" Jumphost wont be used
 * certfile= Path to server.pem
 * network = Network where the project is located
-* flavor_filter= List of allowed flavor names
 
 ### Starting the cloud-portal-client
 

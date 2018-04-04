@@ -2,6 +2,7 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
+import requests
 
 import urllib
 import os
@@ -71,7 +72,6 @@ class VirtualMachineHandler(Iface):
 
     def get_Flavors(self):
         self.logger.info("Get Flavors")
-        import requests
         token = self.conn.authorize()
         serviceid = self.conn.identity.find_service('nova').to_dict()['id']
         for e in self.conn.identity.endpoints():
