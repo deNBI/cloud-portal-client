@@ -96,38 +96,42 @@ class VirtualMachineHandler(Iface):
 
         for img in self.conn.compute.images():
 
+
             img = img.to_dict()
-            img.pop('links', None)
-            metadata=img['metadata']
+            imgdetails = self.conn.image.find_image(img['name']).to_dict()
+            if 'portalclient' in imgdetails['tags']:
+                img.pop('links', None)
 
-            if 'description' in metadata and 'default_user' in metadata:
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],default_user=metadata['default_user'])
+                metadata=img['metadata']
 
-
-            elif 'description' in metadata:
-                self.logger.warning("No default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],
-                             )
-            elif 'default_user' in metadata:
-                self.logger.warning("No Description for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                              default_user=metadata['default_user'])
-            else:
-                self.logger.warning("No Description and default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                             )
+                if 'description' in metadata and 'default_user' in metadata:
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'], description=metadata['description'],default_user=metadata['default_user'])
 
 
+                elif 'description' in metadata:
+                    self.logger.warning("No default_user for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'], description=metadata['description'],
+                                 )
+                elif 'default_user' in metadata:
+                    self.logger.warning("No Description for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'],
+                                  default_user=metadata['default_user'])
+                else:
+                    self.logger.warning("No Description and default_user for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'],
+                                 )
 
-            images.append(image)
+
+
+                images.append(image)
         return images
 
     def import_keypair(self, keyname, public_key):
