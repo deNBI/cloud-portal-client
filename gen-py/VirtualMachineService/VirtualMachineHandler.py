@@ -53,12 +53,14 @@ class VirtualMachineHandler(Iface):
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
 
+
         with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_JUMPHOST=cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
             self.FLAVOR_FILTER = cfg['openstack_connection']['flavor_filter']
+            self.TAG= cfg['openstack_connection']['tag']
             if 'True' == str(self.USE_JUMPHOST):
 
                 self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
@@ -71,8 +73,8 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Flavors")
         flavors = list()
         for flav in self.conn.compute.flavors():
-
             flav = flav.to_dict()
+
             flav.pop('links', None)
 
             if any(x in flav['name'] for x in self.FLAVOR_FILTER):
@@ -99,7 +101,7 @@ class VirtualMachineHandler(Iface):
 
             img = img.to_dict()
             imgdetails = self.conn.image.find_image(img['name']).to_dict()
-            if 'portalclient' in imgdetails['tags']:
+            if  self.TAG in imgdetails['tags']:
                 img.pop('links', None)
 
                 metadata=img['metadata']
