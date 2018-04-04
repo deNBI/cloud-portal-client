@@ -84,9 +84,8 @@ class VirtualMachineHandler(Iface):
             flav_id=flav['id']
             url =  "{0}/flavors/{1}/os-extra_specs".format(urlpräfix,flav_id)
             r = requests.get(url, headers=headers)
-            print(url)
             extra_specs=r.json()['extra_specs']
-            print(extra_specs)
+
 
             if self.TAG in extra_specs and extra_specs[self.TAG] == 'True':
 
