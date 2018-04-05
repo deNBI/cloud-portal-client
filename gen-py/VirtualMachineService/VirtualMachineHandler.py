@@ -63,6 +63,7 @@ class VirtualMachineHandler(Iface):
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
             self.FLAVOR_FILTER = cfg['openstack_connection']['flavor_filter']
+            self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             if 'True' == str(self.USE_JUMPHOST):
 
                 self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
@@ -71,22 +72,25 @@ class VirtualMachineHandler(Iface):
         self.conn = self.create_connection()
 
     def setUserPassword(self, user, password):
-        try:
-            auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
+        if self.SET_PASSWORD == 'True':
+            try:
+                auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
 
 
-            sess=session.Session(auth=auth)
-            def findUser(keystone,name):
-                users=keystone.users.list()
-                for user in users:
-                    if user.__dict__['name'] == name:
-                        return user
-            keystone= client.Client(session=sess)
-            user=findUser(keystone,user)
-            keystone.users.update(user,password=password)
-            return password
-        except Exception as e:
-            raise otherException(Reason=str(e))
+                sess=session.Session(auth=auth)
+                def findUser(keystone,name):
+                    users=keystone.users.list()
+                    for user in users:
+                        if user.__dict__['name'] == name:
+                            return user
+                keystone= client.Client(session=sess)
+                user=findUser(keystone,user)
+                keystone.users.update(user,password=password)
+                return password
+            except Exception as e:
+                raise otherException(Reason=str(e))
+        else :
+            return {'Error':'Not allowed'}
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors = list()
