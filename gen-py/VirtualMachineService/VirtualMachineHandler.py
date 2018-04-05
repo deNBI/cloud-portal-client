@@ -72,7 +72,7 @@ class VirtualMachineHandler(Iface):
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors=list()
-        for flav in filter(lambda x : 'portalclient' in x['extra_specs'] and x['extra_specs']['portalclient'] == 'True',(list(self.conn.list_flavors(get_extra=True)))):
+        for flav in filter(lambda x : self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',(list(self.conn.list_flavors(get_extra=True)))):
             flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id'])
             flavors.append(flavor)
