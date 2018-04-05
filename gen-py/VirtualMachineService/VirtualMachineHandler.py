@@ -71,31 +71,11 @@ class VirtualMachineHandler(Iface):
 
     def get_Flavors(self):
         self.logger.info("Get Flavors")
-        token = self.conn.authorize()
-        serviceid = self.conn.identity.find_service('nova').to_dict()['id']
-        for e in self.conn.identity.endpoints():
-            e = e.to_dict()
-            if e['service_id'] == serviceid and e['interface'] == 'public':
-                urlpräfix = e['url'].split('%')[0]
-        headers = {"X-Auth-Token": token}
-        flavors = list()
-        for flav in self.conn.compute.flavors():
-            flav = flav.to_dict()
-            flav_id=flav['id']
-            url =  "{0}/flavors/{1}/os-extra_specs".format(urlpräfix,flav_id)
-            r = requests.get(url, headers=headers)
-            extra_specs=r.json()['extra_specs']
-
-
-            if self.TAG in extra_specs and extra_specs[self.TAG] == 'True':
-
-
-
-                flav.pop('links', None)
-
-                flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+        flavors=list()
+        for flav in filter(lambda x : 'portalclient' in x['extra_specs'] and x['extra_specs']['portalclient'] == 'True',(list(self.conn.list_flavors(get_extra=True)))):
+            flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id'])
-                flavors.append(flavor)
+            flavors.append(flavor)
         return flavors
 
 
