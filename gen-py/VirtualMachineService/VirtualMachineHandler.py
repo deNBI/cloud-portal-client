@@ -71,12 +71,11 @@ class VirtualMachineHandler(Iface):
            
         self.conn = self.create_connection()
 
+
     def setUserPassword(self, user, password):
-        if self.SET_PASSWORD == 'True':
+        if str(self.SET_PASSWORD) == 'True':
             try:
                 auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
-
-
                 sess=session.Session(auth=auth)
                 def findUser(keystone,name):
                     users=keystone.users.list()
@@ -88,9 +87,12 @@ class VirtualMachineHandler(Iface):
                 keystone.users.update(user,password=password)
                 return password
             except Exception as e:
-                raise otherException(Reason=str(e))
+                self.logger.error("Set Password for user {0} failed : {1}".format(user,str(e)))
+                return otherException(Reason=str(e))
         else :
-            return {'Error':'Not allowed'}
+            raise otherException(Reason='Not allowed')
+
+
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors = list()
