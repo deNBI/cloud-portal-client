@@ -86,17 +86,12 @@ class VirtualMachineHandler(Iface):
         else:
             return False
 
+
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
 
-        for img in self.conn.compute.images():
-
-
-            img = img.to_dict()
-            imgdetails = self.conn.image.find_image(img['name']).to_dict()
-            if  self.TAG in imgdetails['tags']:
-                img.pop('links', None)
+        for img in filter(lambda x:'tags' in x and self.TAG in x['tags'] ,self.conn.list_images()):
 
                 metadata=img['metadata']
 
@@ -124,11 +119,9 @@ class VirtualMachineHandler(Iface):
                                   status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
                                   openstack_id=img['id'],
                                  )
-
-
-
                 images.append(image)
         return images
+
 
     def import_keypair(self, keyname, public_key):
         keypair = self.conn.compute.find_keypair(keyname)
