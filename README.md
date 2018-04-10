@@ -110,7 +110,7 @@ Before starting the client you need to set your configuration in the config.yml 
 
 
 To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
-The client will forward all image which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
+The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
 
 
 ### Start cloud-portal-client
@@ -191,7 +191,7 @@ Before starting the client you need to set your configuration in the config.yml 
 
 
 To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
-The client will forward all image which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
+The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
 ### Starting the cloud-portal-client
 
 To start application your terminal need to be in the 'cloud-portal-client' folder then execute the following commands
