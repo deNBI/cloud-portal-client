@@ -2,9 +2,13 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
+
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
+
+import requests
+
 
 import urllib
 import os
@@ -57,13 +61,14 @@ class VirtualMachineHandler(Iface):
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
 
+
         with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_JUMPHOST=cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-            self.FLAVOR_FILTER = cfg['openstack_connection']['flavor_filter']
             self.SET_PASSWORD = cfg['openstack_connection']['set_password']
+            self.TAG= cfg['openstack_connection']['tag']
             if 'True' == str(self.USE_JUMPHOST):
 
                 self.JUMPHOST_BASE= cfg['openstack_connection']['jumphost_base']
@@ -95,17 +100,11 @@ class VirtualMachineHandler(Iface):
 
     def get_Flavors(self):
         self.logger.info("Get Flavors")
-        flavors = list()
-        for flav in self.conn.compute.flavors():
-
-            flav = flav.to_dict()
-            flav.pop('links', None)
-
-            if any(x in flav['name'] for x in self.FLAVOR_FILTER):
-
-                flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
-                                openstack_id=flav['id'])
-                flavors.append(flavor)
+        flavors=list()
+        for flav in filter(lambda x : self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',(list(self.conn.list_flavors(get_extra=True)))):
+            flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                    openstack_id=flav['id'])
+            flavors.append(flavor)
         return flavors
 
 
@@ -116,45 +115,42 @@ class VirtualMachineHandler(Iface):
         else:
             return False
 
+
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
 
-        for img in self.conn.compute.images():
+        for img in filter(lambda x:'tags' in x and self.TAG in x['tags'] ,self.conn.list_images()):
 
-            img = img.to_dict()
-            img.pop('links', None)
-            metadata=img['metadata']
+                metadata=img['metadata']
 
-            if 'description' in metadata and 'default_user' in metadata:
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],default_user=metadata['default_user'])
+                if 'description' in metadata and 'default_user' in metadata:
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'], description=metadata['description'],default_user=metadata['default_user'])
 
 
-            elif 'description' in metadata:
-                self.logger.warning("No default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],
-                             )
-            elif 'default_user' in metadata:
-                self.logger.warning("No Description for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                              default_user=metadata['default_user'])
-            else:
-                self.logger.warning("No Description and default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                             )
-
-
-
-            images.append(image)
+                elif 'description' in metadata:
+                    self.logger.warning("No default_user for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'], description=metadata['description'],
+                                 )
+                elif 'default_user' in metadata:
+                    self.logger.warning("No Description for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'],
+                                  default_user=metadata['default_user'])
+                else:
+                    self.logger.warning("No Description and default_user for " + img['name'])
+                    image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                                  status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                                  openstack_id=img['id'],
+                                 )
+                images.append(image)
         return images
+
 
     def import_keypair(self, keyname, public_key):
         keypair = self.conn.compute.find_keypair(keyname)
