@@ -5,8 +5,8 @@ openstack_connection:
     jumphost_ip: 172.21.40.14
     use_jumphost: True
     network: portalnetzwerk
+    tag: portalclient
     floating_ip_network: cebitec
     certfile: ../../test/keys/server.pem
-    flavor_filter:
-        - de.NBI
+
         

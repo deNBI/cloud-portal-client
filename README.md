@@ -101,9 +101,17 @@ Before starting the client you need to set your configuration in the config.yml 
 
 * port= Port to host
 * host= Host ip
+* jumphost_base= Port to Jumphost
+* jumphost_Ip= Jumphost ip
+* tag= tag which the client uses to filter images/flavors
+* use_jumphost= If "True" Jumphost will be used. If "False" Jumphost wont be used
 * certfile= Path to server.pem
 * network = Network where the project is located
-* flavor_filter= List of allowed flavor names
+
+
+To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
+The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
+
 
 ### Start cloud-portal-client
 To finally run the code you need to change the directory and run the correct python file.
@@ -175,12 +183,15 @@ Before starting the client you need to set your configuration in the config.yml 
 * port= Port to host
 * host= Host ip
 * jumphost_base= Port to Jumphost
-* Jumphost_Ip= Jumphost ip
+* jumphost_Ip= Jumphost ip
+* tag= tag which the client uses to filter images/flavors
 * use_jumphost= If "True" Jumphost will be used. If "False" Jumphost wont be used
 * certfile= Path to server.pem
 * network = Network where the project is located
-* flavor_filter= List of allowed flavor names
 
+
+To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
+The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
 ### Starting the cloud-portal-client
 
 To start application your terminal need to be in the 'cloud-portal-client' folder then execute the following commands
