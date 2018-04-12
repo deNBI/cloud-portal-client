@@ -4,6 +4,7 @@ openstack_connection:
     jumphost_base: 30000
     jumphost_ip: 172.21.40.14
     use_jumphost: True
+    set_password: False
     network: portalnetzwerk
     tag: portalclient
     floating_ip_network: cebitec

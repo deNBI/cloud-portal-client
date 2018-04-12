@@ -2,7 +2,13 @@ from VirtualMachineService import Iface
 from ttypes import *
 from constants import VERSION
 from openstack import connection
+
+from keystoneauth1.identity import v3
+from keystoneauth1 import session
+from keystoneclient.v3 import client
+
 import requests
+
 
 import urllib
 import os
@@ -23,8 +29,9 @@ class VirtualMachineHandler(Iface):
             conn = connection.Connection(username=self.USERNAME, password=self.PASSWORD, auth_url=self.AUTH_URL,
                                          project_name=self.PROJECT_NAME,
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
-            conn.authorize()
-        except Exception:
+            #conn.authorize()
+        except Exception as e:
+            print(e.__str__)
             self.logger.error('Client failed authentication at Openstack')
             raise authenticationException(Reason='Client failed authentication at Openstack')
 
@@ -60,6 +67,7 @@ class VirtualMachineHandler(Iface):
             self.USE_JUMPHOST=cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
+            self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG= cfg['openstack_connection']['tag']
             if 'True' == str(self.USE_JUMPHOST):
 
@@ -67,6 +75,27 @@ class VirtualMachineHandler(Iface):
                 self.JUMPHOST_IP= cfg['openstack_connection']['jumphost_ip']
            
         self.conn = self.create_connection()
+
+
+    def setUserPassword(self, user, password):
+        if str(self.SET_PASSWORD) == 'True':
+            try:
+                auth=v3.Password(auth_url=self.AUTH_URL,username=self.USERNAME,password=self.PASSWORD,project_name=self.PROJECT_NAME,user_domain_id='default',project_domain_id='default')
+                sess=session.Session(auth=auth)
+                def findUser(keystone,name):
+                    users=keystone.users.list()
+                    for user in users:
+                        if user.__dict__['name'] == name:
+                            return user
+                keystone= client.Client(session=sess)
+                user=findUser(keystone,user)
+                keystone.users.update(user,password=password)
+                return password
+            except Exception as e:
+                self.logger.error("Set Password for user {0} failed : {1}".format(user,str(e)))
+                return otherException(Reason=str(e))
+        else :
+            raise otherException(Reason='Not allowed')
 
 
     def get_Flavors(self):

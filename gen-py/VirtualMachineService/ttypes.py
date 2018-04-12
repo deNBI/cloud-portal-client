@@ -18,12 +18,12 @@ class Flavor(object):
     This Struct defines a Flavor.
 
     Attributes:
-     - vcpus
-     - ram
-     - disk
-     - name
-     - openstack_id
-     - description
+     - vcpus: The vcpus of the flavor
+     - ram: The ram of the flavor
+     - disk: The disk of the flavor
+     - name: The name of the flavor
+     - openstack_id: The openstack_id of the flavor
+     - description: The description of the flavor
     """
 
     thrift_spec = (
@@ -150,15 +150,15 @@ class Image(object):
     This Struct defines an Image.
 
     Attributes:
-     - name
-     - min_disk
-     - min_ram
-     - status
-     - created_at
-     - updated_at
-     - openstack_id
-     - description
-     - default_user
+     - name: The name of the image
+     - min_disk: The min_diks of the image
+     - min_ram: The min_ram of the image
+     - status: The status of the image
+     - created_at: The creation time of the image
+     - updated_at: The updated time of the image
+     - openstack_id: The openstack_id the image
+     - description: The description of the image
+     - default_user: The defaut_user of the image
     """
 
     thrift_spec = (
@@ -318,17 +318,17 @@ class VM(object):
     This Struct defines a VirtualMachine.
 
     Attributes:
-     - flav
-     - img
-     - status
-     - metadata
-     - project_id
-     - keyname
-     - openstack_id
-     - name
-     - created_at
-     - floating_ip
-     - fixed_ip
+     - flav: The flavor of the VM
+     - img: The image of the VM
+     - status: The status of the VM
+     - metadata: The metadata of the VM
+     - project_id: The project_id of the VM
+     - keyname: The keyname from the public key of the VM
+     - openstack_id: The openstack_id of the VM
+     - name: The name of the VM
+     - created_at: The the creation time of the VM
+     - floating_ip: The floating ip of the VM
+     - fixed_ip: The fixed ips of the VM
     """
 
     thrift_spec = (
