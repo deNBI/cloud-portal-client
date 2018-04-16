@@ -6,12 +6,14 @@ from thrift.transport import TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
-import yaml
+import yaml, os
 
 
 
 if __name__ == '__main__':
-    with open("../../config.yml", 'r') as ymlfile:
+    CONFIG_FILE = os.path.join(os.path.dirname(__file__), '..', '..', 'config.yml')
+
+    with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
