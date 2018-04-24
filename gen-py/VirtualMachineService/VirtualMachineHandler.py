@@ -184,6 +184,7 @@ class VirtualMachineHandler(Iface):
             diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
         else:
             diskspace=0
+            volume_id=''
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
@@ -209,7 +210,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],default_user=default_user),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace)
+                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace,volume_id=volume_id)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
@@ -218,7 +219,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        fixed_ip=fixed_ip,diskspace=diskspace)
+                        fixed_ip=fixed_ip,diskspace=diskspace,volume_id=volume_id)
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
@@ -249,10 +250,10 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
-            print('create volume')
-            print (diskspace)
             if int(diskspace) > 0:
                 volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
+                time.sleep(5)
+                print(volume['id'])
                 print(self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id']))
             print('done')
            # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
@@ -265,22 +266,6 @@ class VirtualMachineHandler(Iface):
 
             raise otherException(Reason=str(e))
 
-    def attachVolumeToServer(self,volume,server):
-        serviceid = self.conn.identity.users().to_dict()['id']
-        for e in self.conn.identity.endpoints():
-            e = e.to_dict()
-            if e['service_id'] == serviceid and e['interface'] == 'public':
-                url = e['url']
-                url = url.split('%')[0]
-
-        url='{0}{1}/servers/{2}/os-volume_attachments'.format(url,self.PROJECT_ID,server)
-        print(url)
-        headers = {"X-Auth-Token": self.conn.authorize()}
-        params= {'volumeAttachment':{
-            'volumeId':volume
-        }}
-        r = requests.post(url, headers=headers,json=params)
-        print(r.content)
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
 
@@ -340,9 +325,42 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Delete Server " + openstack_id )
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            self.logger.error("Instance " + openstack_id + " not found")
+            self.logger.error("Instance {0} not found".format(openstack_id ))
             raise serverNotFoundException
+
+        attachments=list()
+        volumeids= list()
+        for volume in self.conn.compute.volume_attachments(server=server):
+            attachments.append(volume)
+            volumeids.append(volume.to_dict()['volume_id'])
+
+        def deleteVolumeAttachmenServer(attachments,server,logger,conn):
+            for a in attachments:
+                logger.info("Delete VolumeAttachment  {0}".format(a))
+                conn.compute.delete_volume_attachment(volume_attachment=a,server=server)
+
+        deleteVolumeAttachmenServer(attachments=attachments,server=server,logger=self.logger,conn=self.conn)
+        def checkStatusVolumes(volumes,conn):
+            done=False
+            while done == False:
+                done=True
+                for a in volumes:
+                    if conn.block_storage.get_volume(a).to_dict()['status'] !='available':
+                        print(conn.block_storage.get_volume(a).to_dict()['status'])
+                        done=False
+                    time.sleep(5)
+            return
+
+        checkStatusVolumes(volumeids,self.conn)
+      
+        def deleteVolume(volume_id,conn,logger):
+            logger.info("Delete Volume  {0}".format(volume_id))
+            print(conn.block_storage.delete_volume(volume=volume_id))
+
+        for id in volumeids:
+            deleteVolume(id,self.conn,self.logger)
         self.conn.compute.delete_server(server)
+
         return True
 
     def stop_server(self, openstack_id):

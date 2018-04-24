@@ -105,6 +105,8 @@ struct VM {
 
 	12:optional int diskspace
 
+	13:optional string volume_id
+
 	
 }
 
