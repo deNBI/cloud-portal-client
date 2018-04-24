@@ -58,6 +58,7 @@ class VirtualMachineHandler(Iface):
         self.USERNAME = os.environ['OS_USERNAME']
         self.PASSWORD = os.environ['OS_PASSWORD']
         self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
+        self.PROJECT_ID=os.environ['OS_PROJECT_ID']
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
 
@@ -178,6 +179,11 @@ class VirtualMachineHandler(Iface):
         server = self.conn.compute.get_server(server)
         serv = server.to_dict()
 
+        if serv['attached_volumes'] :
+            volume_id=serv['attached_volumes'][0]['id']
+            diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
+        else:
+            diskspace=0
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
@@ -203,7 +209,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],default_user=default_user),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        floating_ip=floating_ip, fixed_ip=fixed_ip)
+                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
@@ -212,10 +218,10 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        fixed_ip=fixed_ip)
+                        fixed_ip=fixed_ip,diskspace=diskspace)
         return server
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id):
+    def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
         self.logger.info("Start Server " +  servername)
         try:
             metadata = { 'elixir_id': elixir_id}
@@ -243,14 +249,38 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
+            print('create volume')
+            print (diskspace)
+            if int(diskspace) > 0:
+                volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
+                print(self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id']))
+            print('done')
            # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             return True
         except Exception as e:
+            self.logger.error(e,exc_info=True)
             if 'Quota exceeded ' in str(e):
                 self.logger.error("Quoata exceeded : not enough Ressources left")
                 raise ressourceException(Reason=str(e))
 
             raise otherException(Reason=str(e))
+
+    def attachVolumeToServer(self,volume,server):
+        serviceid = self.conn.identity.users().to_dict()['id']
+        for e in self.conn.identity.endpoints():
+            e = e.to_dict()
+            if e['service_id'] == serviceid and e['interface'] == 'public':
+                url = e['url']
+                url = url.split('%')[0]
+
+        url='{0}{1}/servers/{2}/os-volume_attachments'.format(url,self.PROJECT_ID,server)
+        print(url)
+        headers = {"X-Auth-Token": self.conn.authorize()}
+        params= {'volumeAttachment':{
+            'volumeId':volume
+        }}
+        r = requests.post(url, headers=headers,json=params)
+        print(r.content)
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
 

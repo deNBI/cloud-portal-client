@@ -329,6 +329,7 @@ class VM(object):
      - created_at: The the creation time of the VM
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
+     - diskspace
     """
 
     thrift_spec = (
@@ -344,9 +345,10 @@ class VM(object):
         (9, TType.STRING, 'created_at', 'UTF8', None, ),  # 9
         (10, TType.STRING, 'floating_ip', 'UTF8', None, ),  # 10
         (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
+        (12, TType.I32, 'diskspace', None, None, ),  # 12
     )
 
-    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None,):
         self.flav = flav
         self.img = img
         self.status = status
@@ -358,6 +360,7 @@ class VM(object):
         self.created_at = created_at
         self.floating_ip = floating_ip
         self.fixed_ip = fixed_ip
+        self.diskspace = diskspace
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -431,6 +434,11 @@ class VM(object):
                     self.fixed_ip = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 12:
+                if ftype == TType.I32:
+                    self.diskspace = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -488,6 +496,10 @@ class VM(object):
         if self.fixed_ip is not None:
             oprot.writeFieldBegin('fixed_ip', TType.STRING, 11)
             oprot.writeString(self.fixed_ip.encode('utf-8') if sys.version_info[0] == 2 else self.fixed_ip)
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.I32, 12)
+            oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
