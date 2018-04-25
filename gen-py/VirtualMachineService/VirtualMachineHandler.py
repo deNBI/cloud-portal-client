@@ -31,7 +31,6 @@ class VirtualMachineHandler(Iface):
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
             #conn.authorize()
         except Exception as e:
-            print(e.__str__)
             self.logger.error('Client failed authentication at Openstack')
             raise authenticationException(Reason='Client failed authentication at Openstack')
 
@@ -58,6 +57,7 @@ class VirtualMachineHandler(Iface):
         self.USERNAME = os.environ['OS_USERNAME']
         self.PASSWORD = os.environ['OS_PASSWORD']
         self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
+        self.PROJECT_ID=os.environ['OS_PROJECT_ID']
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
 
@@ -178,6 +178,11 @@ class VirtualMachineHandler(Iface):
         server = self.conn.compute.get_server(server)
         serv = server.to_dict()
 
+        if serv['attached_volumes'] :
+            volume_id=serv['attached_volumes'][0]['id']
+            diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
+        else:
+            diskspace=0
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
@@ -203,7 +208,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],default_user=default_user),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        floating_ip=floating_ip, fixed_ip=fixed_ip)
+                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
@@ -212,10 +217,10 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        fixed_ip=fixed_ip)
+                        fixed_ip=fixed_ip,diskspace=diskspace)
         return server
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id):
+    def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
         self.logger.info("Start Server " +  servername)
         try:
             metadata = { 'elixir_id': elixir_id}
@@ -243,14 +248,20 @@ class VirtualMachineHandler(Iface):
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             server = self.conn.compute.wait_for_server(server)
+            if int(diskspace) > 0:
+                volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
+                time.sleep(5)
+                self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id'])
            # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             return True
         except Exception as e:
+            self.logger.error(e,exc_info=True)
             if 'Quota exceeded ' in str(e):
                 self.logger.error("Quoata exceeded : not enough Ressources left")
                 raise ressourceException(Reason=str(e))
 
             raise otherException(Reason=str(e))
+
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
 
@@ -310,9 +321,43 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Delete Server " + openstack_id )
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            self.logger.error("Instance " + openstack_id + " not found")
+            self.logger.error("Instance {0} not found".format(openstack_id ))
             raise serverNotFoundException
+
+        attachments=list()
+        volumeids= list()
+        for volume in self.conn.compute.volume_attachments(server=server):
+            attachments.append(volume)
+            volumeids.append(volume.to_dict()['volume_id'])
+
+        def deleteVolumeAttachmenServer(attachments,server,logger,conn):
+            for a in attachments:
+                logger.info("Delete VolumeAttachment  {0}".format(a))
+                conn.compute.delete_volume_attachment(volume_attachment=a,server=server)
+
+        deleteVolumeAttachmenServer(attachments=attachments,server=server,logger=self.logger,conn=self.conn)
+        def checkStatusVolumes(volumes,conn):
+            done=False
+            while done == False:
+                done=True
+                for a in volumes:
+                    if conn.block_storage.get_volume(a).to_dict()['status'] !='available':
+                        conn.block_storage.get_volume(a).to_dict()['status']
+                        done=False
+                        time.sleep(5)
+                        break
+            return
+
+        checkStatusVolumes(volumeids,self.conn)
+
+        def deleteVolume(volume_id,conn,logger):
+            logger.info("Delete Volume  {0}".format(volume_id))
+            conn.block_storage.delete_volume(volume=volume_id)
+
+        for id in volumeids:
+            deleteVolume(id,self.conn,self.logger)
         self.conn.compute.delete_server(server)
+
         return True
 
     def stop_server(self, openstack_id):
