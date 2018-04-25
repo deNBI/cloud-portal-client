@@ -105,7 +105,7 @@ struct VM {
 
 	12:optional int diskspace
 
-	13:optional string volume_id
+
 
 	
 }
@@ -220,4 +220,6 @@ service VirtualMachineService {
      * This Method unpause a VirtualMachine with a specific Openstack-ID.
      */
     bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e),
+
+    string setUserPassword(1:string user, 2:string password) throws (1:otherException e),
 }

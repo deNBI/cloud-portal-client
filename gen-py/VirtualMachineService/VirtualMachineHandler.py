@@ -184,7 +184,6 @@ class VirtualMachineHandler(Iface):
             diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
         else:
             diskspace=0
-            volume_id=''
         dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
         timestamp = time.mktime(dt.timetuple())
 
@@ -210,7 +209,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],default_user=default_user),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace,volume_id=volume_id)
+                        floating_ip=floating_ip, fixed_ip=fixed_ip,diskspace=diskspace)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
@@ -219,7 +218,7 @@ class VirtualMachineHandler(Iface):
                                   created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        fixed_ip=fixed_ip,diskspace=diskspace,volume_id=volume_id)
+                        fixed_ip=fixed_ip,diskspace=diskspace)
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
@@ -253,9 +252,7 @@ class VirtualMachineHandler(Iface):
             if int(diskspace) > 0:
                 volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
                 time.sleep(5)
-                print(volume['id'])
-                print(self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id']))
-            print('done')
+                self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id'])
            # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
             return True
         except Exception as e:
@@ -346,13 +343,14 @@ class VirtualMachineHandler(Iface):
                 done=True
                 for a in volumes:
                     if conn.block_storage.get_volume(a).to_dict()['status'] !='available':
-                        print(conn.block_storage.get_volume(a).to_dict()['status'])
+                        conn.block_storage.get_volume(a).to_dict()['status']
                         done=False
-                    time.sleep(5)
+                        time.sleep(5)
+                        break
             return
 
         checkStatusVolumes(volumeids,self.conn)
-      
+
         def deleteVolume(volume_id,conn,logger):
             logger.info("Delete Volume  {0}".format(volume_id))
             print(conn.block_storage.delete_volume(volume=volume_id))
