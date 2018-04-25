@@ -20,14 +20,6 @@ class Iface(object):
 
     This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
-    def setUserPassword(self, user, password):
-        """
-        Parameters:
-         - user
-         - password
-        """
-        pass
-
     def check_Version(self, version):
         """
         This Method  compares the version of the Portal-Client with the Version of the Client from the Cloud-Portal-Client-Connector.
@@ -48,6 +40,13 @@ class Iface(object):
         Parameters:
          - keyname
          - public_key
+        """
+        pass
+
+    def checkServerStatus(self, servername):
+        """
+        Parameters:
+         - servername
         """
         pass
 
@@ -186,41 +185,6 @@ class Client(Iface):
             self._oprot = oprot
         self._seqid = 0
 
-    def setUserPassword(self, user, password):
-        """
-        Parameters:
-         - user
-         - password
-        """
-        self.send_setUserPassword(user, password)
-        return self.recv_setUserPassword()
-
-    def send_setUserPassword(self, user, password):
-        self._oprot.writeMessageBegin('setUserPassword', TMessageType.CALL, self._seqid)
-        args = setUserPassword_args()
-        args.user = user
-        args.password = password
-        args.write(self._oprot)
-        self._oprot.writeMessageEnd()
-        self._oprot.trans.flush()
-
-    def recv_setUserPassword(self):
-        iprot = self._iprot
-        (fname, mtype, rseqid) = iprot.readMessageBegin()
-        if mtype == TMessageType.EXCEPTION:
-            x = TApplicationException()
-            x.read(iprot)
-            iprot.readMessageEnd()
-            raise x
-        result = setUserPassword_result()
-        result.read(iprot)
-        iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
-        if result.e is not None:
-            raise result.e
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "setUserPassword failed: unknown result")
-
     def check_Version(self, version):
         """
         This Method  compares the version of the Portal-Client with the Version of the Client from the Cloud-Portal-Client-Connector.
@@ -292,6 +256,37 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "import_keypair failed: unknown result")
+
+    def checkServerStatus(self, servername):
+        """
+        Parameters:
+         - servername
+        """
+        self.send_checkServerStatus(servername)
+        return self.recv_checkServerStatus()
+
+    def send_checkServerStatus(self, servername):
+        self._oprot.writeMessageBegin('checkServerStatus', TMessageType.CALL, self._seqid)
+        args = checkServerStatus_args()
+        args.servername = servername
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_checkServerStatus(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = checkServerStatus_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "checkServerStatus failed: unknown result")
 
     def generate_SSH_Login_String(self, servername):
         """
@@ -751,9 +746,9 @@ class Processor(Iface, TProcessor):
     def __init__(self, handler):
         self._handler = handler
         self._processMap = {}
-        self._processMap["setUserPassword"] = Processor.process_setUserPassword
         self._processMap["check_Version"] = Processor.process_check_Version
         self._processMap["import_keypair"] = Processor.process_import_keypair
+        self._processMap["checkServerStatus"] = Processor.process_checkServerStatus
         self._processMap["generate_SSH_Login_String"] = Processor.process_generate_SSH_Login_String
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
@@ -781,28 +776,6 @@ class Processor(Iface, TProcessor):
         else:
             self._processMap[name](self, seqid, iprot, oprot)
         return True
-
-    def process_setUserPassword(self, seqid, iprot, oprot):
-        args = setUserPassword_args()
-        args.read(iprot)
-        iprot.readMessageEnd()
-        result = setUserPassword_result()
-        try:
-            result.success = self._handler.setUserPassword(args.user, args.password)
-            msg_type = TMessageType.REPLY
-        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
-            raise
-        except otherException as e:
-            msg_type = TMessageType.REPLY
-            result.e = e
-        except Exception as ex:
-            msg_type = TMessageType.EXCEPTION
-            logging.exception(ex)
-            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("setUserPassword", msg_type, seqid)
-        result.write(oprot)
-        oprot.writeMessageEnd()
-        oprot.trans.flush()
 
     def process_check_Version(self, seqid, iprot, oprot):
         args = check_Version_args()
@@ -838,6 +811,25 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("import_keypair", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_checkServerStatus(self, seqid, iprot, oprot):
+        args = checkServerStatus_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = checkServerStatus_result()
+        try:
+            result.success = self._handler.checkServerStatus(args.servername)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("checkServerStatus", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1121,150 +1113,6 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
-class setUserPassword_args(object):
-    """
-    Attributes:
-     - user
-     - password
-    """
-
-    thrift_spec = (
-        None,  # 0
-        (1, TType.STRING, 'user', 'UTF8', None, ),  # 1
-        (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
-    )
-
-    def __init__(self, user=None, password=None,):
-        self.user = user
-        self.password = password
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.password = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
-            return
-        oprot.writeStructBegin('setUserPassword_args')
-        if self.user is not None:
-            oprot.writeFieldBegin('user', TType.STRING, 1)
-            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
-            oprot.writeFieldEnd()
-        if self.password is not None:
-            oprot.writeFieldBegin('password', TType.STRING, 2)
-            oprot.writeString(self.password.encode('utf-8') if sys.version_info[0] == 2 else self.password)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
-class setUserPassword_result(object):
-    """
-    Attributes:
-     - success
-     - e
-    """
-
-    thrift_spec = (
-        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
-        (1, TType.STRUCT, 'e', (otherException, otherException.thrift_spec), None, ),  # 1
-    )
-
-    def __init__(self, success=None, e=None,):
-        self.success = success
-        self.e = e
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 0:
-                if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
-                if ftype == TType.STRUCT:
-                    self.e = otherException()
-                    self.e.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
-            return
-        oprot.writeStructBegin('setUserPassword_result')
-        if self.success is not None:
-            oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
-            oprot.writeFieldEnd()
-        if self.e is not None:
-            oprot.writeFieldBegin('e', TType.STRUCT, 1)
-            self.e.write(oprot)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
 class check_Version_args(object):
     """
     Attributes:
@@ -1493,6 +1341,125 @@ class import_keypair_result(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('import_keypair_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class checkServerStatus_args(object):
+    """
+    Attributes:
+     - servername
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'servername', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, servername=None,):
+        self.servername = servername
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('checkServerStatus_args')
+        if self.servername is not None:
+            oprot.writeFieldBegin('servername', TType.STRING, 1)
+            oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class checkServerStatus_result(object):
+    """
+    Attributes:
+     - success
+    """
+
+    thrift_spec = (
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+    )
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('checkServerStatus_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
@@ -2781,7 +2748,7 @@ class start_server_result(object):
     """
 
     thrift_spec = (
-        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
         (1, TType.STRUCT, 'e', (nameException, nameException.thrift_spec), None, ),  # 1
         (2, TType.STRUCT, 'r', (ressourceException, ressourceException.thrift_spec), None, ),  # 2
         (3, TType.STRUCT, 's', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 3
@@ -2811,8 +2778,8 @@ class start_server_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -2868,8 +2835,8 @@ class start_server_result(object):
             return
         oprot.writeStructBegin('start_server_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.BOOL, 0)
-            oprot.writeBool(self.success)
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)

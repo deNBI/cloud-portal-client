@@ -168,6 +168,7 @@ service VirtualMachineService {
      */
     string import_keypair(1:string keyname,2:string public_key)
 
+    string checkServerStatus(1: string servername)
     /**@
      * This Method generates a String the user can use to login in in the instance
      */
@@ -203,7 +204,7 @@ service VirtualMachineService {
 	 /**
      * This Method starts a VirtualMachine .
      */
-    bool start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string elixir_id) throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException oe),
+    string start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string elixir_id) throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException oe),
 	/**
 	*This Method returns a VirtualMachine with a specific Name.
 	*/

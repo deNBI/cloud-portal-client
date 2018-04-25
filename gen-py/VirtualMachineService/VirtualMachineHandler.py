@@ -242,15 +242,27 @@ class VirtualMachineHandler(Iface):
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
-            server = self.conn.compute.wait_for_server(server)
+            #server = self.conn.compute.wait_for_server(server)
            # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            return True
+            print (server.to_dict())
+            print(self.checkServerStatus(servername=servername))
+            return server.to_dict()['id']
         except Exception as e:
+            self.logger.error(e, exc_info=True)
             if 'Quota exceeded ' in str(e):
                 self.logger.error("Quoata exceeded : not enough Ressources left")
                 raise ressourceException(Reason=str(e))
 
             raise otherException(Reason=str(e))
+
+
+    def checkServerStatus(self, servername):
+            try:
+                server=self.get_server(servername=servername)
+                return server.status
+            except Exception:
+                return None
+
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
 

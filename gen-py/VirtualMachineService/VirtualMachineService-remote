@@ -24,9 +24,9 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  string setUserPassword(string user, string password)')
     print('  bool check_Version(double version)')
     print('  string import_keypair(string keyname, string public_key)')
+    print('  string checkServerStatus(string servername)')
     print('  string generate_SSH_Login_String(string servername)')
     print('   get_Flavors()')
     print('   get_Images()')
@@ -35,7 +35,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string servername, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('  bool start_server(string flavor, string image, string public_key, string servername, string elixir_id)')
+    print('  string start_server(string flavor, string image, string public_key, string servername, string elixir_id)')
     print('  VM get_server(string servername)')
     print('  bool stop_server(string openstack_id)')
     print('  bool resume_server(string openstack_id)')
@@ -118,13 +118,7 @@ protocol = TBinaryProtocol(transport)
 client = VirtualMachineService.Client(protocol)
 transport.open()
 
-if cmd == 'setUserPassword':
-    if len(args) != 2:
-        print('setUserPassword requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.setUserPassword(args[0], args[1],))
-
-elif cmd == 'check_Version':
+if cmd == 'check_Version':
     if len(args) != 1:
         print('check_Version requires 1 args')
         sys.exit(1)
@@ -135,6 +129,12 @@ elif cmd == 'import_keypair':
         print('import_keypair requires 2 args')
         sys.exit(1)
     pp.pprint(client.import_keypair(args[0], args[1],))
+
+elif cmd == 'checkServerStatus':
+    if len(args) != 1:
+        print('checkServerStatus requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.checkServerStatus(args[0],))
 
 elif cmd == 'generate_SSH_Login_String':
     if len(args) != 1:
