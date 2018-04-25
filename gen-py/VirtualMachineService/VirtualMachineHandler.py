@@ -31,7 +31,6 @@ class VirtualMachineHandler(Iface):
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
             #conn.authorize()
         except Exception as e:
-            print(e.__str__)
             self.logger.error('Client failed authentication at Openstack')
             raise authenticationException(Reason='Client failed authentication at Openstack')
 
@@ -353,7 +352,7 @@ class VirtualMachineHandler(Iface):
 
         def deleteVolume(volume_id,conn,logger):
             logger.info("Delete Volume  {0}".format(volume_id))
-            print(conn.block_storage.delete_volume(volume=volume_id))
+            conn.block_storage.delete_volume(volume=volume_id)
 
         for id in volumeids:
             deleteVolume(id,self.conn,self.logger)
