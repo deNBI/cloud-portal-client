@@ -221,46 +221,55 @@ class VirtualMachineHandler(Iface):
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
-        self.logger.info("Start Server " +  servername)
+        self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = { 'elixir_id': elixir_id}
             image = self.conn.compute.find_image(image)
             if image is None:
-                self.logger.error("Image " + str(image) + " not found")
-                raise imageNotFoundException(Reason='Image ' + str(image) + ' was not found!')
+                self.logger.error('Image {0} not found!'.format(image))
+                raise imageNotFoundException(Reason=('Image {0} not fournd'.format(image)))
             flavor = self.conn.compute.find_flavor(flavor)
             if flavor is None:
-                self.logger.error("Flavor " + str(flavor) + " not found")
-                raise flavorNotFoundException(Reason='Flavor' + str(flavor) + ' was not found!')
+                self.logger.error('Flavor {0} not found!'.format(flavor))
+                raise flavorNotFoundException(Reason='Flavor {0} not found!'.format(flavor))
             network = self.conn.network.find_network(self.NETWORK)
             if network is None:
-                self.logger.error("Network " + str(network) + " not found")
-                raise networkNotFoundException(Reason='Network ' + str(network) + 'was not found!')
+                self.logger.error('Network {0} not found!'.format(network))
+                raise networkNotFoundException(Reason='Network {0} not found!'.format(network))
 
             if self.conn.compute.find_server(servername) is not None:
-                self.logger.error("Instance with name " + servername + ' already exist')
-                raise nameException(Reason='Another Instance with name : ' + servername + ' already exist')
+                self.logger.error('Instance with name {0} already exist'.format(servername))
+                raise nameException(Reason='Another Instance with name : {0} already exist'.format(servername))
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
             server = self.conn.compute.create_server(
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
-
-            server = self.conn.compute.wait_for_server(server)
-            if int(diskspace) > 0:
-                volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
-                time.sleep(5)
-                self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id'])
-           # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            return True
+            print(server)
+            return server
         except Exception as e:
             self.logger.error(e,exc_info=True)
-            if 'Quota exceeded ' in str(e):
-                self.logger.error("Quoata exceeded : not enough Ressources left")
-                raise ressourceException(Reason=str(e))
-
             raise otherException(Reason=str(e))
+
+    def attach_volume_to_server(self, openstack_id,diskspace):
+
+        server = self.conn.compute.get_server(server)
+        if server is None:
+            self.logger.error("No Server with name {0} ".format(servername))
+            raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
+        serv = server.to_dict()
+        servername=serv['name']
+
+        volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
+        time.sleep(5)
+        self.conn.compute.create_volume_attachment(server=server, volumeId=volume['id'])
+        return True
+
+
+
+
+
 
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
