@@ -256,6 +256,18 @@ class VirtualMachineHandler(Iface):
             raise otherException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id,diskspace):
+        def checkStatusVolume(volume, conn):
+            done = False
+            while done == False:
+                status=conn.block_storage.get_volume(volume).to_dict()['status']
+
+                if  status != 'available':
+
+                    time.sleep(5)
+                else :
+                    done=True
+                    time.sleep(10)
+            return
 
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
@@ -265,7 +277,7 @@ class VirtualMachineHandler(Iface):
         servername=serv['name']
         self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
         volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
-        time.sleep(5)
+        checkStatusVolume(volume=volume['id'],conn=self.conn)
         self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume['id'],openstack_id))
         self.conn.compute.create_volume_attachment(server=server, volumeId=volume['id'])
         return True
@@ -281,9 +293,9 @@ class VirtualMachineHandler(Iface):
         servername=serv['name']
 
         if serv['status'] != 'ACTIVE':
+            if diskspace > 0:
+                 self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
             return self.get_server(servername)
-        elif diskspace > 0:
-            self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
         return self.get_server(servername)
 
 
