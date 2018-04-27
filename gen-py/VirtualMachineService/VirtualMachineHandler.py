@@ -183,8 +183,11 @@ class VirtualMachineHandler(Iface):
             diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
         else:
             diskspace=0
-        dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
-        timestamp = time.mktime(dt.timetuple())
+        if serv['launched_at']:
+             dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
+             timestamp = time.mktime(dt.timetuple())
+        else:
+            timestamp=None
 
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
@@ -247,14 +250,14 @@ class VirtualMachineHandler(Iface):
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
             print(server)
-            return server
+            return server.to_dict()['id']
         except Exception as e:
             self.logger.error(e,exc_info=True)
             raise otherException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id,diskspace):
 
-        server = self.conn.compute.get_server(server)
+        server = self.conn.compute.get_server(openstack_id)
         if server is None:
             self.logger.error("No Server with name {0} ".format(servername))
             raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
@@ -267,7 +270,19 @@ class VirtualMachineHandler(Iface):
         return True
 
 
-
+    def check_server_status(self, openstack_id,diskspace):
+        server = self.conn.compute.get_server(openstack_id)
+        if server is None:
+            self.logger.error("No Server with name {0} ".format(servername))
+            raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
+        serv = server.to_dict()
+        servername=serv['name']
+        print(serv['status'])
+        if serv['status'] != 'ACTIVE':
+            return self.get_server(servername)
+        elif diskspace > 0:
+            self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
+        return self.get_server(servername)
 
 
 

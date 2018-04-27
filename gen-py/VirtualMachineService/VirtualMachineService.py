@@ -168,10 +168,11 @@ class Iface(object):
         """
         pass
 
-    def check_server_status(self, openstack_id):
+    def check_server_status(self, openstack_id, diskspace):
         """
         Parameters:
          - openstack_id
+         - diskspace
         """
         pass
 
@@ -724,18 +725,20 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "attach_volume_to_server failed: unknown result")
 
-    def check_server_status(self, openstack_id):
+    def check_server_status(self, openstack_id, diskspace):
         """
         Parameters:
          - openstack_id
+         - diskspace
         """
-        self.send_check_server_status(openstack_id)
+        self.send_check_server_status(openstack_id, diskspace)
         return self.recv_check_server_status()
 
-    def send_check_server_status(self, openstack_id):
+    def send_check_server_status(self, openstack_id, diskspace):
         self._oprot.writeMessageBegin('check_server_status', TMessageType.CALL, self._seqid)
         args = check_server_status_args()
         args.openstack_id = openstack_id
+        args.diskspace = diskspace
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1149,7 +1152,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = check_server_status_result()
         try:
-            result.success = self._handler.check_server_status(args.openstack_id)
+            result.success = self._handler.check_server_status(args.openstack_id, args.diskspace)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -3267,15 +3270,18 @@ class check_server_status_args(object):
     """
     Attributes:
      - openstack_id
+     - diskspace
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
+        (2, TType.I32, 'diskspace', None, None, ),  # 2
     )
 
-    def __init__(self, openstack_id=None,):
+    def __init__(self, openstack_id=None, diskspace=None,):
         self.openstack_id = openstack_id
+        self.diskspace = diskspace
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3291,6 +3297,11 @@ class check_server_status_args(object):
                     self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.diskspace = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3304,6 +3315,10 @@ class check_server_status_args(object):
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.I32, 2)
+            oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
