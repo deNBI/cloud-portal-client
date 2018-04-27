@@ -249,7 +249,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.compute.create_server(
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
-            print(server)
+
             return server.to_dict()['id']
         except Exception as e:
             self.logger.error(e,exc_info=True)
@@ -263,9 +263,10 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
         serv = server.to_dict()
         servername=serv['name']
-
+        self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
         volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
         time.sleep(5)
+        self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume['id'],openstack_id))
         self.conn.compute.create_volume_attachment(server=server, volumeId=volume['id'])
         return True
 
@@ -277,7 +278,7 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
         serv = server.to_dict()
         servername=serv['name']
-        print(serv['status'])
+
         if serv['status'] != 'ACTIVE':
             return self.get_server(servername)
         elif diskspace > 0:
