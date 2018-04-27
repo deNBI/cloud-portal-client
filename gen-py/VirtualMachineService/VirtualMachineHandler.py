@@ -272,6 +272,7 @@ class VirtualMachineHandler(Iface):
 
 
     def check_server_status(self, openstack_id,diskspace):
+        self.logger.info('Check Status VM {0}'.format(openstack_id))
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
             self.logger.error("No Server with name {0} ".format(servername))
