@@ -285,10 +285,14 @@ class VirtualMachineHandler(Iface):
 
     def check_server_status(self, openstack_id,diskspace):
         self.logger.info('Check Status VM {0}'.format(openstack_id))
-        server = self.conn.compute.get_server(openstack_id)
+        try:
+            server = self.conn.compute.get_server(openstack_id)
+        except Exception:
+            self.logger.error("No Server with id  {0} ".format(openstack_id))
+            return None
         if server is None:
-            self.logger.error("No Server with name {0} ".format(servername))
-            raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
+            self.logger.error("No Server with id {0} ".format(openstack_id))
+            return None
         serv = server.to_dict()
         servername=serv['name']
 
