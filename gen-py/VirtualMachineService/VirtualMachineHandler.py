@@ -370,11 +370,19 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Instance {0} not found".format(openstack_id ))
             raise serverNotFoundException
 
+        if server.status == 'SUSPENDED':
+            self.conn.compute.resume_server(server)
+            server = self.conn.compute.get_server(server)
+            while server.status != 'ACTIVE':
+                server = self.conn.compute.get_server(server)
+                time.sleep(3)
+
         attachments=list()
         volumeids= list()
         for volume in self.conn.compute.volume_attachments(server=server):
             attachments.append(volume)
             volumeids.append(volume.to_dict()['volume_id'])
+
 
         def deleteVolumeAttachmenServer(attachments,server,logger,conn):
             for a in attachments:
