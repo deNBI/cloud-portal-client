@@ -183,8 +183,11 @@ class VirtualMachineHandler(Iface):
             diskspace=self.conn.block_storage.get_volume(volume_id).to_dict()['size']
         else:
             diskspace=0
-        dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
-        timestamp = time.mktime(dt.timetuple())
+        if serv['launched_at']:
+             dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
+             timestamp = time.mktime(dt.timetuple())
+        else:
+            timestamp=None
 
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         img = self.conn.compute.get_image(serv['image']['id']).to_dict()
@@ -221,25 +224,25 @@ class VirtualMachineHandler(Iface):
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id,diskspace):
-        self.logger.info("Start Server " +  servername)
+        self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = { 'elixir_id': elixir_id}
             image = self.conn.compute.find_image(image)
             if image is None:
-                self.logger.error("Image " + str(image) + " not found")
-                raise imageNotFoundException(Reason='Image ' + str(image) + ' was not found!')
+                self.logger.error('Image {0} not found!'.format(image))
+                raise imageNotFoundException(Reason=('Image {0} not fournd'.format(image)))
             flavor = self.conn.compute.find_flavor(flavor)
             if flavor is None:
-                self.logger.error("Flavor " + str(flavor) + " not found")
-                raise flavorNotFoundException(Reason='Flavor' + str(flavor) + ' was not found!')
+                self.logger.error('Flavor {0} not found!'.format(flavor))
+                raise flavorNotFoundException(Reason='Flavor {0} not found!'.format(flavor))
             network = self.conn.network.find_network(self.NETWORK)
             if network is None:
-                self.logger.error("Network " + str(network) + " not found")
-                raise networkNotFoundException(Reason='Network ' + str(network) + 'was not found!')
+                self.logger.error('Network {0} not found!'.format(network))
+                raise networkNotFoundException(Reason='Network {0} not found!'.format(network))
 
             if self.conn.compute.find_server(servername) is not None:
-                self.logger.error("Instance with name " + servername + ' already exist')
-                raise nameException(Reason='Another Instance with name : ' + servername + ' already exist')
+                self.logger.error('Instance with name {0} already exist'.format(servername))
+                raise nameException(Reason='Another Instance with name : {0} already exist'.format(servername))
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
@@ -247,20 +250,63 @@ class VirtualMachineHandler(Iface):
                 name=servername, image_id=image.id, flavor_id=flavor.id,
                 networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
-            server = self.conn.compute.wait_for_server(server)
-            if int(diskspace) > 0:
-                volume=self.conn.block_storage.create_volume(name=servername,size=int(diskspace)).to_dict()
-                time.sleep(5)
-                self.conn.compute.create_volume_attachment(server=server,volumeId=volume['id'])
-           # self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            return True
+            return server.to_dict()['id']
         except Exception as e:
             self.logger.error(e,exc_info=True)
-            if 'Quota exceeded ' in str(e):
-                self.logger.error("Quoata exceeded : not enough Ressources left")
-                raise ressourceException(Reason=str(e))
-
             raise otherException(Reason=str(e))
+
+    def attach_volume_to_server(self, openstack_id,diskspace):
+        def checkStatusVolume(volume, conn):
+            done = False
+            while done == False:
+                status=conn.block_storage.get_volume(volume).to_dict()['status']
+
+                if  status != 'available':
+
+                    time.sleep(5)
+                else :
+                    done=True
+                    time.sleep(10)
+            return
+
+        server = self.conn.compute.get_server(openstack_id)
+        if server is None:
+            self.logger.error("No Server with name {0} ".format(servername))
+            raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
+        serv = server.to_dict()
+        servername=serv['name']
+        self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
+        volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
+        checkStatusVolume(volume=volume['id'],conn=self.conn)
+        self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume['id'],openstack_id))
+        self.conn.compute.create_volume_attachment(server=server, volumeId=volume['id'])
+        return True
+
+
+    def check_server_status(self, openstack_id,diskspace):
+        self.logger.info('Check Status VM {0}'.format(openstack_id))
+        try:
+            server = self.conn.compute.get_server(openstack_id)
+        except Exception:
+            self.logger.error("No Server with id  {0} ".format(openstack_id))
+            return None
+        if server is None:
+            self.logger.error("No Server with id {0} ".format(openstack_id))
+            return None
+        serv = server.to_dict()
+        servername=serv['name']
+
+        if serv['status'] == 'ACTIVE':
+            if diskspace > 0:
+                try:
+                    self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
+                except Exception:
+                    self.logger.error("Failed to create {0} GB diskspace for VM {1}".format(diskspace,openstack_id))
+                    pass
+
+        return self.get_server(servername)
+
+
 
     def generate_SSH_Login_String(self,servername):
         #check if jumphost is active
@@ -324,11 +370,19 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Instance {0} not found".format(openstack_id ))
             raise serverNotFoundException
 
+        if server.status == 'SUSPENDED':
+            self.conn.compute.resume_server(server)
+            server = self.conn.compute.get_server(server)
+            while server.status != 'ACTIVE':
+                server = self.conn.compute.get_server(server)
+                time.sleep(3)
+
         attachments=list()
         volumeids= list()
         for volume in self.conn.compute.volume_attachments(server=server):
             attachments.append(volume)
             volumeids.append(volume.to_dict()['volume_id'])
+
 
         def deleteVolumeAttachmenServer(attachments,server,logger,conn):
             for a in attachments:

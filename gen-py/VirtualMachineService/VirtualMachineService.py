@@ -157,13 +157,22 @@ class Iface(object):
         """
         pass
 
-    def resume_server(self, openstack_id):
+    def attach_volume_to_server(self, openstack_id, diskspace):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
 
         Parameters:
          - openstack_id
+         - diskspace
+        """
+        pass
+
+    def check_server_status(self, openstack_id, diskspace):
+        """
+        Parameters:
+         - openstack_id
+         - diskspace
         """
         pass
 
@@ -172,6 +181,13 @@ class Iface(object):
         Parameters:
          - user
          - password
+        """
+        pass
+
+    def resume_server(self, openstack_id):
+        """
+        Parameters:
+         - openstack_id
         """
         pass
 
@@ -678,26 +694,28 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def resume_server(self, openstack_id):
+    def attach_volume_to_server(self, openstack_id, diskspace):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
 
         Parameters:
          - openstack_id
+         - diskspace
         """
-        self.send_resume_server(openstack_id)
-        return self.recv_resume_server()
+        self.send_attach_volume_to_server(openstack_id, diskspace)
+        return self.recv_attach_volume_to_server()
 
-    def send_resume_server(self, openstack_id):
-        self._oprot.writeMessageBegin('resume_server', TMessageType.CALL, self._seqid)
-        args = resume_server_args()
+    def send_attach_volume_to_server(self, openstack_id, diskspace):
+        self._oprot.writeMessageBegin('attach_volume_to_server', TMessageType.CALL, self._seqid)
+        args = attach_volume_to_server_args()
         args.openstack_id = openstack_id
+        args.diskspace = diskspace
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_resume_server(self):
+    def recv_attach_volume_to_server(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -705,14 +723,49 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = resume_server_result()
+        result = attach_volume_to_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
         if result.e is not None:
             raise result.e
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "resume_server failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "attach_volume_to_server failed: unknown result")
+
+    def check_server_status(self, openstack_id, diskspace):
+        """
+        Parameters:
+         - openstack_id
+         - diskspace
+        """
+        self.send_check_server_status(openstack_id, diskspace)
+        return self.recv_check_server_status()
+
+    def send_check_server_status(self, openstack_id, diskspace):
+        self._oprot.writeMessageBegin('check_server_status', TMessageType.CALL, self._seqid)
+        args = check_server_status_args()
+        args.openstack_id = openstack_id
+        args.diskspace = diskspace
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_check_server_status(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = check_server_status_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "check_server_status failed: unknown result")
 
     def setUserPassword(self, user, password):
         """
@@ -749,6 +802,39 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "setUserPassword failed: unknown result")
 
+    def resume_server(self, openstack_id):
+        """
+        Parameters:
+         - openstack_id
+        """
+        self.send_resume_server(openstack_id)
+        return self.recv_resume_server()
+
+    def send_resume_server(self, openstack_id):
+        self._oprot.writeMessageBegin('resume_server', TMessageType.CALL, self._seqid)
+        args = resume_server_args()
+        args.openstack_id = openstack_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_resume_server(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = resume_server_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "resume_server failed: unknown result")
+
 
 class Processor(Iface, TProcessor):
     def __init__(self, handler):
@@ -767,8 +853,10 @@ class Processor(Iface, TProcessor):
         self._processMap["start_server"] = Processor.process_start_server
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
-        self._processMap["resume_server"] = Processor.process_resume_server
+        self._processMap["attach_volume_to_server"] = Processor.process_attach_volume_to_server
+        self._processMap["check_server_status"] = Processor.process_check_server_status
         self._processMap["setUserPassword"] = Processor.process_setUserPassword
+        self._processMap["resume_server"] = Processor.process_resume_server
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
@@ -1077,13 +1165,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_resume_server(self, seqid, iprot, oprot):
-        args = resume_server_args()
+    def process_attach_volume_to_server(self, seqid, iprot, oprot):
+        args = attach_volume_to_server_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = resume_server_result()
+        result = attach_volume_to_server_result()
         try:
-            result.success = self._handler.resume_server(args.openstack_id)
+            result.success = self._handler.attach_volume_to_server(args.openstack_id, args.diskspace)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1094,7 +1182,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("resume_server", msg_type, seqid)
+        oprot.writeMessageBegin("attach_volume_to_server", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_check_server_status(self, seqid, iprot, oprot):
+        args = check_server_status_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = check_server_status_result()
+        try:
+            result.success = self._handler.check_server_status(args.openstack_id, args.diskspace)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("check_server_status", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1117,6 +1227,28 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("setUserPassword", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_resume_server(self, seqid, iprot, oprot):
+        args = resume_server_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = resume_server_result()
+        try:
+            result.success = self._handler.resume_server(args.openstack_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("resume_server", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -2652,7 +2784,7 @@ class start_server_result(object):
     """
 
     thrift_spec = (
-        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
         (1, TType.STRUCT, 'e', (nameException, nameException.thrift_spec), None, ),  # 1
         (2, TType.STRUCT, 'r', (ressourceException, ressourceException.thrift_spec), None, ),  # 2
         (3, TType.STRUCT, 's', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 3
@@ -2682,8 +2814,8 @@ class start_server_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -2739,8 +2871,8 @@ class start_server_result(object):
             return
         oprot.writeStructBegin('start_server_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.BOOL, 0)
-            oprot.writeBool(self.success)
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -3053,19 +3185,22 @@ class stop_server_result(object):
         return not (self == other)
 
 
-class resume_server_args(object):
+class attach_volume_to_server_args(object):
     """
     Attributes:
      - openstack_id
+     - diskspace
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
+        (2, TType.I32, 'diskspace', None, None, ),  # 2
     )
 
-    def __init__(self, openstack_id=None,):
+    def __init__(self, openstack_id=None, diskspace=None,):
         self.openstack_id = openstack_id
+        self.diskspace = diskspace
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3081,6 +3216,11 @@ class resume_server_args(object):
                     self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.diskspace = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3090,10 +3230,14 @@ class resume_server_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('resume_server_args')
+        oprot.writeStructBegin('attach_volume_to_server_args')
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.I32, 2)
+            oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3113,7 +3257,7 @@ class resume_server_args(object):
         return not (self == other)
 
 
-class resume_server_result(object):
+class attach_volume_to_server_result(object):
     """
     Attributes:
      - success
@@ -3158,10 +3302,155 @@ class resume_server_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('resume_server_result')
+        oprot.writeStructBegin('attach_volume_to_server_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 0)
             oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class check_server_status_args(object):
+    """
+    Attributes:
+     - openstack_id
+     - diskspace
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
+        (2, TType.I32, 'diskspace', None, None, ),  # 2
+    )
+
+    def __init__(self, openstack_id=None, diskspace=None,):
+        self.openstack_id = openstack_id
+        self.diskspace = diskspace
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.diskspace = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('check_server_status_args')
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.I32, 2)
+            oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class check_server_status_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.STRUCT, 'success', (VM, VM.thrift_spec), None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = VM()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('check_server_status_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -3306,6 +3595,138 @@ class setUserPassword_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class resume_server_args(object):
+    """
+    Attributes:
+     - openstack_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, openstack_id=None,):
+        self.openstack_id = openstack_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('resume_server_args')
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class resume_server_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('resume_server_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.BOOL, 0)
+            oprot.writeBool(self.success)
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
