@@ -40,6 +40,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool attach_volume_to_server(string openstack_id, int diskspace)')
     print('  VM check_server_status(string openstack_id, int diskspace)')
     print('  string setUserPassword(string user, string password)')
+    print('  bool resume_server(string openstack_id)')
     print('')
     sys.exit(0)
 
@@ -214,6 +215,12 @@ elif cmd == 'setUserPassword':
         print('setUserPassword requires 2 args')
         sys.exit(1)
     pp.pprint(client.setUserPassword(args[0], args[1],))
+
+elif cmd == 'resume_server':
+    if len(args) != 1:
+        print('resume_server requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.resume_server(args[0],))
 
 else:
     print('Unrecognized method %s' % cmd)

@@ -296,10 +296,14 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
         servername=serv['name']
 
-        if serv['status'] != 'ACTIVE':
+        if serv['status'] == 'ACTIVE':
             if diskspace > 0:
-                 self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
-            return self.get_server(servername)
+                try:
+                    self.attach_volume_to_server(openstack_id=openstack_id,diskspace=diskspace)
+                except Exception:
+                    self.logger.error("Failed to create {0} GB diskspace for VM {1}".format(diskspace,openstack_id))
+                    pass
+
         return self.get_server(servername)
 
 

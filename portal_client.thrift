@@ -215,14 +215,18 @@ service VirtualMachineService {
 	/**
      * This Method stops a VirtualMachine with a specific Openstack-ID.
      */
-    bool stop_server(1:string openstack_id) throws (1:serverNotFoundException e),
-						  /**@
+    bool stop_server(1:string openstack_id) throws (1:serverNotFoundException e)
+     /**@
      * This Method unpause a VirtualMachine with a specific Openstack-ID.
      */
 
+
+
     bool attach_volume_to_server(1:string openstack_id,2:int diskspace) throws (1:serverNotFoundException e),
 
-    VM check_server_status(1:string openstack_id) throws (1:serverNotFoundException e),
+    VM check_server_status(1:string openstack_id,2:int diskspace) throws (1:serverNotFoundException e),
 
     string setUserPassword(1:string user, 2:string password) throws (1:otherException e),
+
+    bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e)
 }
