@@ -177,6 +177,7 @@ class VirtualMachineHandler(Iface):
             volume_id = serv['attached_volumes'][0]['id']
             diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()['size']
         else:
+
             diskspace = 0
         if serv['launched_at']:
             dt = datetime.datetime.strptime(serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
@@ -220,7 +221,9 @@ class VirtualMachineHandler(Iface):
                         fixed_ip=fixed_ip, diskspace=diskspace)
         return server
 
+
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
+
         self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = {'elixir_id': elixir_id}
@@ -249,6 +252,7 @@ class VirtualMachineHandler(Iface):
 
             return server.to_dict()['id']
         except Exception as e:
+
             self.logger.error(e, exc_info=True)
             raise ressourceException(Reason=str(e))
 
@@ -294,7 +298,10 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-    def check_server_status(self, openstack_id, diskspace):
+
+
+
+    def check_server_status(self, openstack_id,diskspace):
         self.logger.info('Check Status VM {0}'.format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -326,9 +333,9 @@ class VirtualMachineHandler(Iface):
 
 
 
-    def generate_SSH_Login_String(self, servername):
-        # check if jumphost is active
 
+    def generate_SSH_Login_String(self,servername):
+        #check if jumphost is active
 
         if 'True' == str(self.USE_JUMPHOST):
             server = self.get_server(servername=servername)
@@ -395,13 +402,17 @@ class VirtualMachineHandler(Iface):
                 server = self.conn.compute.get_server(server)
                 time.sleep(3)
 
+
         attachments = list()
         volumeids = list()
+
         for volume in self.conn.compute.volume_attachments(server=server):
             attachments.append(volume)
             volumeids.append(volume.to_dict()['volume_id'])
 
-        def deleteVolumeAttachmenServer(attachments, server, logger, conn):
+
+        def deleteVolumeAttachmenServer(attachments,server,logger,conn):
+
             for a in attachments:
                 logger.info("Delete VolumeAttachment  {0}".format(a))
                 conn.compute.delete_volume_attachment(volume_attachment=a, server=server)
