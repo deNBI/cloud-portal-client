@@ -765,6 +765,8 @@ class Client(Iface):
             return result.success
         if result.e is not None:
             raise result.e
+        if result.r is not None:
+            raise result.r
         raise TApplicationException(TApplicationException.MISSING_RESULT, "check_server_status failed: unknown result")
 
     def setUserPassword(self, user, password):
@@ -1200,6 +1202,9 @@ class Processor(Iface, TProcessor):
         except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
+        except ressourceException as r:
+            msg_type = TMessageType.REPLY
+            result.r = r
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -3406,16 +3411,19 @@ class check_server_status_result(object):
     Attributes:
      - success
      - e
+     - r
     """
 
     thrift_spec = (
         (0, TType.STRUCT, 'success', (VM, VM.thrift_spec), None, ),  # 0
         (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'r', (ressourceException, ressourceException.thrift_spec), None, ),  # 2
     )
 
-    def __init__(self, success=None, e=None,):
+    def __init__(self, success=None, e=None, r=None,):
         self.success = success
         self.e = e
+        self.r = r
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3438,6 +3446,12 @@ class check_server_status_result(object):
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.r = ressourceException()
+                    self.r.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3455,6 +3469,10 @@ class check_server_status_result(object):
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
             self.e.write(oprot)
+            oprot.writeFieldEnd()
+        if self.r is not None:
+            oprot.writeFieldBegin('r', TType.STRUCT, 2)
+            self.r.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
