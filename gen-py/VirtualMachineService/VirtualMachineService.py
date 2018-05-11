@@ -3430,8 +3430,6 @@ class check_server_status_result(object):
         self.e = e
         self.r = r
 
-    )
-
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
