@@ -25,7 +25,7 @@ class VirtualMachineHandler(Iface):
             conn = connection.Connection(username=self.USERNAME, password=self.PASSWORD, auth_url=self.AUTH_URL,
                                          project_name=self.PROJECT_NAME,
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
-            # conn.authorize()
+            conn.authorize()
         except Exception as e:
             self.logger.error('Client failed authentication at Openstack')
             raise authenticationException(Reason='Client failed authentication at Openstack')
@@ -115,7 +115,8 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Images")
         images = list()
 
-        for img in filter(lambda x: 'tags' in x and self.TAG in x['tags'], self.conn.list_images()):
+       for img in filter(lambda x: 'tags' in x and self.TAG in x['tags'], self.conn.list_images()):
+    
 
             metadata = img['metadata']
 
@@ -252,7 +253,6 @@ class VirtualMachineHandler(Iface):
 
             return server.to_dict()['id']
         except Exception as e:
-
             self.logger.error(e, exc_info=True)
             raise ressourceException(Reason=str(e))
 
@@ -324,6 +324,7 @@ class VirtualMachineHandler(Iface):
                     server.status='DESTROYED'
                     return server
                 return self.get_server(servername)
+            return self.get_server(servername)
         else:
             server=self.get_server(servername)
             server.status='BUILD'
