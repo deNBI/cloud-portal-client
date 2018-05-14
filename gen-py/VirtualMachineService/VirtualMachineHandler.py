@@ -115,9 +115,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Images")
         images = list()
 
-       for img in filter(lambda x: 'tags' in x and self.TAG in x['tags'], self.conn.list_images()):
-    
-
+        for img in filter(lambda x: 'tags' in x and self.TAG in x['tags'], self.conn.list_images()):
             metadata = img['metadata']
 
             if 'description' in metadata and 'default_user' in metadata:
