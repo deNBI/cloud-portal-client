@@ -251,7 +251,7 @@ class VirtualMachineHandler(Iface):
 
             return server.to_dict()['id']
         except Exception as e:
-            self.logger.error(e, exc_info=True)
+            self.logger.error(e)
             raise ressourceException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id, diskspace):
