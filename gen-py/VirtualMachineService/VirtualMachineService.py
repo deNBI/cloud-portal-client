@@ -43,7 +43,7 @@ class Iface(object):
         """
         pass
 
-    def generate_SSH_Login_String(self, servername):
+    def get_IP_PORT(self, servername):
         """
         @
         This Method generates a String the user can use to login in in the instance
@@ -275,7 +275,7 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "import_keypair failed: unknown result")
 
-    def generate_SSH_Login_String(self, servername):
+    def get_IP_PORT(self, servername):
         """
         @
         This Method generates a String the user can use to login in in the instance
@@ -283,18 +283,18 @@ class Client(Iface):
         Parameters:
          - servername
         """
-        self.send_generate_SSH_Login_String(servername)
-        return self.recv_generate_SSH_Login_String()
+        self.send_get_IP_PORT(servername)
+        return self.recv_get_IP_PORT()
 
-    def send_generate_SSH_Login_String(self, servername):
-        self._oprot.writeMessageBegin('generate_SSH_Login_String', TMessageType.CALL, self._seqid)
-        args = generate_SSH_Login_String_args()
+    def send_get_IP_PORT(self, servername):
+        self._oprot.writeMessageBegin('get_IP_PORT', TMessageType.CALL, self._seqid)
+        args = get_IP_PORT_args()
         args.servername = servername
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_generate_SSH_Login_String(self):
+    def recv_get_IP_PORT(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -302,12 +302,12 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = generate_SSH_Login_String_result()
+        result = get_IP_PORT_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "generate_SSH_Login_String failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_IP_PORT failed: unknown result")
 
     def get_Flavors(self):
         """
@@ -844,7 +844,7 @@ class Processor(Iface, TProcessor):
         self._processMap = {}
         self._processMap["check_Version"] = Processor.process_check_Version
         self._processMap["import_keypair"] = Processor.process_import_keypair
-        self._processMap["generate_SSH_Login_String"] = Processor.process_generate_SSH_Login_String
+        self._processMap["get_IP_PORT"] = Processor.process_get_IP_PORT
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
         self._processMap["delete_server"] = Processor.process_delete_server
@@ -913,13 +913,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_generate_SSH_Login_String(self, seqid, iprot, oprot):
-        args = generate_SSH_Login_String_args()
+    def process_get_IP_PORT(self, seqid, iprot, oprot):
+        args = get_IP_PORT_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = generate_SSH_Login_String_result()
+        result = get_IP_PORT_result()
         try:
-            result.success = self._handler.generate_SSH_Login_String(args.servername)
+            result.success = self._handler.get_IP_PORT(args.servername)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -927,7 +927,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("generate_SSH_Login_String", msg_type, seqid)
+        oprot.writeMessageBegin("get_IP_PORT", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1511,7 +1511,7 @@ class import_keypair_result(object):
         return not (self == other)
 
 
-class generate_SSH_Login_String_args(object):
+class get_IP_PORT_args(object):
     """
     Attributes:
      - servername
@@ -1548,7 +1548,7 @@ class generate_SSH_Login_String_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('generate_SSH_Login_String_args')
+        oprot.writeStructBegin('get_IP_PORT_args')
         if self.servername is not None:
             oprot.writeFieldBegin('servername', TType.STRING, 1)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
@@ -1571,14 +1571,14 @@ class generate_SSH_Login_String_args(object):
         return not (self == other)
 
 
-class generate_SSH_Login_String_result(object):
+class get_IP_PORT_result(object):
     """
     Attributes:
      - success
     """
 
     thrift_spec = (
-        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
     )
 
     def __init__(self, success=None,):
@@ -1594,8 +1594,14 @@ class generate_SSH_Login_String_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype10, _vtype11, _size9) = iprot.readMapBegin()
+                    for _i13 in range(_size9):
+                        _key14 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val15 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key14] = _val15
+                    iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1607,10 +1613,14 @@ class generate_SSH_Login_String_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('generate_SSH_Login_String_result')
+        oprot.writeStructBegin('get_IP_PORT_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter16, viter17 in self.success.items():
+                oprot.writeString(kiter16.encode('utf-8') if sys.version_info[0] == 2 else kiter16)
+                oprot.writeString(viter17.encode('utf-8') if sys.version_info[0] == 2 else viter17)
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1697,11 +1707,11 @@ class get_Flavors_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype12, _size9) = iprot.readListBegin()
-                    for _i13 in range(_size9):
-                        _elem14 = Flavor()
-                        _elem14.read(iprot)
-                        self.success.append(_elem14)
+                    (_etype21, _size18) = iprot.readListBegin()
+                    for _i22 in range(_size18):
+                        _elem23 = Flavor()
+                        _elem23.read(iprot)
+                        self.success.append(_elem23)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -1718,8 +1728,8 @@ class get_Flavors_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter15 in self.success:
-                iter15.write(oprot)
+            for iter24 in self.success:
+                iter24.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1807,11 +1817,11 @@ class get_Images_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype19, _size16) = iprot.readListBegin()
-                    for _i20 in range(_size16):
-                        _elem21 = Image()
-                        _elem21.read(iprot)
-                        self.success.append(_elem21)
+                    (_etype28, _size25) = iprot.readListBegin()
+                    for _i29 in range(_size25):
+                        _elem30 = Image()
+                        _elem30.read(iprot)
+                        self.success.append(_elem30)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -1828,8 +1838,8 @@ class get_Images_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter22 in self.success:
-                iter22.write(oprot)
+            for iter31 in self.success:
+                iter31.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2016,11 +2026,11 @@ class add_metadata_to_server_args(object):
             elif fid == 2:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
-                    for _i27 in range(_size23):
-                        _key28 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val29 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key28] = _val29
+                    (_ktype33, _vtype34, _size32) = iprot.readMapBegin()
+                    for _i36 in range(_size32):
+                        _key37 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val38 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key37] = _val38
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -2041,9 +2051,9 @@ class add_metadata_to_server_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 2)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter30, viter31 in self.metadata.items():
-                oprot.writeString(kiter30.encode('utf-8') if sys.version_info[0] == 2 else kiter30)
-                oprot.writeString(viter31.encode('utf-8') if sys.version_info[0] == 2 else viter31)
+            for kiter39, viter40 in self.metadata.items():
+                oprot.writeString(kiter39.encode('utf-8') if sys.version_info[0] == 2 else kiter39)
+                oprot.writeString(viter40.encode('utf-8') if sys.version_info[0] == 2 else viter40)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2092,11 +2102,11 @@ class add_metadata_to_server_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype33, _vtype34, _size32) = iprot.readMapBegin()
-                    for _i36 in range(_size32):
-                        _key37 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val38 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key37] = _val38
+                    (_ktype42, _vtype43, _size41) = iprot.readMapBegin()
+                    for _i45 in range(_size41):
+                        _key46 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val47 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key46] = _val47
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -2119,9 +2129,9 @@ class add_metadata_to_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter39, viter40 in self.success.items():
-                oprot.writeString(kiter39.encode('utf-8') if sys.version_info[0] == 2 else kiter39)
-                oprot.writeString(viter40.encode('utf-8') if sys.version_info[0] == 2 else viter40)
+            for kiter48, viter49 in self.success.items():
+                oprot.writeString(kiter48.encode('utf-8') if sys.version_info[0] == 2 else kiter48)
+                oprot.writeString(viter49.encode('utf-8') if sys.version_info[0] == 2 else viter49)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -2180,10 +2190,10 @@ class delete_metadata_from_server_args(object):
             elif fid == 2:
                 if ftype == TType.SET:
                     self.keys = set()
-                    (_etype44, _size41) = iprot.readSetBegin()
-                    for _i45 in range(_size41):
-                        _elem46 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.keys.add(_elem46)
+                    (_etype53, _size50) = iprot.readSetBegin()
+                    for _i54 in range(_size50):
+                        _elem55 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.keys.add(_elem55)
                     iprot.readSetEnd()
                 else:
                     iprot.skip(ftype)
@@ -2204,8 +2214,8 @@ class delete_metadata_from_server_args(object):
         if self.keys is not None:
             oprot.writeFieldBegin('keys', TType.SET, 2)
             oprot.writeSetBegin(TType.STRING, len(self.keys))
-            for iter47 in self.keys:
-                oprot.writeString(iter47.encode('utf-8') if sys.version_info[0] == 2 else iter47)
+            for iter56 in self.keys:
+                oprot.writeString(iter56.encode('utf-8') if sys.version_info[0] == 2 else iter56)
             oprot.writeSetEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2254,10 +2264,10 @@ class delete_metadata_from_server_result(object):
             if fid == 0:
                 if ftype == TType.SET:
                     self.success = set()
-                    (_etype51, _size48) = iprot.readSetBegin()
-                    for _i52 in range(_size48):
-                        _elem53 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success.add(_elem53)
+                    (_etype60, _size57) = iprot.readSetBegin()
+                    for _i61 in range(_size57):
+                        _elem62 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success.add(_elem62)
                     iprot.readSetEnd()
                 else:
                     iprot.skip(ftype)
@@ -2280,8 +2290,8 @@ class delete_metadata_from_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.SET, 0)
             oprot.writeSetBegin(TType.STRING, len(self.success))
-            for iter54 in self.success:
-                oprot.writeString(iter54.encode('utf-8') if sys.version_info[0] == 2 else iter54)
+            for iter63 in self.success:
+                oprot.writeString(iter63.encode('utf-8') if sys.version_info[0] == 2 else iter63)
             oprot.writeSetEnd()
             oprot.writeFieldEnd()
         if self.e is not None:

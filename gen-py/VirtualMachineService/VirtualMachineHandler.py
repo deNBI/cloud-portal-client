@@ -117,12 +117,16 @@ class VirtualMachineHandler(Iface):
         for img in self.conn.list_images():
             metadata = img['metadata']
             description = metadata.get('description')
+            tags = img.get('tags')
+            tag=None
+            if tags and len(tags) >= 0:
+                tag = tags[0]
             if description is None:
                 self.logger.warning("No Description and  for " + img['name'])
 
             image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                           status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                          openstack_id=img['id'], description=description,
+                          openstack_id=img['id'], description=description,tag=tag
                           )
             images.append(image)
         return images
@@ -310,27 +314,21 @@ class VirtualMachineHandler(Iface):
             server.status = 'BUILD'
             return server
 
-    def generate_SSH_Login_String(self, servername):
-        # check if jumphost is active
+    def get_IP_PORT(self, servername):
 
-        if 'True' == str(self.USE_JUMPHOST):
-            server = self.get_server(servername=servername)
-            default_user = 'default'
-            server_base = server.fixed_ip.split(".")[-1]
-            port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-            ssh_command = "ssh -i private_key_file " + str(default_user) + "@" + str(self.JUMPHOST_IP) + " -p " + str(
-                port)
+            # check if jumphost is active
 
-            return ssh_command
+            if 'True' == str(self.USE_JUMPHOST):
+                server = self.get_server(servername=servername)
+                server_base = server.fixed_ip.split(".")[-1]
+                port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+                return {'IP': str(self.JUMPHOST_IP),'PORT':str(port)}
 
-        else:
-            floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            server = self.get_server(servername=servername)
-            img = server.img
+            else:
+                floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
+               
+                return {'IP': str(floating_ip)}
 
-            default_user = img.default_user
-
-            return "ssh -i private_key_file " + str(default_user) + "@" + str(floating_ip)
 
     def add_floating_ip_to_server(self, servername, network):
         server = self.conn.compute.find_server(servername)
