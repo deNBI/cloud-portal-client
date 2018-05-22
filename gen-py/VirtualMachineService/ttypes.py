@@ -158,7 +158,7 @@ class Image(object):
      - updated_at: The updated time of the image
      - openstack_id: The openstack_id the image
      - description: The description of the image
-     - default_user: The defaut_user of the image
+     - tag
     """
 
     thrift_spec = (
@@ -171,10 +171,10 @@ class Image(object):
         (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
         (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
-        (9, TType.STRING, 'default_user', 'UTF8', None, ),  # 9
+        (9, TType.STRING, 'tag', 'UTF8', None, ),  # 9
     )
 
-    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, default_user=None,):
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -183,7 +183,7 @@ class Image(object):
         self.updated_at = updated_at
         self.openstack_id = openstack_id
         self.description = description
-        self.default_user = default_user
+        self.tag = tag
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -236,7 +236,7 @@ class Image(object):
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.default_user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -281,9 +281,9 @@ class Image(object):
             oprot.writeFieldBegin('description', TType.STRING, 8)
             oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
-        if self.default_user is not None:
-            oprot.writeFieldBegin('default_user', TType.STRING, 9)
-            oprot.writeString(self.default_user.encode('utf-8') if sys.version_info[0] == 2 else self.default_user)
+        if self.tag is not None:
+            oprot.writeFieldBegin('tag', TType.STRING, 9)
+            oprot.writeString(self.tag.encode('utf-8') if sys.version_info[0] == 2 else self.tag)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -299,6 +299,8 @@ class Image(object):
             raise TProtocolException(message='Required field status is unset!')
         if self.openstack_id is None:
             raise TProtocolException(message='Required field openstack_id is unset!')
+        if self.tag is None:
+            raise TProtocolException(message='Required field tag is unset!')
         return
 
     def __repr__(self):
@@ -330,6 +332,7 @@ class VM(object):
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
      - diskspace
+     - tag
     """
 
     thrift_spec = (
@@ -346,9 +349,10 @@ class VM(object):
         (10, TType.STRING, 'floating_ip', 'UTF8', None, ),  # 10
         (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
         (12, TType.I32, 'diskspace', None, None, ),  # 12
+        (13, TType.STRING, 'tag', 'UTF8', None, ),  # 13
     )
 
-    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None, tag=None,):
         self.flav = flav
         self.img = img
         self.status = status
@@ -361,6 +365,7 @@ class VM(object):
         self.floating_ip = floating_ip
         self.fixed_ip = fixed_ip
         self.diskspace = diskspace
+        self.tag = tag
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -439,6 +444,11 @@ class VM(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 13:
+                if ftype == TType.STRING:
+                    self.tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -501,6 +511,10 @@ class VM(object):
             oprot.writeFieldBegin('diskspace', TType.I32, 12)
             oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
+        if self.tag is not None:
+            oprot.writeFieldBegin('tag', TType.STRING, 13)
+            oprot.writeString(self.tag.encode('utf-8') if sys.version_info[0] == 2 else self.tag)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -521,6 +535,8 @@ class VM(object):
             raise TProtocolException(message='Required field created_at is unset!')
         if self.fixed_ip is None:
             raise TProtocolException(message='Required field fixed_ip is unset!')
+        if self.tag is None:
+            raise TProtocolException(message='Required field tag is unset!')
         return
 
     def __repr__(self):

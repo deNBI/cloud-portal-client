@@ -62,8 +62,8 @@ struct Image{
 	/** The description of the image*/
 	8:optional string description
 
-	/** The defaut_user of the image*/
-	9:optional string default_user
+
+	9: required string tag
 }
 /**
  * This Struct defines a VirtualMachine.
@@ -104,6 +104,8 @@ struct VM {
 	11: required string fixed_ip
 
 	12:optional int diskspace
+
+	13: required string tag
 
 
 

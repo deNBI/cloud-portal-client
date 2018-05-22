@@ -620,8 +620,8 @@ class Client(Iface):
             raise result.i
         if result.f is not None:
             raise result.f
-        if result.oe is not None:
-            raise result.oe
+        if result.o is not None:
+            raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
 
     def get_server(self, servername):
@@ -765,10 +765,8 @@ class Client(Iface):
             return result.success
         if result.e is not None:
             raise result.e
-
         if result.r is not None:
             raise result.r
-
         raise TApplicationException(TApplicationException.MISSING_RESULT, "check_server_status failed: unknown result")
 
     def setUserPassword(self, user, password):
@@ -1113,9 +1111,9 @@ class Processor(Iface, TProcessor):
         except flavorNotFoundException as f:
             msg_type = TMessageType.REPLY
             result.f = f
-        except otherException as oe:
+        except otherException as o:
             msg_type = TMessageType.REPLY
-            result.oe = oe
+            result.o = o
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -1204,11 +1202,9 @@ class Processor(Iface, TProcessor):
         except serverNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-
         except ressourceException as r:
             msg_type = TMessageType.REPLY
             result.r = r
-
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -2789,7 +2785,7 @@ class start_server_result(object):
      - n
      - i
      - f
-     - oe
+     - o
     """
 
     thrift_spec = (
@@ -2800,10 +2796,10 @@ class start_server_result(object):
         (4, TType.STRUCT, 'n', (networkNotFoundException, networkNotFoundException.thrift_spec), None, ),  # 4
         (5, TType.STRUCT, 'i', (imageNotFoundException, imageNotFoundException.thrift_spec), None, ),  # 5
         (6, TType.STRUCT, 'f', (flavorNotFoundException, flavorNotFoundException.thrift_spec), None, ),  # 6
-        (7, TType.STRUCT, 'oe', (otherException, otherException.thrift_spec), None, ),  # 7
+        (7, TType.STRUCT, 'o', (otherException, otherException.thrift_spec), None, ),  # 7
     )
 
-    def __init__(self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, oe=None,):
+    def __init__(self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,):
         self.success = success
         self.e = e
         self.r = r
@@ -2811,7 +2807,7 @@ class start_server_result(object):
         self.n = n
         self.i = i
         self.f = f
-        self.oe = oe
+        self.o = o
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2865,8 +2861,8 @@ class start_server_result(object):
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRUCT:
-                    self.oe = otherException()
-                    self.oe.read(iprot)
+                    self.o = otherException()
+                    self.o.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -2907,9 +2903,9 @@ class start_server_result(object):
             oprot.writeFieldBegin('f', TType.STRUCT, 6)
             self.f.write(oprot)
             oprot.writeFieldEnd()
-        if self.oe is not None:
-            oprot.writeFieldBegin('oe', TType.STRUCT, 7)
-            self.oe.write(oprot)
+        if self.o is not None:
+            oprot.writeFieldBegin('o', TType.STRUCT, 7)
+            self.o.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3416,7 +3412,6 @@ class check_server_status_result(object):
      - success
      - e
      - r
-
     """
 
     thrift_spec = (
@@ -3429,7 +3424,6 @@ class check_server_status_result(object):
         self.success = success
         self.e = e
         self.r = r
-
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3452,14 +3446,12 @@ class check_server_status_result(object):
                     self.e.read(iprot)
                 else:
                     iprot.skip(ftype)
-
             elif fid == 2:
                 if ftype == TType.STRUCT:
                     self.r = ressourceException()
                     self.r.read(iprot)
                 else:
                     iprot.skip(ftype)
-
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3478,12 +3470,10 @@ class check_server_status_result(object):
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
             self.e.write(oprot)
             oprot.writeFieldEnd()
-
         if self.r is not None:
             oprot.writeFieldBegin('r', TType.STRUCT, 2)
             self.r.write(oprot)
             oprot.writeFieldEnd()
-
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
