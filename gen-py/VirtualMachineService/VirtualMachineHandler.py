@@ -114,21 +114,20 @@ class VirtualMachineHandler(Iface):
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
-        for img in self.conn.list_images():
+        for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0, self.conn.list_images()):
+
             metadata = img['metadata']
             description = metadata.get('description')
             tags = img.get('tags')
-            tag=None
-            if tags and len(tags) >= 0:
-                tag = tags[0]
             if description is None:
                 self.logger.warning("No Description and  for " + img['name'])
 
             image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                           status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                          openstack_id=img['id'], description=description,tag=tag
+                          openstack_id=img['id'], description=description,tag=tags
                           )
             images.append(image)
+
         return images
 
     def get_Image_with_Tag(self, id):
@@ -136,13 +135,10 @@ class VirtualMachineHandler(Iface):
         img = list(filter(lambda image: image['id'] == id, images))[0]
         metadata = img['metadata']
         description = metadata.get('description')
-        tag = None
         tags = img.get('tags')
-        if tags and len(tags) >= 0:
-            tag = tags[0]
         image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                       status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                      openstack_id=img['id'], description=description,tag=tag
+                      openstack_id=img['id'], description=description,tag=tags
                       )
         return image
 
@@ -200,14 +196,14 @@ class VirtualMachineHandler(Iface):
                         img=img,
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        floating_ip=floating_ip, fixed_ip=fixed_ip, diskspace=diskspace,tag=img.tag)
+                        floating_ip=floating_ip, fixed_ip=fixed_ip, diskspace=diskspace)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
                         img=img,
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
-                        fixed_ip=fixed_ip, diskspace=diskspace,tag=img.tag)
+                        fixed_ip=fixed_ip, diskspace=diskspace)
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
@@ -315,6 +311,7 @@ class VirtualMachineHandler(Iface):
             return server
 
     def get_IP_PORT(self, servername):
+            self.logger.info("Get IP and PORT for server {0}".format(servername))
 
             # check if jumphost is active
 
@@ -326,7 +323,7 @@ class VirtualMachineHandler(Iface):
 
             else:
                 floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-               
+
                 return {'IP': str(floating_ip)}
 
 

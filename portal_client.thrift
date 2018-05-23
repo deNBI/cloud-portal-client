@@ -63,7 +63,7 @@ struct Image{
 	8:optional string description
 
 
-	9: required string tag
+	9: required list<string> tag
 }
 /**
  * This Struct defines a VirtualMachine.
@@ -105,7 +105,6 @@ struct VM {
 
 	12:optional int diskspace
 
-	13: required string tag
 
 
 

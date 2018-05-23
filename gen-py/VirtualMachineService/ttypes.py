@@ -171,7 +171,7 @@ class Image(object):
         (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
         (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
-        (9, TType.STRING, 'tag', 'UTF8', None, ),  # 9
+        (9, TType.LIST, 'tag', (TType.STRING, 'UTF8', False), None, ),  # 9
     )
 
     def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None,):
@@ -235,8 +235,13 @@ class Image(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
-                if ftype == TType.STRING:
-                    self.tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.LIST:
+                    self.tag = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.tag.append(_elem5)
+                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             else:
@@ -282,8 +287,11 @@ class Image(object):
             oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         if self.tag is not None:
-            oprot.writeFieldBegin('tag', TType.STRING, 9)
-            oprot.writeString(self.tag.encode('utf-8') if sys.version_info[0] == 2 else self.tag)
+            oprot.writeFieldBegin('tag', TType.LIST, 9)
+            oprot.writeListBegin(TType.STRING, len(self.tag))
+            for iter6 in self.tag:
+                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -332,7 +340,6 @@ class VM(object):
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
      - diskspace
-     - tag
     """
 
     thrift_spec = (
@@ -349,10 +356,9 @@ class VM(object):
         (10, TType.STRING, 'floating_ip', 'UTF8', None, ),  # 10
         (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
         (12, TType.I32, 'diskspace', None, None, ),  # 12
-        (13, TType.STRING, 'tag', 'UTF8', None, ),  # 13
     )
 
-    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None, tag=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None,):
         self.flav = flav
         self.img = img
         self.status = status
@@ -365,7 +371,6 @@ class VM(object):
         self.floating_ip = floating_ip
         self.fixed_ip = fixed_ip
         self.diskspace = diskspace
-        self.tag = tag
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -396,11 +401,11 @@ class VM(object):
             elif fid == 4:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype1, _vtype2, _size0) = iprot.readMapBegin()
-                    for _i4 in range(_size0):
-                        _key5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val6 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key5] = _val6
+                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
+                    for _i11 in range(_size7):
+                        _key12 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val13 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key12] = _val13
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -444,11 +449,6 @@ class VM(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
-            elif fid == 13:
-                if ftype == TType.STRING:
-                    self.tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -474,9 +474,9 @@ class VM(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter7, viter8 in self.metadata.items():
-                oprot.writeString(kiter7.encode('utf-8') if sys.version_info[0] == 2 else kiter7)
-                oprot.writeString(viter8.encode('utf-8') if sys.version_info[0] == 2 else viter8)
+            for kiter14, viter15 in self.metadata.items():
+                oprot.writeString(kiter14.encode('utf-8') if sys.version_info[0] == 2 else kiter14)
+                oprot.writeString(viter15.encode('utf-8') if sys.version_info[0] == 2 else viter15)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.project_id is not None:
@@ -511,10 +511,6 @@ class VM(object):
             oprot.writeFieldBegin('diskspace', TType.I32, 12)
             oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
-        if self.tag is not None:
-            oprot.writeFieldBegin('tag', TType.STRING, 13)
-            oprot.writeString(self.tag.encode('utf-8') if sys.version_info[0] == 2 else self.tag)
-            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -535,8 +531,6 @@ class VM(object):
             raise TProtocolException(message='Required field created_at is unset!')
         if self.fixed_ip is None:
             raise TProtocolException(message='Required field fixed_ip is unset!')
-        if self.tag is None:
-            raise TProtocolException(message='Required field tag is unset!')
         return
 
     def __repr__(self):
