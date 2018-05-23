@@ -63,7 +63,7 @@ class VirtualMachineHandler(Iface):
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
             self.SET_PASSWORD = cfg['openstack_connection']['set_password']
-            self.TAG = cfg['openstack_connection']['tag']
+
             if 'True' == str(self.USE_JUMPHOST):
                 self.JUMPHOST_BASE = cfg['openstack_connection']['jumphost_base']
                 self.JUMPHOST_IP = cfg['openstack_connection']['jumphost_ip']
