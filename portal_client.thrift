@@ -62,8 +62,8 @@ struct Image{
 	/** The description of the image*/
 	8:optional string description
 
-	/** The defaut_user of the image*/
-	9:optional string default_user
+
+	9: required list<string> tag
 }
 /**
  * This Struct defines a VirtualMachine.
@@ -104,6 +104,7 @@ struct VM {
 	11: required string fixed_ip
 
 	12:optional int diskspace
+
 
 
 
@@ -175,7 +176,7 @@ service VirtualMachineService {
     /**@
      * This Method generates a String the user can use to login in in the instance
      */
-    string generate_SSH_Login_String(1: string servername)
+    map<string,string> get_IP_PORT(1: string servername)
 	 /**@
      * This Method returns a list with all Flavors.
      */

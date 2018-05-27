@@ -158,7 +158,7 @@ class Image(object):
      - updated_at: The updated time of the image
      - openstack_id: The openstack_id the image
      - description: The description of the image
-     - default_user: The defaut_user of the image
+     - tag
     """
 
     thrift_spec = (
@@ -171,10 +171,10 @@ class Image(object):
         (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
         (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
-        (9, TType.STRING, 'default_user', 'UTF8', None, ),  # 9
+        (9, TType.LIST, 'tag', (TType.STRING, 'UTF8', False), None, ),  # 9
     )
 
-    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, default_user=None,):
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -183,7 +183,7 @@ class Image(object):
         self.updated_at = updated_at
         self.openstack_id = openstack_id
         self.description = description
-        self.default_user = default_user
+        self.tag = tag
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -235,8 +235,13 @@ class Image(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
-                if ftype == TType.STRING:
-                    self.default_user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.LIST:
+                    self.tag = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.tag.append(_elem5)
+                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             else:
@@ -281,9 +286,12 @@ class Image(object):
             oprot.writeFieldBegin('description', TType.STRING, 8)
             oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
-        if self.default_user is not None:
-            oprot.writeFieldBegin('default_user', TType.STRING, 9)
-            oprot.writeString(self.default_user.encode('utf-8') if sys.version_info[0] == 2 else self.default_user)
+        if self.tag is not None:
+            oprot.writeFieldBegin('tag', TType.LIST, 9)
+            oprot.writeListBegin(TType.STRING, len(self.tag))
+            for iter6 in self.tag:
+                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -299,6 +307,8 @@ class Image(object):
             raise TProtocolException(message='Required field status is unset!')
         if self.openstack_id is None:
             raise TProtocolException(message='Required field openstack_id is unset!')
+        if self.tag is None:
+            raise TProtocolException(message='Required field tag is unset!')
         return
 
     def __repr__(self):
@@ -391,11 +401,11 @@ class VM(object):
             elif fid == 4:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype1, _vtype2, _size0) = iprot.readMapBegin()
-                    for _i4 in range(_size0):
-                        _key5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val6 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key5] = _val6
+                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
+                    for _i11 in range(_size7):
+                        _key12 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val13 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key12] = _val13
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -464,9 +474,9 @@ class VM(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter7, viter8 in self.metadata.items():
-                oprot.writeString(kiter7.encode('utf-8') if sys.version_info[0] == 2 else kiter7)
-                oprot.writeString(viter8.encode('utf-8') if sys.version_info[0] == 2 else viter8)
+            for kiter14, viter15 in self.metadata.items():
+                oprot.writeString(kiter14.encode('utf-8') if sys.version_info[0] == 2 else kiter14)
+                oprot.writeString(viter15.encode('utf-8') if sys.version_info[0] == 2 else viter15)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.project_id is not None:

@@ -114,37 +114,33 @@ class VirtualMachineHandler(Iface):
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
+        for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0, self.conn.list_images()):
 
-        for img in filter(lambda x: 'tags' in x and self.TAG in x['tags'], self.conn.list_images()):
             metadata = img['metadata']
+            description = metadata.get('description')
+            tags = img.get('tags')
+            if description is None:
+                self.logger.warning("No Description and  for " + img['name'])
 
-            if 'description' in metadata and 'default_user' in metadata:
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],
-                              default_user=metadata['default_user'])
-
-
-            elif 'description' in metadata:
-                self.logger.warning("No default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'], description=metadata['description'],
-                              )
-            elif 'default_user' in metadata:
-                self.logger.warning("No Description for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                              default_user=metadata['default_user'])
-            else:
-                self.logger.warning("No Description and default_user for " + img['name'])
-                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                              openstack_id=img['id'],
-                              )
+            image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                          status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                          openstack_id=img['id'], description=description,tag=tags
+                          )
             images.append(image)
+
         return images
+
+    def get_Image_with_Tag(self, id):
+        images = self.conn.list_images()
+        img = list(filter(lambda image: image['id'] == id, images))[0]
+        metadata = img['metadata']
+        description = metadata.get('description')
+        tags = img.get('tags')
+        image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                      status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                      openstack_id=img['id'], description=description,tag=tags
+                      )
+        return image
 
     def import_keypair(self, keyname, public_key):
         keypair = self.conn.compute.find_keypair(keyname)
@@ -185,12 +181,7 @@ class VirtualMachineHandler(Iface):
             timestamp = None
 
         flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
-        img = self.conn.compute.get_image(serv['image']['id']).to_dict()
-        default_user = 'default'
-        try:
-            default_user = img['metadata']['default_user']
-        except Exception:
-            pass
+        img = self.get_Image_with_Tag(serv['image']['id'])
         for values in server.addresses.values():
             for address in values:
 
@@ -202,24 +193,18 @@ class VirtualMachineHandler(Iface):
         if floating_ip:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
-                        img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                                  status=img['status'],
-                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id'],
-                                  default_user=default_user),
+                        img=img,
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
                         floating_ip=floating_ip, fixed_ip=fixed_ip, diskspace=diskspace)
         else:
             server = VM(flav=Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
                                     openstack_id=flav['id']),
-                        img=Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                                  status=img['status'], default_user=default_user,
-                                  created_at=img['created_at'], updated_at=img['updated_at'], openstack_id=img['id']),
+                        img=img,
                         status=serv['status'], metadata=serv['metadata'], project_id=serv['project_id'],
                         keyname=serv['key_name'], openstack_id=serv['id'], name=serv['name'], created_at=str(timestamp),
                         fixed_ip=fixed_ip, diskspace=diskspace)
         return server
-
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
 
@@ -296,10 +281,7 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-
-
-
-    def check_server_status(self, openstack_id,diskspace):
+    def check_server_status(self, openstack_id, diskspace):
         self.logger.info('Check Status VM {0}'.format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -314,47 +296,36 @@ class VirtualMachineHandler(Iface):
 
         if serv['status'] == 'ACTIVE':
             if diskspace > 0:
-                attached=self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace)
+                attached = self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace)
 
                 if attached is False:
-                    server=self.get_server(servername)
+                    server = self.get_server(servername)
                     self.delete_server(openstack_id=openstack_id)
-                    server.status='DESTROYED'
+                    server.status = 'DESTROYED'
                     return server
                 return self.get_server(servername)
             return self.get_server(servername)
         else:
-            server=self.get_server(servername)
-            server.status='BUILD'
+            server = self.get_server(servername)
+            server.status = 'BUILD'
             return server
 
+    def get_IP_PORT(self, servername):
+            self.logger.info("Get IP and PORT for server {0}".format(servername))
 
+            # check if jumphost is active
 
+            if 'True' == str(self.USE_JUMPHOST):
+                server = self.get_server(servername=servername)
+                server_base = server.fixed_ip.split(".")[-1]
+                port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+                return {'IP': str(self.JUMPHOST_IP),'PORT':str(port)}
 
+            else:
+                floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
 
+                return {'IP': str(floating_ip)}
 
-    def generate_SSH_Login_String(self,servername):
-        #check if jumphost is active
-
-        if 'True' == str(self.USE_JUMPHOST):
-            server = self.get_server(servername=servername)
-            img = server.img
-            default_user = img.default_user
-            server_base = server.fixed_ip.split(".")[-1]
-            port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-            ssh_command = "ssh -i private_key_file " + str(default_user) + "@" + str(self.JUMPHOST_IP) + " -p " + str(
-                port)
-
-            return ssh_command
-
-        else:
-            floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
-            server = self.get_server(servername=servername)
-            img = server.img
-
-            default_user = img.default_user
-
-            return "ssh -i private_key_file " + str(default_user) + "@" + str(floating_ip)
 
     def add_floating_ip_to_server(self, servername, network):
         server = self.conn.compute.find_server(servername)
@@ -401,7 +372,6 @@ class VirtualMachineHandler(Iface):
                 server = self.conn.compute.get_server(server)
                 time.sleep(3)
 
-
         attachments = list()
         volumeids = list()
 
@@ -409,8 +379,7 @@ class VirtualMachineHandler(Iface):
             attachments.append(volume)
             volumeids.append(volume.to_dict()['volume_id'])
 
-
-        def deleteVolumeAttachmenServer(attachments,server,logger,conn):
+        def deleteVolumeAttachmenServer(attachments, server, logger, conn):
 
             for a in attachments:
                 logger.info("Delete VolumeAttachment  {0}".format(a))
