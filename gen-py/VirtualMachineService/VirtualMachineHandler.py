@@ -17,6 +17,9 @@ import logging
 
 import yaml
 
+import base64
+from oslo_utils import encodeutils
+
 
 class VirtualMachineHandler(Iface):
     def create_connection(self):
@@ -230,9 +233,18 @@ class VirtualMachineHandler(Iface):
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
-            server = self.conn.compute.create_server(
-                name=servername, image_id=image.id, flavor_id=flavor.id,
-                networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
+
+            if diskspace > '0':
+                with open('mount.sh', 'r') as file:
+                    f = encodeutils.safe_encode(file.read().encode('utf-8'))
+                init_script = base64.b64encode(f).decode('utf-8')
+                server = self.conn.compute.create_server(
+                    name=servername, image_id=image.id, flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata, user_data=init_script)
+            else:
+                server = self.conn.compute.create_server(
+                    name=servername, image_id=image.id, flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
             return server.to_dict()['id']
         except Exception as e:
