@@ -235,7 +235,7 @@ class VirtualMachineHandler(Iface):
             keypair = self.import_keypair(keyname, public_key)
 
             if diskspace > '0':
-                with open('mount.sh', 'r') as file:
+                with open('../../mount.sh', 'r') as file:
                     f = encodeutils.safe_encode(file.read().encode('utf-8'))
                 init_script = base64.b64encode(f).decode('utf-8')
                 server = self.conn.compute.create_server(
