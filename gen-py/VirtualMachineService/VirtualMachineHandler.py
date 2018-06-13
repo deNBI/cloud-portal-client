@@ -211,6 +211,7 @@ class VirtualMachineHandler(Iface):
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
 
+        volumeId=''
         self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = {'elixir_id': elixir_id}
@@ -235,35 +236,47 @@ class VirtualMachineHandler(Iface):
             keypair = self.import_keypair(keyname, public_key)
 
             if diskspace > '0':
-                with open('mount.sh', 'r') as file:
-                    f = encodeutils.safe_encode(file.read().encode('utf-8'))
-                init_script = base64.b64encode(f).decode('utf-8')
+                self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
+                try:
+                    volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
+                except Exception as e:
+                    self.logger.error(
+                        'Trying to create volume with {0} GB for vm {1} error : {2}'.format(diskspace, openstack_id, e),
+                        exc_info=True)
+                    raise ressourceException(Reason=str(e))
+                volumeId =volume['id']
+              #  with open('mount.sh', 'r') as file:
+               #     f = encodeutils.safe_encode(file.read().encode('utf-8'))
+                #init_script = base64.b64encode(f).decode('utf-8')
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata, user_data=init_script)
+                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata) #user_data=init_script)
             else:
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
-            return server.to_dict()['id']
+            return {'openstackid':server.to_dict()['id'],'volumeId':volumeId}
         except Exception as e:
             self.logger.error(e)
             raise ressourceException(Reason=str(e))
 
-    def attach_volume_to_server(self, openstack_id, diskspace):
+    def attach_volume_to_server(self, openstack_id, diskspace,volume_id):
         def checkStatusVolume(volume, conn):
+            self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
             while done == False:
+
                 status = conn.block_storage.get_volume(volume).to_dict()['status']
 
                 if status != 'available':
 
-                    time.sleep(5)
+                    time.sleep(3)
                 else:
                     done = True
-                    time.sleep(10)
-            return
+                    time.sleep(2)
+            return volume
+
 
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
@@ -271,21 +284,16 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
         serv = server.to_dict()
         servername = serv['name']
-        self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
+        checkStatusVolume(volume_id,self.conn)
+
+
+
+        self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume_id, openstack_id))
         try:
-            volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
+            self.conn.compute.create_volume_attachment(server=server, volumeId=volume_id)
         except Exception as e:
             self.logger.error(
-                'Trying to create volume with {0} GB for vm {1} error : {2}'.format(diskspace, openstack_id, e),
-                exc_info=True)
-            return False
-        checkStatusVolume(volume=volume['id'], conn=self.conn)
-        self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume['id'], openstack_id))
-        try:
-            self.conn.compute.create_volume_attachment(server=server, volumeId=volume['id'])
-        except Exception as e:
-            self.logger.error(
-                'Trying to attache volume {0} to vm {1} error : {2}'.format(volume['id'], openstack_id, e),
+                'Trying to attache volume {0} to vm {1} error : {2}'.format(volume_id, openstack_id, e),
                 exc_info=True)
             self.logger.info("Delete Volume  {0}".format(volume_id))
             conn.block_storage.delete_volume(volume=volume_id)
@@ -293,7 +301,7 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-    def check_server_status(self, openstack_id, diskspace):
+    def check_server_status(self, openstack_id, diskspace,volume_id):
         self.logger.info('Check Status VM {0}'.format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -308,7 +316,7 @@ class VirtualMachineHandler(Iface):
 
         if serv['status'] == 'ACTIVE':
             if diskspace > 0:
-                attached = self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace)
+                attached = self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace,volume_id=volume_id)
 
                 if attached is False:
                     server = self.get_server(servername)

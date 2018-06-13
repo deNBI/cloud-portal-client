@@ -105,6 +105,8 @@ struct VM {
 
 	12:optional int diskspace
 
+	13:optional string volume_id
+
 
 
 
@@ -208,7 +210,7 @@ service VirtualMachineService {
 	 /**
      * This Method starts a VirtualMachine .
      */
-    string start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string elixir_id,6:string diskspace) throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+    map<string,string> start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string elixir_id,6:string diskspace) throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
 
 	/**
 	*This Method returns a VirtualMachine with a specific Name.
@@ -224,9 +226,9 @@ service VirtualMachineService {
 
 
 
-    bool attach_volume_to_server(1:string openstack_id,2:int diskspace) throws (1:serverNotFoundException e),
+    bool attach_volume_to_server(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e),
 
-    VM check_server_status(1:string openstack_id,2:int diskspace) throws (1:serverNotFoundException e,2:ressourceException r),
+    VM check_server_status(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e,2:ressourceException r),
 
 
     string setUserPassword(1:string user, 2:string password) throws (1:otherException e),
