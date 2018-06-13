@@ -157,7 +157,7 @@ class Iface(object):
         """
         pass
 
-    def attach_volume_to_server(self, openstack_id, diskspace):
+    def attach_volume_to_server(self, openstack_id, diskspace, volume_id):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
@@ -165,14 +165,16 @@ class Iface(object):
         Parameters:
          - openstack_id
          - diskspace
+         - volume_id
         """
         pass
 
-    def check_server_status(self, openstack_id, diskspace):
+    def check_server_status(self, openstack_id, diskspace, volume_id):
         """
         Parameters:
          - openstack_id
          - diskspace
+         - volume_id
         """
         pass
 
@@ -694,7 +696,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def attach_volume_to_server(self, openstack_id, diskspace):
+    def attach_volume_to_server(self, openstack_id, diskspace, volume_id):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
@@ -702,15 +704,17 @@ class Client(Iface):
         Parameters:
          - openstack_id
          - diskspace
+         - volume_id
         """
-        self.send_attach_volume_to_server(openstack_id, diskspace)
+        self.send_attach_volume_to_server(openstack_id, diskspace, volume_id)
         return self.recv_attach_volume_to_server()
 
-    def send_attach_volume_to_server(self, openstack_id, diskspace):
+    def send_attach_volume_to_server(self, openstack_id, diskspace, volume_id):
         self._oprot.writeMessageBegin('attach_volume_to_server', TMessageType.CALL, self._seqid)
         args = attach_volume_to_server_args()
         args.openstack_id = openstack_id
         args.diskspace = diskspace
+        args.volume_id = volume_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -732,20 +736,22 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "attach_volume_to_server failed: unknown result")
 
-    def check_server_status(self, openstack_id, diskspace):
+    def check_server_status(self, openstack_id, diskspace, volume_id):
         """
         Parameters:
          - openstack_id
          - diskspace
+         - volume_id
         """
-        self.send_check_server_status(openstack_id, diskspace)
+        self.send_check_server_status(openstack_id, diskspace, volume_id)
         return self.recv_check_server_status()
 
-    def send_check_server_status(self, openstack_id, diskspace):
+    def send_check_server_status(self, openstack_id, diskspace, volume_id):
         self._oprot.writeMessageBegin('check_server_status', TMessageType.CALL, self._seqid)
         args = check_server_status_args()
         args.openstack_id = openstack_id
         args.diskspace = diskspace
+        args.volume_id = volume_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1173,7 +1179,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = attach_volume_to_server_result()
         try:
-            result.success = self._handler.attach_volume_to_server(args.openstack_id, args.diskspace)
+            result.success = self._handler.attach_volume_to_server(args.openstack_id, args.diskspace, args.volume_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1195,7 +1201,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = check_server_status_result()
         try:
-            result.success = self._handler.check_server_status(args.openstack_id, args.diskspace)
+            result.success = self._handler.check_server_status(args.openstack_id, args.diskspace, args.volume_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -2799,7 +2805,7 @@ class start_server_result(object):
     """
 
     thrift_spec = (
-        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
         (1, TType.STRUCT, 'e', (nameException, nameException.thrift_spec), None, ),  # 1
         (2, TType.STRUCT, 'r', (ressourceException, ressourceException.thrift_spec), None, ),  # 2
         (3, TType.STRUCT, 's', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 3
@@ -2829,8 +2835,14 @@ class start_server_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype72, _vtype73, _size71) = iprot.readMapBegin()
+                    for _i75 in range(_size71):
+                        _key76 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val77 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key76] = _val77
+                    iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -2886,8 +2898,12 @@ class start_server_result(object):
             return
         oprot.writeStructBegin('start_server_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter78, viter79 in self.success.items():
+                oprot.writeString(kiter78.encode('utf-8') if sys.version_info[0] == 2 else kiter78)
+                oprot.writeString(viter79.encode('utf-8') if sys.version_info[0] == 2 else viter79)
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -3205,17 +3221,20 @@ class attach_volume_to_server_args(object):
     Attributes:
      - openstack_id
      - diskspace
+     - volume_id
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
         (2, TType.I32, 'diskspace', None, None, ),  # 2
+        (3, TType.STRING, 'volume_id', 'UTF8', None, ),  # 3
     )
 
-    def __init__(self, openstack_id=None, diskspace=None,):
+    def __init__(self, openstack_id=None, diskspace=None, volume_id=None,):
         self.openstack_id = openstack_id
         self.diskspace = diskspace
+        self.volume_id = volume_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3236,6 +3255,11 @@ class attach_volume_to_server_args(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3253,6 +3277,10 @@ class attach_volume_to_server_args(object):
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.I32, 2)
             oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 3)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3349,17 +3377,20 @@ class check_server_status_args(object):
     Attributes:
      - openstack_id
      - diskspace
+     - volume_id
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
         (2, TType.I32, 'diskspace', None, None, ),  # 2
+        (3, TType.STRING, 'volume_id', 'UTF8', None, ),  # 3
     )
 
-    def __init__(self, openstack_id=None, diskspace=None,):
+    def __init__(self, openstack_id=None, diskspace=None, volume_id=None,):
         self.openstack_id = openstack_id
         self.diskspace = diskspace
+        self.volume_id = volume_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3380,6 +3411,11 @@ class check_server_status_args(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3397,6 +3433,10 @@ class check_server_status_args(object):
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.I32, 2)
             oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 3)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

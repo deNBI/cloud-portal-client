@@ -340,6 +340,7 @@ class VM(object):
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
      - diskspace
+     - volume_id
     """
 
     thrift_spec = (
@@ -356,9 +357,10 @@ class VM(object):
         (10, TType.STRING, 'floating_ip', 'UTF8', None, ),  # 10
         (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
         (12, TType.I32, 'diskspace', None, None, ),  # 12
+        (13, TType.STRING, 'volume_id', 'UTF8', None, ),  # 13
     )
 
-    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None,):
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None, volume_id=None,):
         self.flav = flav
         self.img = img
         self.status = status
@@ -371,6 +373,7 @@ class VM(object):
         self.floating_ip = floating_ip
         self.fixed_ip = fixed_ip
         self.diskspace = diskspace
+        self.volume_id = volume_id
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -449,6 +452,11 @@ class VM(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 13:
+                if ftype == TType.STRING:
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -510,6 +518,10 @@ class VM(object):
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.I32, 12)
             oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 13)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
