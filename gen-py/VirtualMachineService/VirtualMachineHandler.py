@@ -250,6 +250,7 @@ class VirtualMachineHandler(Iface):
                     text = text.replace('VOLUMEID', 'virtio-'+volumeId[0:20])
                     text = encodeutils.safe_encode(text.encode('utf-8'))
                 init_script = base64.b64encode(text).decode('utf-8')
+
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata, user_data=init_script)
