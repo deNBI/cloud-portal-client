@@ -1,10 +1,12 @@
 #!/bin/bash
 
+VOLUME=VOLUMEID
+
 while :
 do
-  if [ -e /dev/disk/by-id* ];
+  if [ -e /dev/disk/by-id/$VOLUME ];
   then
-    echo "found volume";
+    echo "volume found";
     break;
   else
     echo "no volume found";
@@ -12,8 +14,7 @@ do
   fi;
 done
 cd /dev/disk/by-id
-FILE=$(ls | sort -n | head -1)
-mkfs.ext4 $FILE
+mkfs.ext4 $VOLUME
 mkdir -p /mnt/volume
 chmod 777 /mnt/volume/
-mount $FILE /mnt/volume
+mount $VOLUME /mnt/volume
