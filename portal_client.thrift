@@ -178,7 +178,7 @@ service VirtualMachineService {
     /**@
      * This Method generates a String the user can use to login in in the instance
      */
-    map<string,string> get_IP_PORT(1: string servername)
+    map<string,string> get_IP_PORT(1: string openstack_id)
 	 /**@
      * This Method returns a list with all Flavors.
      */
@@ -202,7 +202,7 @@ service VirtualMachineService {
 	 /**@
      * This Method adds a floating IP to a Server.
      */
-	string add_floating_ip_to_server(1:string servername,2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
+	string add_floating_ip_to_server(1:string openstack_id,2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
 	 /**@
      * This Method creates a connection to the openstack API.
      */
@@ -215,7 +215,7 @@ service VirtualMachineService {
 	/**
 	*This Method returns a VirtualMachine with a specific Name.
 	*/
-	VM get_server(1:string servername) throws (1:serverNotFoundException e),
+	VM get_server(1:string openstack_id) throws (1:serverNotFoundException e),
 	/**
      * This Method stops a VirtualMachine with a specific Openstack-ID.
      */

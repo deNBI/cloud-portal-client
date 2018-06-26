@@ -159,16 +159,14 @@ class VirtualMachineHandler(Iface):
             return keypair
         return keypair
 
-    def get_server(self, servername):
+    def get_server(self, openstack_id):
         floating_ip = None
         fixed_ip = None
-        self.logger.info("Get Server " + servername)
-
-        server = self.conn.compute.find_server(servername)
+        self.logger.info("Get Server {0}".format(openstack_id))
+        server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            self.logger.error("No Server with name " + servername)
-            raise serverNotFoundException(Reason='No Server with name ' + servername)
-        server = self.conn.compute.get_server(server)
+            self.logger.error("No Server  {0}".format(openstack_id))
+            raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
         serv = server.to_dict()
 
         if serv['attached_volumes']:
@@ -228,9 +226,7 @@ class VirtualMachineHandler(Iface):
                 self.logger.error('Network {0} not found!'.format(network))
                 raise networkNotFoundException(Reason='Network {0} not found!'.format(network))
 
-            if self.conn.compute.find_server(servername) is not None:
-                self.logger.error('Instance with name {0} already exist'.format(servername))
-                raise nameException(Reason='Another Instance with name : {0} already exist'.format(servername))
+
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
@@ -283,13 +279,9 @@ class VirtualMachineHandler(Iface):
 
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            self.logger.error("No Server with name {0} ".format(servername))
-            raise serverNotFoundException(Reason='No Server with name {0}'.format(servername))
-        serv = server.to_dict()
-        servername = serv['name']
+            self.logger.error("No Server  {0} ".format(openstack_id))
+            raise serverNotFoundException(Reason='No Server {0}'.format(openstack_id))
         checkStatusVolume(volume_id,self.conn)
-
-
 
         self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume_id, openstack_id))
         try:
@@ -315,47 +307,46 @@ class VirtualMachineHandler(Iface):
             self.logger.error("No Server with id {0} ".format(openstack_id))
             return None
         serv = server.to_dict()
-        servername = serv['name']
 
         if serv['status'] == 'ACTIVE':
             if diskspace > 0:
                 attached = self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace,volume_id=volume_id)
 
                 if attached is False:
-                    server = self.get_server(servername)
+                    server = self.get_server(openstack_id)
                     self.delete_server(openstack_id=openstack_id)
                     server.status = 'DESTROYED'
                     return server
-                return self.get_server(servername)
-            return self.get_server(servername)
+                return self.get_server(openstack_id)
+            return self.get_server(openstack_id)
         else:
-            server = self.get_server(servername)
+            server = self.get_server(openstack_id)
             server.status = 'BUILD'
             return server
 
-    def get_IP_PORT(self, servername):
-            self.logger.info("Get IP and PORT for server {0}".format(servername))
+    def get_IP_PORT(self, openstack_id):
+            self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
             # check if jumphost is active
 
             if 'True' == str(self.USE_JUMPHOST):
-                server = self.get_server(servername=servername)
+                server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
                 port = int(self.JUMPHOST_BASE) + int(server_base) * 3
                 return {'IP': str(self.JUMPHOST_IP),'PORT':str(port)}
 
             else:
-                floating_ip = self.add_floating_ip_to_server(servername, self.FLOATING_IP_NETWORK)
+                floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
 
                 return {'IP': str(floating_ip)}
 
 
-    def add_floating_ip_to_server(self, servername, network):
-        server = self.conn.compute.find_server(servername)
+    def add_floating_ip_to_server(self, openstack_id, network):
+
+        server = self.conn.compute.get_server(openstack_id)
         if server is None:
-            self.logger.error("Instance " + servername + "not found")
+            self.logger.error("Instance {0} not found".format(openstack_id))
             raise serverNotFoundException
-        server = self.conn.compute.get_server(server)
         self.logger.info("Checking if Server already got an Floating Ip")
         for values in server.addresses.values():
             for address in values:
@@ -367,7 +358,7 @@ class VirtualMachineHandler(Iface):
             if not floating_ip.fixed_ip_address:
                 self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
                 self.logger.info(
-                    "Adding existing Floating IP " + str(floating_ip.floating_ip_address) + "to  " + servername)
+                    "Adding existing Floating IP {0} to {1}".format(str(floating_ip.floating_ip_address),openstack_id))
                 return str(floating_ip.floating_ip_address)
 
         networkID = self.conn.network.find_network(network)
