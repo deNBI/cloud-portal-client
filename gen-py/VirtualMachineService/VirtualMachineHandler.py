@@ -345,7 +345,8 @@ class VirtualMachineHandler(Iface):
 
         snapshot_munch= self.conn.create_image_snapshot(server=openstack_id,name=name)
         snapshot_id=snapshot_munch['id']
-        return self.conn.image.add_tag(image=snapshot_id,tag=elixir_id)
+        self.conn.image.add_tag(image=snapshot_id,tag=elixir_id)
+        return True
 
 
     def add_floating_ip_to_server(self, openstack_id, network):
