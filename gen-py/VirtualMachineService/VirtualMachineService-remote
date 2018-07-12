@@ -37,6 +37,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   start_server(string flavor, string image, string public_key, string servername, string elixir_id, string diskspace)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
+    print('  bool create_snapshot(string openstack_id, string name, string elixir_id, string base_tag)')
     print('  bool attach_volume_to_server(string openstack_id, int diskspace, string volume_id)')
     print('  VM check_server_status(string openstack_id, int diskspace, string volume_id)')
     print('  string setUserPassword(string user, string password)')
@@ -197,6 +198,12 @@ elif cmd == 'stop_server':
         print('stop_server requires 1 args')
         sys.exit(1)
     pp.pprint(client.stop_server(args[0],))
+
+elif cmd == 'create_snapshot':
+    if len(args) != 4:
+        print('create_snapshot requires 4 args')
+        sys.exit(1)
+    pp.pprint(client.create_snapshot(args[0], args[1], args[2], args[3],))
 
 elif cmd == 'attach_volume_to_server':
     if len(args) != 3:

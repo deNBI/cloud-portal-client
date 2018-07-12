@@ -224,6 +224,8 @@ service VirtualMachineService {
      * This Method unpause a VirtualMachine with a specific Openstack-ID.
      */
 
+     bool create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag)
+
 
 
     bool attach_volume_to_server(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e),
