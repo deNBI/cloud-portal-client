@@ -224,7 +224,7 @@ service VirtualMachineService {
      * This Method unpause a VirtualMachine with a specific Openstack-ID.
      */
 
-     bool create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id)
+     bool create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag)
 
 
 

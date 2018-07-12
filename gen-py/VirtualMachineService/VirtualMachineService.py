@@ -157,7 +157,7 @@ class Iface(object):
         """
         pass
 
-    def create_snapshot(self, openstack_id, name, elixir_id):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
@@ -166,6 +166,7 @@ class Iface(object):
          - openstack_id
          - name
          - elixir_id
+         - base_tag
         """
         pass
 
@@ -705,7 +706,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def create_snapshot(self, openstack_id, name, elixir_id):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         """
         @
         This Method unpause a VirtualMachine with a specific Openstack-ID.
@@ -714,16 +715,18 @@ class Client(Iface):
          - openstack_id
          - name
          - elixir_id
+         - base_tag
         """
-        self.send_create_snapshot(openstack_id, name, elixir_id)
+        self.send_create_snapshot(openstack_id, name, elixir_id, base_tag)
         return self.recv_create_snapshot()
 
-    def send_create_snapshot(self, openstack_id, name, elixir_id):
+    def send_create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         self._oprot.writeMessageBegin('create_snapshot', TMessageType.CALL, self._seqid)
         args = create_snapshot_args()
         args.openstack_id = openstack_id
         args.name = name
         args.elixir_id = elixir_id
+        args.base_tag = base_tag
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1224,7 +1227,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_snapshot_result()
         try:
-            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id)
+            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id, args.base_tag)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -3286,6 +3289,7 @@ class create_snapshot_args(object):
      - openstack_id
      - name
      - elixir_id
+     - base_tag
     """
 
     thrift_spec = (
@@ -3293,12 +3297,14 @@ class create_snapshot_args(object):
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'name', 'UTF8', None, ),  # 2
         (3, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 3
+        (4, TType.STRING, 'base_tag', 'UTF8', None, ),  # 4
     )
 
-    def __init__(self, openstack_id=None, name=None, elixir_id=None,):
+    def __init__(self, openstack_id=None, name=None, elixir_id=None, base_tag=None,):
         self.openstack_id = openstack_id
         self.name = name
         self.elixir_id = elixir_id
+        self.base_tag = base_tag
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3324,6 +3330,11 @@ class create_snapshot_args(object):
                     self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.base_tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3345,6 +3356,10 @@ class create_snapshot_args(object):
         if self.elixir_id is not None:
             oprot.writeFieldBegin('elixir_id', TType.STRING, 3)
             oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
+            oprot.writeFieldEnd()
+        if self.base_tag is not None:
+            oprot.writeFieldBegin('base_tag', TType.STRING, 4)
+            oprot.writeString(self.base_tag.encode('utf-8') if sys.version_info[0] == 2 else self.base_tag)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
