@@ -227,8 +227,12 @@ service VirtualMachineService {
      bool create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag)
 
 
+    bool delete_volume_attachment(1:string volume_attachment_id,2:string server_id)  throws (1:serverNotFoundException e),
 
-    bool attach_volume_to_server(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e),
+    bool delete_volume(1:string volume_id)
+
+
+    bool attach_volume_to_server(1:string openstack_id,2:string volume_id) throws (1:serverNotFoundException e),
 
     VM check_server_status(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e,2:ressourceException r),
 

@@ -127,7 +127,7 @@ class VirtualMachineHandler(Iface):
 
             image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                           status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                          openstack_id=img['id'], description=description,tag=tags
+                          openstack_id=img['id'], description=description, tag=tags
                           )
             images.append(image)
 
@@ -141,7 +141,7 @@ class VirtualMachineHandler(Iface):
         tags = img.get('tags')
         image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                       status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                      openstack_id=img['id'], description=description,tag=tags
+                      openstack_id=img['id'], description=description, tag=tags
                       )
         return image
 
@@ -209,7 +209,7 @@ class VirtualMachineHandler(Iface):
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
 
-        volumeId=''
+        volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = {'elixir_id': elixir_id}
@@ -226,7 +226,6 @@ class VirtualMachineHandler(Iface):
                 self.logger.error('Network {0} not found!'.format(network))
                 raise networkNotFoundException(Reason='Network {0} not found!'.format(network))
 
-
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
@@ -240,10 +239,10 @@ class VirtualMachineHandler(Iface):
                         'Trying to create volume with {0} GB for vm {1} error : {2}'.format(diskspace, openstack_id, e),
                         exc_info=True)
                     raise ressourceException(Reason=str(e))
-                volumeId =volume['id']
+                volumeId = volume['id']
                 with open('../../mount.sh', 'r') as file:
                     text = file.read()
-                    text = text.replace('VOLUMEID', 'virtio-'+volumeId[0:20])
+                    text = text.replace('VOLUMEID', 'virtio-' + volumeId[0:20])
                     text = encodeutils.safe_encode(text.encode('utf-8'))
                 init_script = base64.b64encode(text).decode('utf-8')
 
@@ -255,12 +254,12 @@ class VirtualMachineHandler(Iface):
                     name=servername, image_id=image.id, flavor_id=flavor.id,
                     networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
 
-            return {'openstackid':server.to_dict()['id'],'volumeId':volumeId}
+            return {'openstackid': server.to_dict()['id'], 'volumeId': volumeId}
         except Exception as e:
             self.logger.error(e)
             raise ressourceException(Reason=str(e))
 
-    def attach_volume_to_server(self, openstack_id, diskspace,volume_id):
+    def attach_volume_to_server(self, openstack_id, volume_id):
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
@@ -276,12 +275,11 @@ class VirtualMachineHandler(Iface):
                     time.sleep(2)
             return volume
 
-
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
             self.logger.error("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(Reason='No Server {0}'.format(openstack_id))
-        checkStatusVolume(volume_id,self.conn)
+        checkStatusVolume(volume_id, self.conn)
 
         self.logger.info('Attaching volume {0} to virtualmachine {1}'.format(volume_id, openstack_id))
         try:
@@ -296,7 +294,7 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-    def check_server_status(self, openstack_id, diskspace,volume_id):
+    def check_server_status(self, openstack_id, diskspace, volume_id):
         self.logger.info('Check Status VM {0}'.format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -310,7 +308,8 @@ class VirtualMachineHandler(Iface):
 
         if serv['status'] == 'ACTIVE':
             if diskspace > 0:
-                attached = self.attach_volume_to_server(openstack_id=openstack_id, diskspace=diskspace,volume_id=volume_id)
+                attached = self.attach_volume_to_server(openstack_id=openstack_id,
+                                                        volume_id=volume_id)
 
                 if attached is False:
                     server = self.get_server(openstack_id)
@@ -325,30 +324,30 @@ class VirtualMachineHandler(Iface):
             return server
 
     def get_IP_PORT(self, openstack_id):
-            self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
+        self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
-            # check if jumphost is active
+        # check if jumphost is active
 
-            if 'True' == str(self.USE_JUMPHOST):
-                server = self.get_server(openstack_id)
-                server_base = server.fixed_ip.split(".")[-1]
-                port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-                return {'IP': str(self.JUMPHOST_IP),'PORT':str(port)}
+        if 'True' == str(self.USE_JUMPHOST):
+            server = self.get_server(openstack_id)
+            server_base = server.fixed_ip.split(".")[-1]
+            port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+            return {'IP': str(self.JUMPHOST_IP), 'PORT': str(port)}
 
-            else:
-                floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
+        else:
+            floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
 
-                return {'IP': str(floating_ip)}
+            return {'IP': str(floating_ip)}
 
-    def create_snapshot(self,openstack_id,name,elixir_id,base_tag):
-        self.logger.info('Create Snapshot from Instance {0} with name {1} for {2}'.format(openstack_id,name,elixir_id))
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+        self.logger.info(
+            'Create Snapshot from Instance {0} with name {1} for {2}'.format(openstack_id, name, elixir_id))
 
-        snapshot_munch= self.conn.create_image_snapshot(server=openstack_id,name=name)
-        snapshot_id=snapshot_munch['id']
-        self.conn.image.add_tag(image=snapshot_id,tag=elixir_id)
-        self.conn.image.add_tag(image=snapshot_id,tag='snapshot_image:{0}'.format(base_tag))
+        snapshot_munch = self.conn.create_image_snapshot(server=openstack_id, name=name)
+        snapshot_id = snapshot_munch['id']
+        self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
+        self.conn.image.add_tag(image=snapshot_id, tag='snapshot_image:{0}'.format(base_tag))
         return True
-
 
     def add_floating_ip_to_server(self, openstack_id, network):
 
@@ -367,7 +366,7 @@ class VirtualMachineHandler(Iface):
             if not floating_ip.fixed_ip_address:
                 self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
                 self.logger.info(
-                    "Adding existing Floating IP {0} to {1}".format(str(floating_ip.floating_ip_address),openstack_id))
+                    "Adding existing Floating IP {0} to {1}".format(str(floating_ip.floating_ip_address), openstack_id))
                 return str(floating_ip.floating_ip_address)
 
         networkID = self.conn.network.find_network(network)
@@ -394,45 +393,34 @@ class VirtualMachineHandler(Iface):
             while server.status != 'ACTIVE':
                 server = self.conn.compute.get_server(server)
                 time.sleep(3)
-
-        attachments = list()
-        volumeids = list()
-
-        for volume in self.conn.compute.volume_attachments(server=server):
-            attachments.append(volume)
-            volumeids.append(volume.to_dict()['volume_id'])
-
-        def deleteVolumeAttachmenServer(attachments, server, logger, conn):
-
-            for a in attachments:
-                logger.info("Delete VolumeAttachment  {0}".format(a))
-                conn.compute.delete_volume_attachment(volume_attachment=a, server=server)
-
-        deleteVolumeAttachmenServer(attachments=attachments, server=server, logger=self.logger, conn=self.conn)
-
-        def checkStatusVolumes(volumes, conn):
-            done = False
-            while done == False:
-                done = True
-                for a in volumes:
-                    if conn.block_storage.get_volume(a).to_dict()['status'] != 'available':
-                        conn.block_storage.get_volume(a).to_dict()['status']
-                        done = False
-                        time.sleep(5)
-                        break
-            return
-
-        checkStatusVolumes(volumeids, self.conn)
-
-        def deleteVolume(volume_id, conn, logger):
-            logger.info("Delete Volume  {0}".format(volume_id))
-            conn.block_storage.delete_volume(volume=volume_id)
-
-        for id in volumeids:
-            deleteVolume(id, self.conn, self.logger)
         self.conn.compute.delete_server(server)
 
         return True
+
+
+
+    def delete_volume_attachment(self, volume_attachment_id, server_id):
+        server = self.conn.compute.get_server(server_id)
+        if server is None:
+            self.logger.error("Instance {0} not found".format(server_id))
+            raise serverNotFoundException
+        logger.info("Delete Volume Attachment  {0}".format(volume_attachment_id))
+        conn.compute.delete_volume_attachment(volume_attachment=volume_attachment_id, server=server)
+        return True
+
+    def delete_volume(self, volume_id):
+        done = False
+        while done == False:
+            if conn.block_storage.get_volume(volume_id).to_dict()['status'] != 'available':
+                time.sleep(5)
+            else:
+                done = True
+
+        logger.info("Delete Volume  {0}".format(volume_id))
+        conn.block_storage.delete_volume(volume=volume_id)
+        return True
+
+
 
     def stop_server(self, openstack_id):
         self.logger.info("Stop Server " + openstack_id)
