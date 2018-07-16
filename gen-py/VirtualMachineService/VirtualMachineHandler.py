@@ -404,20 +404,13 @@ class VirtualMachineHandler(Iface):
         if server is None:
             self.logger.error("Instance {0} not found".format(server_id))
             raise serverNotFoundException
-        logger.info("Delete Volume Attachment  {0}".format(volume_attachment_id))
-        conn.compute.delete_volume_attachment(volume_attachment=volume_attachment_id, server=server)
+        self.logger.info("Delete Volume Attachment  {0}".format(volume_attachment_id))
+        self.conn.compute.delete_volume_attachment(volume_attachment=volume_attachment_id, server=server)
         return True
 
     def delete_volume(self, volume_id):
-        done = False
-        while done == False:
-            if conn.block_storage.get_volume(volume_id).to_dict()['status'] != 'available':
-                time.sleep(5)
-            else:
-                done = True
-
-        logger.info("Delete Volume  {0}".format(volume_id))
-        conn.block_storage.delete_volume(volume=volume_id)
+        self.logger.info("Delete Volume  {0}".format(volume_id))
+        self.conn.block_storage.delete_volume(volume=volume_id)
         return True
 
 
