@@ -170,10 +170,10 @@ class Iface(object):
         """
         pass
 
-    def delete_volume_attachment(self, volume_attachment_id, server_id):
+    def delete_volume_attachment(self, volume_id, server_id):
         """
         Parameters:
-         - volume_attachment_id
+         - volume_id
          - server_id
         """
         pass
@@ -760,19 +760,19 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_snapshot failed: unknown result")
 
-    def delete_volume_attachment(self, volume_attachment_id, server_id):
+    def delete_volume_attachment(self, volume_id, server_id):
         """
         Parameters:
-         - volume_attachment_id
+         - volume_id
          - server_id
         """
-        self.send_delete_volume_attachment(volume_attachment_id, server_id)
+        self.send_delete_volume_attachment(volume_id, server_id)
         return self.recv_delete_volume_attachment()
 
-    def send_delete_volume_attachment(self, volume_attachment_id, server_id):
+    def send_delete_volume_attachment(self, volume_id, server_id):
         self._oprot.writeMessageBegin('delete_volume_attachment', TMessageType.CALL, self._seqid)
         args = delete_volume_attachment_args()
-        args.volume_attachment_id = volume_attachment_id
+        args.volume_id = volume_id
         args.server_id = server_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -1326,7 +1326,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_volume_attachment_result()
         try:
-            result.success = self._handler.delete_volume_attachment(args.volume_attachment_id, args.server_id)
+            result.success = self._handler.delete_volume_attachment(args.volume_id, args.server_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -3562,18 +3562,18 @@ class create_snapshot_result(object):
 class delete_volume_attachment_args(object):
     """
     Attributes:
-     - volume_attachment_id
+     - volume_id
      - server_id
     """
 
     thrift_spec = (
         None,  # 0
-        (1, TType.STRING, 'volume_attachment_id', 'UTF8', None, ),  # 1
+        (1, TType.STRING, 'volume_id', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'server_id', 'UTF8', None, ),  # 2
     )
 
-    def __init__(self, volume_attachment_id=None, server_id=None,):
-        self.volume_attachment_id = volume_attachment_id
+    def __init__(self, volume_id=None, server_id=None,):
+        self.volume_id = volume_id
         self.server_id = server_id
 
     def read(self, iprot):
@@ -3587,7 +3587,7 @@ class delete_volume_attachment_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.volume_attachment_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -3605,9 +3605,9 @@ class delete_volume_attachment_args(object):
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
         oprot.writeStructBegin('delete_volume_attachment_args')
-        if self.volume_attachment_id is not None:
-            oprot.writeFieldBegin('volume_attachment_id', TType.STRING, 1)
-            oprot.writeString(self.volume_attachment_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_attachment_id)
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 1)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         if self.server_id is not None:
             oprot.writeFieldBegin('server_id', TType.STRING, 2)
