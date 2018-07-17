@@ -170,6 +170,13 @@ class Iface(object):
         """
         pass
 
+    def delete_image(self, image_id):
+        """
+        Parameters:
+         - image_id
+        """
+        pass
+
     def delete_volume_attachment(self, volume_id, server_id):
         """
         Parameters:
@@ -760,6 +767,39 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_snapshot failed: unknown result")
 
+    def delete_image(self, image_id):
+        """
+        Parameters:
+         - image_id
+        """
+        self.send_delete_image(image_id)
+        return self.recv_delete_image()
+
+    def send_delete_image(self, image_id):
+        self._oprot.writeMessageBegin('delete_image', TMessageType.CALL, self._seqid)
+        args = delete_image_args()
+        args.image_id = image_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_delete_image(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = delete_image_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_image failed: unknown result")
+
     def delete_volume_attachment(self, volume_id, server_id):
         """
         Parameters:
@@ -987,6 +1027,7 @@ class Processor(Iface, TProcessor):
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["create_snapshot"] = Processor.process_create_snapshot
+        self._processMap["delete_image"] = Processor.process_delete_image
         self._processMap["delete_volume_attachment"] = Processor.process_delete_volume_attachment
         self._processMap["delete_volume"] = Processor.process_delete_volume
         self._processMap["attach_volume_to_server"] = Processor.process_attach_volume_to_server
@@ -1316,6 +1357,28 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("create_snapshot", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_delete_image(self, seqid, iprot, oprot):
+        args = delete_image_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = delete_image_result()
+        try:
+            result.success = self._handler.delete_image(args.image_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except imageNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("delete_image", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -3507,7 +3570,7 @@ class create_snapshot_result(object):
     """
 
     thrift_spec = (
-        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
     )
 
     def __init__(self, success=None,):
@@ -3523,8 +3586,8 @@ class create_snapshot_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -3538,8 +3601,140 @@ class create_snapshot_result(object):
             return
         oprot.writeStructBegin('create_snapshot_result')
         if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_image_args(object):
+    """
+    Attributes:
+     - image_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'image_id', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, image_id=None,):
+        self.image_id = image_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.image_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_image_args')
+        if self.image_id is not None:
+            oprot.writeFieldBegin('image_id', TType.STRING, 1)
+            oprot.writeString(self.image_id.encode('utf-8') if sys.version_info[0] == 2 else self.image_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_image_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (1, TType.STRUCT, 'e', (imageNotFoundException, imageNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = imageNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_image_result')
+        if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 0)
             oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

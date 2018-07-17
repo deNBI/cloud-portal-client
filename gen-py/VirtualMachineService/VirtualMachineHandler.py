@@ -347,6 +347,16 @@ class VirtualMachineHandler(Iface):
         snapshot_id = snapshot_munch['id']
         self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
         self.conn.image.add_tag(image=snapshot_id, tag='snapshot_image:{0}'.format(base_tag))
+        return snapshot_id
+
+    def delete_image(self,image_id):
+        self.logger.info('Delete Image {0}'.format(image_id))
+
+        image = self.conn.compute.get_image(image_id)
+        if image is None:
+            self.logger.error('Image {0} not found!'.format(image))
+            raise imageNotFoundException(Reason=('Image {0} not found'.format(image)))
+        self.conn.compute.delete_image(image)
         return True
 
     def add_floating_ip_to_server(self, openstack_id, network):
