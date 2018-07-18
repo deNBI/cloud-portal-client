@@ -31,7 +31,7 @@ echo "1" > /proc/sys/net/ipv4/ip_forward
 
 -  **Add nat rules** to allow ip forwarding from *XX.XX.XX.XX:30011* to *192.168.0.11:22*, this can be done using *iptables* (also as root).
 
-```
+```BASH
 iptables -t nat -A PREROUTING -i ens3 -p tcp -m tcp --dport 30011 -j DNAT --to-destination 192.168.0.11:22
 iptables -t nat -A POSTROUTING -d 192.168.00.11/32 -p tcp -m tcp --dport 22 -j SNAT --to-source 192.168.0.10
 ```
@@ -39,9 +39,10 @@ iptables -t nat -A POSTROUTING -d 192.168.00.11/32 -p tcp -m tcp --dport 22 -j S
 - **Add a OpenStack security group rule** to allow incoming tcp traffic on port 30011. 
 
 - **Login** into the instance (192.168.0.11) is now possible without adding a floating ip.
-```
-ssh -i my_cloud_key ubuntu@XX.XX.XX.XX -p 30011
 
+```BASH
+ssh -i my_cloud_key ubuntu@XX.XX.XX.XX -p 30011
+```
 
 ## Configuration using user data
 
@@ -55,7 +56,7 @@ Configure a project gateway manually is a bit plodding. However, since we have a
 
 The full script could look like the following:
 
-```
+```BASH
 #!/bin/bash
 function check_service {
   /bin/nc ${1} ${2} </dev/null 2>/dev/null
@@ -67,7 +68,7 @@ function check_service {
 }
 
 # redirect ouput to /var/log/userdata/log
-exec > /var/log/userdata.log
+exec > /var/log/gateway.log
 exec 2>&1
 
 # wait until meta data server is available
@@ -81,17 +82,25 @@ LOCALNET=$( echo ${LOCALIP} | cut -f 1-3 -d".")
 echo "1" > /proc/sys/net/ipv4/ip_forward
 
 # Map port number to local ip-address
-# 30000+x -> LOCALNET.0+x:22
+# 30000+x*3+0 -> LOCALNET.0+x:22
+# 30001+x*3+1 -> LOCALNET.0+x:80
+# 30002+x*3+2 -> LOCALNET.0+x:443
 # x > 0 and x < 255
-
 
 #ip forwarding rules
 for ((n=1; n <=254; n++))
         {
-        SSH_PORT=$((30000+$n))
+        SSH_PORT=$((30000+$n*3))
+        HTTP_PORT=$((30001+$n*3))
+        HTTPS_PORT=$((30002+$n*3))
 
         iptables -t nat -A PREROUTING -i ens3 -p tcp -m tcp --dport ${SSH_PORT} -j DNAT --to-destination ${LOCALNET}.${n}:22
         iptables -t nat -A POSTROUTING -d ${LOCALNET}.${n}/32 -p tcp -m tcp --dport 22 -j SNAT --to-source ${LOCALIP}
 
+        iptables -t nat -A PREROUTING -i ens3 -p tcp -m tcp --dport ${HTTP_PORT} -j DNAT --to-destination ${LOCALNET}.${n}:80
+        iptables -t nat -A POSTROUTING -d ${LOCALNET}.${n}/32 -p tcp -m tcp --dport 80 -j SNAT --to-source ${LOCALIP}
+
+        iptables -t nat -A PREROUTING -i ens3 -p tcp -m tcp --dport ${HTTPS_PORT} -j DNAT --to-destination ${LOCALNET}.${n}:443
+        iptables -t nat -A POSTROUTING -d ${LOCALNET}.${n}/32 -p tcp -m tcp --dport 443 -j SNAT --to-source ${LOCALIP}
         }
 ```
