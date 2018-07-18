@@ -765,6 +765,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_snapshot failed: unknown result")
 
     def delete_image(self, image_id):
@@ -1352,6 +1354,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
@@ -3567,14 +3572,17 @@ class create_snapshot_result(object):
     """
     Attributes:
      - success
+     - e
     """
 
     thrift_spec = (
         (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
     )
 
-    def __init__(self, success=None,):
+    def __init__(self, success=None, e=None,):
         self.success = success
+        self.e = e
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3590,6 +3598,12 @@ class create_snapshot_result(object):
                     self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3603,6 +3617,10 @@ class create_snapshot_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
             oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

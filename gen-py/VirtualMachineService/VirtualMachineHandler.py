@@ -343,7 +343,11 @@ class VirtualMachineHandler(Iface):
         self.logger.info(
             'Create Snapshot from Instance {0} with name {1} for {2}'.format(openstack_id, name, elixir_id))
 
-        snapshot_munch = self.conn.create_image_snapshot(server=openstack_id, name=name)
+        try:
+            snapshot_munch = self.conn.create_image_snapshot(server=openstack_id, name=name)
+        except Exception:
+            self.logger.error("Instance {0} not found".format(openstack_id))
+            raise serverNotFoundException
         snapshot_id = snapshot_munch['id']
         self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
         self.conn.image.add_tag(image=snapshot_id, tag='snapshot_image:{0}'.format(base_tag))
@@ -420,6 +424,20 @@ class VirtualMachineHandler(Iface):
         return True
 
     def delete_volume(self, volume_id):
+        def checkStatusVolume(volume, conn):
+            self.logger.info("Checking Status Volume {0}".format(volume_id))
+            done = False
+            while done == False:
+
+                status = conn.block_storage.get_volume(volume).to_dict()['status']
+
+                if status != 'available':
+
+                    time.sleep(3)
+                else:
+                    done = True
+            return volume
+        checkStatusVolume(volume_id,self.conn)
         self.logger.info("Delete Volume  {0}".format(volume_id))
         self.conn.block_storage.delete_volume(volume=volume_id)
         return True
