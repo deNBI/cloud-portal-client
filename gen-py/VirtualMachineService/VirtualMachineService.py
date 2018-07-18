@@ -170,11 +170,32 @@ class Iface(object):
         """
         pass
 
-    def attach_volume_to_server(self, openstack_id, diskspace, volume_id):
+    def delete_image(self, image_id):
+        """
+        Parameters:
+         - image_id
+        """
+        pass
+
+    def delete_volume_attachment(self, volume_id, server_id):
+        """
+        Parameters:
+         - volume_id
+         - server_id
+        """
+        pass
+
+    def delete_volume(self, volume_id):
+        """
+        Parameters:
+         - volume_id
+        """
+        pass
+
+    def attach_volume_to_server(self, openstack_id, volume_id):
         """
         Parameters:
          - openstack_id
-         - diskspace
          - volume_id
         """
         pass
@@ -744,23 +765,122 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_snapshot failed: unknown result")
 
-    def attach_volume_to_server(self, openstack_id, diskspace, volume_id):
+    def delete_image(self, image_id):
+        """
+        Parameters:
+         - image_id
+        """
+        self.send_delete_image(image_id)
+        return self.recv_delete_image()
+
+    def send_delete_image(self, image_id):
+        self._oprot.writeMessageBegin('delete_image', TMessageType.CALL, self._seqid)
+        args = delete_image_args()
+        args.image_id = image_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_delete_image(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = delete_image_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_image failed: unknown result")
+
+    def delete_volume_attachment(self, volume_id, server_id):
+        """
+        Parameters:
+         - volume_id
+         - server_id
+        """
+        self.send_delete_volume_attachment(volume_id, server_id)
+        return self.recv_delete_volume_attachment()
+
+    def send_delete_volume_attachment(self, volume_id, server_id):
+        self._oprot.writeMessageBegin('delete_volume_attachment', TMessageType.CALL, self._seqid)
+        args = delete_volume_attachment_args()
+        args.volume_id = volume_id
+        args.server_id = server_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_delete_volume_attachment(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = delete_volume_attachment_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.e is not None:
+            raise result.e
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_volume_attachment failed: unknown result")
+
+    def delete_volume(self, volume_id):
+        """
+        Parameters:
+         - volume_id
+        """
+        self.send_delete_volume(volume_id)
+        return self.recv_delete_volume()
+
+    def send_delete_volume(self, volume_id):
+        self._oprot.writeMessageBegin('delete_volume', TMessageType.CALL, self._seqid)
+        args = delete_volume_args()
+        args.volume_id = volume_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_delete_volume(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = delete_volume_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "delete_volume failed: unknown result")
+
+    def attach_volume_to_server(self, openstack_id, volume_id):
         """
         Parameters:
          - openstack_id
-         - diskspace
          - volume_id
         """
-        self.send_attach_volume_to_server(openstack_id, diskspace, volume_id)
+        self.send_attach_volume_to_server(openstack_id, volume_id)
         return self.recv_attach_volume_to_server()
 
-    def send_attach_volume_to_server(self, openstack_id, diskspace, volume_id):
+    def send_attach_volume_to_server(self, openstack_id, volume_id):
         self._oprot.writeMessageBegin('attach_volume_to_server', TMessageType.CALL, self._seqid)
         args = attach_volume_to_server_args()
         args.openstack_id = openstack_id
-        args.diskspace = diskspace
         args.volume_id = volume_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -909,6 +1029,9 @@ class Processor(Iface, TProcessor):
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["create_snapshot"] = Processor.process_create_snapshot
+        self._processMap["delete_image"] = Processor.process_delete_image
+        self._processMap["delete_volume_attachment"] = Processor.process_delete_volume_attachment
+        self._processMap["delete_volume"] = Processor.process_delete_volume
         self._processMap["attach_volume_to_server"] = Processor.process_attach_volume_to_server
         self._processMap["check_server_status"] = Processor.process_check_server_status
         self._processMap["setUserPassword"] = Processor.process_setUserPassword
@@ -1231,11 +1354,77 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("create_snapshot", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_delete_image(self, seqid, iprot, oprot):
+        args = delete_image_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = delete_image_result()
+        try:
+            result.success = self._handler.delete_image(args.image_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except imageNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("delete_image", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_delete_volume_attachment(self, seqid, iprot, oprot):
+        args = delete_volume_attachment_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = delete_volume_attachment_result()
+        try:
+            result.success = self._handler.delete_volume_attachment(args.volume_id, args.server_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except serverNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("delete_volume_attachment", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_delete_volume(self, seqid, iprot, oprot):
+        args = delete_volume_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = delete_volume_result()
+        try:
+            result.success = self._handler.delete_volume(args.volume_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("delete_volume", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1246,7 +1435,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = attach_volume_to_server_result()
         try:
-            result.success = self._handler.attach_volume_to_server(args.openstack_id, args.diskspace, args.volume_id)
+            result.success = self._handler.attach_volume_to_server(args.openstack_id, args.volume_id)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -3383,6 +3572,414 @@ class create_snapshot_result(object):
     """
     Attributes:
      - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('create_snapshot_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_image_args(object):
+    """
+    Attributes:
+     - image_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'image_id', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, image_id=None,):
+        self.image_id = image_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.image_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_image_args')
+        if self.image_id is not None:
+            oprot.writeFieldBegin('image_id', TType.STRING, 1)
+            oprot.writeString(self.image_id.encode('utf-8') if sys.version_info[0] == 2 else self.image_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_image_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (1, TType.STRUCT, 'e', (imageNotFoundException, imageNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = imageNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_image_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_volume_attachment_args(object):
+    """
+    Attributes:
+     - volume_id
+     - server_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'volume_id', 'UTF8', None, ),  # 1
+        (2, TType.STRING, 'server_id', 'UTF8', None, ),  # 2
+    )
+
+    def __init__(self, volume_id=None, server_id=None,):
+        self.volume_id = volume_id
+        self.server_id = server_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.server_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_volume_attachment_args')
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 1)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
+            oprot.writeFieldEnd()
+        if self.server_id is not None:
+            oprot.writeFieldBegin('server_id', TType.STRING, 2)
+            oprot.writeString(self.server_id.encode('utf-8') if sys.version_info[0] == 2 else self.server_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_volume_attachment_result(object):
+    """
+    Attributes:
+     - success
+     - e
+    """
+
+    thrift_spec = (
+        (0, TType.BOOL, 'success', None, None, ),  # 0
+        (1, TType.STRUCT, 'e', (serverNotFoundException, serverNotFoundException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, e=None,):
+        self.success = success
+        self.e = e
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = serverNotFoundException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_volume_attachment_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_volume_args(object):
+    """
+    Attributes:
+     - volume_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'volume_id', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, volume_id=None,):
+        self.volume_id = volume_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('delete_volume_args')
+        if self.volume_id is not None:
+            oprot.writeFieldBegin('volume_id', TType.STRING, 1)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class delete_volume_result(object):
+    """
+    Attributes:
+     - success
     """
 
     thrift_spec = (
@@ -3415,7 +4012,7 @@ class create_snapshot_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
             return
-        oprot.writeStructBegin('create_snapshot_result')
+        oprot.writeStructBegin('delete_volume_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.BOOL, 0)
             oprot.writeBool(self.success)
@@ -3442,20 +4039,17 @@ class attach_volume_to_server_args(object):
     """
     Attributes:
      - openstack_id
-     - diskspace
      - volume_id
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
-        (2, TType.I32, 'diskspace', None, None, ),  # 2
-        (3, TType.STRING, 'volume_id', 'UTF8', None, ),  # 3
+        (2, TType.STRING, 'volume_id', 'UTF8', None, ),  # 2
     )
 
-    def __init__(self, openstack_id=None, diskspace=None, volume_id=None,):
+    def __init__(self, openstack_id=None, volume_id=None,):
         self.openstack_id = openstack_id
-        self.diskspace = diskspace
         self.volume_id = volume_id
 
     def read(self, iprot):
@@ -3473,11 +4067,6 @@ class attach_volume_to_server_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.I32:
-                    self.diskspace = iprot.readI32()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
                 if ftype == TType.STRING:
                     self.volume_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
@@ -3496,12 +4085,8 @@ class attach_volume_to_server_args(object):
             oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
-        if self.diskspace is not None:
-            oprot.writeFieldBegin('diskspace', TType.I32, 2)
-            oprot.writeI32(self.diskspace)
-            oprot.writeFieldEnd()
         if self.volume_id is not None:
-            oprot.writeFieldBegin('volume_id', TType.STRING, 3)
+            oprot.writeFieldBegin('volume_id', TType.STRING, 2)
             oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
