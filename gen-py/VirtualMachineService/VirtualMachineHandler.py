@@ -363,16 +363,6 @@ class VirtualMachineHandler(Iface):
         self.conn.compute.delete_image(image)
         return True
 
-    def create_snapshot(self,openstack_id,name,elixir_id,base_tag):
-        self.logger.info('Create Snapshot from Instance {0} with name {1} for {2}'.format(openstack_id,name,elixir_id))
-
-        snapshot_munch= self.conn.create_image_snapshot(server=openstack_id,name=name)
-        snapshot_id=snapshot_munch['id']
-        self.conn.image.add_tag(image=snapshot_id,tag=elixir_id)
-        self.conn.image.add_tag(image=snapshot_id,tag='snapshot_image:{0}'.format(base_tag))
-        return True
-
-
     def add_floating_ip_to_server(self, openstack_id, network):
 
         server = self.conn.compute.get_server(openstack_id)
