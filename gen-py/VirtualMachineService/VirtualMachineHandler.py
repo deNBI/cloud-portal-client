@@ -30,7 +30,7 @@ class VirtualMachineHandler(Iface):
                                          user_domain_name=self.USER_DOMAIN_NAME, project_domain_name='default')
             conn.authorize()
         except Exception as e:
-            self.logger.error('Client failed authentication at Openstack')
+            self.logger.error('Client failed authentication at Openstack : {0}', e)
             raise authenticationException(Reason='Client failed authentication at Openstack')
 
         self.logger.info("Connected to Openstack")
@@ -100,64 +100,85 @@ class VirtualMachineHandler(Iface):
     def get_Flavors(self):
         self.logger.info("Get Flavors")
         flavors = list()
-        for flav in filter(lambda x: self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',
-                           (list(self.conn.list_flavors(get_extra=True)))):
-            flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
-                            openstack_id=flav['id'])
-            flavors.append(flavor)
-        return flavors
+        try:
+            for flav in filter(lambda x: self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',
+                               (list(self.conn.list_flavors(get_extra=True)))):
+                flavor = Flavor(vcpus=flav['vcpus'], ram=flav['ram'], disk=flav['disk'], name=flav['name'],
+                                openstack_id=flav['id'])
+                flavors.append(flavor)
+            return flavors
+        except Exception as e:
+            self.logger.error("Get Flavors Error: {0}".format(e))
+            return ()
 
     def check_Version(self, version):
-        self.logger.info("Compare Version : Server Version = " + str(VERSION) + " || Client Version = " + str(version))
-        if version == VERSION:
-            return True
-        else:
+        self.logger.info("Compare Version : Server Version = {0} || Client Version = {1}".format(VERSION, version))
+        try:
+            if version == VERSION:
+                return True
+            else:
+                return False
+        except Exception as e:
+            self.logger.error("Compare Version Error: {0}".format(e))
             return False
 
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
-        for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0, self.conn.list_images()):
+        try:
+            for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0, self.conn.list_images()):
 
+                metadata = img['metadata']
+                description = metadata.get('description')
+                tags = img.get('tags')
+                if description is None:
+                    self.logger.warning("No Description and  for " + img['name'])
+
+                image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
+                              status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
+                              openstack_id=img['id'], description=description, tag=tags
+                              )
+                images.append(image)
+
+            return images
+        except Exception as e:
+            self.logger.error("Get Images Error: {0}".format(e))
+            return ()
+
+    def get_Image_with_Tag(self, id):
+        self.logger.info("Get Image {0} with tags".format(id))
+        try:
+            images = self.conn.list_images()
+            img = list(filter(lambda image: image['id'] == id, images))[0]
             metadata = img['metadata']
             description = metadata.get('description')
             tags = img.get('tags')
-            if description is None:
-                self.logger.warning("No Description and  for " + img['name'])
-
             image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
                           status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
                           openstack_id=img['id'], description=description, tag=tags
                           )
-            images.append(image)
-
-        return images
-
-    def get_Image_with_Tag(self, id):
-        images = self.conn.list_images()
-        img = list(filter(lambda image: image['id'] == id, images))[0]
-        metadata = img['metadata']
-        description = metadata.get('description')
-        tags = img.get('tags')
-        image = Image(name=img['name'], min_disk=img['min_disk'], min_ram=img['min_ram'],
-                      status=img['status'], created_at=img['created_at'], updated_at=img['updated_at'],
-                      openstack_id=img['id'], description=description, tag=tags
-                      )
-        return image
+            return image
+        except Exception as e:
+            self.logger.error("Get Image {0} with Tag Error: {1}".format(id, e))
+            return
 
     def import_keypair(self, keyname, public_key):
-        keypair = self.conn.compute.find_keypair(keyname)
-        if not keypair:
-            self.logger.info("Create Keypair")
+        try:
+            keypair = self.conn.compute.find_keypair(keyname)
+            if not keypair:
+                self.logger.info("Create Keypair {0}".format(keyname))
 
-            keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
+                keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
+                return keypair
+            elif keypair.public_key != public_key:
+                self.logger.info("Key has changed. Replace old Key")
+                self.conn.compute.delete_keypair(keypair)
+                keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
+                return keypair
             return keypair
-        elif keypair.public_key != public_key:
-            self.logger.info("Key has changed. Replace old Key")
-            self.conn.compute.delete_keypair(keypair)
-            keypair = self.conn.compute.create_keypair(name=keyname, public_key=public_key)
-            return keypair
-        return keypair
+        except Exception as e:
+            self.logger.error('Import Keypair {0} error:{1}'.format(keyname, e))
+            return
 
     def get_server(self, openstack_id):
         floating_ip = None
@@ -256,8 +277,8 @@ class VirtualMachineHandler(Iface):
 
             return {'openstackid': server.to_dict()['id'], 'volumeId': volumeId}
         except Exception as e:
-            self.logger.error(e)
-            raise ressourceException(Reason=str(e))
+            self.logger.error('Start Server {1} error:{0}'.format(e, servername))
+            return {}
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         def checkStatusVolume(volume, conn):
@@ -305,39 +326,45 @@ class VirtualMachineHandler(Iface):
             self.logger.error("No Server with id {0} ".format(openstack_id))
             return None
         serv = server.to_dict()
+        try:
+            if serv['status'] == 'ACTIVE':
+                if diskspace > 0:
+                    attached = self.attach_volume_to_server(openstack_id=openstack_id,
+                                                            volume_id=volume_id)
 
-        if serv['status'] == 'ACTIVE':
-            if diskspace > 0:
-                attached = self.attach_volume_to_server(openstack_id=openstack_id,
-                                                        volume_id=volume_id)
-
-                if attached is False:
-                    server = self.get_server(openstack_id)
-                    self.delete_server(openstack_id=openstack_id)
-                    server.status = 'DESTROYED'
-                    return server
+                    if attached is False:
+                        server = self.get_server(openstack_id)
+                        self.delete_server(openstack_id=openstack_id)
+                        server.status = 'DESTROYED'
+                        return server
+                    return self.get_server(openstack_id)
                 return self.get_server(openstack_id)
-            return self.get_server(openstack_id)
-        else:
-            server = self.get_server(openstack_id)
-            server.status = 'BUILD'
-            return server
+            else:
+                server = self.get_server(openstack_id)
+                server.status = 'BUILD'
+                return server
+        except Exception as e:
+            self.logger.error('Check Status VM {0} error: {1}'.format(openstack_id, e))
+            return None
 
     def get_IP_PORT(self, openstack_id):
         self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
         # check if jumphost is active
+        try:
+            if 'True' == str(self.USE_JUMPHOST):
+                server = self.get_server(openstack_id)
+                server_base = server.fixed_ip.split(".")[-1]
+                port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+                return {'IP': str(self.JUMPHOST_IP), 'PORT': str(port)}
 
-        if 'True' == str(self.USE_JUMPHOST):
-            server = self.get_server(openstack_id)
-            server_base = server.fixed_ip.split(".")[-1]
-            port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-            return {'IP': str(self.JUMPHOST_IP), 'PORT': str(port)}
+            else:
+                floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
 
-        else:
-            floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
-
-            return {'IP': str(floating_ip)}
+                return {'IP': str(floating_ip)}
+        except Exception as e:
+            self.logger.error("Get IP and PORT for server {0} error:".format(openstack_id, e))
+            return {}
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         self.logger.info(
@@ -347,81 +374,101 @@ class VirtualMachineHandler(Iface):
             snapshot_munch = self.conn.create_image_snapshot(server=openstack_id, name=name)
         except Exception:
             self.logger.error("Instance {0} not found".format(openstack_id))
-            raise serverNotFoundException
-        snapshot_id = snapshot_munch['id']
-        self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
-        self.conn.image.add_tag(image=snapshot_id, tag='snapshot_image:{0}'.format(base_tag))
-        return snapshot_id
+            return
+        try:
+            snapshot_id = snapshot_munch['id']
+            self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
+            self.conn.image.add_tag(image=snapshot_id, tag='snapshot_image:{0}'.format(base_tag))
+            return snapshot_id
+        except Exception as e:
+            self.logger.error(
+                'Create Snapshot from Instance {0} with name {1} for {2} error : {3}'.format(openstack_id, name,
+                                                                                             elixir_id, e))
+            return
 
-    def delete_image(self,image_id):
+    def delete_image(self, image_id):
         self.logger.info('Delete Image {0}'.format(image_id))
-
-        image = self.conn.compute.get_image(image_id)
-        if image is None:
-            self.logger.error('Image {0} not found!'.format(image))
-            raise imageNotFoundException(Reason=('Image {0} not found'.format(image)))
-        self.conn.compute.delete_image(image)
-        return True
+        try:
+            image = self.conn.compute.get_image(image_id)
+            if image is None:
+                self.logger.error('Image {0} not found!'.format(image))
+                raise imageNotFoundException(Reason=('Image {0} not found'.format(image)))
+            self.conn.compute.delete_image(image)
+            return True
+        except Exception as e:
+            self.logger.error('Delete Image {0} error : {1}'.format(image_id, e))
+            return False
 
     def add_floating_ip_to_server(self, openstack_id, network):
+        try:
 
-        server = self.conn.compute.get_server(openstack_id)
-        if server is None:
-            self.logger.error("Instance {0} not found".format(openstack_id))
-            raise serverNotFoundException
-        self.logger.info("Checking if Server already got an Floating Ip")
-        for values in server.addresses.values():
-            for address in values:
-                if address['OS-EXT-IPS:type'] == 'floating':
-                    return address['addr']
-        self.logger.info("Checking if unused Floating-Ip exist")
+            server = self.conn.compute.get_server(openstack_id)
+            if server is None:
+                self.logger.error("Instance {0} not found".format(openstack_id))
+                raise serverNotFoundException
+            self.logger.info("Checking if Server already got an Floating Ip")
+            for values in server.addresses.values():
+                for address in values:
+                    if address['OS-EXT-IPS:type'] == 'floating':
+                        return address['addr']
+            self.logger.info("Checking if unused Floating-Ip exist")
 
-        for floating_ip in self.conn.network.ips():
-            if not floating_ip.fixed_ip_address:
-                self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
-                self.logger.info(
-                    "Adding existing Floating IP {0} to {1}".format(str(floating_ip.floating_ip_address), openstack_id))
-                return str(floating_ip.floating_ip_address)
+            for floating_ip in self.conn.network.ips():
+                if not floating_ip.fixed_ip_address:
+                    self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+                    self.logger.info(
+                        "Adding existing Floating IP {0} to {1}".format(str(floating_ip.floating_ip_address),
+                                                                        openstack_id))
+                    return str(floating_ip.floating_ip_address)
 
-        networkID = self.conn.network.find_network(network)
-        if networkID is None:
-            self.logger.error("Network " + network + " not found")
-            raise networkNotFoundException
-        networkID = networkID.to_dict()['id']
-        floating_ip = self.conn.network.create_ip(floating_network_id=networkID)
-        floating_ip = self.conn.network.get_ip(floating_ip)
-        self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
+            networkID = self.conn.network.find_network(network)
+            if networkID is None:
+                self.logger.error("Network " + network + " not found")
+                raise networkNotFoundException
+            networkID = networkID.to_dict()['id']
+            floating_ip = self.conn.network.create_ip(floating_network_id=networkID)
+            floating_ip = self.conn.network.get_ip(floating_ip)
+            self.conn.compute.add_floating_ip_to_server(server, floating_ip.floating_ip_address)
 
-        return floating_ip
+            return floating_ip
+        except Exception as e:
+            self.logger.error("Adding Floating IP to {0} with network {1} error:{2}".format(openstack_id, network, e))
+            return
 
     def delete_server(self, openstack_id):
-        self.logger.info("Delete Server " + openstack_id)
-        server = self.conn.compute.get_server(openstack_id)
-        if server is None:
-            self.logger.error("Instance {0} not found".format(openstack_id))
-            raise serverNotFoundException
+        self.logger.info("Delete Server {0}".format(openstack_id))
+        try:
+            server = self.conn.compute.get_server(openstack_id)
+            if server is None:
+                self.logger.error("Instance {0} not found".format(openstack_id))
+                raise serverNotFoundException
 
-        if server.status == 'SUSPENDED':
-            self.conn.compute.resume_server(server)
-            server = self.conn.compute.get_server(server)
-            while server.status != 'ACTIVE':
+            if server.status == 'SUSPENDED':
+                self.conn.compute.resume_server(server)
                 server = self.conn.compute.get_server(server)
-                time.sleep(3)
-        self.conn.compute.delete_server(server)
+                while server.status != 'ACTIVE':
+                    server = self.conn.compute.get_server(server)
+                    time.sleep(3)
+            self.conn.compute.delete_server(server)
 
-        return True
+            return True
+        except Exception as e:
+            self.logger.error("Delete Server {0} error: {1}".format(openstack_id, e))
+            return False
 
-
-
-    def delete_volume_attachment(self, volume_id,server_id):
-        attachments=self.conn.block_storage.get_volume(volume_id).attachments
-        for attachment in attachments:
-            volume_attachment_id=attachment['id']
-            instance_id=attachment['server_id']
-            if instance_id == server_id:
-                self.logger.info("Delete Volume Attachment  {0}".format(volume_attachment_id))
-                self.conn.compute.delete_volume_attachment(volume_attachment=volume_attachment_id, server=server_id)
-        return True
+    def delete_volume_attachment(self, volume_id, server_id):
+        try:
+            attachments = self.conn.block_storage.get_volume(volume_id).attachments
+            for attachment in attachments:
+                volume_attachment_id = attachment['id']
+                instance_id = attachment['server_id']
+                if instance_id == server_id:
+                    self.logger.info("Delete Volume Attachment  {0}".format(volume_attachment_id))
+                    self.conn.compute.delete_volume_attachment(volume_attachment=volume_attachment_id, server=server_id)
+            return True
+        except Exception as e:
+            self.logger.error("Delete Volume Attachment  {0} error: {1}".format(volume_attachment_id, e))
+            return False
 
     def delete_volume(self, volume_id):
         def checkStatusVolume(volume, conn):
@@ -437,47 +484,59 @@ class VirtualMachineHandler(Iface):
                 else:
                     done = True
             return volume
-        checkStatusVolume(volume_id,self.conn)
-        self.logger.info("Delete Volume  {0}".format(volume_id))
-        self.conn.block_storage.delete_volume(volume=volume_id)
-        return True
 
-
-
+        try:
+            checkStatusVolume(volume_id, self.conn)
+            self.logger.info("Delete Volume  {0}".format(volume_id))
+            self.conn.block_storage.delete_volume(volume=volume_id)
+            return True
+        except Exception as e:
+            self.logger.error("Delete Volume {0} error".format(volume_id, e))
+            return False
 
     def stop_server(self, openstack_id):
-        self.logger.info("Stop Server " + openstack_id)
+        self.logger.info("Stop Server {0}".format(openstack_id))
         server = self.conn.compute.get_server(openstack_id)
-        if server is None:
-            self.logger.error("Instance " + openstack_id + " not found")
-            raise serverNotFoundException
+        try:
+            if server is None:
+                self.logger.error("Instance {0} not found".format(openstack_id))
+                raise serverNotFoundException
 
-        if server.status == 'ACTIVE':
-            self.conn.compute.suspend_server(server)
-            server = self.conn.compute.get_server(server)
-            while server.status != 'SUSPENDED':
+            if server.status == 'ACTIVE':
+                self.conn.compute.suspend_server(server)
                 server = self.conn.compute.get_server(server)
-                time.sleep(3)
+                while server.status != 'SUSPENDED':
+                    server = self.conn.compute.get_server(server)
+                    time.sleep(3)
 
-            return True
-        else:
+                return True
+            else:
+
+                return False
+        except Exception as e:
+            self.logger.error("Stop Server {0} error:".format(openstack_id, e))
 
             return False
 
     def resume_server(self, openstack_id):
-        self.logger.info("Resume Server " + openstack_id)
-        server = self.conn.compute.get_server(openstack_id)
-        if server is None:
-            self.logger.error("Instance " + openstack_id + " not found")
-            raise serverNotFoundException
 
-        if server.status == 'SUSPENDED':
-            self.conn.compute.resume_server(server)
-            while server.status != 'ACTIVE':
-                server = self.conn.compute.get_server(server)
-                time.sleep(3)
+        self.logger.info("Resume Server {0}".format(openstack_id))
+        try:
+            server = self.conn.compute.get_server(openstack_id)
+            if server is None:
+                self.logger.error("Instance {0} not found".format(openstack_id))
+                raise serverNotFoundException
 
-            return True
-        else:
+            if server.status == 'SUSPENDED':
+                self.conn.compute.resume_server(server)
+                while server.status != 'ACTIVE':
+                    server = self.conn.compute.get_server(server)
+                    time.sleep(3)
 
+                return True
+            else:
+
+                return False
+        except Exception as e:
+            self.logger.error("Resume Server {0} error:".format(openstack_id, e))
             return False
