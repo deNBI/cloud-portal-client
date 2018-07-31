@@ -228,7 +228,7 @@ class VirtualMachineHandler(Iface):
                         fixed_ip=fixed_ip, diskspace=diskspace)
         return server
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace,volumename):
 
         volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
@@ -254,10 +254,10 @@ class VirtualMachineHandler(Iface):
             if diskspace > '0':
                 self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
                 try:
-                    volume = self.conn.block_storage.create_volume(name=servername, size=int(diskspace)).to_dict()
+                    volume = self.conn.block_storage.create_volume(name=volumename, size=int(diskspace)).to_dict()
                 except Exception as e:
                     self.logger.error(
-                        'Trying to create volume with {0} GB for vm {1} error : {2}'.format(diskspace, openstack_id, e),
+                        'Trying to create volume with {0} GB for vm {1} error : {2}'.format(diskspace, servername, e),
                         exc_info=True)
                     raise ressourceException(Reason=str(e))
                 volumeId = volume['id']

@@ -125,7 +125,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         This Method starts a VirtualMachine .
 
@@ -136,6 +136,7 @@ class Iface(object):
          - servername
          - elixir_id
          - diskspace
+         - volumename
         """
         pass
 
@@ -600,7 +601,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         This Method starts a VirtualMachine .
 
@@ -611,11 +612,12 @@ class Client(Iface):
          - servername
          - elixir_id
          - diskspace
+         - volumename
         """
-        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace)
+        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace):
+    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
@@ -624,6 +626,7 @@ class Client(Iface):
         args.servername = servername
         args.elixir_id = elixir_id
         args.diskspace = diskspace
+        args.volumename = volumename
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1266,7 +1269,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace)
+            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -2936,6 +2939,7 @@ class start_server_args(object):
      - servername
      - elixir_id
      - diskspace
+     - volumename
     """
 
     thrift_spec = (
@@ -2946,15 +2950,17 @@ class start_server_args(object):
         (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
         (5, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'diskspace', 'UTF8', None, ),  # 6
+        (7, TType.STRING, 'volumename', 'UTF8', None, ),  # 7
     )
 
-    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None,):
+    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
         self.flavor = flavor
         self.image = image
         self.public_key = public_key
         self.servername = servername
         self.elixir_id = elixir_id
         self.diskspace = diskspace
+        self.volumename = volumename
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -2995,6 +3001,11 @@ class start_server_args(object):
                     self.diskspace = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.STRING:
+                    self.volumename = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3028,6 +3039,10 @@ class start_server_args(object):
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.STRING, 6)
             oprot.writeString(self.diskspace.encode('utf-8') if sys.version_info[0] == 2 else self.diskspace)
+            oprot.writeFieldEnd()
+        if self.volumename is not None:
+            oprot.writeFieldBegin('volumename', TType.STRING, 7)
+            oprot.writeString(self.volumename.encode('utf-8') if sys.version_info[0] == 2 else self.volumename)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
