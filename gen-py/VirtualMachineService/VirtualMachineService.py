@@ -225,6 +225,14 @@ class Iface(object):
         """
         pass
 
+    def create_volume(self, volume_name, diskspace):
+        """
+        Parameters:
+         - volume_name
+         - diskspace
+        """
+        pass
+
 
 class Client(Iface):
     """
@@ -1013,6 +1021,41 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "resume_server failed: unknown result")
 
+    def create_volume(self, volume_name, diskspace):
+        """
+        Parameters:
+         - volume_name
+         - diskspace
+        """
+        self.send_create_volume(volume_name, diskspace)
+        return self.recv_create_volume()
+
+    def send_create_volume(self, volume_name, diskspace):
+        self._oprot.writeMessageBegin('create_volume', TMessageType.CALL, self._seqid)
+        args = create_volume_args()
+        args.volume_name = volume_name
+        args.diskspace = diskspace
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_create_volume(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = create_volume_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.r is not None:
+            raise result.r
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "create_volume failed: unknown result")
+
 
 class Processor(Iface, TProcessor):
     def __init__(self, handler):
@@ -1039,6 +1082,7 @@ class Processor(Iface, TProcessor):
         self._processMap["check_server_status"] = Processor.process_check_server_status
         self._processMap["setUserPassword"] = Processor.process_setUserPassword
         self._processMap["resume_server"] = Processor.process_resume_server
+        self._processMap["create_volume"] = Processor.process_create_volume
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
@@ -1519,6 +1563,28 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("resume_server", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_create_volume(self, seqid, iprot, oprot):
+        args = create_volume_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = create_volume_result()
+        try:
+            result.success = self._handler.create_volume(args.volume_name, args.diskspace)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except ressourceException as r:
+            msg_type = TMessageType.REPLY
+            result.r = r
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("create_volume", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -4621,6 +4687,150 @@ class resume_server_result(object):
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
             self.e.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class create_volume_args(object):
+    """
+    Attributes:
+     - volume_name
+     - diskspace
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'volume_name', 'UTF8', None, ),  # 1
+        (2, TType.I32, 'diskspace', None, None, ),  # 2
+    )
+
+    def __init__(self, volume_name=None, diskspace=None,):
+        self.volume_name = volume_name
+        self.diskspace = diskspace
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.volume_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.diskspace = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('create_volume_args')
+        if self.volume_name is not None:
+            oprot.writeFieldBegin('volume_name', TType.STRING, 1)
+            oprot.writeString(self.volume_name.encode('utf-8') if sys.version_info[0] == 2 else self.volume_name)
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.I32, 2)
+            oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class create_volume_result(object):
+    """
+    Attributes:
+     - success
+     - r
+    """
+
+    thrift_spec = (
+        (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+        (1, TType.STRUCT, 'r', (ressourceException, ressourceException.thrift_spec), None, ),  # 1
+    )
+
+    def __init__(self, success=None, r=None,):
+        self.success = success
+        self.r = r
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRING:
+                    self.success = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.r = ressourceException()
+                    self.r.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('create_volume_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRING, 0)
+            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeFieldEnd()
+        if self.r is not None:
+            oprot.writeFieldBegin('r', TType.STRUCT, 1)
+            self.r.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

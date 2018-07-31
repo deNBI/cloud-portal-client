@@ -280,6 +280,18 @@ class VirtualMachineHandler(Iface):
             self.logger.error('Start Server {1} error:{0}'.format(e, servername))
             return {}
 
+    def create_volume(self,volume_name,diskspace):
+        self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
+        try:
+            volume = self.conn.block_storage.create_volume(name=volume_name, size=int(diskspace)).to_dict()
+            volumeId = volume['id']
+            return volumeId
+        except Exception as e:
+            self.logger.error(
+                'Trying to create volume with {0} GB  error : {1}'.format(diskspace, e),
+                exc_info=True)
+            raise ressourceException(Reason=str(e))
+
     def attach_volume_to_server(self, openstack_id, volume_id):
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))

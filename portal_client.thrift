@@ -246,4 +246,10 @@ service VirtualMachineService {
     string setUserPassword(1:string user, 2:string password) throws (1:otherException e),
 
     bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e)
+
+    string create_volume(1:string volume_name,2:int diskspace) throws (1:ressourceException r)
+
+
+
+
 }
