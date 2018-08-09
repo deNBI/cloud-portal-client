@@ -6,7 +6,8 @@ from openstack import connection
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
-
+import socket
+from contextlib import closing
 import requests
 
 import urllib
@@ -59,6 +60,7 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_ID = os.environ['OS_PROJECT_ID']
         self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
         self.AUTH_URL = os.environ['OS_AUTH_URL']
+        self.SSH_PORT = 22
 
         with open("../../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
@@ -338,19 +340,35 @@ class VirtualMachineHandler(Iface):
             self.logger.error("No Server with id {0} ".format(openstack_id))
             return None
         serv = server.to_dict()
+
         try:
             if serv['status'] == 'ACTIVE':
-                if diskspace > 0:
-                    attached = self.attach_volume_to_server(openstack_id=openstack_id,
-                                                            volume_id=volume_id)
+                host = self.get_server(openstack_id).floating_ip
+                port = self.SSH_PORT
 
-                    if attached is False:
-                        server = self.get_server(openstack_id)
-                        self.delete_server(openstack_id=openstack_id)
-                        server.status = 'DESTROYED'
-                        return server
+                if self.USE_JUMPHOST:
+                    serv_cop=self.get_server(openstack_id)
+                    server_base = serv_cop.fixed_ip.split(".")[-1]
+                    host = str(self.JUMPHOST_IP)
+                    port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+                elif self.get_server(openstack_id).floating_ip == None:
+                    host = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
+                if self.netcat(host, port) == True:
+                    if diskspace > 0:
+                        attached = self.attach_volume_to_server(openstack_id=openstack_id,
+                                                                volume_id=volume_id)
+
+                        if attached is False:
+                            server = self.get_server(openstack_id)
+                            self.delete_server(openstack_id=openstack_id)
+                            server.status = 'DESTROYED'
+                            return server
+                        return self.get_server(openstack_id)
                     return self.get_server(openstack_id)
-                return self.get_server(openstack_id)
+                else:
+                    server = self.get_server(openstack_id)
+                    server.status = 'BUILD'
+                    return server
             else:
                 server = self.get_server(openstack_id)
                 server.status = 'BUILD'
@@ -371,8 +389,7 @@ class VirtualMachineHandler(Iface):
                 return {'IP': str(self.JUMPHOST_IP), 'PORT': str(port)}
 
             else:
-                floating_ip = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
-
+                floating_ip = self.get_server(openstack_id).floating_ip
                 return {'IP': str(floating_ip)}
         except Exception as e:
             self.logger.error("Get IP and PORT for server {0} error:".format(openstack_id, e))
@@ -446,6 +463,16 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.error("Adding Floating IP to {0} with network {1} error:{2}".format(openstack_id, network, e))
             return
+
+    def netcat(self, host, port):
+        self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            r=sock.connect_ex((host, port))
+            self.logger.info("Checking SSH Connection {0}:{1} Result = {2}".format(host, port,r))
+            if r == 0:
+                return True
+            else:
+                return False
 
     def delete_server(self, openstack_id):
         self.logger.info("Delete Server {0}".format(openstack_id))
