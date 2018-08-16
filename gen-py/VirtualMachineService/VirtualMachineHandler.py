@@ -230,7 +230,7 @@ class VirtualMachineHandler(Iface):
                         fixed_ip=fixed_ip, diskspace=diskspace)
         return server
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace,volumename):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
 
         volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
@@ -282,7 +282,7 @@ class VirtualMachineHandler(Iface):
             self.logger.error('Start Server {1} error:{0}'.format(e, servername))
             return {}
 
-    def create_volume(self,volume_name,diskspace):
+    def create_volume(self, volume_name, diskspace):
         self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
         try:
             volume = self.conn.block_storage.create_volume(name=volume_name, size=int(diskspace)).to_dict()
@@ -347,7 +347,7 @@ class VirtualMachineHandler(Iface):
                 port = self.SSH_PORT
 
                 if self.USE_JUMPHOST:
-                    serv_cop=self.get_server(openstack_id)
+                    serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
                     host = str(self.JUMPHOST_IP)
                     port = int(self.JUMPHOST_BASE) + int(server_base) * 3
@@ -467,8 +467,8 @@ class VirtualMachineHandler(Iface):
     def netcat(self, host, port):
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            r=sock.connect_ex((host, port))
-            self.logger.info("Checking SSH Connection {0}:{1} Result = {2}".format(host, port,r))
+            r = sock.connect_ex((host, port))
+            self.logger.info("Checking SSH Connection {0}:{1} Result = {2}".format(host, port, r))
             if r == 0:
                 return True
             else:
@@ -579,3 +579,13 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.error("Resume Server {0} error:".format(openstack_id, e))
             return False
+
+    def get_limits(self):
+        self.logger.info("Get Limits")
+        limits = self.conn.get_compute_limits()
+        limits.update(self.conn.get_volume_limits())
+        maxTotalVolumes = limits['absolute']['maxTotalVolumes']
+        maxTotalInstances = limits['max_total_instances']
+        maxTotalVolumeGigabytes = limits['absolute']['maxTotalVolumeGigabytes']
+        return {'maxTotalVolumes': str(maxTotalVolumes), 'maxTotalVolumeGigabytes': str(maxTotalVolumeGigabytes),
+                'maxTotalInstances': str(maxTotalInstances)}

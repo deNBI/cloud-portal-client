@@ -230,6 +230,7 @@ service VirtualMachineService {
 
 
 
+    map<string,string> get_limits()
 
     bool delete_image(1:string image_id) throws (1:imageNotFoundException e)
 
