@@ -23,7 +23,8 @@ if __name__ == '__main__':
     transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT,certfile=CERTFILE)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-    server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
+    server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
+    server.setNumThreads(15)
     server.serve()
 
 
