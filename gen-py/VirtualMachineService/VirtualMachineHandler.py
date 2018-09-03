@@ -128,7 +128,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Images")
         images = list()
         try:
-            for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0, self.conn.list_images()):
+            for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0  and x['status'] == 'active', self.conn.list_images()):
 
                 metadata = img['metadata']
                 description = metadata.get('description')
