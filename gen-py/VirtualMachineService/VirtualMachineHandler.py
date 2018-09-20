@@ -367,7 +367,7 @@ class VirtualMachineHandler(Iface):
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
-                    server.status = 'BUILD'
+                    server.status = 'PORT_CLOSED'
                     return server
             else:
                 server = self.get_server(openstack_id)
