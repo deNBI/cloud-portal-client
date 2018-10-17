@@ -1,0 +1,11 @@
+node {
+    def image
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('build image'){
+    
+                    image = docker.build("denbicloud/cloud-portal-client")
+        }                           
+}
