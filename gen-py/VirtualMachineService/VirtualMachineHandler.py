@@ -126,7 +126,7 @@ class VirtualMachineHandler(Iface):
 
     def get_client_version(self):
         self.logger.info("Get Version of Client: {}".format(VERSION))
-        return VERSION
+        return str(VERSION)
 
     def get_Images(self):
         self.logger.info("Get Images")

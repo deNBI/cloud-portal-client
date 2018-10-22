@@ -4,7 +4,7 @@ namespace	py VirtualMachineService
 
 typedef i32 int
 /** The Version of the Portal-Client*/
-const double VERSION=1.0
+const string VERSION= '1.0.0'
 
 
 
