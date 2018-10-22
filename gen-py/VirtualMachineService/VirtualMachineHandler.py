@@ -124,6 +124,10 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Compare Version Error: {0}".format(e))
             return False
 
+    def get_client_version(self):
+        self.logger.info("Get Version of Client: {}".format(VERSION))
+        return VERSION
+
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
@@ -231,6 +235,7 @@ class VirtualMachineHandler(Iface):
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+        print(flavor)
 
         volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
@@ -584,8 +589,11 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
         limits.update(self.conn.get_volume_limits())
-        maxTotalVolumes = limits['absolute']['maxTotalVolumes']
-        maxTotalInstances = limits['max_total_instances']
-        maxTotalVolumeGigabytes = limits['absolute']['maxTotalVolumeGigabytes']
-        return {'maxTotalVolumes': str(maxTotalVolumes), 'maxTotalVolumeGigabytes': str(maxTotalVolumeGigabytes),
-                'maxTotalInstances': str(maxTotalInstances)}
+        maxTotalVolumes = str(limits['absolute']['maxTotalVolumes'])
+        maxTotalInstances = str(limits['max_total_instances'])
+        maxTotalVolumeGigabytes = str(limits['absolute']['maxTotalVolumeGigabytes'])
+        totalRamUsed = str(limits['total_ram_used'])
+        totalInstancesUsed=str(limits['total_instances_used'])
+        print(limits)
+        return {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                'maxTotalInstances': maxTotalInstances,'totalRamUsed':totalRamUsed,'totalInstancesUsed':totalInstancesUsed  }

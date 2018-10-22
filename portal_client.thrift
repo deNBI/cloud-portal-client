@@ -173,6 +173,8 @@ service VirtualMachineService {
      * This Method  imports a new keypair.
      * @param version 
      */
+
+    string get_client_version()
     string import_keypair(1:string keyname,2:string public_key)
 
     /**@
