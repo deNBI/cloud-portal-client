@@ -252,6 +252,8 @@ service VirtualMachineService {
 
     string create_volume(1:string volume_name,2:int diskspace) throws (1:ressourceException r)
 
+    bool reboot_server(1:string server_id,2:string reboot_type) throws (1:serverNotFoundException e)
+
 
 
 
