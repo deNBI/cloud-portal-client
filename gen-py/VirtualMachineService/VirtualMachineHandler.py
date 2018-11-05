@@ -124,11 +124,16 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Compare Version Error: {0}".format(e))
             return False
 
+    def get_client_version(self):
+        self.logger.info("Get Version of Client: {}".format(VERSION))
+        return str(VERSION)
+
     def get_Images(self):
         self.logger.info("Get Images")
         images = list()
         try:
-            for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0  and x['status'] == 'active', self.conn.list_images()):
+            for img in filter(lambda x: 'tags' in x and len(x['tags']) > 0 and x['status'] == 'active',
+                              self.conn.list_images()):
 
                 metadata = img['metadata']
                 description = metadata.get('description')
@@ -231,6 +236,7 @@ class VirtualMachineHandler(Iface):
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+        print(flavor)
 
         volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
@@ -557,6 +563,20 @@ class VirtualMachineHandler(Iface):
 
             return False
 
+    def reboot_server(self, server_id, reboot_type):
+        self.logger.info("Reboot Server {} {}".format(server_id, reboot_type))
+        try:
+            server = self.conn.compute.get_server(server_id)
+            if server is None:
+                self.logger.error("Instance {0} not found".format(server_id))
+                raise serverNotFoundException
+            else:
+                self.conn.compute.reboot_server(server, reboot_type)
+                return True
+        except Exception as e:
+            self.logger.info("Reboot Server {} {} Error : {}".format(server_id, reboot_type, e))
+            return False
+
     def resume_server(self, openstack_id):
 
         self.logger.info("Resume Server {0}".format(openstack_id))
@@ -584,8 +604,12 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
         limits.update(self.conn.get_volume_limits())
-        maxTotalVolumes = limits['absolute']['maxTotalVolumes']
-        maxTotalInstances = limits['max_total_instances']
-        maxTotalVolumeGigabytes = limits['absolute']['maxTotalVolumeGigabytes']
-        return {'maxTotalVolumes': str(maxTotalVolumes), 'maxTotalVolumeGigabytes': str(maxTotalVolumeGigabytes),
-                'maxTotalInstances': str(maxTotalInstances)}
+        maxTotalVolumes = str(limits['absolute']['maxTotalVolumes'])
+        maxTotalInstances = str(limits['max_total_instances'])
+        maxTotalVolumeGigabytes = str(limits['absolute']['maxTotalVolumeGigabytes'])
+        totalRamUsed = str(limits['total_ram_used'])
+        totalInstancesUsed = str(limits['total_instances_used'])
+        print(limits)
+        return {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
+                'totalInstancesUsed': totalInstancesUsed}

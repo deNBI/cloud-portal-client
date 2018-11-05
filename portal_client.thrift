@@ -4,7 +4,7 @@ namespace	py VirtualMachineService
 
 typedef i32 int
 /** The Version of the Portal-Client*/
-const double VERSION=1.0
+const string VERSION= '1.0.0'
 
 
 
@@ -173,6 +173,8 @@ service VirtualMachineService {
      * This Method  imports a new keypair.
      * @param version 
      */
+
+    string get_client_version()
     string import_keypair(1:string keyname,2:string public_key)
 
     /**@
@@ -249,6 +251,8 @@ service VirtualMachineService {
     bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e)
 
     string create_volume(1:string volume_name,2:int diskspace) throws (1:ressourceException r)
+
+    bool reboot_server(1:string server_id,2:string reboot_type) throws (1:serverNotFoundException e)
 
 
 

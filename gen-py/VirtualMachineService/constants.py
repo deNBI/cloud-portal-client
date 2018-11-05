@@ -10,4 +10,4 @@ from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplica
 from thrift.protocol.TProtocol import TProtocolException
 import sys
 from ttypes import *
-VERSION = 1
+VERSION = "1.0.0"
