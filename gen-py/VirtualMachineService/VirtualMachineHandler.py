@@ -1,29 +1,41 @@
+"""This Module implements an VirtualMachineHandler which can be used for the PortalClient."""
+
 from VirtualMachineService import Iface
-from ttypes import *
+from ttypes import serverNotFoundException
+from ttypes import imageNotFoundException
+from ttypes import networkNotFoundException
+from ttypes import authenticationException
+from ttypes import otherException
+from ttypes import flavorNotFoundException
+from ttypes import ressourceException
+from ttypes import Flavor, Image, VM
 from constants import VERSION
 from openstack import connection
-
+from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
 import socket
 from contextlib import closing
-import requests
-
 import urllib
 import os
 import time
 import datetime
 import logging
-
 import yaml
-
 import base64
 from oslo_utils import encodeutils
 
 
 class VirtualMachineHandler(Iface):
+    """Handler which the PortalClient uses."""
+
     def create_connection(self):
+        """
+        Create connection to OpenStack.
+
+        :return: OpenStack connection instance
+        """
         try:
 
             conn = connection.Connection(username=self.USERNAME, password=self.PASSWORD, auth_url=self.AUTH_URL,
@@ -38,6 +50,11 @@ class VirtualMachineHandler(Iface):
         return conn
 
     def __init__(self):
+        """
+        Initialize the handler.
+
+        Read all config variables and creates a connection to OpenStack.
+        """
         # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -75,7 +92,15 @@ class VirtualMachineHandler(Iface):
 
         self.conn = self.create_connection()
 
+    @deprecated(version='1.0.0', reason="Not supported at the moment")
     def setUserPassword(self, user, password):
+        """
+        Set the password of a user.
+
+        :param user: Elixir-Id of the user which wants to set a password
+        :param password: The new password.
+        :return: The new password
+        """
         if str(self.SET_PASSWORD) == 'True':
             try:
                 auth = v3.Password(auth_url=self.AUTH_URL, username=self.USERNAME, password=self.PASSWORD,
@@ -100,6 +125,11 @@ class VirtualMachineHandler(Iface):
             raise otherException(Reason='Not allowed')
 
     def get_Flavors(self):
+        """
+        Get Flavors.
+
+        :return: List of flavor instances.
+        """
         self.logger.info("Get Flavors")
         flavors = list()
         try:
@@ -113,7 +143,14 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Get Flavors Error: {0}".format(e))
             return ()
 
+    @deprecated(version='1.0.0', reason="Version of Denbi API Client and Portalclient won't be compared anymore")
     def check_Version(self, version):
+        """
+        Compare Version.
+
+        :param version: Version to compare local version with
+        :return:True if same version, False if not
+        """
         self.logger.info("Compare Version : Server Version = {0} || Client Version = {1}".format(VERSION, version))
         try:
             if version == VERSION:
@@ -125,10 +162,20 @@ class VirtualMachineHandler(Iface):
             return False
 
     def get_client_version(self):
+        """
+        Get client version.
+
+        :return: Version of the client.
+        """
         self.logger.info("Get Version of Client: {}".format(VERSION))
         return str(VERSION)
 
     def get_Images(self):
+        """
+        Get Images.
+
+        :return: List of image instances.
+        """
         self.logger.info("Get Images")
         images = list()
         try:
@@ -153,6 +200,12 @@ class VirtualMachineHandler(Iface):
             return ()
 
     def get_Image_with_Tag(self, id):
+        """
+        Get Image with Tags.
+
+        :param id: Id of the image
+        :return: Image instance
+        """
         self.logger.info("Get Image {0} with tags".format(id))
         try:
             images = self.conn.list_images()
@@ -170,6 +223,13 @@ class VirtualMachineHandler(Iface):
             return
 
     def import_keypair(self, keyname, public_key):
+        """
+        Import Keypair to OpenStack.
+
+        :param keyname: Name of the Key
+        :param public_key: The Key
+        :return: Created Keypair
+        """
         try:
             keypair = self.conn.compute.find_keypair(keyname)
             if not keypair:
@@ -188,6 +248,12 @@ class VirtualMachineHandler(Iface):
             return
 
     def get_server(self, openstack_id):
+        """
+        Get a server.
+
+        :param openstack_id: Id of the server
+        :return: Server instance
+        """
         floating_ip = None
         fixed_ip = None
         self.logger.info("Get Server {0}".format(openstack_id))
@@ -236,8 +302,18 @@ class VirtualMachineHandler(Iface):
         return server
 
     def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
-        print(flavor)
+        """
+        Start a new Server.
 
+        :param flavor: Name of flavor which should be used.
+        :param image: Name of image which should be used
+        :param public_key: Publickey which should be used
+        :param servername: Name of the new server
+        :param elixir_id: Elixir_id of the user who requested to start a new server
+        :param diskspace: Diskspace in GB for volume which should be created
+        :param volumename: Name of the volume
+        :return: {'openstackid': serverId, 'volumeId': volumeId}
+        """
         volumeId = ''
         self.logger.info("Start Server {0}".format(servername))
         try:
@@ -289,6 +365,13 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_volume(self, volume_name, diskspace):
+        """
+        Create volume.
+
+        :param volume_name: Name of volume
+        :param diskspace: Diskspace in GB for new volume
+        :return: Id of new volume
+        """
         self.logger.info('Creating volume with {0} GB diskspace'.format(diskspace))
         try:
             volume = self.conn.block_storage.create_volume(name=volume_name, size=int(diskspace)).to_dict()
@@ -301,10 +384,17 @@ class VirtualMachineHandler(Iface):
             raise ressourceException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id, volume_id):
+        """
+        Attach volume to server.
+
+        :param openstack_id: Id of server
+        :param volume_id: Id of volume
+        :return: True if attached, False if not
+        """
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
-            while done == False:
+            while not done:
 
                 status = conn.block_storage.get_volume(volume).to_dict()['status']
 
@@ -330,12 +420,21 @@ class VirtualMachineHandler(Iface):
                 'Trying to attache volume {0} to vm {1} error : {2}'.format(volume_id, openstack_id, e),
                 exc_info=True)
             self.logger.info("Delete Volume  {0}".format(volume_id))
-            conn.block_storage.delete_volume(volume=volume_id)
+            self.conn.block_storage.delete_volume(volume=volume_id)
             return False
 
         return True
 
     def check_server_status(self, openstack_id, diskspace, volume_id):
+        """
+        Check status of server.
+
+        :param openstack_id: Id of server
+        :param diskspace: diskspace of server(volume will be attached if server is active and diskpace >0)
+        :param volume_id: Id of volume
+        :return: server instance
+        """
+        # TODO: Remove diskspace param, if volume_id exist it can be attached diskspace not need
         self.logger.info('Check Status VM {0}'.format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -357,9 +456,9 @@ class VirtualMachineHandler(Iface):
                     server_base = serv_cop.fixed_ip.split(".")[-1]
                     host = str(self.JUMPHOST_IP)
                     port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-                elif self.get_server(openstack_id).floating_ip == None:
+                elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(openstack_id, self.FLOATING_IP_NETWORK)
-                if self.netcat(host, port) == True:
+                if self.netcat(host, port):
                     if diskspace > 0:
                         attached = self.attach_volume_to_server(openstack_id=openstack_id,
                                                                 volume_id=volume_id)
@@ -384,6 +483,12 @@ class VirtualMachineHandler(Iface):
             return None
 
     def get_IP_PORT(self, openstack_id):
+        """
+        Get Ip and Port of the sever.
+
+        :param openstack_id: Id of the server
+        :return: {'IP': ip, 'PORT': port}
+        """
         self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
         # check if jumphost is active
@@ -402,6 +507,15 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+        """
+        Create an Snapshot from an server.
+
+        :param openstack_id: Id of the server
+        :param name: Name of the Snapshot
+        :param elixir_id: Elixir Id of the user who requested the creation
+        :param base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
+        :return: Id of the new Snapshot
+        """
         self.logger.info(
             'Create Snapshot from Instance {0} with name {1} for {2}'.format(openstack_id, name, elixir_id))
 
@@ -422,6 +536,12 @@ class VirtualMachineHandler(Iface):
             return
 
     def delete_image(self, image_id):
+        """
+        Delete Image.
+
+        :param image_id: Id of the image
+        :return: True if deleted, False if not
+        """
         self.logger.info('Delete Image {0}'.format(image_id))
         try:
             image = self.conn.compute.get_image(image_id)
@@ -435,6 +555,13 @@ class VirtualMachineHandler(Iface):
             return False
 
     def add_floating_ip_to_server(self, openstack_id, network):
+        """
+        Add a floating ip to a server.
+
+        :param openstack_id: Id of the server
+        :param network: Networkname which provides the floating ip
+        :return: The floating ip
+        """
         try:
 
             server = self.conn.compute.get_server(openstack_id)
@@ -471,6 +598,13 @@ class VirtualMachineHandler(Iface):
             return
 
     def netcat(self, host, port):
+        """
+        Try to connect to specific host:port.
+
+        :param host: Host to connect
+        :param port: Port to connect
+        :return: True if successfully connected, False if not
+        """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             r = sock.connect_ex((host, port))
@@ -481,6 +615,12 @@ class VirtualMachineHandler(Iface):
                 return False
 
     def delete_server(self, openstack_id):
+        """
+        Delete Server.
+
+        :param openstack_id: Id of the server
+        :return: True if deleted, False if not
+        """
         self.logger.info("Delete Server {0}".format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -502,6 +642,13 @@ class VirtualMachineHandler(Iface):
             return False
 
     def delete_volume_attachment(self, volume_id, server_id):
+        """
+        Delete volume attachment.
+
+        :param volume_id: Id of the attached volume
+        :param server_id: Id of the server where the volume is attached
+        :return: True if deleted, False if not
+        """
         try:
             attachments = self.conn.block_storage.get_volume(volume_id).attachments
             for attachment in attachments:
@@ -516,10 +663,16 @@ class VirtualMachineHandler(Iface):
             return False
 
     def delete_volume(self, volume_id):
+        """
+        Delete volume.
+
+        :param volume_id: Id of the volume
+        :return: True if deleted, False if not
+        """
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
-            while done == False:
+            while not done:
 
                 status = conn.block_storage.get_volume(volume).to_dict()['status']
 
@@ -540,6 +693,12 @@ class VirtualMachineHandler(Iface):
             return False
 
     def stop_server(self, openstack_id):
+        """
+        Stop server.
+
+        :param openstack_id: Id of the server.
+        :return: True if resumed, False if not
+        """
         self.logger.info("Stop Server {0}".format(openstack_id))
         server = self.conn.compute.get_server(openstack_id)
         try:
@@ -564,6 +723,13 @@ class VirtualMachineHandler(Iface):
             return False
 
     def reboot_server(self, server_id, reboot_type):
+        """
+        Reboot server.
+
+        :param server_id: Id of the server
+        :param reboot_type: HARD or SOFT
+        :return:  True if resumed, False if not
+        """
         self.logger.info("Reboot Server {} {}".format(server_id, reboot_type))
         try:
             server = self.conn.compute.get_server(server_id)
@@ -578,7 +744,12 @@ class VirtualMachineHandler(Iface):
             return False
 
     def resume_server(self, openstack_id):
+        """
+        Resume stopped server.
 
+        :param openstack_id: Id of the server.
+        :return: True if resumed, False if not
+        """
         self.logger.info("Resume Server {0}".format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
@@ -601,6 +772,13 @@ class VirtualMachineHandler(Iface):
             return False
 
     def get_limits(self):
+        """
+        Get the Limits (maxTotalVolumes,maxTotalVolumeGigabytes,maxTotalInstances,totalRamUsed,totalInstancesUsed) of the OpenStack Project from the Client.
+
+        :return: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
+                'totalInstancesUsed': totalInstancesUsed}
+        """
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
         limits.update(self.conn.get_volume_limits())
