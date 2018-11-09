@@ -227,34 +227,134 @@ service VirtualMachineService {
      */
 
 
-     string create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag) throws (1:serverNotFoundException e),
+    /**
+     * Create Snapshot
+    string create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag) throws (1:serverNotFoundException e),
 
 
 
-
+    /**
+     * Get Limits of OpenStack Projekt from client.
+     * Returns: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+     *           'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
+     *          'totalInstancesUsed': totalInstancesUsed}
+     */
     map<string,string> get_limits()
 
-    bool delete_image(1:string image_id) throws (1:imageNotFoundException e)
+    /**
+     * Delete Image.
+     * Return: True if deleted, False if not
+     */
+    bool delete_image(
+    /** Id of image */
+    1:string image_id) throws (
 
-    bool delete_volume_attachment(1:string volume_id,2:string server_id)  throws (1:serverNotFoundException e),
+    1:imageNotFoundException e)
 
+
+    /**
+     * Delete volume attachment
+     * Return: True if deleted, False if not
+     */
+    bool delete_volume_attachment(
+    /** Id of the attached volume */
+    1:string volume_id,
+
+    /** Id of the server where the volume is attached */
+    2:string server_id)
+
+    throws (1:serverNotFoundException e),
+
+
+    /**
+     * Delete volume.
+     * Returns:  True if deleted, False if not
+     */
     bool delete_volume(1:string volume_id)
 
+    /**
+     * Attach volume to server.
+     * Returns:  True if attached, False if not
+     */
+    bool attach_volume_to_server(
+    /** Id of server*/
+    1:string openstack_id,
 
-    bool attach_volume_to_server(1:string openstack_id,2:string volume_id) throws (1:serverNotFoundException e),
+    /** Id of volume*/
+    2:string volume_id)
 
-    VM check_server_status(1:string openstack_id,2:int diskspace,3:string volume_id) throws (1:serverNotFoundException e,2:ressourceException r),
-
-
-    string setUserPassword(1:string user, 2:string password) throws (1:otherException e),
-
-    bool resume_server(1:string openstack_id) throws (1:serverNotFoundException e)
-
-    string create_volume(1:string volume_name,2:int diskspace) throws (1:ressourceException r)
-
-    bool reboot_server(1:string server_id,2:string reboot_type) throws (1:serverNotFoundException e)
-
+    throws (1:serverNotFoundException e),
 
 
+    /**
+     * Check status of server.
+     * Returns: server instance
+     */
+    VM check_server_status(
+    /** Id of the server */
+    1:string openstack_id,
+
+    /** diskspace of server(volume will be attached if server is active and diskpace >0) */
+    2:int diskspace,
+
+    /** Id of the volume */
+    3:string volume_id)
+
+    throws (1:serverNotFoundException e,2:ressourceException r),
+
+
+    /**
+     * Set Password of a User
+     * Returns: the new password
+     */
+    string setUserPassword(
+    /** Elixir-Id of the user which wants to set a password */
+    1:string user,
+
+    /** New password */
+    2:string password)
+
+    throws (1:otherException e),
+
+
+    /**
+     * Resume Server.
+     * Returns: True if resumed False if not
+     */
+    bool resume_server(
+    /** Id of the server */
+    1:string openstack_id)
+
+    throws (1:serverNotFoundException e)
+
+
+    /**
+     * Create volume.
+     * Returns: Id of new volume
+     */
+    string create_volume(
+
+    /**  Name of volume*/
+    1:string volume_name,
+
+    /** Diskspace in GB for new volume */
+    2:int diskspace)
+
+    throws (1:ressourceException r)
+
+
+    /**
+     * Reboot server.
+     * Returns: True if rebooted False if not
+     */
+    bool reboot_server(
+
+    /** Id of the server*/
+    1:string server_id,
+
+    /** HARD or SOFT*/
+    2:string reboot_type)
+
+    throws (1:serverNotFoundException e)
 
 }
