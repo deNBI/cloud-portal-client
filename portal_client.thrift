@@ -62,7 +62,7 @@ struct Image{
 	/** The description of the image*/
 	8:optional string description
 
-
+    /** List of tags from image */
 	9: required list<string> tag
 }
 /**
@@ -103,8 +103,10 @@ struct VM {
 	/** The fixed ips of the VM*/
 	11: required string fixed_ip
 
+    /** Diskspace in GB from additional volume*/
 	12:optional int diskspace
 
+    /** Id of additional volume */
 	13:optional string volume_id
 
 
@@ -114,15 +116,12 @@ struct VM {
 }
 
 
-/**
- * Exceptions inherit from language-specific base exceptions.
- */
 exception otherException {
-    /**@ Name already used. */
+    /** Every other exception. */
     1: string Reason
 }
 exception ressourceException {
-    /**@ Name already used. */
+    /** Name already used. */
     1: string Reason
 }
 
@@ -132,104 +131,211 @@ exception nameException {
 }
 
 exception serverNotFoundException {
-    /**@ Server not found. */
+    /** Server not found. */
     1: string Reason
 }
 
 exception networkNotFoundException{
-    /**@ Network not found. */
+    /** Network not found. */
     1: string Reason
 }
 
 exception imageNotFoundException {
-    /**@ Image not found. */
+    /** Image not found. */
     1: string Reason
 }
 
 exception flavorNotFoundException {
-    /**@ flavor not found. */
+    /* Flavor not found*/
     1: string Reason
 }
 
 
-
+/** Authentication Failed Exception*/
 exception authenticationException {
-    /**@ Authentication failed */
+    /** Reason why the Authentication failed*/
     1: string Reason
 }
 
 /**
- *
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
 service VirtualMachineService {
-     /**
-     * This Method  compares the version of the Portal-Client with the Version of the Client from the Cloud-Portal-Client-Connector. 
-     *
-     * param: version The Version of the Client from the Connector
-     **/
+
+
     bool check_Version(1:double version)
-    /**
-     * This Method  imports a new keypair.
-     * @param version 
-     */
 
+    /**
+     * Get Client version.
+     * Returns Version of the client
+     */
     string get_client_version()
-    string import_keypair(1:string keyname,2:string public_key)
 
-    /**@
-     * This Method generates a String the user can use to login in in the instance
+    /**
+     * Import Key to openstack.
+     * Returns : keypair
      */
-    map<string,string> get_IP_PORT(1: string openstack_id)
-	 /**@
-     * This Method returns a list with all Flavors.
+    string import_keypair(
+
+    /** Name for the keypair */
+    1:string keyname,
+
+    /** The public key */
+    2:string public_key)
+
+    /**
+     * Get Ip and Port of server
+     * Returns:  {'IP': ip, 'PORT': port}
      */
-	list<Flavor> get_Flavors()
-	 /**@
-     * This Method returns a list with all Images.
-     */
-	list<Image> get_Images()
-	 /**@
-     * This Method deletes a server.
-     */
-	bool delete_server(1:string openstack_id) throws (1:serverNotFoundException e)
-	 /**@
-     * This Method adds Metadata to a Server
-     */
-	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
-	 /**@
-     * This Method deletey Metadata from a server.
-     */
-	set<string> delete_metadata_from_server(1:string servername,2:set<string> keys) throws (1:serverNotFoundException e)
-	 /**@
-     * This Method adds a floating IP to a Server.
-     */
-	string add_floating_ip_to_server(1:string openstack_id,2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
-	 /**@
-     * This Method creates a connection to the openstack API.
-     */
-	bool create_connection(1:string username,2:string password ,3:string auth_url,4:string project_name,5:string user_domain_name,6:string project_domain_name ) throws (1:authenticationException e),
+    map<string,string> get_IP_PORT(
+
+    /** Id of server */
+    1: string openstack_id)
+
+
 	 /**
-     * This Method starts a VirtualMachine .
-     */
-    map<string,string> start_server(1:string flavor, 2:string image,3:string public_key,4:string servername,5:string elixir_id,6:string diskspace,7:string volumename) throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+	 * Get Flavors.
+	 * Returns: List of flavor instances.
+	 */
+	list<Flavor> get_Flavors()
+
 
 	/**
-	*This Method returns a VirtualMachine with a specific Name.
-	*/
-	VM get_server(1:string openstack_id) throws (1:serverNotFoundException e),
+	 * Get Images.
+	 * Returns: List of Image instances.
+	 */
+	list<Image> get_Images()
+
+
+	 /**
+	  * Delete server.
+	  * Returns: True if deleted, False if not
+	  */
+	bool delete_server(
+
+	/** Id of the server. */
+	1:string openstack_id)
+
+	throws (1:serverNotFoundException e)
+
+
+	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
+
+
+	set<string> delete_metadata_from_server(1:string servername,2:set<string> keys) throws (1:serverNotFoundException e)
+
 	/**
-     * This Method stops a VirtualMachine with a specific Openstack-ID.
-     */
-    bool stop_server(1:string openstack_id) throws (1:serverNotFoundException e)
-     /**@
-     * This Method unpause a VirtualMachine with a specific Openstack-ID.
-     */
+	 * Add floating ip to server.
+	 * Returns: the floating ip
+	 */
+	string add_floating_ip_to_server(
+
+	/** Id of the server */
+	1:string openstack_id,
+
+	/** Network name of the network which provides the floating Ip.*/
+	2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
+
+
+	/**
+	 * Create connection to OpenStack.
+	 * Connection instance
+	 */
+	bool create_connection(
+
+	/** Name of the OpenStack user. */
+	1:string username,
+
+	/** Password of the OpenStack user */
+	2:string password ,
+
+	/** Auth Url from OpenStack*/
+	3:string auth_url,
+
+	/** Name of the project from the OpenStack user.
+	4:string project_name,
+
+	/** Domain name of OpenStack*/
+	5:string user_domain_name,
+
+	/** Project domain name of OpenStack*/
+	6:string project_domain_name )
+
+	throws (1:authenticationException e),
+
+
+	/**
+	 * Start a new server.
+	 */
+    map<string,string> start_server(
+
+    /** Name of the  Flavor to use.*/
+    1:string flavor,
+
+    /** Name of the image to use. */
+    2:string image,
+
+    /** Public Key to use
+    3:string public_key,
+
+    /** Name for the new server */
+    4:string servername,
+
+    /** Elixir-Id of the user who requested to start a new server
+    5:string elixir_id,
+
+    /** Diskspace in GB for additional volume.*/
+    6:string diskspace,
+
+    /** Name of additional Volume*/
+    7:string volumename)
+
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+
+
+	/**
+	 * Get a Server.
+	 * Returns: A server instance.
+	 */
+	VM get_server(
+
+	/** Id of the server.*/
+	1:string openstack_id)
+
+	 throws (1:serverNotFoundException e),
+
+
+	/**
+	 * Stop a Server.
+	 * Returns: True if stopped, False if not.
+	 */
+    bool stop_server(
+
+    /** Id of the server.*/
+    1:string openstack_id)
+
+    throws (1:serverNotFoundException e)
 
 
     /**
-     * Create Snapshot
-    string create_snapshot(1:string openstack_id, 2:string name,3: string elixir_id,4:string base_tag) throws (1:serverNotFoundException e),
+     * Create Snapshot.
+     * Returns: Id of new Snapshot
+     *
+     */
+    string create_snapshot(
+    /** Id of the server */
+    1:string openstack_id,
+
+     /** Name of new Snapshot */
+     2:string name,
+
+     /** Elixir-Id of the user who requested creation of Snapshot */
+     3: string elixir_id,
+
+     /** Tag with which the servers image is also taged ( for connection information at the webapp) */
+     4:string base_tag)
+
+     throws (1:serverNotFoundException e),
 
 
 
