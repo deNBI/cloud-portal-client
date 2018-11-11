@@ -75,9 +75,7 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 
 You can find a detailed instruction how to install docker on this website: [docker](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 
-#### Obtaining the software components
 
-Once docker is installed and running, clone the repository with your SSH key:
 
 ### Starting the cloud-portal-client
 
@@ -111,15 +109,11 @@ $> pip install -r requirements.txt
 To finally run the code you need to change the directory and run the correct python file.
 
  ~~~BASH
-$> cd ./gen-py/VirtualMachineService
+$> cd VirtualMachineService
 $> python3 VirtualMachineServer.py 
 ~~~
 
 _**Attention**_: You need to use the same Terminal you used to source the rc file.
-
-
-# 1.Run with docker:
-   You will need a `docker` service up and running to start the client with docker.
 
 
 
@@ -142,7 +136,7 @@ Example python code for the server:
 ```python
 
 if __name__ == '__main__':
-    with open("../../config.yml", 'r') as ymlfile:
+    with open("s../config.yml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
