@@ -3,16 +3,16 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 ## Features
 
- - Create, Delete Instances in an OpenStack project
- - Stop, Resume, Reboot Instances in an OpenStack project
- - Get flavors and Images from an OpenStack project
+ - Create and Delete Instances in an OpenStack project
+ - Stop, Resume and Reboot Instances in an OpenStack project
+ - Get Flavors and Images from an OpenStack project
  - Creating Snapshots
  - Create and attach volumes to an virtual machine
  - Add floating ips to virtual machines
 
 ## Preparation
 
-
+Clone the repository
 ~~~BASH
 $> git clone https://github.com/deNBI/cloud-portal-client.git
 ~~~
@@ -20,29 +20,25 @@ $> git clone https://github.com/deNBI/cloud-portal-client.git
 Enter the new directory called `cloud-portal-client`
 
 ~~~BASH
-$> cd ./cloud-portal
+$> cd cloud-portal-client
 ~~~
 
 Since the current version is developed in the dev branch you need to checkout it manually:
 
 ~~~BASH
-$>git checkout dev
+$> git checkout dev
 ~~~
-
-_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
-
 
 ### Download rc file
 
-Download your openstack rc file which contains your openstack configuration.
-you can find the rc file, by logging into Openstack and
-then going to the access & security tab.
+Download your OpenStack RC file which contains your OpenStack configuration.
+You can find the RC file by logging into OpenStack and
+then choosing to the access & security tab.
 Choose API Access and press the button: Download Openstack RC FILE v3.
 Finally, move this file into the cloud-portal-client folder.
 
 ### Source rc file
-
-To load your openstack configuration you need to run the following command in the terminal:
+To load your OpenStack configuration you need to run the following command in the terminal:
 
  ~~~BASH
 $> source NameOfRcFile.sh
@@ -52,12 +48,12 @@ $> source NameOfRcFile.sh
 
 Before starting the client you need to set your configuration in the config.yml file.
 
-* port= Port to host
-* host= Host ip
-* jumphost_base= Port to Jumphost
-* jumphost_Ip= Jumphost ip
+* port= port to use
+* host= ip of the host
+* jumphost_base= port of jumphost
+* jumphost_Ip= ip of jumphost
 * tag= tag which the client uses to filter images/flavors
-* use_jumphost= If "True" Jumphost will be used. If "False" Jumphost wont be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
+* use_jumphost= If "True" Jumphost will be used. If "False" Jumphost won't be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
 * certfile= Path to server.pem
 * network = Network where the project is located
 
@@ -70,8 +66,11 @@ The client will forward all images which have the tag 'portalclient' and the cli
 
 To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
 
+_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
+
 ## Production Deployment
 
+### With Docker:
 #### Installing Docker
 
 You can find a detailed instruction how to install docker on this website: [docker](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
@@ -90,8 +89,8 @@ $> sudo docker run -p 9090:9090 -e OS_AUTH_URL=$OS_AUTH_URL -e OS_PROJECT_ID=$OS
 _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml !
 
 
-# 2. Run without docker:
- You will need to have python 3.6 and pip installed.
+###  Without Docker:
+You will need to have python 3.6 and pip installed.
 
 #### Install python3
  Linux:
