@@ -34,8 +34,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string openstack_id, string network)')
-    print('  bool create_connection(string username, string password, string auth_url, string project_name, string user_domain_name, string project_domain_name)')
-    print('   start_server(string flavor, string image, string public_key, string servername, string elixir_id, string diskspace, string volumename)')
+    print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
+    print('   start_server(string flavor, string image, string servername, string diskspace, string volumename)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
     print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag)')
@@ -189,16 +189,16 @@ elif cmd == 'add_floating_ip_to_server':
     pp.pprint(client.add_floating_ip_to_server(args[0], args[1],))
 
 elif cmd == 'create_connection':
-    if len(args) != 6:
-        print('create_connection requires 6 args')
+    if len(args) != 5:
+        print('create_connection requires 5 args')
         sys.exit(1)
-    pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4], args[5],))
+    pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4],))
 
 elif cmd == 'start_server':
-    if len(args) != 7:
-        print('start_server requires 7 args')
+    if len(args) != 5:
+        print('start_server requires 5 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4],))
 
 elif cmd == 'get_server':
     if len(args) != 1:

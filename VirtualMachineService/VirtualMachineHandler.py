@@ -79,7 +79,7 @@ class VirtualMachineHandler(Iface):
         self.AUTH_URL = os.environ['OS_AUTH_URL']
         self.SSH_PORT = 22
 
-        with open("../../config.yml", 'r') as ymlfile:
+        with open("../config.yml", 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_JUMPHOST = cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']

@@ -158,7 +158,7 @@ class Image(object):
      - updated_at: The updated time of the image
      - openstack_id: The openstack_id the image
      - description: The description of the image
-     - tag
+     - tag: List of tags from image
     """
 
     thrift_spec = (
@@ -339,8 +339,8 @@ class VM(object):
      - created_at: The the creation time of the VM
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
-     - diskspace
-     - volume_id
+     - diskspace: Diskspace in GB from additional volume
+     - volume_id: Id of additional volume
     """
 
     thrift_spec = (
@@ -559,10 +559,8 @@ class VM(object):
 
 class otherException(TException):
     """
-    Exceptions inherit from language-specific base exceptions.
-
     Attributes:
-     - Reason: @ Name already used.
+     - Reason: Every other exception.
     """
 
     thrift_spec = (
@@ -625,7 +623,7 @@ class otherException(TException):
 class ressourceException(TException):
     """
     Attributes:
-     - Reason: @ Name already used.
+     - Reason: Name already used.
     """
 
     thrift_spec = (
@@ -751,7 +749,7 @@ class nameException(TException):
 class serverNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Server not found.
+     - Reason: Server not found.
     """
 
     thrift_spec = (
@@ -814,7 +812,7 @@ class serverNotFoundException(TException):
 class networkNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Network not found.
+     - Reason: Network not found.
     """
 
     thrift_spec = (
@@ -877,7 +875,7 @@ class networkNotFoundException(TException):
 class imageNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Image not found.
+     - Reason: Image not found.
     """
 
     thrift_spec = (
@@ -940,7 +938,7 @@ class imageNotFoundException(TException):
 class flavorNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ flavor not found.
+     - Reason
     """
 
     thrift_spec = (
@@ -1002,8 +1000,10 @@ class flavorNotFoundException(TException):
 
 class authenticationException(TException):
     """
+    Authentication Failed Exception
+
     Attributes:
-     - Reason: @ Authentication failed
+     - Reason: Reason why the Authentication failed
     """
 
     thrift_spec = (

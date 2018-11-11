@@ -8,6 +8,6 @@ openstack_connection:
     network: portalnetzwerk
     tag: portalclient
     floating_ip_network: cebitec
-    certfile: ../../test/keys/server.pem
+    certfile: ../keys/server.pem
 
         

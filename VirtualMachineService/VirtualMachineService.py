@@ -17,16 +17,10 @@ from thrift.transport import TTransport
 
 class Iface(object):
     """
-
     This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
     def check_Version(self, version):
         """
-        This Method  compares the version of the Portal-Client with the Version of the Client from the Cloud-Portal-Client-Connector.
-
-        param: version The Version of the Client from the Connector
-
-
         Parameters:
          - version
         """
@@ -34,58 +28,58 @@ class Iface(object):
 
     def get_client_version(self):
         """
-        This Method  imports a new keypair.
-        @param version
+        Get Client version.
+        Returns Version of the client
         """
         pass
 
     def import_keypair(self, keyname, public_key):
         """
+        Import Key to openstack.
+        Returns : keypair
+
         Parameters:
-         - keyname
-         - public_key
+         - keyname: Name for the keypair
+         - public_key: The public key
         """
         pass
 
     def get_IP_PORT(self, openstack_id):
         """
-        @
-        This Method generates a String the user can use to login in in the instance
+        Get Ip and Port of server
+        Returns:  {'IP': ip, 'PORT': port}
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of server
         """
         pass
 
     def get_Flavors(self):
         """
-        @
-        This Method returns a list with all Flavors.
+        Get Flavors.
+        Returns: List of flavor instances.
         """
         pass
 
     def get_Images(self):
         """
-        @
-        This Method returns a list with all Images.
+        Get Images.
+        Returns: List of Image instances.
         """
         pass
 
     def delete_server(self, openstack_id):
         """
-        @
-        This Method deletes a server.
+        Delete server.
+        Returns: True if deleted, False if not
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         pass
 
     def add_metadata_to_server(self, servername, metadata):
         """
-        @
-        This Method adds Metadata to a Server
-
         Parameters:
          - servername
          - metadata
@@ -94,9 +88,6 @@ class Iface(object):
 
     def delete_metadata_from_server(self, servername, keys):
         """
-        @
-        This Method deletey Metadata from a server.
-
         Parameters:
          - servername
          - keys
@@ -105,96 +96,120 @@ class Iface(object):
 
     def add_floating_ip_to_server(self, openstack_id, network):
         """
-        @
-        This Method adds a floating IP to a Server.
+        Add floating ip to server.
+        Returns: the floating ip
 
         Parameters:
-         - openstack_id
-         - network
+         - openstack_id: Id of the server
+         - network: Network name of the network which provides the floating Ip.
         """
         pass
 
-    def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def create_connection(self, username, password, auth_url, user_domain_name, project_domain_name):
         """
-        @
-        This Method creates a connection to the openstack API.
+        Create connection to OpenStack.
+        Connection instance
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
+         - username: Name of the OpenStack user.
+         - password: Password of the OpenStack user
+         - auth_url: Auth Url from OpenStack
+         - user_domain_name: Name of the project from the OpenStack user.
+        4:string project_name,
+
+        /** Domain name of OpenStack
+         - project_domain_name: Project domain name of OpenStack
         """
         pass
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def start_server(self, flavor, image, servername, diskspace, volumename):
         """
-        This Method starts a VirtualMachine .
+        Start a new server.
 
         Parameters:
-         - flavor
-         - image
-         - public_key
-         - servername
-         - elixir_id
-         - diskspace
-         - volumename
+         - flavor: Name of the  Flavor to use.
+         - image: Name of the image to use.
+         - servername: Public Key to use
+        3:string public_key,
+
+        /** Name for the new server
+         - diskspace: Elixir-Id of the user who requested to start a new server
+        5:string elixir_id,
+
+        /** Diskspace in GB for additional volume.
+         - volumename: Name of additional Volume
         """
         pass
 
     def get_server(self, openstack_id):
         """
-        This Method returns a VirtualMachine with a specific Name.
+        Get a Server.
+        Returns: A server instance.
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         pass
 
     def stop_server(self, openstack_id):
         """
-        This Method stops a VirtualMachine with a specific Openstack-ID.
+        Stop a Server.
+        Returns: True if stopped, False if not.
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         pass
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         """
-        @
-        This Method unpause a VirtualMachine with a specific Openstack-ID.
+        Create Snapshot.
+        Returns: Id of new Snapshot
+
 
         Parameters:
-         - openstack_id
-         - name
-         - elixir_id
-         - base_tag
+         - openstack_id: Id of the server
+         - name: Name of new Snapshot
+         - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+         - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
         """
         pass
 
     def get_limits(self):
+        """
+        Get Limits of OpenStack Projekt from client.
+        Returns: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                  'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
+                 'totalInstancesUsed': totalInstancesUsed}
+        """
         pass
 
     def delete_image(self, image_id):
         """
+        Delete Image.
+        Return: True if deleted, False if not
+
         Parameters:
-         - image_id
+         - image_id: Id of image
         """
         pass
 
     def delete_volume_attachment(self, volume_id, server_id):
         """
+        Delete volume attachment
+        Return: True if deleted, False if not
+
         Parameters:
-         - volume_id
-         - server_id
+         - volume_id: Id of the attached volume
+         - server_id: Id of the server where the volume is attached
         """
         pass
 
     def delete_volume(self, volume_id):
         """
+        Delete volume.
+        Returns:  True if deleted, False if not
+
         Parameters:
          - volume_id
         """
@@ -202,56 +217,73 @@ class Iface(object):
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
+        Attach volume to server.
+        Returns:  True if attached, False if not
+
         Parameters:
-         - openstack_id
-         - volume_id
+         - openstack_id: Id of server
+         - volume_id: Id of volume
         """
         pass
 
     def check_server_status(self, openstack_id, diskspace, volume_id):
         """
+        Check status of server.
+        Returns: server instance
+
         Parameters:
-         - openstack_id
-         - diskspace
-         - volume_id
+         - openstack_id: Id of the server
+         - diskspace: diskspace of server(volume will be attached if server is active and diskpace >0)
+         - volume_id: Id of the volume
         """
         pass
 
     def setUserPassword(self, user, password):
         """
+        Set Password of a User
+        Returns: the new password
+
         Parameters:
-         - user
-         - password
+         - user: Elixir-Id of the user which wants to set a password
+         - password: New password
         """
         pass
 
     def resume_server(self, openstack_id):
         """
+        Resume Server.
+        Returns: True if resumed False if not
+
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server
         """
         pass
 
     def create_volume(self, volume_name, diskspace):
         """
+        Create volume.
+        Returns: Id of new volume
+
         Parameters:
-         - volume_name
-         - diskspace
+         - volume_name: Name of volume
+         - diskspace: Diskspace in GB for new volume
         """
         pass
 
     def reboot_server(self, server_id, reboot_type):
         """
+        Reboot server.
+        Returns: True if rebooted False if not
+
         Parameters:
-         - server_id
-         - reboot_type
+         - server_id: Id of the server
+         - reboot_type: HARD or SOFT
         """
         pass
 
 
 class Client(Iface):
     """
-
     This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
     """
     def __init__(self, iprot, oprot=None):
@@ -262,11 +294,6 @@ class Client(Iface):
 
     def check_Version(self, version):
         """
-        This Method  compares the version of the Portal-Client with the Version of the Client from the Cloud-Portal-Client-Connector.
-
-        param: version The Version of the Client from the Connector
-
-
         Parameters:
          - version
         """
@@ -298,8 +325,8 @@ class Client(Iface):
 
     def get_client_version(self):
         """
-        This Method  imports a new keypair.
-        @param version
+        Get Client version.
+        Returns Version of the client
         """
         self.send_get_client_version()
         return self.recv_get_client_version()
@@ -328,9 +355,12 @@ class Client(Iface):
 
     def import_keypair(self, keyname, public_key):
         """
+        Import Key to openstack.
+        Returns : keypair
+
         Parameters:
-         - keyname
-         - public_key
+         - keyname: Name for the keypair
+         - public_key: The public key
         """
         self.send_import_keypair(keyname, public_key)
         return self.recv_import_keypair()
@@ -361,11 +391,11 @@ class Client(Iface):
 
     def get_IP_PORT(self, openstack_id):
         """
-        @
-        This Method generates a String the user can use to login in in the instance
+        Get Ip and Port of server
+        Returns:  {'IP': ip, 'PORT': port}
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of server
         """
         self.send_get_IP_PORT(openstack_id)
         return self.recv_get_IP_PORT()
@@ -395,8 +425,8 @@ class Client(Iface):
 
     def get_Flavors(self):
         """
-        @
-        This Method returns a list with all Flavors.
+        Get Flavors.
+        Returns: List of flavor instances.
         """
         self.send_get_Flavors()
         return self.recv_get_Flavors()
@@ -425,8 +455,8 @@ class Client(Iface):
 
     def get_Images(self):
         """
-        @
-        This Method returns a list with all Images.
+        Get Images.
+        Returns: List of Image instances.
         """
         self.send_get_Images()
         return self.recv_get_Images()
@@ -455,11 +485,11 @@ class Client(Iface):
 
     def delete_server(self, openstack_id):
         """
-        @
-        This Method deletes a server.
+        Delete server.
+        Returns: True if deleted, False if not
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         self.send_delete_server(openstack_id)
         return self.recv_delete_server()
@@ -491,9 +521,6 @@ class Client(Iface):
 
     def add_metadata_to_server(self, servername, metadata):
         """
-        @
-        This Method adds Metadata to a Server
-
         Parameters:
          - servername
          - metadata
@@ -529,9 +556,6 @@ class Client(Iface):
 
     def delete_metadata_from_server(self, servername, keys):
         """
-        @
-        This Method deletey Metadata from a server.
-
         Parameters:
          - servername
          - keys
@@ -567,12 +591,12 @@ class Client(Iface):
 
     def add_floating_ip_to_server(self, openstack_id, network):
         """
-        @
-        This Method adds a floating IP to a Server.
+        Add floating ip to server.
+        Returns: the floating ip
 
         Parameters:
-         - openstack_id
-         - network
+         - openstack_id: Id of the server
+         - network: Network name of the network which provides the floating Ip.
         """
         self.send_add_floating_ip_to_server(openstack_id, network)
         return self.recv_add_floating_ip_to_server()
@@ -605,29 +629,30 @@ class Client(Iface):
             raise result.f
         raise TApplicationException(TApplicationException.MISSING_RESULT, "add_floating_ip_to_server failed: unknown result")
 
-    def create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def create_connection(self, username, password, auth_url, user_domain_name, project_domain_name):
         """
-        @
-        This Method creates a connection to the openstack API.
+        Create connection to OpenStack.
+        Connection instance
 
         Parameters:
-         - username
-         - password
-         - auth_url
-         - project_name
-         - user_domain_name
-         - project_domain_name
+         - username: Name of the OpenStack user.
+         - password: Password of the OpenStack user
+         - auth_url: Auth Url from OpenStack
+         - user_domain_name: Name of the project from the OpenStack user.
+        4:string project_name,
+
+        /** Domain name of OpenStack
+         - project_domain_name: Project domain name of OpenStack
         """
-        self.send_create_connection(username, password, auth_url, project_name, user_domain_name, project_domain_name)
+        self.send_create_connection(username, password, auth_url, user_domain_name, project_domain_name)
         return self.recv_create_connection()
 
-    def send_create_connection(self, username, password, auth_url, project_name, user_domain_name, project_domain_name):
+    def send_create_connection(self, username, password, auth_url, user_domain_name, project_domain_name):
         self._oprot.writeMessageBegin('create_connection', TMessageType.CALL, self._seqid)
         args = create_connection_args()
         args.username = username
         args.password = password
         args.auth_url = auth_url
-        args.project_name = project_name
         args.user_domain_name = user_domain_name
         args.project_domain_name = project_domain_name
         args.write(self._oprot)
@@ -651,30 +676,32 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def start_server(self, flavor, image, servername, diskspace, volumename):
         """
-        This Method starts a VirtualMachine .
+        Start a new server.
 
         Parameters:
-         - flavor
-         - image
-         - public_key
-         - servername
-         - elixir_id
-         - diskspace
-         - volumename
+         - flavor: Name of the  Flavor to use.
+         - image: Name of the image to use.
+         - servername: Public Key to use
+        3:string public_key,
+
+        /** Name for the new server
+         - diskspace: Elixir-Id of the user who requested to start a new server
+        5:string elixir_id,
+
+        /** Diskspace in GB for additional volume.
+         - volumename: Name of additional Volume
         """
-        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename)
+        self.send_start_server(flavor, image, servername, diskspace, volumename)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def send_start_server(self, flavor, image, servername, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
         args.image = image
-        args.public_key = public_key
         args.servername = servername
-        args.elixir_id = elixir_id
         args.diskspace = diskspace
         args.volumename = volumename
         args.write(self._oprot)
@@ -712,10 +739,11 @@ class Client(Iface):
 
     def get_server(self, openstack_id):
         """
-        This Method returns a VirtualMachine with a specific Name.
+        Get a Server.
+        Returns: A server instance.
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         self.send_get_server(openstack_id)
         return self.recv_get_server()
@@ -747,10 +775,11 @@ class Client(Iface):
 
     def stop_server(self, openstack_id):
         """
-        This Method stops a VirtualMachine with a specific Openstack-ID.
+        Stop a Server.
+        Returns: True if stopped, False if not.
 
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server.
         """
         self.send_stop_server(openstack_id)
         return self.recv_stop_server()
@@ -782,14 +811,15 @@ class Client(Iface):
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
         """
-        @
-        This Method unpause a VirtualMachine with a specific Openstack-ID.
+        Create Snapshot.
+        Returns: Id of new Snapshot
+
 
         Parameters:
-         - openstack_id
-         - name
-         - elixir_id
-         - base_tag
+         - openstack_id: Id of the server
+         - name: Name of new Snapshot
+         - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+         - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
         """
         self.send_create_snapshot(openstack_id, name, elixir_id, base_tag)
         return self.recv_create_snapshot()
@@ -823,6 +853,12 @@ class Client(Iface):
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_snapshot failed: unknown result")
 
     def get_limits(self):
+        """
+        Get Limits of OpenStack Projekt from client.
+        Returns: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                  'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
+                 'totalInstancesUsed': totalInstancesUsed}
+        """
         self.send_get_limits()
         return self.recv_get_limits()
 
@@ -850,8 +886,11 @@ class Client(Iface):
 
     def delete_image(self, image_id):
         """
+        Delete Image.
+        Return: True if deleted, False if not
+
         Parameters:
-         - image_id
+         - image_id: Id of image
         """
         self.send_delete_image(image_id)
         return self.recv_delete_image()
@@ -883,9 +922,12 @@ class Client(Iface):
 
     def delete_volume_attachment(self, volume_id, server_id):
         """
+        Delete volume attachment
+        Return: True if deleted, False if not
+
         Parameters:
-         - volume_id
-         - server_id
+         - volume_id: Id of the attached volume
+         - server_id: Id of the server where the volume is attached
         """
         self.send_delete_volume_attachment(volume_id, server_id)
         return self.recv_delete_volume_attachment()
@@ -918,6 +960,9 @@ class Client(Iface):
 
     def delete_volume(self, volume_id):
         """
+        Delete volume.
+        Returns:  True if deleted, False if not
+
         Parameters:
          - volume_id
         """
@@ -949,9 +994,12 @@ class Client(Iface):
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
+        Attach volume to server.
+        Returns:  True if attached, False if not
+
         Parameters:
-         - openstack_id
-         - volume_id
+         - openstack_id: Id of server
+         - volume_id: Id of volume
         """
         self.send_attach_volume_to_server(openstack_id, volume_id)
         return self.recv_attach_volume_to_server()
@@ -984,10 +1032,13 @@ class Client(Iface):
 
     def check_server_status(self, openstack_id, diskspace, volume_id):
         """
+        Check status of server.
+        Returns: server instance
+
         Parameters:
-         - openstack_id
-         - diskspace
-         - volume_id
+         - openstack_id: Id of the server
+         - diskspace: diskspace of server(volume will be attached if server is active and diskpace >0)
+         - volume_id: Id of the volume
         """
         self.send_check_server_status(openstack_id, diskspace, volume_id)
         return self.recv_check_server_status()
@@ -1023,9 +1074,12 @@ class Client(Iface):
 
     def setUserPassword(self, user, password):
         """
+        Set Password of a User
+        Returns: the new password
+
         Parameters:
-         - user
-         - password
+         - user: Elixir-Id of the user which wants to set a password
+         - password: New password
         """
         self.send_setUserPassword(user, password)
         return self.recv_setUserPassword()
@@ -1058,8 +1112,11 @@ class Client(Iface):
 
     def resume_server(self, openstack_id):
         """
+        Resume Server.
+        Returns: True if resumed False if not
+
         Parameters:
-         - openstack_id
+         - openstack_id: Id of the server
         """
         self.send_resume_server(openstack_id)
         return self.recv_resume_server()
@@ -1091,9 +1148,12 @@ class Client(Iface):
 
     def create_volume(self, volume_name, diskspace):
         """
+        Create volume.
+        Returns: Id of new volume
+
         Parameters:
-         - volume_name
-         - diskspace
+         - volume_name: Name of volume
+         - diskspace: Diskspace in GB for new volume
         """
         self.send_create_volume(volume_name, diskspace)
         return self.recv_create_volume()
@@ -1126,9 +1186,12 @@ class Client(Iface):
 
     def reboot_server(self, server_id, reboot_type):
         """
+        Reboot server.
+        Returns: True if rebooted False if not
+
         Parameters:
-         - server_id
-         - reboot_type
+         - server_id: Id of the server
+         - reboot_type: HARD or SOFT
         """
         self.send_reboot_server(server_id, reboot_type)
         return self.recv_reboot_server()
@@ -1416,7 +1479,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_connection_result()
         try:
-            result.success = self._handler.create_connection(args.username, args.password, args.auth_url, args.project_name, args.user_domain_name, args.project_domain_name)
+            result.success = self._handler.create_connection(args.username, args.password, args.auth_url, args.user_domain_name, args.project_domain_name)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1438,7 +1501,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename)
+            result.success = self._handler.start_server(args.flavor, args.image, args.servername, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -1981,8 +2044,8 @@ class get_client_version_result(object):
 class import_keypair_args(object):
     """
     Attributes:
-     - keyname
-     - public_key
+     - keyname: Name for the keypair
+     - public_key: The public key
     """
 
     thrift_spec = (
@@ -2112,7 +2175,7 @@ class import_keypair_result(object):
 class get_IP_PORT_args(object):
     """
     Attributes:
-     - openstack_id
+     - openstack_id: Id of server
     """
 
     thrift_spec = (
@@ -2461,7 +2524,7 @@ class get_Images_result(object):
 class delete_server_args(object):
     """
     Attributes:
-     - openstack_id
+     - openstack_id: Id of the server.
     """
 
     thrift_spec = (
@@ -2917,8 +2980,8 @@ class delete_metadata_from_server_result(object):
 class add_floating_ip_to_server_args(object):
     """
     Attributes:
-     - openstack_id
-     - network
+     - openstack_id: Id of the server
+     - network: Network name of the network which provides the floating Ip.
     """
 
     thrift_spec = (
@@ -3074,12 +3137,14 @@ class add_floating_ip_to_server_result(object):
 class create_connection_args(object):
     """
     Attributes:
-     - username
-     - password
-     - auth_url
-     - project_name
-     - user_domain_name
-     - project_domain_name
+     - username: Name of the OpenStack user.
+     - password: Password of the OpenStack user
+     - auth_url: Auth Url from OpenStack
+     - user_domain_name: Name of the project from the OpenStack user.
+    4:string project_name,
+
+    /** Domain name of OpenStack
+     - project_domain_name: Project domain name of OpenStack
     """
 
     thrift_spec = (
@@ -3087,16 +3152,15 @@ class create_connection_args(object):
         (1, TType.STRING, 'username', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'password', 'UTF8', None, ),  # 2
         (3, TType.STRING, 'auth_url', 'UTF8', None, ),  # 3
-        (4, TType.STRING, 'project_name', 'UTF8', None, ),  # 4
+        None,  # 4
         (5, TType.STRING, 'user_domain_name', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'project_domain_name', 'UTF8', None, ),  # 6
     )
 
-    def __init__(self, username=None, password=None, auth_url=None, project_name=None, user_domain_name=None, project_domain_name=None,):
+    def __init__(self, username=None, password=None, auth_url=None, user_domain_name=None, project_domain_name=None,):
         self.username = username
         self.password = password
         self.auth_url = auth_url
-        self.project_name = project_name
         self.user_domain_name = user_domain_name
         self.project_domain_name = project_domain_name
 
@@ -3122,11 +3186,6 @@ class create_connection_args(object):
             elif fid == 3:
                 if ftype == TType.STRING:
                     self.auth_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.project_name = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
@@ -3160,10 +3219,6 @@ class create_connection_args(object):
         if self.auth_url is not None:
             oprot.writeFieldBegin('auth_url', TType.STRING, 3)
             oprot.writeString(self.auth_url.encode('utf-8') if sys.version_info[0] == 2 else self.auth_url)
-            oprot.writeFieldEnd()
-        if self.project_name is not None:
-            oprot.writeFieldBegin('project_name', TType.STRING, 4)
-            oprot.writeString(self.project_name.encode('utf-8') if sys.version_info[0] == 2 else self.project_name)
             oprot.writeFieldEnd()
         if self.user_domain_name is not None:
             oprot.writeFieldBegin('user_domain_name', TType.STRING, 5)
@@ -3266,32 +3321,34 @@ class create_connection_result(object):
 class start_server_args(object):
     """
     Attributes:
-     - flavor
-     - image
-     - public_key
-     - servername
-     - elixir_id
-     - diskspace
-     - volumename
+     - flavor: Name of the  Flavor to use.
+     - image: Name of the image to use.
+     - servername: Public Key to use
+    3:string public_key,
+
+    /** Name for the new server
+     - diskspace: Elixir-Id of the user who requested to start a new server
+    5:string elixir_id,
+
+    /** Diskspace in GB for additional volume.
+     - volumename: Name of additional Volume
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
-        (3, TType.STRING, 'public_key', 'UTF8', None, ),  # 3
+        None,  # 3
         (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
-        (5, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 5
+        None,  # 5
         (6, TType.STRING, 'diskspace', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'volumename', 'UTF8', None, ),  # 7
     )
 
-    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
+    def __init__(self, flavor=None, image=None, servername=None, diskspace=None, volumename=None,):
         self.flavor = flavor
         self.image = image
-        self.public_key = public_key
         self.servername = servername
-        self.elixir_id = elixir_id
         self.diskspace = diskspace
         self.volumename = volumename
 
@@ -3314,19 +3371,9 @@ class start_server_args(object):
                     self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -3357,17 +3404,9 @@ class start_server_args(object):
             oprot.writeFieldBegin('image', TType.STRING, 2)
             oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
-        if self.public_key is not None:
-            oprot.writeFieldBegin('public_key', TType.STRING, 3)
-            oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
-            oprot.writeFieldEnd()
         if self.servername is not None:
             oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
-            oprot.writeFieldEnd()
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin('elixir_id', TType.STRING, 5)
-            oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
             oprot.writeFieldEnd()
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.STRING, 6)
@@ -3558,7 +3597,7 @@ class start_server_result(object):
 class get_server_args(object):
     """
     Attributes:
-     - openstack_id
+     - openstack_id: Id of the server.
     """
 
     thrift_spec = (
@@ -3691,7 +3730,7 @@ class get_server_result(object):
 class stop_server_args(object):
     """
     Attributes:
-     - openstack_id
+     - openstack_id: Id of the server.
     """
 
     thrift_spec = (
@@ -3823,10 +3862,10 @@ class stop_server_result(object):
 class create_snapshot_args(object):
     """
     Attributes:
-     - openstack_id
-     - name
-     - elixir_id
-     - base_tag
+     - openstack_id: Id of the server
+     - name: Name of new Snapshot
+     - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+     - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
     """
 
     thrift_spec = (
@@ -4102,7 +4141,7 @@ class get_limits_result(object):
 class delete_image_args(object):
     """
     Attributes:
-     - image_id
+     - image_id: Id of image
     """
 
     thrift_spec = (
@@ -4234,8 +4273,8 @@ class delete_image_result(object):
 class delete_volume_attachment_args(object):
     """
     Attributes:
-     - volume_id
-     - server_id
+     - volume_id: Id of the attached volume
+     - server_id: Id of the server where the volume is attached
     """
 
     thrift_spec = (
@@ -4497,8 +4536,8 @@ class delete_volume_result(object):
 class attach_volume_to_server_args(object):
     """
     Attributes:
-     - openstack_id
-     - volume_id
+     - openstack_id: Id of server
+     - volume_id: Id of volume
     """
 
     thrift_spec = (
@@ -4641,9 +4680,9 @@ class attach_volume_to_server_result(object):
 class check_server_status_args(object):
     """
     Attributes:
-     - openstack_id
-     - diskspace
-     - volume_id
+     - openstack_id: Id of the server
+     - diskspace: diskspace of server(volume will be attached if server is active and diskpace >0)
+     - volume_id: Id of the volume
     """
 
     thrift_spec = (
@@ -4811,8 +4850,8 @@ class check_server_status_result(object):
 class setUserPassword_args(object):
     """
     Attributes:
-     - user
-     - password
+     - user: Elixir-Id of the user which wants to set a password
+     - password: New password
     """
 
     thrift_spec = (
@@ -4955,7 +4994,7 @@ class setUserPassword_result(object):
 class resume_server_args(object):
     """
     Attributes:
-     - openstack_id
+     - openstack_id: Id of the server
     """
 
     thrift_spec = (
@@ -5087,8 +5126,8 @@ class resume_server_result(object):
 class create_volume_args(object):
     """
     Attributes:
-     - volume_name
-     - diskspace
+     - volume_name: Name of volume
+     - diskspace: Diskspace in GB for new volume
     """
 
     thrift_spec = (
@@ -5231,8 +5270,8 @@ class create_volume_result(object):
 class reboot_server_args(object):
     """
     Attributes:
-     - server_id
-     - reboot_type
+     - server_id: Id of the server
+     - reboot_type: HARD or SOFT
     """
 
     thrift_spec = (

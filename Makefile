@@ -14,6 +14,8 @@ docs: ## Build documentation
 
 thrift_py: ## Builds python code from thrift file
 	thrift --gen py portal_client.thrift
+	cp -a gen-py/VirtualMachineService/. VirtualMachineService
+	rm -rf gen-py
 
 
 .PHONY: help lint  docs thrift_py
