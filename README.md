@@ -107,15 +107,14 @@ $> cd cloud-portal-client
 Before starting the client you need to set your configuration in the config.yml file located in the VirtualMachineService/config folder.
 '''yaml
 openstack_connection
-    port= port to use
-    host= ip of the host
-    jumphost_base= port of jumphost
-    jumphost_Ip= ip of jumphost
-    tag= tag which the client uses to filter images/flavors
-    use_jumphost= If "True" Jumphost will be used. If "False" Jumphost won't be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
-    certfile= Path to server.pem
-    network = Network where the project is located
-
+    port: port to use
+    host: ip of the host
+    jumphost_base: port of jumphost
+    jumphost_Ip: ip of jumphost
+    tag: tag which the client uses to filter images/flavors
+    use_jumphost: If "True" Jumphost will be used. If "False" Jumphost won't be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
+    certfile: Path to server.pem
+    network: Network where the project is located
 '''
 
 
