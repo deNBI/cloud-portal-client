@@ -51,12 +51,15 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 ## Usage
 There are seperate ways to use the portal-cloud-client:
 
-* [with pip](#with-pip)
-* With cloning the repository
+* [Using pip](#using-pip)
+* [Cloning the repository](#cloning-the-repository)
+    * [Using Docker](#with-docker)
+    * [Without Docker](#without-docker)
 
 
 
-### With pip
+
+### Using pip
 First install the cloud-portal-client with pip:
 
  ~~~BASH
@@ -86,7 +89,7 @@ $> portal_client_start_server
 
 
 
-### With cloning the repository
+### Cloning the repository
 Clone the repository
 ~~~BASH
 $> git clone https://github.com/deNBI/cloud-portal-client.git
@@ -123,7 +126,7 @@ To filter which images and flavors to use the client uses the tag attribute for 
 The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
 
 
-### With Docker:
+### With Docker
 #### Installing Docker
 
 You can find a detailed instruction how to install docker on this website: [docker](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
@@ -140,7 +143,7 @@ $> sudo docker run -p 9090:9090 -e OS_AUTH_URL=$OS_AUTH_URL -e OS_PROJECT_ID=$OS
 _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to the port used in your config.yml !
 
 
-###  Without Docker:
+###  Without Docker
 You will need to have python 3.6 and pip installed.
 
 
