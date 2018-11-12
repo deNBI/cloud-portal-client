@@ -93,15 +93,14 @@ class VirtualMachineHandler(Iface):
 
         fileDir = os.path.dirname(os.path.abspath(__file__))
         config = os.path.join(fileDir, 'config/config.yml')
-        with open(config
-                , 'r') as ymlfile:
+        with open(config, 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_JUMPHOST = cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-           # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
+            # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG = cfg['openstack_connection']['tag']
-            if  self.USE_JUMPHOST:
+            if self.USE_JUMPHOST:
                 self.JUMPHOST_BASE = cfg['openstack_connection']['jumphost_base']
                 self.JUMPHOST_IP = cfg['openstack_connection']['jumphost_ip']
 
