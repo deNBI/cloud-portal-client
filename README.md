@@ -74,6 +74,7 @@ Then a configuration must be created:
 $> portal_client_create_config
 ~~~
 
+To see which parameter is used for what, see [Configuration](#configuration).
 You can always reset your configuration with this command.
 If you only want to view your configuration use this command:
 
