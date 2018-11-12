@@ -7,7 +7,7 @@ import pprint
 @click.command()
 def createConfig():
     dir=os.path.dirname(os.path.abspath(__file__))
-    filename = dir + '../../config/config.yml'
+    filename = dir + '/../../config/config.yml'
     host = setHost()
     port = setPort()
     jumphost_base = setJumpHostBase()
