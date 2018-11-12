@@ -105,7 +105,7 @@ $> cd cloud-portal-client
 #### Configuration
 
 Before starting the client you need to set your configuration in the config.yml file located in the VirtualMachineService/config folder.
-'''yaml
+''' yaml
 openstack_connection
     port: port to use
     host: ip of the host
