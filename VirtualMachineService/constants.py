@@ -9,5 +9,8 @@
 from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
 from thrift.protocol.TProtocol import TProtocolException
 import sys
-from ttypes import *
+try:
+    from ttypes import *
+except Exception:
+    from .ttypes import *
 VERSION = "1.0.0"

@@ -8,6 +8,6 @@ openstack_connection:
     network: portalnetzwerk
     tag: portalclient
     floating_ip_network: cebitec
-    certfile: ../keys/server.pem
+    certfile: /home/david/cloud-client/cloud-portal-client/VirtualMachineService/keys/server.pem
 
         

@@ -13,7 +13,7 @@ with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
-    name='cloud-portal-client',
+    name='cloud_portal_client',
     version='0.1',
     packages=find_packages(),
     include_package_data=True,
@@ -21,8 +21,8 @@ setup(
     description='The Cloud Portal Client is a client written in Python which provides functions to create virtual machines in an OpenStack project..',
     long_description=README,
     author='Sören Giller, David Weinholz',
-    install_requires = requirements,
-    zip_safe = False,
+    install_requires=requirements,
+    zip_safe=False,
     classifiers=[
         'Environment :: OpenStack'
         'Intended Audience :: Developers',
@@ -35,4 +35,10 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
+    entry_points='''
+        [console_scripts]
+        portal_client_create_config=VirtualMachineService.scripts.createConfig:createConfig
+        portal_client_show_config=VirtualMachineService.scripts.showConfig:showConfig
+        portal_client_start_server=VirtualMachineService.VirtualMachineServer:startServer
+    ''',
 )

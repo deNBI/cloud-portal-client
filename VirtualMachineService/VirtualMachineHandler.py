@@ -1,15 +1,27 @@
 """This Module implements an VirtualMachineHandler which can be used for the PortalClient."""
 
-from VirtualMachineService import Iface
-from ttypes import serverNotFoundException
-from ttypes import imageNotFoundException
-from ttypes import networkNotFoundException
-from ttypes import authenticationException
-from ttypes import otherException
-from ttypes import flavorNotFoundException
-from ttypes import ressourceException
-from ttypes import Flavor, Image, VM
-from constants import VERSION
+try:
+    from VirtualMachineService import Iface
+    from ttypes import serverNotFoundException
+    from ttypes import imageNotFoundException
+    from ttypes import networkNotFoundException
+    from ttypes import authenticationException
+    from ttypes import otherException
+    from ttypes import flavorNotFoundException
+    from ttypes import ressourceException
+    from ttypes import Flavor, Image, VM
+    from constants import VERSION
+except Exception:
+    from .VirtualMachineService import Iface
+    from .ttypes import serverNotFoundException
+    from .ttypes import imageNotFoundException
+    from .ttypes import networkNotFoundException
+    from .ttypes import authenticationException
+    from .ttypes import otherException
+    from .ttypes import flavorNotFoundException
+    from .ttypes import ressourceException
+    from .ttypes import Flavor, Image, VM
+    from .constants import VERSION
 from openstack import connection
 from deprecated import deprecated
 from keystoneauth1.identity import v3
@@ -79,14 +91,17 @@ class VirtualMachineHandler(Iface):
         self.AUTH_URL = os.environ['OS_AUTH_URL']
         self.SSH_PORT = 22
 
-        with open("../config.yml", 'r') as ymlfile:
+        fileDir = os.path.dirname(os.path.abspath(__file__))
+        config = os.path.join(fileDir, 'config/config.yml')
+        with open(config
+                , 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_JUMPHOST = cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-            self.SET_PASSWORD = cfg['openstack_connection']['set_password']
+           # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG = cfg['openstack_connection']['tag']
-            if 'True' == str(self.USE_JUMPHOST):
+            if  self.USE_JUMPHOST:
                 self.JUMPHOST_BASE = cfg['openstack_connection']['jumphost_base']
                 self.JUMPHOST_IP = cfg['openstack_connection']['jumphost_ip']
 

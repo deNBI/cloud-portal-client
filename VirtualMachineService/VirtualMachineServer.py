@@ -1,13 +1,24 @@
-from VirtualMachineService import Client, Processor
-from VirtualMachineHandler import VirtualMachineHandler
+import os
+import sys
+try:
+    from VirtualMachineService import Client, Processor
+    from VirtualMachineHandler import VirtualMachineHandler
+except Exception as e:
+    from .VirtualMachineService import Client, Processor
+    from .VirtualMachineHandler import VirtualMachineHandler
+
 from thrift.transport import TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
-import yaml, os
+import yaml
+import click
 
-if __name__ == '__main__':
-    CONFIG_FILE = os.path.join(os.path.dirname(__file__), '..', 'config.yml')
+
+@click.command()
+def startServer():
+    click.echo("Start Cloud-Client-Portal Server")
+    CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config.yml')
 
     with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
@@ -22,3 +33,7 @@ if __name__ == '__main__':
     server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
     server.setNumThreads(15)
     server.serve()
+
+
+if __name__ == '__main__':
+    startServer()

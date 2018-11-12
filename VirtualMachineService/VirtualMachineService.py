@@ -10,7 +10,10 @@ from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplica
 from thrift.protocol.TProtocol import TProtocolException
 import sys
 import logging
-from ttypes import *
+try:
+    from ttypes import *
+except Exception:
+    from .ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
 
