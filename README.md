@@ -79,7 +79,7 @@ You can find a detailed instruction how to install docker on this website: [dock
 
 ### Starting the cloud-portal-client
 
-To start application your terminal need to be in the 'cloud-portal-client' folder then execute the following commands
+To start the application your terminal need to be in the 'cloud-portal-client' folder (where the Dockefile is located) then execute the following commands:
 ~~~BASH
 $> sudo docker build -t cloud-portal-client .
 $> sudo docker run -p 9090:9090 -e OS_AUTH_URL=$OS_AUTH_URL -e OS_PROJECT_ID=$OS_PROJECT_ID -e OS_PROJECT_NAME=$OS_PROJECT_NAME -e OS_USERNAME=$OS_USERNAME -e OS_PASSWORD=$OS_PASSWORD -e OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME -it cloud-portal-client python3 VirtualMachineServer.py
@@ -91,16 +91,23 @@ _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to 
 You will need to have python 3.6 and pip installed.
 
 #### Install python3
- Linux:
- sudo apt-get install python3.6
+
+Linux:
+~~~BASH
+$> sudo apt-get install python3.6
+~~~
+
+
 
 #### Install pip
- Linux:
- sudo apt-get install -y python3-pip
+Linux:
+~~~BASH
+$> sudo apt-get install -y python3-pip
+~~~
 
 ### Installing required libraries
 
-to install all required python libraries run the following command:
+To install all required python libraries run the following command:
  ~~~BASH
 $> pip install -r requirements.txt
 ~~~
