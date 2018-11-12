@@ -68,14 +68,14 @@ $> pip install git+https://github.com/deNBI/cloud-portal-client.git@feature/docs
 
 #### Commandline client
 
-First create your configuration
+Then a configuration must be created:
 
  ~~~BASH
 $> portal_client_create_config
 ~~~
 
 You can always reset your configuration with this command.
-If you just wannt to show your configuration use:
+If you only want to view your configuration use this command:
 
  ~~~BASH
 $> portal_client_show_config
@@ -90,6 +90,7 @@ $> portal_client_start_server
 
 
 ### Cloning the repository
+
 Clone the repository
 ~~~BASH
 $> git clone https://github.com/deNBI/cloud-portal-client.git
@@ -101,25 +102,21 @@ Enter the new directory called `cloud-portal-client`
 $> cd cloud-portal-client
 ~~~
 
-Since the current version is developed in the dev branch you need to checkout it manually:
-
-~~~BASH
-$> git checkout dev
-~~~
-
-
 #### Configuration
 
-Before starting the client you need to set your configuration in the config.yml file.
+Before starting the client you need to set your configuration in the config.yml file located in the VirtualMachineService/config folder.
+'''yaml
+openstack_connection
+    port= port to use
+    host= ip of the host
+    jumphost_base= port of jumphost
+    jumphost_Ip= ip of jumphost
+    tag= tag which the client uses to filter images/flavors
+    use_jumphost= If "True" Jumphost will be used. If "False" Jumphost won't be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
+    certfile= Path to server.pem
+    network = Network where the project is located
 
-* port= port to use
-* host= ip of the host
-* jumphost_base= port of jumphost
-* jumphost_Ip= ip of jumphost
-* tag= tag which the client uses to filter images/flavors
-* use_jumphost= If "True" Jumphost will be used. If "False" Jumphost won't be used. You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
-* certfile= Path to server.pem
-* network = Network where the project is located
+'''
 
 
 To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
