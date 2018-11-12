@@ -12,21 +12,19 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 ## Preparation
 
-Clone the repository
+#### Install python3
+
+Linux:
 ~~~BASH
-$> git clone https://github.com/deNBI/cloud-portal-client.git
+$> sudo apt-get install python3.6
 ~~~
 
-Enter the new directory called `cloud-portal-client`
 
+
+#### Install pip
+Linux:
 ~~~BASH
-$> cd cloud-portal-client
-~~~
-
-Since the current version is developed in the dev branch you need to checkout it manually:
-
-~~~BASH
-$> git checkout dev
+$> sudo apt-get install -y python3-pip
 ~~~
 
 ### Download rc file
@@ -44,7 +42,70 @@ To load your OpenStack configuration you need to run the following command in th
 $> source NameOfRcFile.sh
 ~~~
 
-### Configuration
+### Create certificates
+
+To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
+
+_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
+
+## Usage
+There are seperate ways to use the portal-cloud-client:
+
+* [with pip](#with pip)
+* With cloning the repository
+
+
+
+### With pip
+First install the cloud-portal-client with pip:
+
+ ~~~BASH
+$> pip install git+https://github.com/deNBI/cloud-portal-client.git@feature/docs_makefile
+~~~
+
+#### Commandline client
+
+First create your configuration
+
+ ~~~BASH
+$> portal_client_create_config
+~~~
+
+You can always reset your configuration with this command.
+If you just wannt to show your configuration use:
+
+ ~~~BASH
+$> portal_client_show_config
+~~~
+
+If you set your configuration you can start the portal-client:
+
+ ~~~BASH
+$> portal_client_start_server
+~~~
+
+
+
+### With cloning the repository
+Clone the repository
+~~~BASH
+$> git clone https://github.com/deNBI/cloud-portal-client.git
+~~~
+
+Enter the new directory called `cloud-portal-client`
+
+~~~BASH
+$> cd cloud-portal-client
+~~~
+
+Since the current version is developed in the dev branch you need to checkout it manually:
+
+~~~BASH
+$> git checkout dev
+~~~
+
+
+#### Configuration
 
 Before starting the client you need to set your configuration in the config.yml file.
 
@@ -61,14 +122,6 @@ Before starting the client you need to set your configuration in the config.yml 
 To filter which images and flavors to use the client uses the tag attribute for the image and the extra_specs attribute for flavors.
 The client will forward all images which have the tag 'portalclient' and the client will also forward all flavors which have portalclient = True in their extra_specs.
 
-
-### Create certificates
-
-To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
-
-_**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
-
-## Production Deployment
 
 ### With Docker:
 #### Installing Docker
@@ -90,20 +143,6 @@ _**Attention**_: You need to set the port mapping ( for example `9090:9090`) to 
 ###  Without Docker:
 You will need to have python 3.6 and pip installed.
 
-#### Install python3
-
-Linux:
-~~~BASH
-$> sudo apt-get install python3.6
-~~~
-
-
-
-#### Install pip
-Linux:
-~~~BASH
-$> sudo apt-get install -y python3-pip
-~~~
 
 ### Installing required libraries
 
