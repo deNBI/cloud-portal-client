@@ -27,7 +27,7 @@ Linux:
 $> sudo apt-get install -y python3-pip
 ~~~
 
-### Download rc file
+#### Download rc file
 
 Download your OpenStack RC file which contains your OpenStack configuration.
 You can find the RC file by logging into OpenStack and
@@ -35,14 +35,14 @@ then choosing to the access & security tab.
 Choose API Access and press the button: Download Openstack RC FILE v3.
 Finally, move this file into the cloud-portal-client folder.
 
-### Source rc file
+#### Source rc file
 To load your OpenStack configuration you need to run the following command in the terminal:
 
  ~~~BASH
 $> source NameOfRcFile.sh
 ~~~
 
-### Create certificates
+#### Create certificates
 
 To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
 
@@ -51,7 +51,7 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 ## Usage
 There are seperate ways to use the portal-cloud-client:
 
-* [with pip](#with pip)
+* [with pip](#with-pip)
 * With cloning the repository
 
 
