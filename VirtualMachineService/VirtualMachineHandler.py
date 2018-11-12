@@ -360,7 +360,10 @@ class VirtualMachineHandler(Iface):
                         exc_info=True)
                     raise ressourceException(Reason=str(e))
                 volumeId = volume['id']
-                with open('../mount.sh', 'r') as file:
+
+                fileDir = os.path.dirname(os.path.abspath(__file__))
+                mount_script = os.path.join(fileDir, 'scripts/bash/mount.sh')
+                with open(mount_script, 'r') as file:
                     text = file.read()
                     text = text.replace('VOLUMEID', 'virtio-' + volumeId[0:20])
                     text = encodeutils.safe_encode(text.encode('utf-8'))
