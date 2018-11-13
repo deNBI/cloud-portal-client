@@ -21,11 +21,7 @@ $> sudo apt-get install python3.6 python3-pip
 
 #### Download and source rc file
 
-Download and source Openstack RC FILE v3.
-Finally, move this file into the cloud-portal-client folder.
-
-#### Source rc file
-To load your OpenStack configuration you need to run the following command in the terminal:
+Download and source Openstack RC FILE v3 with the following command:
 
 ~~~BASH
 source NameOfRcFile.sh
