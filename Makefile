@@ -9,6 +9,7 @@ lint: ## Lint VirtualMachineHandler python code with flake8
 docs: ## Build documentation
 	rm -rf docs
 	mkdir docs
+	@echo Building documentation
 	thrift --gen html portal_client.thrift
 	cp -a gen-html/. docs
 	rm -rf gen-html
@@ -17,6 +18,8 @@ thrift_py: ## Builds python code from thrift file
 	thrift --gen py portal_client.thrift
 	cp -a gen-py/VirtualMachineService/. VirtualMachineService
 	rm -rf gen-py
+	@echo Remember to fix the imports: for pip relative imports are needed, for others absolute imports
+
 
 
 .PHONY: help lint  docs thrift_py
