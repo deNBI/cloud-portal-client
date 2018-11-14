@@ -1,5 +1,6 @@
 import os
 import sys
+
 try:
     from VirtualMachineService import Client, Processor
     from VirtualMachineHandler import VirtualMachineHandler
@@ -14,14 +15,18 @@ from thrift.server import TServer
 import yaml
 import click
 
-
+DEFAULT_CONFIG = 'config/config.yml'
 @click.command()
-def startServer():
+@click.option('--config', default=DEFAULT_CONFIG,help= 'path to the config file')
+def startServer(config):
     click.echo("Start Cloud-Client-Portal Server")
-    CONFIG_FILE = os.path.join(
-        os.path.dirname(
-            os.path.abspath(__file__)),
-        'config/config.yml')
+    if config == DEFAULT_CONFIG:
+        CONFIG_FILE = os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)),
+            config)
+    else:
+        CONFIG_FILE=config
 
     with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
