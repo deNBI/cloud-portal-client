@@ -26,9 +26,17 @@ def createConfig():
 
     click.echo("Creating Config")
 
-    config = dict(openstack_connection=dict(host=host, port=port, jumphost_base=jumphost_base, jumphost_ip=jumphost_ip,
-                                            use_jumphost=use_jumphost, network=network, tag=tag,
-                                            floating_ip_network=floating_ip_network, certfile=certfile))
+    config = dict(
+        openstack_connection=dict(
+            host=host,
+            port=port,
+            jumphost_base=jumphost_base,
+            jumphost_ip=jumphost_ip,
+            use_jumphost=use_jumphost,
+            network=network,
+            tag=tag,
+            floating_ip_network=floating_ip_network,
+            certfile=certfile))
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as outfile:
         yaml.dump(config, outfile, default_flow_style=False)
@@ -130,7 +138,8 @@ def setJumpHostBase():
 
     :return: base jumphost input
     """
-    jumphost_base = input('Set the jumphost_base for the portal-cloud-client: ')
+    jumphost_base = input(
+        'Set the jumphost_base for the portal-cloud-client: ')
     return jumphost_base
 
 

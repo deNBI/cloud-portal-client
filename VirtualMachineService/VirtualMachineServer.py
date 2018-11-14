@@ -18,7 +18,10 @@ import click
 @click.command()
 def startServer():
     click.echo("Start Cloud-Client-Portal Server")
-    CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config/config.yml')
+    CONFIG_FILE = os.path.join(
+        os.path.dirname(
+            os.path.abspath(__file__)),
+        'config/config.yml')
 
     with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
@@ -27,10 +30,12 @@ def startServer():
         CERTFILE = cfg['openstack_connection']['certfile']
     handler = VirtualMachineHandler()
     processor = Processor(handler)
-    transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
+    transport = TSSLSocket.TSSLServerSocket(
+        host=HOST, port=PORT, certfile=CERTFILE)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-    server = TServer.TThreadPoolServer(processor, transport, tfactory, pfactory)
+    server = TServer.TThreadPoolServer(
+        processor, transport, tfactory, pfactory)
     server.setNumThreads(15)
     server.serve()
 
