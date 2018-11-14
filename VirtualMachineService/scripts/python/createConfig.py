@@ -63,7 +63,7 @@ def setNetwork():
 
     :return: input network.
     """
-    network = input('Set the Network for the portal-cloud-client: ')
+    network = input('Set the network where the machines will be created in: ')
     return network
 
 
@@ -73,7 +73,7 @@ def setFloatingIPNetwork():
 
     :return: Input floating ip network
     """
-    network = input('Set the FloatingIpNetwork for the portal-cloud-client: ')
+    network = input('Set the name of the network which provides floating ips: ')
     return network
 
 
@@ -108,7 +108,7 @@ def setTag():
 
     :return: input tag
     """
-    tag = input('Set the tag for the portal-cloud-client: ')
+    tag = input('Set the tag for forwarding flavors and images: ')
     return tag
 
 
@@ -139,15 +139,15 @@ def setJumpHostBase():
     :return: base jumphost input
     """
     jumphost_base = input(
-        'Set the jumphost_base for the portal-cloud-client: ')
+        'Set the base of ports your jumphost forwards: ')
     return jumphost_base
 
 
 def setJumpHostIp():
     """
-    Set Ip of Jumphost.
+    Set the ip of your jumphost.
 
     :return: jumphost_ip input
     """
-    jumphost_ip = input('Set the jumphost_ip for the portal-cloud-client: ')
+    jumphost_ip = input('Set the ip of your jumphost: ')
     return jumphost_ip
