@@ -58,9 +58,8 @@ Then a configuration must be created:
 portal_client_create_config
 ~~~
 
-To see which parameter is used for what, see [Configuration](#configuration).
-You can always reset your configuration with this command.
-If you only want to view your configuration use this command:
+If you don't want to use this command to create a default configuration, just create your own yaml.file with the params described in [Configuration](#configuration).
+To see your view your default configuration use this command:
 
  ~~~BASH
 portal_client_show_config
@@ -71,6 +70,10 @@ If you set your configuration you can start the portal-client:
  ~~~BASH
 portal_client_start_server
 ~~~
+
+_**Info**_: This command would use the default configuration created with portal_client_create_config, if you want to use another config use the --config param.
+
+
 
 #### Configuration
 
