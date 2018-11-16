@@ -28,10 +28,10 @@ You can provide your configuration in the config.yml file placed in the VirtualM
 openstack_connection:
     port: port to use
     host: ip of the host
-    jumphost_base: port of jumphost
-    jumphost_Ip: ip of jumphost
+    gateway_base: port of gateway
+    gateway_Ip: ip of gateway
     tag: tag which the client uses to filter images/flavors
-    use_jumphost: If "True" Jumphost will be used. If "False" Jumphost won't be used.7
+    use_gateway: If "True" Gateway will be used. If "False" Gateway won't be used.
     availability_zone: The name of the availability zone the servers should be a part of.
     # If you use docker-compose this path needs to be the path you mount the server.pem into
     certfile: Path to server.pem
@@ -66,28 +66,11 @@ pip install git+https://github.com/deNBI/cloud-portal-client.git
 
 #### Commandline client
 
-You need to have a configuration for the client.
-Use your own yaml.file with the params described in [Configuration](#configuration) or use:
-
- ~~~BASH
-portal_client_create_config
-~~~
-
-To view your default configuration use this command:
-
- ~~~BASH
-portal_client_show_config
-~~~
-
 If you set your configuration you can start the portal-client:
 
  ~~~BASH
-portal_client_start_server
+portal_client_start_server --config=path/to/config.yml
 ~~~
-
-##### Optional params
-* --config TEXT  path to the config file
-
 
 ### Using Docker
 

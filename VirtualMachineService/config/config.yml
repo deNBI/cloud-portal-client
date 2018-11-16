@@ -1,9 +1,9 @@
 openstack_connection:
     host: 0.0.0.0
     port: 9090
-    jumphost_base: 30000
-    jumphost_ip: 172.21.40.14
-    use_jumphost: True
+    gateway_base: 30000
+    gateway_ip: 172.21.40.14
+    use_gateway True
     set_password: False
     network: portalnetzwerk
     tag: portalclient

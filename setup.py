@@ -37,8 +37,6 @@ setup(
     ],
     entry_points='''
       [console_scripts]
-      portal_client_create_config=VirtualMachineService.scripts.python.createConfig:createConfig
-      portal_client_show_config=VirtualMachineService.scripts.python.showConfig:showConfig
       portal_client_start_server=VirtualMachineService.VirtualMachineServer:startServer
     ''',
 )

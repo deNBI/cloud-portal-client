@@ -105,15 +105,15 @@ class VirtualMachineHandler(Iface):
         config = os.path.join(fileDir, 'config/config.yml')
         with open(config, 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
-            self.USE_JUMPHOST = cfg['openstack_connection']['use_jumphost']
+            self.USE_GATEWAY = cfg['openstack_connection']['use_gateway']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
             self.AVAIALABILITY_ZONE = cfg['openstack_connection']['availability_zone']
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG = cfg['openstack_connection']['tag']
-            if self.USE_JUMPHOST:
-                self.JUMPHOST_BASE = cfg['openstack_connection']['jumphost_base']
-                self.JUMPHOST_IP = cfg['openstack_connection']['jumphost_ip']
+            if self.USE_GATEWAY:
+                self.GATEWAY_BASE = cfg['openstack_connection']['gateway_base']
+                self.GATEWAY_IP = cfg['openstack_connection']['gateway_ip']
 
         self.conn = self.create_connection()
 
@@ -573,11 +573,11 @@ class VirtualMachineHandler(Iface):
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
-                if self.USE_JUMPHOST:
+                if self.USE_G:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
-                    host = str(self.JUMPHOST_IP)
-                    port = int(self.JUMPHOST_BASE) + int(server_base) * 3
+                    host = str(self.GATEWAY_IP)
+                    port = int(self.GATEWAY_BASE) + int(server_base) * 3
                 elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK)
@@ -616,13 +616,13 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
-        # check if jumphost is active
+        # check if gateway is active
         try:
-            if 'True' == str(self.USE_JUMPHOST):
+            if self.USE_GATEWAY:
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
-                port = int(self.JUMPHOST_BASE) + int(server_base) * 3
-                return {'IP': str(self.JUMPHOST_IP), 'PORT': str(port)}
+                port = int(self.GATEWAY_BASE) + int(server_base) * 3
+                return {'IP': str(self.GATEWAY_IPs), 'PORT': str(port)}
 
             else:
                 floating_ip = self.get_server(openstack_id).floating_ip
