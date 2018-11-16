@@ -3,7 +3,7 @@ help:
 
 lint: ## Lint VirtualMachineHandler python code with flake8
 
-	    flake8 --ignore=E501,W503,D104 VirtualMachineService/VirtualMachineHandler.py VirtualMachineService/scripts
+	    flake8 --ignore=W503,D104 VirtualMachineService/VirtualMachineHandler.py VirtualMachineService/scripts
 
 
 docs: ## Build documentation

@@ -12,13 +12,6 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 ## Preparation
 
-#### Install python3 and pip
-
-Linux:
-~~~BASH
-$> sudo apt-get install python3.6 python3-pip
-~~~
-
 #### Download and source rc file
 
 Download and source Openstack RC FILE v3 with the following command:
@@ -33,18 +26,18 @@ To create your own certificates follow the instructions on this Website: [thrift
 
 _**Attention**_: You need to create your own `Server.pem` and your client needs the appropriate `Client.pem` and `CA.pem`,
 
-## Usage
+## Production
 
 There are seperate ways to use the portal-cloud-client:
 
-* [Using pip](#using-pip)
-* [Cloning the repository](#cloning-the-repository)
-    * [Using Docker](#with-docker)
-    * [Without Docker](#without-docker)
+* [Using pip](#using-pip)]
+* [Using Docker](#with-docker)
 
 ### Using pip
 
-First install the cloud-portal-client with pip:
+You need to have python3.6 and pip installed.
+
+Than install the cloud-portal-client with pip:
 
  ~~~BASH
 pip install git+https://github.com/deNBI/cloud-portal-client.git
@@ -52,13 +45,14 @@ pip install git+https://github.com/deNBI/cloud-portal-client.git
 
 #### Commandline client
 
-Then a configuration must be created:
+You need to have a configuration for the client.
+Just create your own yaml.file with the params described in [Configuration](#configuration).
+Or use:
 
  ~~~BASH
 portal_client_create_config
 ~~~
 
-If you don't want to use this command to create a default configuration, just create your own yaml.file with the params described in [Configuration](#configuration).
 To see your view your default configuration use this command:
 
  ~~~BASH
@@ -94,8 +88,6 @@ You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
 The client will provide all images which have the tag 'portalclient' and all flavors which have portalclient = True in their extra_specs.
 
 ### Using Docker
-
-### Starting the cloud-portal-client
 
 You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
 
