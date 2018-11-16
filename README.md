@@ -30,8 +30,8 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 
 There are seperate ways to use the portal-cloud-client:
 
-* [Using pip](#using-pip)]
-* [Using Docker](#with-docker)
+* [Using pip](#using-pip)
+* [Using Docker](#using-docker)
 
 ### Using pip
 
@@ -46,8 +46,7 @@ pip install git+https://github.com/deNBI/cloud-portal-client.git
 #### Commandline client
 
 You need to have a configuration for the client.
-Just create your own yaml.file with the params described in [Configuration](#configuration).
-Or use:
+Just create your own yaml.file with the params described in [Configuration](#configuration) or use:
 
  ~~~BASH
 portal_client_create_config
