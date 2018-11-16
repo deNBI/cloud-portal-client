@@ -18,4 +18,4 @@ services:
     volumes:
       - ./VirtualMachineService/config/config.yml:/code/VirtualMachineService/config.yml
       - ./VirtualMachineService/keys/server.pem:/code/VirtualMachineService/keys/server.pem
-    command: python3 VirtualMachineServer.py --config=/code/VirtualMachineService/tester/config.yml
+    command: python3 VirtualMachineServer.py --config=/code/VirtualMachineService/config.yml
