@@ -18,7 +18,7 @@ import click
 DEFAULT_CONFIG = 'config/config.yml'
 @click.command()
 @click.option('--config', default=DEFAULT_CONFIG,help= 'path to the config file')
-def startServer(config,zone):
+def startServer(config):
     click.echo("Start Cloud-Client-Portal Server")
     if config == DEFAULT_CONFIG:
         CONFIG_FILE = os.path.join(
@@ -33,7 +33,7 @@ def startServer(config,zone):
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
         CERTFILE = cfg['openstack_connection']['certfile']
-    handler = VirtualMachineHandler(zone)
+    handler = VirtualMachineHandler()
     processor = Processor(handler)
     transport = TSSLSocket.TSSLServerSocket(
         host=HOST, port=PORT, certfile=CERTFILE)

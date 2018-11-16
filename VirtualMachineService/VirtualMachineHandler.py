@@ -68,13 +68,11 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Connected to Openstack")
         return conn
 
-    def __init__(self, zone):
+    def __init__(self):
         """
         Initialize the handler.
 
         Read all config variables and creates a connection to OpenStack.
-        :param zone: The name of the availability zone this server is a part of.
-
         """
         # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
