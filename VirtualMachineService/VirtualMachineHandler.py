@@ -67,7 +67,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Connected to Openstack")
         return conn
 
-    def __init__(self,zone):
+    def __init__(self, zone):
         """
         Initialize the handler.
 
@@ -75,7 +75,7 @@ class VirtualMachineHandler(Iface):
         :param zone: The name of the availability zone this server is a part of.
 
         """
-        self.availability_zone=zone
+        self.availability_zone = zone
         # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -453,8 +453,16 @@ class VirtualMachineHandler(Iface):
                 init_script = base64.b64encode(text).decode('utf-8')
 
                 server = self.conn.compute.create_server(
-                    name=servername, image_id=image.id, flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata, user_data=init_script,availability_zone=self.availability_zone)
+                    name=servername,
+                    image_id=image.id,
+                    flavor_id=flavor.id,
+                    networks=[
+                        {
+                            "uuid": network.id}],
+                    key_name=keypair.name,
+                    metadata=metadata,
+                    user_data=init_script,
+                    availability_zone=self.availability_zone)
             else:
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,

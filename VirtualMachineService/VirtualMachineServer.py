@@ -18,7 +18,7 @@ import click
 DEFAULT_CONFIG = 'config/config.yml'
 @click.command()
 @click.option('--config', default=DEFAULT_CONFIG,help= 'path to the config file')
-@click.option('--zone',default='default',help="The name of the availability zone this server is a part of.")
+@click.option('--zone',default='default',help="The name of the availability zone the servers should be a part of.")
 def startServer(config,zone):
     click.echo("Start Cloud-Client-Portal Server")
     click.echo("Availability zone for instances: {}".format(zone))
