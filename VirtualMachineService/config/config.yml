@@ -3,7 +3,7 @@ openstack_connection:
     port: 9090
     gateway_base: 30000
     gateway_ip: 172.21.40.14
-    use_gateway True
+    use_gateway: True
     set_password: False
     network: portalnetzwerk
     tag: portalclient
