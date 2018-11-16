@@ -65,7 +65,6 @@ portal_client_start_server
 ~~~
 
 ##### Optional params
-Options:
 * --config TEXT  path to the config file
 * --zone TEXT    The name of the availability zone the servers should be a part of.
 
