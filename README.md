@@ -64,9 +64,10 @@ If you set your configuration you can start the portal-client:
 portal_client_start_server
 ~~~
 
-_**Info**_: This command would use the default configuration created with portal_client_create_config, if you want to use another config use the --config param.
-
-
+##### Optional params
+│Options:
+    │  --config TEXT  path to the config file
+    │  --zone TEXT    The name of the availability zone this server is a part of.
 
 #### Configuration
 
