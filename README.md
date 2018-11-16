@@ -20,6 +20,27 @@ Download and source Openstack RC FILE v3 with the following command:
 source NameOfRcFile.sh
 ~~~
 
+#### Configuration
+
+You can provide your configuration in the config.yml file placed in the VirtualMachineService/config folder or use the --config parameter when starting the client.
+
+~~~yaml
+openstack_connection:
+    port: port to use
+    host: ip of the host
+    jumphost_base: port of jumphost
+    jumphost_Ip: ip of jumphost
+    tag: tag which the client uses to filter images/flavors
+    use_jumphost: If "True" Jumphost will be used. If "False" Jumphost won't be used.7
+    availability_zone: The name of the availability zone the servers should be a part of.
+    # If you use docker-compose this path needs to be the path you mount the server.pem into
+    certfile: Path to server.pem
+    network: Network where the project is located
+~~~
+
+You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
+The client will provide all images which have the tag 'portalclient' and all flavors which have portalclient = True in their extra_specs.
+
 #### Create certificates
 
 To create your own certificates follow the instructions on this Website: [thrift certificates](https://thrift.apache.org/test/keys)
@@ -46,13 +67,13 @@ pip install git+https://github.com/deNBI/cloud-portal-client.git
 #### Commandline client
 
 You need to have a configuration for the client.
-Just create your own yaml.file with the params described in [Configuration](#configuration) or use:
+Use your own yaml.file with the params described in [Configuration](#configuration) or use:
 
  ~~~BASH
 portal_client_create_config
 ~~~
 
-To see your view your default configuration use this command:
+To view your default configuration use this command:
 
  ~~~BASH
 portal_client_show_config
@@ -66,25 +87,7 @@ portal_client_start_server
 
 ##### Optional params
 * --config TEXT  path to the config file
-* --zone TEXT    The name of the availability zone the servers should be a part of.
 
-#### Configuration
-
-You can provide your configuration in the config.yml file placed in the VirtualMachineService/config folder.
-~~~yaml
-openstack_connection:
-    port: port to use
-    host: ip of the host
-    jumphost_base: port of jumphost
-    jumphost_Ip: ip of jumphost
-    tag: tag which the client uses to filter images/flavors
-    use_jumphost: If "True" Jumphost will be used. If "False" Jumphost won't be used.
-    certfile: Path to server.pem
-    network: Network where the project is located
-~~~
-
-You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
-The client will provide all images which have the tag 'portalclient' and all flavors which have portalclient = True in their extra_specs.
 
 ### Using Docker
 

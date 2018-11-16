@@ -12,7 +12,7 @@ import sys
 import logging
 try:
     from ttypes import *
-except Exception:
+except:
     from .ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
@@ -125,21 +125,17 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, servername, diskspace, volumename):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         Start a new server.
 
         Parameters:
          - flavor: Name of the  Flavor to use.
          - image: Name of the image to use.
-         - servername: Public Key to use
-        3:string public_key,
-
-        /** Name for the new server
-         - diskspace: Elixir-Id of the user who requested to start a new server
-        5:string elixir_id,
-
-        /** Diskspace in GB for additional volume.
+         - public_key: Public Key to use
+         - servername: Name for the new server
+         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
         """
         pass
@@ -679,32 +675,30 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, servername, diskspace, volumename):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         Start a new server.
 
         Parameters:
          - flavor: Name of the  Flavor to use.
          - image: Name of the image to use.
-         - servername: Public Key to use
-        3:string public_key,
-
-        /** Name for the new server
-         - diskspace: Elixir-Id of the user who requested to start a new server
-        5:string elixir_id,
-
-        /** Diskspace in GB for additional volume.
+         - public_key: Public Key to use
+         - servername: Name for the new server
+         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
         """
-        self.send_start_server(flavor, image, servername, diskspace, volumename)
+        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, servername, diskspace, volumename):
+    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
         args.image = image
+        args.public_key = public_key
         args.servername = servername
+        args.elixir_id = elixir_id
         args.diskspace = diskspace
         args.volumename = volumename
         args.write(self._oprot)
@@ -1504,7 +1498,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.servername, args.diskspace, args.volumename)
+            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -3326,14 +3320,10 @@ class start_server_args(object):
     Attributes:
      - flavor: Name of the  Flavor to use.
      - image: Name of the image to use.
-     - servername: Public Key to use
-    3:string public_key,
-
-    /** Name for the new server
-     - diskspace: Elixir-Id of the user who requested to start a new server
-    5:string elixir_id,
-
-    /** Diskspace in GB for additional volume.
+     - public_key: Public Key to use
+     - servername: Name for the new server
+     - elixir_id: Elixir-Id of the user who requested to start a new server
+     - diskspace: Diskspace in GB for additional volume.
      - volumename: Name of additional Volume
     """
 
@@ -3341,17 +3331,19 @@ class start_server_args(object):
         None,  # 0
         (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
         (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
-        None,  # 3
+        (3, TType.STRING, 'public_key', 'UTF8', None, ),  # 3
         (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
-        None,  # 5
+        (5, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'diskspace', 'UTF8', None, ),  # 6
         (7, TType.STRING, 'volumename', 'UTF8', None, ),  # 7
     )
 
-    def __init__(self, flavor=None, image=None, servername=None, diskspace=None, volumename=None,):
+    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
         self.flavor = flavor
         self.image = image
+        self.public_key = public_key
         self.servername = servername
+        self.elixir_id = elixir_id
         self.diskspace = diskspace
         self.volumename = volumename
 
@@ -3374,9 +3366,19 @@ class start_server_args(object):
                     self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
                     self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -3407,9 +3409,17 @@ class start_server_args(object):
             oprot.writeFieldBegin('image', TType.STRING, 2)
             oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
+        if self.public_key is not None:
+            oprot.writeFieldBegin('public_key', TType.STRING, 3)
+            oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
+            oprot.writeFieldEnd()
         if self.servername is not None:
             oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+            oprot.writeFieldEnd()
+        if self.elixir_id is not None:
+            oprot.writeFieldBegin('elixir_id', TType.STRING, 5)
+            oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
             oprot.writeFieldEnd()
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.STRING, 6)
