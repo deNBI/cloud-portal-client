@@ -36,6 +36,7 @@ import datetime
 import logging
 import yaml
 import base64
+import click
 from oslo_utils import encodeutils
 
 
@@ -75,7 +76,6 @@ class VirtualMachineHandler(Iface):
         :param zone: The name of the availability zone this server is a part of.
 
         """
-        self.availability_zone = zone
         # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -108,6 +108,7 @@ class VirtualMachineHandler(Iface):
             self.USE_JUMPHOST = cfg['openstack_connection']['use_jumphost']
             self.NETWORK = cfg['openstack_connection']['network']
             self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
+            self.AVAIALABILITY_ZONE = cfg['openstack_connection']['availability_zone']
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG = cfg['openstack_connection']['tag']
             if self.USE_JUMPHOST:
@@ -462,7 +463,7 @@ class VirtualMachineHandler(Iface):
                     key_name=keypair.name,
                     metadata=metadata,
                     user_data=init_script,
-                    availability_zone=self.availability_zone)
+                    availability_zone=self.AVAIALABILITY_ZONE)
             else:
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
@@ -932,7 +933,7 @@ class VirtualMachineHandler(Iface):
 
         :return: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
                 'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
-                'totalInstancesUsed': totalInstancesUsed}
+                'totalInstancesUsed': totaFlInstancesUsed}
         """
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
@@ -943,7 +944,6 @@ class VirtualMachineHandler(Iface):
             limits['absolute']['maxTotalVolumeGigabytes'])
         totalRamUsed = str(limits['total_ram_used'])
         totalInstancesUsed = str(limits['total_instances_used'])
-        print(limits)
         return {
             'maxTotalVolumes': maxTotalVolumes,
             'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,

@@ -275,13 +275,13 @@ service VirtualMachineService {
     /** Name of the image to use. */
     2:string image,
 
-    /** Public Key to use
+    /** Public Key to use*/
     3:string public_key,
 
     /** Name for the new server */
     4:string servername,
 
-    /** Elixir-Id of the user who requested to start a new server
+    /** Elixir-Id of the user who requested to start a new server*/
     5:string elixir_id,
 
     /** Diskspace in GB for additional volume.*/
