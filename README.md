@@ -93,13 +93,31 @@ You can use the Docker image `denbicloud/cloud-portal-client` with the configura
 
 # Development
 
+## Linting
+
+```
+$ make lint
+```
+
+will run flake8 on the source code directories.
+
+
+## Documentation
+
+```
+$ make docs
+```
+
+will create documentaion in the /docs directory.
+
+
 ## Thrift Development
 
 A detailed instruction for installing thrift can be found [here](http://thrift-tutorial.readthedocs.io/en/latest/installation.html).
 With the portal_client.thrift you can autogenerate your code.
 
-~~~BASH
-thrift -r --gen py portal_client.thrift
+~~~
+make thrift_py
 ~~~
 
 This command will generate python code from the thrift file.
