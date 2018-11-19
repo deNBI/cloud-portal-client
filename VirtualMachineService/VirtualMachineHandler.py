@@ -1,4 +1,8 @@
-"""This Module implements an VirtualMachineHandler which can be used for the PortalClient."""
+"""
+This Module implements an VirtualMachineHandler.
+
+Which can be used for the PortalClient.
+"""
 
 try:
     from VirtualMachineService import Iface
@@ -36,7 +40,6 @@ import datetime
 import logging
 import yaml
 import base64
-import click
 from oslo_utils import encodeutils
 
 
@@ -105,8 +108,10 @@ class VirtualMachineHandler(Iface):
             cfg = yaml.load(ymlfile)
             self.USE_GATEWAY = cfg['openstack_connection']['use_gateway']
             self.NETWORK = cfg['openstack_connection']['network']
-            self.FLOATING_IP_NETWORK = cfg['openstack_connection']['floating_ip_network']
-            self.AVAIALABILITY_ZONE = cfg['openstack_connection']['availability_zone']
+            self.FLOATING_IP_NETWORK = cfg['openstack_connection'][
+                'floating_ip_network']
+            self.AVAIALABILITY_ZONE = cfg['openstack_connection'][
+                'availability_zone']
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             self.TAG = cfg['openstack_connection']['tag']
             if self.USE_GATEWAY:
@@ -162,7 +167,8 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Flavors")
         flavors = list()
         try:
-            for flav in filter(lambda x: self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',
+            for flav in filter(lambda x: self.TAG in x['extra_specs']
+                               and x['extra_specs'][self.TAG] == 'True',
                                (list(self.conn.list_flavors(get_extra=True)))):
                 flavor = Flavor(
                     vcpus=flav['vcpus'],
@@ -178,7 +184,7 @@ class VirtualMachineHandler(Iface):
 
     @deprecated(
         version='1.0.0',
-        reason="Version of Denbi API Client and Portalclient won't be compared anymore")
+        reason="Vers. of Denbi API Client and Portalclient won't be compared")
     def check_Version(self, version):
         """
         Compare Version.
@@ -187,7 +193,8 @@ class VirtualMachineHandler(Iface):
         :return:True if same version, False if not
         """
         self.logger.info(
-            "Compare Version : Server Version = {0} || Client Version = {1}".format(
+            "Compare Version : Server Version = {0} "
+            "|| Client Version = {1}".format(
                 VERSION, version))
         try:
             if version == VERSION:
@@ -401,7 +408,7 @@ class VirtualMachineHandler(Iface):
         :param image: Name of image which should be used
         :param public_key: Publickey which should be used
         :param servername: Name of the new server
-        :param elixir_id: Elixir_id of the user who requested to start a new server
+        :param elixir_id: Elixir_id of the user who started a new server
         :param diskspace: Diskspace in GB for volume which should be created
         :param volumename: Name of the volume
         :return: {'openstackid': serverId, 'volumeId': volumeId}
@@ -438,7 +445,8 @@ class VirtualMachineHandler(Iface):
                         name=volumename, size=int(diskspace)).to_dict()
                 except Exception as e:
                     self.logger.error(
-                        'Trying to create volume with {0} GB for vm {1} error : {2}'.format(
+                        'Trying to create volume with {0}'
+                        ' GB for vm {1} error : {2}'.format(
                             diskspace, servername, e), exc_info=True)
                     raise ressourceException(Reason=str(e))
                 volumeId = volume['id']
@@ -465,7 +473,8 @@ class VirtualMachineHandler(Iface):
             else:
                 server = self.conn.compute.create_server(
                     name=servername, image_id=image.id, flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}], key_name=keypair.name, metadata=metadata)
+                    networks=[{"uuid": network.id}], key_name=keypair.name,
+                    metadata=metadata)
 
             return {
                 'openstackid': server.to_dict()['id'],
@@ -549,7 +558,8 @@ class VirtualMachineHandler(Iface):
         Check status of server.
 
         :param openstack_id: Id of server
-        :param diskspace: diskspace of server(volume will be attached if server is active and diskpace >0)
+        :param diskspace: diskspace of server(volume will be attached if server
+                is active and diskpace >0)
         :param volume_id: Id of volume
         :return: server instance
         """
@@ -638,7 +648,7 @@ class VirtualMachineHandler(Iface):
         :param openstack_id: Id of the server
         :param name: Name of the Snapshot
         :param elixir_id: Elixir Id of the user who requested the creation
-        :param base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
+        :param base_tag: Tag with which the servers image is also tagged
         :return: Id of the new Snapshot
         """
         self.logger.info(
@@ -660,7 +670,8 @@ class VirtualMachineHandler(Iface):
             return snapshot_id
         except Exception as e:
             self.logger.error(
-                'Create Snapshot from Instance {0} with name {1} for {2} error : {3}'.format(
+                'Create Snapshot from Instance {0}'
+                ' with name {1} for {2} error : {3}'.format(
                     openstack_id, name, elixir_id, e))
             return
 
@@ -712,8 +723,10 @@ class VirtualMachineHandler(Iface):
                 if not floating_ip.fixed_ip_address:
                     self.conn.compute.add_floating_ip_to_server(
                         server, floating_ip.floating_ip_address)
-                    self.logger.info("Adding existing Floating IP {0} to {1}".format(
-                        str(floating_ip.floating_ip_address), openstack_id))
+                    self.logger.info(
+                        "Adding existing Floating IP {0} to {1}".format(
+                            str(floating_ip.floating_ip_address),
+                            openstack_id))
                     return str(floating_ip.floating_ip_address)
 
             networkID = self.conn.network.find_network(network)
@@ -743,7 +756,8 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
-        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        with closing(
+                socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             r = sock.connect_ex((host, port))
             self.logger.info(
                 "Checking SSH Connection {0}:{1} Result = {2}".format(
@@ -799,9 +813,11 @@ class VirtualMachineHandler(Iface):
                 instance_id = attachment['server_id']
                 if instance_id == server_id:
                     self.logger.info(
-                        "Delete Volume Attachment  {0}".format(volume_attachment_id))
+                        "Delete Volume Attachment  {0}".format(
+                            volume_attachment_id))
                     self.conn.compute.delete_volume_attachment(
-                        volume_attachment=volume_attachment_id, server=server_id)
+                        volume_attachment=volume_attachment_id,
+                        server=server_id)
             return True
         except Exception as e:
             self.logger.error(
@@ -927,11 +943,17 @@ class VirtualMachineHandler(Iface):
 
     def get_limits(self):
         """
-        Get the Limits (maxTotalVolumes,maxTotalVolumeGigabytes,maxTotalInstances,totalRamUsed,totalInstancesUsed) of the OpenStack Project from the Client.
+        Get the Limits.
 
-        :return: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
-                'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
-                'totalInstancesUsed': totaFlInstancesUsed}
+        (maxTotalVolumes,maxTotalVolumeGigabytes,
+        maxTotalInstances,totalRamUsed,totalInstancesUsed)
+        of the OpenStack Project from the Client.
+
+        :return: {'maxTotalVolumes': maxTotalVolumes, '
+                maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
+                'maxTotalInstances': maxTotalInstances,
+                 'totalRamUsed': totalRamUsed,
+                'totalInstancesUsed': totalFlInstancesUsed}
         """
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
