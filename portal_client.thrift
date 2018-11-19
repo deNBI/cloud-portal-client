@@ -335,11 +335,10 @@ service VirtualMachineService {
      /** Elixir-Id of the user who requested creation of Snapshot */
      3: string elixir_id,
 
-     /** Tag with which the servers image is also taged ( for connection information at the webapp) */
+     /** Tag with which the servers image is also tagged ( for connection information at the webapp) */
      4:string base_tag)
 
      throws (1:serverNotFoundException e),
-
 
 
     /**

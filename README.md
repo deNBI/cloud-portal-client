@@ -1,7 +1,9 @@
 # Cloud-Portal-Client
 The *Cloud Portal Client* is a client written in Python which provides functions to create virtual machines in an OpenStack project.
 
-## Features
+#### Configuration
+
+=======
 
  - Create and Delete Instances in an OpenStack project
  - Stop, Resume and Reboot Instances in an OpenStack project
@@ -21,9 +23,8 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-
 You can configure your client either by placing the config.yml in the VirtualMachineService/config folder or by providing the --config parameter when the client starts.
-You can view all exiting parameters in the [yaml file](VirtualMachineService/config/config.yml). 
+You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
 
 ##### Gateway
 
@@ -39,7 +40,7 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 
 ## Production
 
-There are seperate ways to use the portal-cloud-client:
+There are separate ways to use the portal-cloud-client:
 
 * [Using pip](#using-pip)
 * [Using Docker](#using-docker)
@@ -78,6 +79,25 @@ will run flake8 on the source code directories.
 
 
 ### Documentation
+=======
+
+You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
+
+## Development
+
+### Linting
+
+```
+$ make lint
+```
+
+will run flake8 on the source code directories.
+
+
+### Documentation
+
+You need thrift to be installed on your machine (see Thrift section).
+>>>>>>> dev
 
 ```
 $ make docs

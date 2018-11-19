@@ -4,3 +4,4 @@ python-keystoneclient
 openstacksdk >= 0.9.19, < 1.0.0
 deprecated == 1.2.4
 Click==7.0
+flake8
