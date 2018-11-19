@@ -1,9 +1,7 @@
 # Cloud-Portal-Client
 The *Cloud Portal Client* is a client written in Python which provides functions to create virtual machines in an OpenStack project.
 
-#### Configuration
-
-=======
+#### Features
 
  - Create and Delete Instances in an OpenStack project
  - Stop, Resume and Reboot Instances in an OpenStack project
@@ -79,7 +77,6 @@ will run flake8 on the source code directories.
 
 
 ### Documentation
-=======
 
 You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
 
@@ -97,7 +94,6 @@ will run flake8 on the source code directories.
 ### Documentation
 
 You need thrift to be installed on your machine (see Thrift section).
->>>>>>> dev
 
 ```
 $ make docs
