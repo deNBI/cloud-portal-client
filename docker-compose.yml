@@ -1,0 +1,21 @@
+version: '3.5'
+services:
+  portal-client:
+    build:
+       context: .
+       dockerfile: Dockerfile
+    ports:
+     - "9090:9090"
+
+    environment:
+      - OS_AUTH_URL
+      - OS_PROJECT_ID
+      - OS_PROJECT_NAME
+      - OS_USERNAME
+      - OS_PASSWORD
+      - OS_USER_DOMAIN_NAME
+
+    volumes:
+      - ./VirtualMachineService/config/config.yml:/code/VirtualMachineService/config.yml
+      - ./VirtualMachineService/keys/server.pem:/code/VirtualMachineService/keys/server.pem
+    command: python3 VirtualMachineServer.py --config=/code/VirtualMachineService/config.yml
