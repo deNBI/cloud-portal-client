@@ -22,23 +22,13 @@ source NameOfRcFile.sh
 
 #### Configuration
 
-You can provide your configuration in the config.yml file placed in the VirtualMachineService/config folder or use the --config parameter when starting the client.
+You can configure your client either by placing the config.yml in the VirtualMachineService/config folder or by providing the --config parameter when the client starts.
+You can view all exiting parameters in the [yaml file](VirtualMachineService/config/config.yml). 
 
-~~~yaml
-openstack_connection:
-    port: port to use
-    host: ip of the host
-    gateway_base: port of gateway
-    gateway_Ip: ip of gateway
-    tag: tag which the client uses to filter images/flavors
-    use_gateway: If "True" Gateway will be used. If "False" Gateway won't be used.
-    availability_zone: The name of the availability zone the servers should be a part of.
-    # If you use docker-compose this path needs to be the path you mount the server.pem into
-    certfile: Path to server.pem
-    network: Network where the project is located
-~~~
+##### Gateway
 
-You can read [here](ProjectGateway.md) how to setup a gateway for OpenStack.
+The client can use a Gateway for starting and stopping machines which allows to use just one floating IP instead of one floating IP per Machine.
+You can read [here](ProjectGateway.md) how to setup a gateway on an OpenStack instance.
 The client will provide all images which have the tag 'portalclient' and all flavors which have portalclient = True in their extra_specs.
 
 #### Create certificates

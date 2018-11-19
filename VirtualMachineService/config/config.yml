@@ -1,15 +1,19 @@
 openstack_connection:
     host: 0.0.0.0
+    # Client Port
     port: 9090
+    # Gateway Port and IP
     gateway_base: 30000
     gateway_ip: 172.21.40.14
+    # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
     use_gateway: True
     set_password: False
+    # network where the project is located
     network: portalnetzwerk
+    # Tag which the client uses to filter images/flavours.
     tag: portalclient
     floating_ip_network: cebitec
+    # The name of the availability zone the server should be placed.
     availability_zone: default
     # If you use docker-compose this path needs to be the path you mount the server.pem into
     certfile: /code/VirtualMachineService/keys/server.pem
-
-        
