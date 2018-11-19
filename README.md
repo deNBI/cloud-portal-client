@@ -79,6 +79,8 @@ will run flake8 on the source code directories.
 
 ### Documentation
 
+You need thrift to be installed on your machine (see Thrift section).
+
 ```
 $ make docs
 ```
