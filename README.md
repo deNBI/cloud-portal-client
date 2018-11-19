@@ -78,21 +78,6 @@ will run flake8 on the source code directories.
 
 ### Documentation
 
-You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
-
-## Development
-
-### Linting
-
-```
-$ make lint
-```
-
-will run flake8 on the source code directories.
-
-
-### Documentation
-
 You need thrift to be installed on your machine (see Thrift section).
 
 ```
