@@ -162,14 +162,14 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Flavors")
         flavors = list()
         try:
-            for flav in filter(lambda x: self.TAG in x['extra_specs'] and x['extra_specs'][self.TAG] == 'True',
-                               (list(self.conn.list_flavors(get_extra=True)))):
+            for flav in (list(self.conn.list_flavors(get_extra=True))):
                 flavor = Flavor(
                     vcpus=flav['vcpus'],
                     ram=flav['ram'],
                     disk=flav['disk'],
                     name=flav['name'],
-                    openstack_id=flav['id'])
+                    openstack_id=flav['id'],
+                    tags=list(flav['extra_specs'].keys()))
                 flavors.append(flavor)
             return flavors
         except Exception as e:
@@ -505,6 +505,7 @@ class VirtualMachineHandler(Iface):
         :param volume_id: Id of volume
         :return: True if attached, False if not
         """
+
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
@@ -816,6 +817,7 @@ class VirtualMachineHandler(Iface):
         :param volume_id: Id of the volume
         :return: True if deleted, False if not
         """
+
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False

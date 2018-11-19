@@ -16,4 +16,4 @@ openstack_connection:
     # The name of the availability zone the server should be placed.
     availability_zone: default
     # If you use docker-compose this path needs to be the path you mount the server.pem into
-    certfile: /code/VirtualMachineService/keys/server.pem
+    certfile: /home/david/cloud-client/cloud-portal-client/VirtualMachineService/keys/server.pem

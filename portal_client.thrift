@@ -30,6 +30,9 @@ const string VERSION= '1.0.0'
 
 	/** The description of the flavor*/
 	6:optional string description
+
+	/** List of tags from flavor */
+	7: required list<string> tags
 	
 	
 }
