@@ -76,9 +76,9 @@ portal_client_start_server --config=path/to/config.yml
 
 You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
 
-# Development
+## Development
 
-## Linting
+### Linting
 
 ```
 $ make lint
@@ -87,7 +87,7 @@ $ make lint
 will run flake8 on the source code directories.
 
 
-## Documentation
+### Documentation
 
 ```
 $ make docs
@@ -96,7 +96,7 @@ $ make docs
 will create documentaion in the /docs directory.
 
 
-## Thrift Development
+### Thrift Development
 
 A detailed instruction for installing thrift can be found [here](http://thrift-tutorial.readthedocs.io/en/latest/installation.html).
 With the portal_client.thrift you can autogenerate your code.
