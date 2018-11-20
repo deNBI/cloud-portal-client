@@ -1,7 +1,7 @@
 # Cloud-Portal-Client
 The *Cloud Portal Client* is a client written in Python which provides functions to create virtual machines in an OpenStack project.
 
-#### Features
+## Features
 
  - Create and Delete Instances in an OpenStack project
  - Stop, Resume and Reboot Instances in an OpenStack project
