@@ -63,7 +63,7 @@ portal_client_start_server --config=path/to/config.yml
 
 ### Using Docker
 
-You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
+You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in [docker-compose.yml](docker-compose.yml)
 
 ## Development
 
@@ -86,6 +86,13 @@ $ make docs
 
 will create documentaion in the /docs directory.
 
+### Docker-Compose
+
+Run the following command in order to start the container setup:
+
+```
+docker-compose up
+```
 
 ### Thrift Development
 
