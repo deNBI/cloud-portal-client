@@ -7,6 +7,6 @@ FROM python:3.6.6-slim
 ADD . /code
 WORKDIR /code
 RUN pip install -r requirements.txt
-WORKDIR /code/gen-py/VirtualMachineService
+WORKDIR /code/VirtualMachineService
 COPY --from=builder /filebeat-6.3.0-amd64.deb  .
 RUN dpkg -i filebeat-6.3.0-amd64.deb && rm -rf filebeat-6.3.0-amd64.deb

@@ -24,6 +24,7 @@ class Flavor(object):
      - name: The name of the flavor
      - openstack_id: The openstack_id of the flavor
      - description: The description of the flavor
+     - tags: List of tags from flavor
     """
 
     thrift_spec = (
@@ -34,15 +35,17 @@ class Flavor(object):
         (4, TType.STRING, 'name', 'UTF8', None, ),  # 4
         (5, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 5
         (6, TType.STRING, 'description', 'UTF8', None, ),  # 6
+        (7, TType.LIST, 'tags', (TType.STRING, 'UTF8', False), None, ),  # 7
     )
 
-    def __init__(self, vcpus=None, ram=None, disk=None, name=None, openstack_id=None, description=None,):
+    def __init__(self, vcpus=None, ram=None, disk=None, name=None, openstack_id=None, description=None, tags=None,):
         self.vcpus = vcpus
         self.ram = ram
         self.disk = disk
         self.name = name
         self.openstack_id = openstack_id
         self.description = description
+        self.tags = tags
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -83,6 +86,16 @@ class Flavor(object):
                     self.description = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.LIST:
+                    self.tags = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.tags.append(_elem5)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -117,6 +130,13 @@ class Flavor(object):
             oprot.writeFieldBegin('description', TType.STRING, 6)
             oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
+        if self.tags is not None:
+            oprot.writeFieldBegin('tags', TType.LIST, 7)
+            oprot.writeListBegin(TType.STRING, len(self.tags))
+            for iter6 in self.tags:
+                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -131,6 +151,8 @@ class Flavor(object):
             raise TProtocolException(message='Required field name is unset!')
         if self.openstack_id is None:
             raise TProtocolException(message='Required field openstack_id is unset!')
+        if self.tags is None:
+            raise TProtocolException(message='Required field tags is unset!')
         return
 
     def __repr__(self):
@@ -158,7 +180,7 @@ class Image(object):
      - updated_at: The updated time of the image
      - openstack_id: The openstack_id the image
      - description: The description of the image
-     - tag
+     - tag: List of tags from image
     """
 
     thrift_spec = (
@@ -237,10 +259,10 @@ class Image(object):
             elif fid == 9:
                 if ftype == TType.LIST:
                     self.tag = []
-                    (_etype3, _size0) = iprot.readListBegin()
-                    for _i4 in range(_size0):
-                        _elem5 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.tag.append(_elem5)
+                    (_etype10, _size7) = iprot.readListBegin()
+                    for _i11 in range(_size7):
+                        _elem12 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.tag.append(_elem12)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -289,8 +311,8 @@ class Image(object):
         if self.tag is not None:
             oprot.writeFieldBegin('tag', TType.LIST, 9)
             oprot.writeListBegin(TType.STRING, len(self.tag))
-            for iter6 in self.tag:
-                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
+            for iter13 in self.tag:
+                oprot.writeString(iter13.encode('utf-8') if sys.version_info[0] == 2 else iter13)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -339,8 +361,8 @@ class VM(object):
      - created_at: The the creation time of the VM
      - floating_ip: The floating ip of the VM
      - fixed_ip: The fixed ips of the VM
-     - diskspace
-     - volume_id
+     - diskspace: Diskspace in GB from additional volume
+     - volume_id: Id of additional volume
     """
 
     thrift_spec = (
@@ -404,11 +426,11 @@ class VM(object):
             elif fid == 4:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
-                    for _i11 in range(_size7):
-                        _key12 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val13 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key12] = _val13
+                    (_ktype15, _vtype16, _size14) = iprot.readMapBegin()
+                    for _i18 in range(_size14):
+                        _key19 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val20 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key19] = _val20
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -482,9 +504,9 @@ class VM(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter14, viter15 in self.metadata.items():
-                oprot.writeString(kiter14.encode('utf-8') if sys.version_info[0] == 2 else kiter14)
-                oprot.writeString(viter15.encode('utf-8') if sys.version_info[0] == 2 else viter15)
+            for kiter21, viter22 in self.metadata.items():
+                oprot.writeString(kiter21.encode('utf-8') if sys.version_info[0] == 2 else kiter21)
+                oprot.writeString(viter22.encode('utf-8') if sys.version_info[0] == 2 else viter22)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.project_id is not None:
@@ -559,10 +581,8 @@ class VM(object):
 
 class otherException(TException):
     """
-    Exceptions inherit from language-specific base exceptions.
-
     Attributes:
-     - Reason: @ Name already used.
+     - Reason: Every other exception.
     """
 
     thrift_spec = (
@@ -625,7 +645,7 @@ class otherException(TException):
 class ressourceException(TException):
     """
     Attributes:
-     - Reason: @ Name already used.
+     - Reason: Name already used.
     """
 
     thrift_spec = (
@@ -751,7 +771,7 @@ class nameException(TException):
 class serverNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Server not found.
+     - Reason: Server not found.
     """
 
     thrift_spec = (
@@ -814,7 +834,7 @@ class serverNotFoundException(TException):
 class networkNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Network not found.
+     - Reason: Network not found.
     """
 
     thrift_spec = (
@@ -877,7 +897,7 @@ class networkNotFoundException(TException):
 class imageNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Image not found.
+     - Reason: Image not found.
     """
 
     thrift_spec = (
@@ -940,7 +960,7 @@ class imageNotFoundException(TException):
 class flavorNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ flavor not found.
+     - Reason
     """
 
     thrift_spec = (
@@ -1002,8 +1022,10 @@ class flavorNotFoundException(TException):
 
 class authenticationException(TException):
     """
+    Authentication Failed Exception
+
     Attributes:
-     - Reason: @ Authentication failed
+     - Reason: Reason why the Authentication failed
     """
 
     thrift_spec = (
