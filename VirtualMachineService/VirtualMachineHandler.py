@@ -579,7 +579,7 @@ class VirtualMachineHandler(Iface):
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
-                if self.USE_G:
+                if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
                     host = str(self.GATEWAY_IP)
