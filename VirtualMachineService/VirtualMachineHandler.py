@@ -628,7 +628,7 @@ class VirtualMachineHandler(Iface):
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
                 port = int(self.GATEWAY_BASE) + int(server_base) * 3
-                return {'IP': str(self.GATEWAY_IPs), 'PORT': str(port)}
+                return {'IP': str(self.GATEWAY_IP), 'PORT': str(port)}
 
             else:
                 floating_ip = self.get_server(openstack_id).floating_ip
