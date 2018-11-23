@@ -21,9 +21,8 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-
 You can configure your client either by placing the config.yml in the VirtualMachineService/config folder or by providing the --config parameter when the client starts.
-You can view all exiting parameters in the [yaml file](VirtualMachineService/config/config.yml). 
+You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
 
 ##### Gateway
 
@@ -39,7 +38,7 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 
 ## Production
 
-There are seperate ways to use the portal-cloud-client:
+There are separate ways to use the portal-cloud-client:
 
 * [Using pip](#using-pip)
 * [Using Docker](#using-docker)
@@ -64,7 +63,7 @@ portal_client_start_server --config=path/to/config.yml
 
 ### Using Docker
 
-You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in `docker-compose.yml`
+You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in [docker-compose.yml](docker-compose.yml)
 
 ## Development
 
@@ -87,6 +86,13 @@ $ make docs
 
 will create documentaion in the /docs directory.
 
+### Docker-Compose
+
+Run the following command in order to start the container setup:
+
+```
+docker-compose up
+```
 
 ### Thrift Development
 

@@ -10,8 +10,6 @@ openstack_connection:
     set_password: False
     # network where the project is located
     network: portalnetzwerk
-    # Tag which the client uses to filter images/flavours.
-    tag: portalclient
     floating_ip_network: cebitec
     # The name of the availability zone the server should be placed.
     availability_zone: default

@@ -11,6 +11,6 @@ from thrift.protocol.TProtocol import TProtocolException
 import sys
 try:
     from ttypes import *
-except:
+except Exception:
     from .ttypes import *
 VERSION = "1.0.0"

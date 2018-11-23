@@ -113,7 +113,6 @@ class VirtualMachineHandler(Iface):
             self.AVAIALABILITY_ZONE = cfg['openstack_connection'][
                 'availability_zone']
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
-            self.TAG = cfg['openstack_connection']['tag']
             if self.USE_GATEWAY:
                 self.GATEWAY_BASE = cfg['openstack_connection']['gateway_base']
                 self.GATEWAY_IP = cfg['openstack_connection']['gateway_ip']
@@ -167,15 +166,16 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Flavors")
         flavors = list()
         try:
-            for flav in filter(lambda x: self.TAG in x['extra_specs']
-                               and x['extra_specs'][self.TAG] == 'True',
-                               (list(self.conn.list_flavors(get_extra=True)))):
+            for flav in (list(self.conn.list_flavors(get_extra=True))):
+
                 flavor = Flavor(
                     vcpus=flav['vcpus'],
                     ram=flav['ram'],
                     disk=flav['disk'],
                     name=flav['name'],
-                    openstack_id=flav['id'])
+                    openstack_id=flav['id'],
+                    tags=list(flav['extra_specs'].keys()))
+
                 flavors.append(flavor)
             return flavors
         except Exception as e:
@@ -756,6 +756,7 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
+
         with closing(
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             r = sock.connect_ex((host, port))
@@ -813,6 +814,7 @@ class VirtualMachineHandler(Iface):
                 instance_id = attachment['server_id']
                 if instance_id == server_id:
                     self.logger.info(
+
                         "Delete Volume Attachment  {0}".format(
                             volume_attachment_id))
                     self.conn.compute.delete_volume_attachment(
