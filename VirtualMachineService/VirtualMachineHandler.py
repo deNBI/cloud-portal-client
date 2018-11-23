@@ -71,7 +71,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Connected to Openstack")
         return conn
 
-    def __init__(self):
+    def __init__(self,config):
         """
         Initialize the handler.
 
@@ -102,8 +102,6 @@ class VirtualMachineHandler(Iface):
         self.AUTH_URL = os.environ['OS_AUTH_URL']
         self.SSH_PORT = 22
 
-        fileDir = os.path.dirname(os.path.abspath(__file__))
-        config = os.path.join(fileDir, 'config/config.yml')
         with open(config, 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_GATEWAY = cfg['openstack_connection']['use_gateway']

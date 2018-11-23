@@ -15,25 +15,19 @@ from thrift.server import TServer
 import yaml
 import click
 
-DEFAULT_CONFIG = 'config/config.yml'
 @click.command()
-@click.option('--config', default=DEFAULT_CONFIG,help= 'path to the config file')
+@click.argument('config')
 def startServer(config):
     click.echo("Start Cloud-Client-Portal Server")
-    if config == DEFAULT_CONFIG:
-        CONFIG_FILE = os.path.join(
-            os.path.dirname(
-                os.path.abspath(__file__)),
-            config)
-    else:
-        CONFIG_FILE=config
+
+    CONFIG_FILE=config
 
     with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
         CERTFILE = cfg['openstack_connection']['certfile']
-    handler = VirtualMachineHandler()
+    handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
     transport = TSSLSocket.TSSLServerSocket(
         host=HOST, port=PORT, certfile=CERTFILE)
