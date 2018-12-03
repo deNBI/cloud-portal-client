@@ -71,7 +71,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Connected to Openstack")
         return conn
 
-    def __init__(self):
+    def __init__(self,config):
         """
         Initialize the handler.
 
@@ -102,8 +102,6 @@ class VirtualMachineHandler(Iface):
         self.AUTH_URL = os.environ['OS_AUTH_URL']
         self.SSH_PORT = 22
 
-        fileDir = os.path.dirname(os.path.abspath(__file__))
-        config = os.path.join(fileDir, 'config/config.yml')
         with open(config, 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
             self.USE_GATEWAY = cfg['openstack_connection']['use_gateway']
@@ -581,7 +579,7 @@ class VirtualMachineHandler(Iface):
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
-                if self.USE_G:
+                if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
                     host = str(self.GATEWAY_IP)
@@ -630,7 +628,7 @@ class VirtualMachineHandler(Iface):
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
                 port = int(self.GATEWAY_BASE) + int(server_base) * 3
-                return {'IP': str(self.GATEWAY_IPs), 'PORT': str(port)}
+                return {'IP': str(self.GATEWAY_IP), 'PORT': str(port)}
 
             else:
                 floating_ip = self.get_server(openstack_id).floating_ip
