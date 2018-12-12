@@ -21,8 +21,9 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can configure your client either by placing the config.yml in the VirtualMachineService/config folder or by providing the --config parameter when the client starts.
 You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
+Also you need to provide the path to your config file as the first param when starting a server.
+
 
 ##### Gateway
 
@@ -58,7 +59,7 @@ pip install git+https://github.com/deNBI/cloud-portal-client.git
 If you set your configuration you can start the portal-client:
 
  ~~~BASH
-portal_client_start_server --config=path/to/config.yml
+portal_client_start_server path/to/config.yml
 ~~~
 
 ### Using Docker
