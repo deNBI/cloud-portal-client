@@ -4,7 +4,7 @@ openstack_connection:
     port: 9090
     # Gateway Port and IP
     gateway_base: 30000
-    gateway_ip: 172.21.40.14
+    gateway_ip: 172.21.40.72
     # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
     use_gateway: True
     set_password: False

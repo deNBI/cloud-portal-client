@@ -10,11 +10,7 @@ from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplica
 from thrift.protocol.TProtocol import TProtocolException
 import sys
 import logging
-try:
-    from ttypes import *
-except Exception:
-    from .ttypes import *
-
+from ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
 
@@ -69,6 +65,16 @@ class Iface(object):
         """
         Get Images.
         Returns: List of Image instances.
+        """
+        pass
+
+    def get_Image_with_Tag(self, openstack_id):
+        """
+        Get an image with tag.
+        Returns: Image with tag.
+
+        Parameters:
+         - openstack_id
         """
         pass
 
@@ -171,7 +177,7 @@ class Iface(object):
          - openstack_id: Id of the server
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-         - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
+         - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
         """
         pass
 
@@ -482,6 +488,40 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_Images failed: unknown result")
+
+    def get_Image_with_Tag(self, openstack_id):
+        """
+        Get an image with tag.
+        Returns: Image with tag.
+
+        Parameters:
+         - openstack_id
+        """
+        self.send_get_Image_with_Tag(openstack_id)
+        return self.recv_get_Image_with_Tag()
+
+    def send_get_Image_with_Tag(self, openstack_id):
+        self._oprot.writeMessageBegin('get_Image_with_Tag', TMessageType.CALL, self._seqid)
+        args = get_Image_with_Tag_args()
+        args.openstack_id = openstack_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_get_Image_with_Tag(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = get_Image_with_Tag_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_Image_with_Tag failed: unknown result")
 
     def delete_server(self, openstack_id):
         """
@@ -817,7 +857,7 @@ class Client(Iface):
          - openstack_id: Id of the server
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-         - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
+         - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
         """
         self.send_create_snapshot(openstack_id, name, elixir_id, base_tag)
         return self.recv_create_snapshot()
@@ -1231,6 +1271,7 @@ class Processor(Iface, TProcessor):
         self._processMap["get_IP_PORT"] = Processor.process_get_IP_PORT
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
+        self._processMap["get_Image_with_Tag"] = Processor.process_get_Image_with_Tag
         self._processMap["delete_server"] = Processor.process_delete_server
         self._processMap["add_metadata_to_server"] = Processor.process_add_metadata_to_server
         self._processMap["delete_metadata_from_server"] = Processor.process_delete_metadata_from_server
@@ -1376,6 +1417,25 @@ class Processor(Iface, TProcessor):
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("get_Images", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_get_Image_with_Tag(self, seqid, iprot, oprot):
+        args = get_Image_with_Tag_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = get_Image_with_Tag_result()
+        try:
+            result.success = self._handler.get_Image_with_Tag(args.openstack_id)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("get_Image_with_Tag", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -2500,6 +2560,126 @@ class get_Images_result(object):
             for iter45 in self.success:
                 iter45.write(oprot)
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class get_Image_with_Tag_args(object):
+    """
+    Attributes:
+     - openstack_id
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
+    )
+
+    def __init__(self, openstack_id=None,):
+        self.openstack_id = openstack_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('get_Image_with_Tag_args')
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class get_Image_with_Tag_result(object):
+    """
+    Attributes:
+     - success
+    """
+
+    thrift_spec = (
+        (0, TType.STRUCT, 'success', (Image, Image.thrift_spec), None, ),  # 0
+    )
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = Image()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('get_Image_with_Tag_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -3879,7 +4059,7 @@ class create_snapshot_args(object):
      - openstack_id: Id of the server
      - name: Name of new Snapshot
      - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-     - base_tag: Tag with which the servers image is also taged ( for connection information at the webapp)
+     - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
     """
 
     thrift_spec = (
