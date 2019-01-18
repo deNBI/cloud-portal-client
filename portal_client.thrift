@@ -209,6 +209,12 @@ service VirtualMachineService {
 	 */
 	list<Image> get_Images()
 
+	/**
+	 * Get an image with tag.
+	 * Returns: Image with tag.
+	 */
+	Image get_Image_with_Tag(1:string openstack_id)
+
 
 	 /**
 	  * Delete server.

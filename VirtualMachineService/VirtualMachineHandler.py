@@ -212,6 +212,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Version of Client: {}".format(VERSION))
         return str(VERSION)
 
+
     def get_Images(self):
         """
         Get Images.
@@ -649,6 +650,7 @@ class VirtualMachineHandler(Iface):
         :param base_tag: Tag with which the servers image is also tagged
         :return: Id of the new Snapshot
         """
+        self.logger.info(base_tag)
         self.logger.info(
             'Create Snapshot from Instance {0} with name {1} for {2}'.format(
                 openstack_id, name, elixir_id))
