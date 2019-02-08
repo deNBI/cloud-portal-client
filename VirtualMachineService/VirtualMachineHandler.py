@@ -321,7 +321,11 @@ class VirtualMachineHandler(Iface):
         floating_ip = None
         fixed_ip = None
         self.logger.info("Get Server {0}".format(openstack_id))
-        server = self.conn.compute.get_server(openstack_id)
+        try:
+            server = self.conn.compute.get_server(openstack_id)
+        except Exception as e:
+            self.logger.error("No Server found {0} | Error {1}".format(openstack_id,e))
+            return  VM(status='DELETED')
         if server is None:
             self.logger.error("No Server  {0}".format(openstack_id))
             raise serverNotFoundException(
