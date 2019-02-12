@@ -345,9 +345,16 @@ class VirtualMachineHandler(Iface):
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-
-        flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
-        img = self.get_Image_with_Tag(serv['image']['id'])
+        try:
+            flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
+        except Exception as e:
+            self.logger.error(e)
+            flav=None
+        try:
+             img = self.get_Image_with_Tag(serv['image']['id'])
+        except Exception as e:
+            self.logger.error(e)
+            img = None
         for values in server.addresses.values():
             for address in values:
 
