@@ -209,7 +209,7 @@ class VirtualMachineHandler(Iface):
 
         :return: Version of the client.
         """
-        self.logger.info("Get Version of Client: {}".format(VERSION))
+        #self.logger.info("Get Version of Client: {}".format(VERSION))
         return str(VERSION)
 
 
@@ -531,6 +531,9 @@ class VirtualMachineHandler(Iface):
 
                 status = conn.block_storage.get_volume(
                     volume).to_dict()['status']
+                self.logger.info("Volume {} Status:{}".format(volume_id,status))
+                if status =='in-use':
+                    return False
 
                 if status != 'available':
 
@@ -538,29 +541,30 @@ class VirtualMachineHandler(Iface):
                 else:
                     done = True
                     time.sleep(2)
-            return volume
+            return True
 
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
             self.logger.error("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(
                 Reason='No Server {0}'.format(openstack_id))
-        checkStatusVolume(volume_id, self.conn)
+        if checkStatusVolume(volume_id, self.conn):
 
-        self.logger.info(
-            'Attaching volume {0} to virtualmachine {1}'.format(
-                volume_id, openstack_id))
-        try:
-            self.conn.compute.create_volume_attachment(
-                server=server, volumeId=volume_id)
-        except Exception as e:
-            self.logger.error(
-                'Trying to attache volume {0} to vm {1} error : {2}'.format(
-                    volume_id, openstack_id, e), exc_info=True)
-            self.logger.info("Delete Volume  {0}".format(volume_id))
-            self.conn.block_storage.delete_volume(volume=volume_id)
-            return False
+            self.logger.info(
+                'Attaching volume {0} to virtualmachine {1}'.format(
+                    volume_id, openstack_id))
+            try:
+                self.conn.compute.create_volume_attachment(
+                    server=server, volumeId=volume_id)
+            except Exception as e:
+                self.logger.error(
+                    'Trying to attache volume {0} to vm {1} error : {2}'.format(
+                        volume_id, openstack_id, e), exc_info=True)
+                self.logger.info("Delete Volume  {0}".format(volume_id))
+                self.conn.block_storage.delete_volume(volume=volume_id)
+                return False
 
+            return True
         return True
 
     def check_server_status(self, openstack_id, diskspace, volume_id):
@@ -643,7 +647,7 @@ class VirtualMachineHandler(Iface):
                 return {'IP': str(self.GATEWAY_IP), 'PORT': str(port)}
 
             else:
-                floating_ip = self.get_server(openstack_id).floating_ip
+                floating_ip = self.get_server(openstack_id)
                 return {'IP': str(floating_ip)}
         except Exception as e:
             self.logger.error(
@@ -767,6 +771,7 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
+        return True
 
         with closing(
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:

@@ -14,6 +14,8 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 import yaml
 import click
+import socket
+from contextlib import closing
 
 @click.command()
 @click.argument('config')
@@ -40,4 +42,8 @@ def startServer(config):
 
 
 if __name__ == '__main__':
+    with closing(
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        r = sock.connect_ex(('129.70.51.6', 30072))
+        print(r)
     startServer()
