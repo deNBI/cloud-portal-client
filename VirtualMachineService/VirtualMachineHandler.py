@@ -771,7 +771,6 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
-        return True
 
         with closing(
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
