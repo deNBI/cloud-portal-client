@@ -31,6 +31,7 @@ from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
+from openstack.network.v2.security_group_rule import SecurityGroupRule
 import socket
 from contextlib import closing
 import urllib
@@ -71,7 +72,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Connected to Openstack")
         return conn
 
-    def __init__(self,config):
+    def __init__(self, config):
         """
         Initialize the handler.
 
@@ -165,7 +166,6 @@ class VirtualMachineHandler(Iface):
         flavors = list()
         try:
             for flav in (list(self.conn.list_flavors(get_extra=True))):
-
                 flavor = Flavor(
                     vcpus=flav['vcpus'],
                     ram=flav['ram'],
@@ -209,9 +209,8 @@ class VirtualMachineHandler(Iface):
 
         :return: Version of the client.
         """
-        #self.logger.info("Get Version of Client: {}".format(VERSION))
+        # self.logger.info("Get Version of Client: {}".format(VERSION))
         return str(VERSION)
-
 
     def get_Images(self):
         """
@@ -324,8 +323,8 @@ class VirtualMachineHandler(Iface):
         try:
             server = self.conn.compute.get_server(openstack_id)
         except Exception as e:
-            self.logger.error("No Server found {0} | Error {1}".format(openstack_id,e))
-            return  VM(status='DELETED')
+            self.logger.error("No Server found {0} | Error {1}".format(openstack_id, e))
+            return VM(status='DELETED')
         if server is None:
             self.logger.error("No Server  {0}".format(openstack_id))
             raise serverNotFoundException(
@@ -349,9 +348,9 @@ class VirtualMachineHandler(Iface):
             flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
         except Exception as e:
             self.logger.error(e)
-            flav=None
+            flav = None
         try:
-             img = self.get_Image_with_Tag(serv['image']['id'])
+            img = self.get_Image_with_Tag(serv['image']['id'])
         except Exception as e:
             self.logger.error(e)
             img = None
@@ -524,6 +523,7 @@ class VirtualMachineHandler(Iface):
         :param volume_id: Id of volume
         :return: True if attached, False if not
         """
+
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
@@ -531,8 +531,8 @@ class VirtualMachineHandler(Iface):
 
                 status = conn.block_storage.get_volume(
                     volume).to_dict()['status']
-                self.logger.info("Volume {} Status:{}".format(volume_id,status))
-                if status =='in-use':
+                self.logger.info("Volume {} Status:{}".format(volume_id, status))
+                if status == 'in-use':
                     return False
 
                 if status != 'available':
@@ -850,6 +850,7 @@ class VirtualMachineHandler(Iface):
         :param volume_id: Id of the volume
         :return: True if deleted, False if not
         """
+
         def checkStatusVolume(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
@@ -958,6 +959,42 @@ class VirtualMachineHandler(Iface):
                 "Resume Server {0} error:".format(
                     openstack_id, e))
             return False
+
+    def create_security_group(self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False):
+        new_security_group = self.conn.network.create_security_group(name=name)
+        if http:
+            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=80,
+                                                         port_range_min=80, security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
+                                                         port_range_max=80, port_range_min=80,
+                                                         security_group_id=new_security_group['id'])
+
+        if https:
+            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=443,
+                                                         port_range_min=443, security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
+                                                         port_range_max=443, port_range_min=443,
+                                                         security_group_id=new_security_group['id'])
+        if udp:
+            self.conn.network.create_security_group_rule(direction='ingress', protocol='udp',
+                                                         port_range_max=udp_port_start + 9,
+                                                         port_range_min=udp_port_start,
+                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='udp',
+                                                         port_range_max=udp_port_start + 9,
+                                                         port_range_min=udp_port_start,
+                                                         security_group_id=new_security_group['id'])
+        if ssh:
+            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp',
+                                                         port_range_max=22,
+                                                         port_range_min=22,
+                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
+                                                         port_range_max=22,
+                                                         port_range_min=22,
+                                                         security_group_id=new_security_group['id'])
+
+        return
 
     def get_limits(self):
         """
