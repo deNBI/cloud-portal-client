@@ -297,17 +297,17 @@ service VirtualMachineService {
     6:string diskspace,
 
     /** Name of additional Volume*/
-    7:string volumename)
+    7:string volumename,
 
 
     /** If http ports are open*/
-    8:boolean http,
+    8:bool http,
 
     /** If https ports are open*/
-    9:boolean https,
+    9:bool https,
 
     /** If udp ports are open*/
-    10:boolean udp
+    10:bool udp)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
 

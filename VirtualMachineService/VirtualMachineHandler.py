@@ -115,6 +115,7 @@ class VirtualMachineHandler(Iface):
             if self.USE_GATEWAY:
                 self.GATEWAY_BASE = cfg['openstack_connection']['gateway_base']
                 self.GATEWAY_IP = cfg['openstack_connection']['gateway_ip']
+                self.UDP_BASE =cfg['openstack_connection']['udp_port']
 
         self.conn = self.create_connection()
 
@@ -485,8 +486,16 @@ class VirtualMachineHandler(Iface):
                     networks=[{"uuid": network.id}], key_name=keypair.name,
                     metadata=metadata)
 
+            openstack_id = server.to_dict()['id']
+            udp_port_start = server.fixed_ip.split(".")[-1] * 10 + self.UDP_BASE
+
+            security_group = self.create_security_group(name=openstack_id, udp_port_start=udp_port_start, udp=udp,
+                                                        ssh=True, https=https,
+                                                        http=http)
+            self.conn.add_security_group_to_server(server=server, security_group=security_group)
+
             return {
-                'openstackid': server.to_dict()['id'],
+                'openstackid': openstack_id,
                 'volumeId': volumeId}
         except Exception as e:
             self.logger.error(
@@ -771,8 +780,6 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
-        return True
-
         with closing(
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             r = sock.connect_ex((host, port))
@@ -1003,7 +1010,7 @@ class VirtualMachineHandler(Iface):
                                                          port_range_min=22,
                                                          security_group_id=new_security_group['id'])
 
-        return True
+        return new_security_group
 
     def get_limits(self):
         """
