@@ -3,9 +3,12 @@ import sys
 
 try:
     from VirtualMachineService import Client, Processor
-    from VirtualMachineHandler import VirtualMachineHandler
-except Exception as e:
+except Exception:
     from .VirtualMachineService import Client, Processor
+
+try:
+    from VirtualMachineHandler import VirtualMachineHandler
+except Exception:
     from .VirtualMachineHandler import VirtualMachineHandler
 
 from thrift.transport import TSSLSocket
@@ -60,8 +63,9 @@ def check_environment_variables(envs):
     def check_env(var):
         if var not in os.environ:
             click.echo("ERROR: There is no {} set in environment.".format(var))
-            click.echo("Please make sure you have sourced your openstack rc file")
+            click.echo("Please make sure you have sourced your OpenStack rc file")
             sys.exit()
+
     list(map(lambda var: check_env(var), envs))
 
 

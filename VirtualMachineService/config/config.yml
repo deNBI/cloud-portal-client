@@ -8,7 +8,7 @@ openstack_connection:
   # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
   use_gateway: True
 
-  udp_base:30000
+  udp_base: 30000
 
   set_password: False
   # network where the project is located

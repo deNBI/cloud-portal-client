@@ -31,7 +31,6 @@ from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
 from keystoneclient.v3 import client
-from openstack.network.v2.security_group_rule import SecurityGroupRule
 import socket
 from contextlib import closing
 import urllib
@@ -61,13 +60,14 @@ class VirtualMachineHandler(Iface):
                 auth_url=self.AUTH_URL,
                 project_name=self.PROJECT_NAME,
                 user_domain_name=self.USER_DOMAIN_NAME,
-                project_domain_name='default')
+                project_domain_name="default",
+            )
             conn.authorize()
         except Exception as e:
-            self.logger.error(
-                'Client failed authentication at Openstack : {0}', e)
+            self.logger.error("Client failed authentication at Openstack : {0}", e)
             raise authenticationException(
-                Reason='Client failed authentication at Openstack')
+                Reason="Client failed authentication at Openstack"
+            )
 
         self.logger.info("Connected to Openstack")
         return conn
@@ -82,44 +82,45 @@ class VirtualMachineHandler(Iface):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
-        self.fh = logging.FileHandler('debug.log')
+        self.fh = logging.FileHandler("debug.log")
         self.fh.setLevel(logging.DEBUG)
         # create console handler with a higher log level
         self.ch = logging.StreamHandler()
         self.ch.setLevel(logging.INFO)
         # create formatter and add it to the handlers
         self.formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         self.fh.setFormatter(self.formatter)
         self.ch.setFormatter(self.formatter)
         # add the handlers to the logger
         self.logger.addHandler(self.fh)
         self.logger.addHandler(self.ch)
-        self.USERNAME = os.environ['OS_USERNAME']
-        self.PASSWORD = os.environ['OS_PASSWORD']
-        self.PROJECT_NAME = os.environ['OS_PROJECT_NAME']
-        self.PROJECT_ID = os.environ['OS_PROJECT_ID']
-        self.USER_DOMAIN_NAME = os.environ['OS_USER_DOMAIN_NAME']
-        self.AUTH_URL = os.environ['OS_AUTH_URL']
+        self.USERNAME = os.environ["OS_USERNAME"]
+        self.PASSWORD = os.environ["OS_PASSWORD"]
+        self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
+        self.PROJECT_ID = os.environ["OS_PROJECT_ID"]
+        self.USER_DOMAIN_NAME = os.environ["OS_USER_DOMAIN_NAME"]
+        self.AUTH_URL = os.environ["OS_AUTH_URL"]
         self.SSH_PORT = 22
 
-        with open(config, 'r') as ymlfile:
+        with open(config, "r") as ymlfile:
             cfg = yaml.load(ymlfile)
-            self.USE_GATEWAY = cfg['openstack_connection']['use_gateway']
-            self.NETWORK = cfg['openstack_connection']['network']
-            self.FLOATING_IP_NETWORK = cfg['openstack_connection'][
-                'floating_ip_network']
-            self.AVAIALABILITY_ZONE = cfg['openstack_connection'][
-                'availability_zone']
+            self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
+            self.NETWORK = cfg["openstack_connection"]["network"]
+            self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
+                "floating_ip_network"
+            ]
+            self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             if self.USE_GATEWAY:
-                self.GATEWAY_BASE = cfg['openstack_connection']['gateway_base']
-                self.GATEWAY_IP = cfg['openstack_connection']['gateway_ip']
-                self.UDP_BASE =cfg['openstack_connection']['udp_port']
+                self.GATEWAY_BASE = cfg["openstack_connection"]["gateway_base"]
+                self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
+                self.UDP_BASE = cfg["openstack_connection"]["udp_base"]
 
         self.conn = self.create_connection()
 
-    @deprecated(version='1.0.0', reason="Not supported at the moment")
+    @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
         """
         Set the password of a user.
@@ -128,21 +129,22 @@ class VirtualMachineHandler(Iface):
         :param password: The new password.
         :return: The new password
         """
-        if str(self.SET_PASSWORD) == 'True':
+        if str(self.SET_PASSWORD) == "True":
             try:
                 auth = v3.Password(
                     auth_url=self.AUTH_URL,
                     username=self.USERNAME,
                     password=self.PASSWORD,
                     project_name=self.PROJECT_NAME,
-                    user_domain_id='default',
-                    project_domain_id='default')
+                    user_domain_id="default",
+                    project_domain_id="default",
+                )
                 sess = session.Session(auth=auth)
 
                 def findUser(keystone, name):
                     users = keystone.users.list()
                     for user in users:
-                        if user.__dict__['name'] == name:
+                        if user.__dict__["name"] == name:
                             return user
 
                 keystone = client.Client(session=sess)
@@ -151,11 +153,11 @@ class VirtualMachineHandler(Iface):
                 return password
             except Exception as e:
                 self.logger.error(
-                    "Set Password for user {0} failed : {1}".format(
-                        user, str(e)))
+                    "Set Password for user {0} failed : {1}".format(user, str(e))
+                )
                 return otherException(Reason=str(e))
         else:
-            raise otherException(Reason='Not allowed')
+            raise otherException(Reason="Not allowed")
 
     def get_Flavors(self):
         """
@@ -166,14 +168,15 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Flavors")
         flavors = list()
         try:
-            for flav in (list(self.conn.list_flavors(get_extra=True))):
+            for flav in list(self.conn.list_flavors(get_extra=True)):
                 flavor = Flavor(
-                    vcpus=flav['vcpus'],
-                    ram=flav['ram'],
-                    disk=flav['disk'],
-                    name=flav['name'],
-                    openstack_id=flav['id'],
-                    tags=list(flav['extra_specs'].keys()))
+                    vcpus=flav["vcpus"],
+                    ram=flav["ram"],
+                    disk=flav["disk"],
+                    name=flav["name"],
+                    openstack_id=flav["id"],
+                    tags=list(flav["extra_specs"].keys()),
+                )
 
                 flavors.append(flavor)
             return flavors
@@ -182,8 +185,9 @@ class VirtualMachineHandler(Iface):
             return ()
 
     @deprecated(
-        version='1.0.0',
-        reason="Vers. of Denbi API Client and Portalclient won't be compared")
+        version="1.0.0",
+        reason="Vers. of Denbi API Client and Portalclient won't be compared",
+    )
     def check_Version(self, version):
         """
         Compare Version.
@@ -193,8 +197,8 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info(
             "Compare Version : Server Version = {0} "
-            "|| Client Version = {1}".format(
-                VERSION, version))
+            "|| Client Version = {1}".format(VERSION, version)
+        )
         try:
             if version == VERSION:
                 return True
@@ -223,27 +227,29 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                    lambda x: 'tags' in x and len(
-                        x['tags']) > 0 and x['status'] == 'active',
-                    self.conn.list_images()):
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active",
+                    self.conn.list_images(),
+            ):
 
-                metadata = img['metadata']
-                description = metadata.get('description')
-                tags = img.get('tags')
+                metadata = img["metadata"]
+                description = metadata.get("description")
+                tags = img.get("tags")
                 if description is None:
-                    self.logger.warning(
-                        "No Description and  for " + img['name'])
+                    self.logger.warning("No Description and  for " + img["name"])
 
                 image = Image(
-                    name=img['name'],
-                    min_disk=img['min_disk'],
-                    min_ram=img['min_ram'],
-                    status=img['status'],
-                    created_at=img['created_at'],
-                    updated_at=img['updated_at'],
-                    openstack_id=img['id'],
+                    name=img["name"],
+                    min_disk=img["min_disk"],
+                    min_ram=img["min_ram"],
+                    status=img["status"],
+                    created_at=img["created_at"],
+                    updated_at=img["updated_at"],
+                    openstack_id=img["id"],
                     description=description,
-                    tag=tags)
+                    tag=tags,
+                )
                 images.append(image)
 
             return images
@@ -261,25 +267,24 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Image {0} with tags".format(id))
         try:
             images = self.conn.list_images()
-            img = list(filter(lambda image: image['id'] == id, images))[0]
-            metadata = img['metadata']
-            description = metadata.get('description')
-            tags = img.get('tags')
+            img = list(filter(lambda image: image["id"] == id, images))[0]
+            metadata = img["metadata"]
+            description = metadata.get("description")
+            tags = img.get("tags")
             image = Image(
-                name=img['name'],
-                min_disk=img['min_disk'],
-                min_ram=img['min_ram'],
-                status=img['status'],
-                created_at=img['created_at'],
-                updated_at=img['updated_at'],
-                openstack_id=img['id'],
+                name=img["name"],
+                min_disk=img["min_disk"],
+                min_ram=img["min_ram"],
+                status=img["status"],
+                created_at=img["created_at"],
+                updated_at=img["updated_at"],
+                openstack_id=img["id"],
                 description=description,
-                tag=tags)
+                tag=tags,
+            )
             return image
         except Exception as e:
-            self.logger.error(
-                "Get Image {0} with Tag Error: {1}".format(
-                    id, e))
+            self.logger.error("Get Image {0} with Tag Error: {1}".format(id, e))
             return
 
     def import_keypair(self, keyname, public_key):
@@ -296,19 +301,19 @@ class VirtualMachineHandler(Iface):
                 self.logger.info("Create Keypair {0}".format(keyname))
 
                 keypair = self.conn.compute.create_keypair(
-                    name=keyname, public_key=public_key)
+                    name=keyname, public_key=public_key
+                )
                 return keypair
             elif keypair.public_key != public_key:
                 self.logger.info("Key has changed. Replace old Key")
                 self.conn.compute.delete_keypair(keypair)
                 keypair = self.conn.compute.create_keypair(
-                    name=keyname, public_key=public_key)
+                    name=keyname, public_key=public_key
+                )
                 return keypair
             return keypair
         except Exception as e:
-            self.logger.error(
-                'Import Keypair {0} error:{1}'.format(
-                    keyname, e))
+            self.logger.error("Import Keypair {0} error:{1}".format(keyname, e))
             return
 
     def get_server(self, openstack_id):
@@ -325,81 +330,84 @@ class VirtualMachineHandler(Iface):
             server = self.conn.compute.get_server(openstack_id)
         except Exception as e:
             self.logger.error("No Server found {0} | Error {1}".format(openstack_id, e))
-            return VM(status='DELETED')
+            return VM(status="DELETED")
         if server is None:
             self.logger.error("No Server  {0}".format(openstack_id))
-            raise serverNotFoundException(
-                Reason="No Server {0}".format(openstack_id))
+            raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
         serv = server.to_dict()
 
-        if serv['attached_volumes']:
-            volume_id = serv['attached_volumes'][0]['id']
-            diskspace = self.conn.block_storage.get_volume(
-                volume_id).to_dict()['size']
+        if serv["attached_volumes"]:
+            volume_id = serv["attached_volumes"][0]["id"]
+            diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
         else:
 
             diskspace = 0
-        if serv['launched_at']:
+        if serv["launched_at"]:
             dt = datetime.datetime.strptime(
-                serv['launched_at'][:-7], '%Y-%m-%dT%H:%M:%S')
+                serv["launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
+            )
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
         try:
-            flav = self.conn.compute.get_flavor(serv['flavor']['id']).to_dict()
+            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
         except Exception as e:
             self.logger.error(e)
             flav = None
         try:
-            img = self.get_Image_with_Tag(serv['image']['id'])
+            img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
             self.logger.error(e)
             img = None
         for values in server.addresses.values():
             for address in values:
 
-                if address['OS-EXT-IPS:type'] == 'floating':
-                    floating_ip = address['addr']
-                elif address['OS-EXT-IPS:type'] == 'fixed':
-                    fixed_ip = address['addr']
+                if address["OS-EXT-IPS:type"] == "floating":
+                    floating_ip = address["addr"]
+                elif address["OS-EXT-IPS:type"] == "fixed":
+                    fixed_ip = address["addr"]
 
         if floating_ip:
             server = VM(
                 flav=Flavor(
-                    vcpus=flav['vcpus'],
-                    ram=flav['ram'],
-                    disk=flav['disk'],
-                    name=flav['name'],
-                    openstack_id=flav['id']),
+                    vcpus=flav["vcpus"],
+                    ram=flav["ram"],
+                    disk=flav["disk"],
+                    name=flav["name"],
+                    openstack_id=flav["id"],
+                ),
                 img=img,
-                status=serv['status'],
-                metadata=serv['metadata'],
-                project_id=serv['project_id'],
-                keyname=serv['key_name'],
-                openstack_id=serv['id'],
-                name=serv['name'],
+                status=serv["status"],
+                metadata=serv["metadata"],
+                project_id=serv["project_id"],
+                keyname=serv["key_name"],
+                openstack_id=serv["id"],
+                name=serv["name"],
                 created_at=str(timestamp),
                 floating_ip=floating_ip,
                 fixed_ip=fixed_ip,
-                diskspace=diskspace)
+                diskspace=diskspace,
+            )
         else:
             server = VM(
                 flav=Flavor(
-                    vcpus=flav['vcpus'],
-                    ram=flav['ram'],
-                    disk=flav['disk'],
-                    name=flav['name'],
-                    openstack_id=flav['id']),
+                    vcpus=flav["vcpus"],
+                    ram=flav["ram"],
+                    disk=flav["disk"],
+                    name=flav["name"],
+                    openstack_id=flav["id"],
+                ),
                 img=img,
-                status=serv['status'],
-                metadata=serv['metadata'],
-                project_id=serv['project_id'],
-                keyname=serv['key_name'],
-                openstack_id=serv['id'],
-                name=serv['name'],
+                status=serv["status"],
+                metadata=serv["metadata"],
+                project_id=serv["project_id"],
+                keyname=serv["key_name"],
+                openstack_id=serv["id"],
+                name=serv["name"],
                 created_at=str(timestamp),
                 fixed_ip=fixed_ip,
-                diskspace=diskspace)
+                diskspace=diskspace,
+            )
         return server
 
     def start_server(
@@ -410,7 +418,8 @@ class VirtualMachineHandler(Iface):
             servername,
             elixir_id,
             diskspace,
-            volumename, http, https, udp):
+            volumename,
+    ):
         """
         Start a new Server.
 
@@ -423,84 +432,83 @@ class VirtualMachineHandler(Iface):
         :param volumename: Name of the volume
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volumeId = ''
+        volumeId = ""
         self.logger.info("Start Server {0}".format(servername))
         try:
-            metadata = {'elixir_id': elixir_id}
+            metadata = {"elixir_id": elixir_id}
             image = self.conn.compute.find_image(image)
             if image is None:
-                self.logger.error('Image {0} not found!'.format(image))
+                self.logger.error("Image {0} not found!".format(image))
                 raise imageNotFoundException(
-                    Reason=('Image {0} not fournd'.format(image)))
+                    Reason=("Image {0} not fournd".format(image))
+                )
             flavor = self.conn.compute.find_flavor(flavor)
             if flavor is None:
-                self.logger.error('Flavor {0} not found!'.format(flavor))
+                self.logger.error("Flavor {0} not found!".format(flavor))
                 raise flavorNotFoundException(
-                    Reason='Flavor {0} not found!'.format(flavor))
+                    Reason="Flavor {0} not found!".format(flavor)
+                )
             network = self.conn.network.find_network(self.NETWORK)
             if network is None:
-                self.logger.error('Network {0} not found!'.format(network))
+                self.logger.error("Network {0} not found!".format(network))
                 raise networkNotFoundException(
-                    Reason='Network {0} not found!'.format(network))
+                    Reason="Network {0} not found!".format(network)
+                )
 
             keyname = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
             keypair = self.import_keypair(keyname, public_key)
 
-            if diskspace > '0':
+            if diskspace > "0":
                 self.logger.info(
-                    'Creating volume with {0} GB diskspace'.format(diskspace))
+                    "Creating volume with {0} GB diskspace".format(diskspace)
+                )
                 try:
                     volume = self.conn.block_storage.create_volume(
-                        name=volumename, size=int(diskspace)).to_dict()
+                        name=volumename, size=int(diskspace)
+                    ).to_dict()
                 except Exception as e:
                     self.logger.error(
-                        'Trying to create volume with {0}'
-                        ' GB for vm {1} error : {2}'.format(
-                            diskspace, servername, e), exc_info=True)
+                        "Trying to create volume with {0}"
+                        " GB for vm {1} error : {2}".format(diskspace, servername, e),
+                        exc_info=True,
+                    )
                     raise ressourceException(Reason=str(e))
-                volumeId = volume['id']
+                volumeId = volume["id"]
 
                 fileDir = os.path.dirname(os.path.abspath(__file__))
-                mount_script = os.path.join(fileDir, 'scripts/bash/mount.sh')
-                with open(mount_script, 'r') as file:
+                mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+                with open(mount_script, "r") as file:
                     text = file.read()
-                    text = text.replace('VOLUMEID', 'virtio-' + volumeId[0:20])
-                    text = encodeutils.safe_encode(text.encode('utf-8'))
-                init_script = base64.b64encode(text).decode('utf-8')
+                    text = text.replace("VOLUMEID", "virtio-" + volumeId[0:20])
+                    text = encodeutils.safe_encode(text.encode("utf-8"))
+                init_script = base64.b64encode(text).decode("utf-8")
 
                 server = self.conn.compute.create_server(
                     name=servername,
                     image_id=image.id,
                     flavor_id=flavor.id,
-                    networks=[
-                        {
-                            "uuid": network.id}],
+                    networks=[{"uuid": network.id}],
                     key_name=keypair.name,
                     metadata=metadata,
                     user_data=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE)
+                    availability_zone=self.AVAIALABILITY_ZONE,
+                )
             else:
                 server = self.conn.compute.create_server(
-                    name=servername, image_id=image.id, flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}], key_name=keypair.name,
-                    metadata=metadata)
+                    name=servername,
+                    image_id=image.id,
+                    flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}],
+                    key_name=keypair.name,
+                    metadata=metadata,
+                )
 
-            openstack_id = server.to_dict()['id']
-            udp_port_start = server.fixed_ip.split(".")[-1] * 10 + self.UDP_BASE
+            openstack_id = server.to_dict()["id"]
 
-            security_group = self.create_security_group(name=openstack_id, udp_port_start=udp_port_start, udp=udp,
-                                                        ssh=True, https=https,
-                                                        http=http)
-            self.conn.add_security_group_to_server(server=server, security_group=security_group)
-
-            return {
-                'openstackid': openstack_id,
-                'volumeId': volumeId}
+            return {"openstackid": openstack_id, "volumeId": volumeId}
         except Exception as e:
-            self.logger.error(
-                'Start Server {1} error:{0}'.format(
-                    e, servername))
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
     def create_volume(self, volume_name, diskspace):
@@ -511,17 +519,18 @@ class VirtualMachineHandler(Iface):
         :param diskspace: Diskspace in GB for new volume
         :return: Id of new volume
         """
-        self.logger.info(
-            'Creating volume with {0} GB diskspace'.format(diskspace))
+        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
         try:
             volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace)).to_dict()
-            volumeId = volume['id']
+                name=volume_name, size=int(diskspace)
+            ).to_dict()
+            volumeId = volume["id"]
             return volumeId
         except Exception as e:
             self.logger.error(
-                'Trying to create volume with {0} GB  error : {1}'.format(
-                    diskspace, e), exc_info=True)
+                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
+                exc_info=True,
+            )
             raise ressourceException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id, volume_id):
@@ -538,13 +547,12 @@ class VirtualMachineHandler(Iface):
             done = False
             while not done:
 
-                status = conn.block_storage.get_volume(
-                    volume).to_dict()['status']
+                status = conn.block_storage.get_volume(volume).to_dict()["status"]
                 self.logger.info("Volume {} Status:{}".format(volume_id, status))
-                if status == 'in-use':
+                if status == "in-use":
                     return False
 
-                if status != 'available':
+                if status != "available":
 
                     time.sleep(3)
                 else:
@@ -555,20 +563,25 @@ class VirtualMachineHandler(Iface):
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
             self.logger.error("No Server  {0} ".format(openstack_id))
-            raise serverNotFoundException(
-                Reason='No Server {0}'.format(openstack_id))
+            raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
         if checkStatusVolume(volume_id, self.conn):
 
             self.logger.info(
-                'Attaching volume {0} to virtualmachine {1}'.format(
-                    volume_id, openstack_id))
+                "Attaching volume {0} to virtualmachine {1}".format(
+                    volume_id, openstack_id
+                )
+            )
             try:
                 self.conn.compute.create_volume_attachment(
-                    server=server, volumeId=volume_id)
+                    server=server, volumeId=volume_id
+                )
             except Exception as e:
                 self.logger.error(
-                    'Trying to attache volume {0} to vm {1} error : {2}'.format(
-                        volume_id, openstack_id, e), exc_info=True)
+                    "Trying to attache volume {0} to vm {1} error : {2}".format(
+                        volume_id, openstack_id, e
+                    ),
+                    exc_info=True,
+                )
                 self.logger.info("Delete Volume  {0}".format(volume_id))
                 self.conn.block_storage.delete_volume(volume=volume_id)
                 return False
@@ -588,7 +601,7 @@ class VirtualMachineHandler(Iface):
         """
         # TODO: Remove diskspace param, if volume_id exist it can be attached
         # diskspace not need
-        self.logger.info('Check Status VM {0}'.format(openstack_id))
+        self.logger.info("Check Status VM {0}".format(openstack_id))
         try:
             server = self.conn.compute.get_server(openstack_id)
         except Exception:
@@ -600,7 +613,7 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv['status'] == 'ACTIVE':
+            if serv["status"] == "ACTIVE":
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
@@ -611,32 +624,52 @@ class VirtualMachineHandler(Iface):
                     port = int(self.GATEWAY_BASE) + int(server_base) * 3
                 elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(
-                        openstack_id, self.FLOATING_IP_NETWORK)
+                        openstack_id, self.FLOATING_IP_NETWORK
+                    )
                 if self.netcat(host, port):
                     if diskspace > 0:
                         attached = self.attach_volume_to_server(
-                            openstack_id=openstack_id, volume_id=volume_id)
+                            openstack_id=openstack_id, volume_id=volume_id
+                        )
 
                         if attached is False:
                             server = self.get_server(openstack_id)
                             self.delete_server(openstack_id=openstack_id)
-                            server.status = 'DESTROYED'
+                            server.status = "DESTROYED"
                             return server
                         return self.get_server(openstack_id)
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
-                    server.status = 'PORT_CLOSED'
+                    server.status = "PORT_CLOSED"
                     return server
             else:
                 server = self.get_server(openstack_id)
-                server.status = 'BUILD'
+                server.status = "BUILD"
                 return server
         except Exception as e:
-            self.logger.error(
-                'Check Status VM {0} error: {1}'.format(
-                    openstack_id, e))
+            self.logger.error("Check Status VM {0} error: {1}".format(openstack_id, e))
             return None
+
+    def add_security_group_to_server(self, http, https, udp, server_id):
+        ip_base = list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
+        self.logger.info(ip_base)
+
+        udp_port_start = int(ip_base) * 10 + int(self.UDP_BASE)
+
+        security_group = self.create_security_group(
+            name=server_id,
+            udp_port_start=udp_port_start,
+            udp=udp,
+            ssh=True,
+            https=https,
+            http=http,
+        )
+        self.conn.compute.add_security_group_to_server(
+            server=server_id, security_group=security_group
+        )
+
+        return True
 
     def get_IP_PORT(self, openstack_id):
         """
@@ -653,15 +686,16 @@ class VirtualMachineHandler(Iface):
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
                 port = int(self.GATEWAY_BASE) + int(server_base) * 3
-                return {'IP': str(self.GATEWAY_IP), 'PORT': str(port)}
+                return {"IP": str(self.GATEWAY_IP), "PORT": str(port)}
 
             else:
+                # todo security groups floating ips
                 floating_ip = self.get_server(openstack_id)
-                return {'IP': str(floating_ip)}
+                return {"IP": str(floating_ip)}
         except Exception as e:
             self.logger.error(
-                "Get IP and PORT for server {0} error:".format(
-                    openstack_id, e))
+                "Get IP and PORT for server {0} error:".format(openstack_id, e)
+            )
             return {}
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
@@ -674,29 +708,33 @@ class VirtualMachineHandler(Iface):
         :param base_tag: Tag with which the servers image is also tagged
         :return: Id of the new Snapshot
         """
-        self.logger.info(base_tag)
         self.logger.info(
-            'Create Snapshot from Instance {0} with name {1} for {2}'.format(
-                openstack_id, name, elixir_id))
+            "Create Snapshot from Instance {0} with name {1} for {2}".format(
+                openstack_id, name, elixir_id
+            )
+        )
 
         try:
             snapshot_munch = self.conn.create_image_snapshot(
-                server=openstack_id, name=name)
+                server=openstack_id, name=name
+            )
         except Exception:
             self.logger.error("Instance {0} not found".format(openstack_id))
             return
         try:
-            snapshot_id = snapshot_munch['id']
+            snapshot_id = snapshot_munch["id"]
             self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
             self.conn.image.add_tag(
-                image=snapshot_id,
-                tag='snapshot_image:{0}'.format(base_tag))
+                image=snapshot_id, tag="snapshot_image:{0}".format(base_tag)
+            )
             return snapshot_id
         except Exception as e:
             self.logger.error(
-                'Create Snapshot from Instance {0}'
-                ' with name {1} for {2} error : {3}'.format(
-                    openstack_id, name, elixir_id, e))
+                "Create Snapshot from Instance {0}"
+                " with name {1} for {2} error : {3}".format(
+                    openstack_id, name, elixir_id, e
+                )
+            )
             return
 
     def delete_image(self, image_id):
@@ -706,19 +744,18 @@ class VirtualMachineHandler(Iface):
         :param image_id: Id of the image
         :return: True if deleted, False if not
         """
-        self.logger.info('Delete Image {0}'.format(image_id))
+        self.logger.info("Delete Image {0}".format(image_id))
         try:
             image = self.conn.compute.get_image(image_id)
             if image is None:
-                self.logger.error('Image {0} not found!'.format(image))
+                self.logger.error("Image {0} not found!".format(image))
                 raise imageNotFoundException(
-                    Reason=('Image {0} not found'.format(image)))
+                    Reason=("Image {0} not found".format(image))
+                )
             self.conn.compute.delete_image(image)
             return True
         except Exception as e:
-            self.logger.error(
-                'Delete Image {0} error : {1}'.format(
-                    image_id, e))
+            self.logger.error("Delete Image {0} error : {1}".format(image_id, e))
             return False
 
     def add_floating_ip_to_server(self, openstack_id, network):
@@ -733,42 +770,45 @@ class VirtualMachineHandler(Iface):
 
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
-                self.logger.error(
-                    "Instance {0} not found".format(openstack_id))
+                self.logger.error("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
             self.logger.info("Checking if Server already got an Floating Ip")
             for values in server.addresses.values():
                 for address in values:
-                    if address['OS-EXT-IPS:type'] == 'floating':
-                        return address['addr']
+                    if address["OS-EXT-IPS:type"] == "floating":
+                        return address["addr"]
             self.logger.info("Checking if unused Floating-Ip exist")
 
             for floating_ip in self.conn.network.ips():
                 if not floating_ip.fixed_ip_address:
                     self.conn.compute.add_floating_ip_to_server(
-                        server, floating_ip.floating_ip_address)
+                        server, floating_ip.floating_ip_address
+                    )
                     self.logger.info(
                         "Adding existing Floating IP {0} to {1}".format(
-                            str(floating_ip.floating_ip_address),
-                            openstack_id))
+                            str(floating_ip.floating_ip_address), openstack_id
+                        )
+                    )
                     return str(floating_ip.floating_ip_address)
 
             networkID = self.conn.network.find_network(network)
             if networkID is None:
                 self.logger.error("Network " + network + " not found")
                 raise networkNotFoundException
-            networkID = networkID.to_dict()['id']
-            floating_ip = self.conn.network.create_ip(
-                floating_network_id=networkID)
+            networkID = networkID.to_dict()["id"]
+            floating_ip = self.conn.network.create_ip(floating_network_id=networkID)
             floating_ip = self.conn.network.get_ip(floating_ip)
             self.conn.compute.add_floating_ip_to_server(
-                server, floating_ip.floating_ip_address)
+                server, floating_ip.floating_ip_address
+            )
 
             return floating_ip
         except Exception as e:
             self.logger.error(
                 "Adding Floating IP to {0} with network {1} error:{2}".format(
-                    openstack_id, network, e))
+                    openstack_id, network, e
+                )
+            )
             return
 
     def netcat(self, host, port):
@@ -780,12 +820,11 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.logger.info("Checking SSH Connection {0}:{1}".format(host, port))
-        with closing(
-                socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             r = sock.connect_ex((host, port))
             self.logger.info(
-                "Checking SSH Connection {0}:{1} Result = {2}".format(
-                    host, port, r))
+                "Checking SSH Connection {0}:{1} Result = {2}".format(host, port, r)
+            )
             if r == 0:
                 return True
             else:
@@ -802,23 +841,25 @@ class VirtualMachineHandler(Iface):
         try:
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
-                self.logger.error(
-                    "Instance {0} not found".format(openstack_id))
+                self.logger.error("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
 
-            if server.status == 'SUSPENDED':
+            if server.status == "SUSPENDED":
                 self.conn.compute.resume_server(server)
                 server = self.conn.compute.get_server(server)
-                while server.status != 'ACTIVE':
-                    server = self.conn.compute.get_server(server)
-                    time.sleep(3)
+                self.conn.compute.wait_for_server(server=server,status='ACTIVE')
+            self.logger.info(server)
+            self.logger.info(server.name)
+            security_group=self.conn.network.find_security_group(name_or_id=openstack_id)
+            if security_group:
+                self.logger.info("Delete security group {}".format(openstack_id))
+                self.conn.compute.remove_security_group_from_server(server=server,security_group=security_group)
+                self.conn.network.delete_security_group(security_group)
             self.conn.compute.delete_server(server)
 
             return True
         except Exception as e:
-            self.logger.error(
-                "Delete Server {0} error: {1}".format(
-                    openstack_id, e))
+            self.logger.error("Delete Server {0} error: {1}".format(openstack_id, e))
             return False
 
     def delete_volume_attachment(self, volume_id, server_id):
@@ -830,24 +871,24 @@ class VirtualMachineHandler(Iface):
         :return: True if deleted, False if not
         """
         try:
-            attachments = self.conn.block_storage.get_volume(
-                volume_id).attachments
+            attachments = self.conn.block_storage.get_volume(volume_id).attachments
             for attachment in attachments:
-                volume_attachment_id = attachment['id']
-                instance_id = attachment['server_id']
+                volume_attachment_id = attachment["id"]
+                instance_id = attachment["server_id"]
                 if instance_id == server_id:
                     self.logger.info(
-
-                        "Delete Volume Attachment  {0}".format(
-                            volume_attachment_id))
+                        "Delete Volume Attachment  {0}".format(volume_attachment_id)
+                    )
                     self.conn.compute.delete_volume_attachment(
-                        volume_attachment=volume_attachment_id,
-                        server=server_id)
+                        volume_attachment=volume_attachment_id, server=server_id
+                    )
             return True
         except Exception as e:
-            self.logger.error(
+            self.logger.exception(
                 "Delete Volume Attachment  {0} error: {1}".format(
-                    volume_attachment_id, e))
+                    volume_attachment_id, e
+                )
+            )
             return False
 
     def delete_volume(self, volume_id):
@@ -863,10 +904,9 @@ class VirtualMachineHandler(Iface):
             done = False
             while not done:
 
-                status = conn.block_storage.get_volume(
-                    volume).to_dict()['status']
+                status = conn.block_storage.get_volume(volume).to_dict()["status"]
 
-                if status != 'available':
+                if status != "available":
 
                     time.sleep(3)
                 else:
@@ -893,14 +933,13 @@ class VirtualMachineHandler(Iface):
         server = self.conn.compute.get_server(openstack_id)
         try:
             if server is None:
-                self.logger.error(
-                    "Instance {0} not found".format(openstack_id))
+                self.logger.error("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
 
-            if server.status == 'ACTIVE':
+            if server.status == "ACTIVE":
                 self.conn.compute.suspend_server(server)
                 server = self.conn.compute.get_server(server)
-                while server.status != 'SUSPENDED':
+                while server.status != "SUSPENDED":
                     server = self.conn.compute.get_server(server)
                     time.sleep(3)
 
@@ -931,9 +970,9 @@ class VirtualMachineHandler(Iface):
                 self.conn.compute.reboot_server(server, reboot_type)
                 return True
         except Exception as e:
-            self.logger.info(
-                "Reboot Server {} {} Error : {}".format(
-                    server_id, reboot_type, e))
+            self.logger.exception(
+                "Reboot Server {} {} Error : {}".format(server_id, reboot_type, e)
+            )
             return False
 
     def resume_server(self, openstack_id):
@@ -947,13 +986,12 @@ class VirtualMachineHandler(Iface):
         try:
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
-                self.logger.error(
-                    "Instance {0} not found".format(openstack_id))
+                self.logger.error("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
 
-            if server.status == 'SUSPENDED':
+            if server.status == "SUSPENDED":
                 self.conn.compute.resume_server(server)
-                while server.status != 'ACTIVE':
+                while server.status != "ACTIVE":
                     server = self.conn.compute.get_server(server)
                     time.sleep(3)
 
@@ -962,53 +1000,90 @@ class VirtualMachineHandler(Iface):
 
                 return False
         except Exception as e:
-            self.logger.error(
-                "Resume Server {0} error:".format(
-                    openstack_id, e))
+            self.logger.error("Resume Server {0} error:".format(openstack_id, e))
             return False
 
-    def create_security_group(self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False):
+    def create_security_group(
+            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
+    ):
         self.logger.info("Create new security group {}".format(name))
         new_security_group = self.conn.network.create_security_group(name=name)
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
-            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=80,
-                                                         port_range_min=80, security_group_id=new_security_group['id'])
-            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
-                                                         port_range_max=80, port_range_min=80,
-                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=80,
+                port_range_min=80,
+                security_group_id=new_security_group["id"],
+            )
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                ether_type="IPv6",
+                protocol="tcp",
+                port_range_max=80,
+                port_range_min=80,
+                security_group_id=new_security_group["id"],
+            )
 
         if https:
             self.logger.info("Add https rule to security group {}".format(name))
 
-            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=443,
-                                                         port_range_min=443, security_group_id=new_security_group['id'])
-            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
-                                                         port_range_max=443, port_range_min=443,
-                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=443,
+                port_range_min=443,
+                security_group_id=new_security_group["id"],
+            )
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                ether_type="IPv6",
+                protocol="tcp",
+                port_range_max=443,
+                port_range_min=443,
+                security_group_id=new_security_group["id"],
+            )
         if udp:
             self.logger.info(
-                "Add udp rule ports {} - {} to security group {}".format(udp_port_start, udp_port_start + 9, name))
+                "Add udp rule ports {} - {} to security group {}".format(
+                    udp_port_start, udp_port_start + 9, name
+                )
+            )
 
-            self.conn.network.create_security_group_rule(direction='ingress', protocol='udp',
-                                                         port_range_max=udp_port_start + 9,
-                                                         port_range_min=udp_port_start,
-                                                         security_group_id=new_security_group['id'])
-            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='udp',
-                                                         port_range_max=udp_port_start + 9,
-                                                         port_range_min=udp_port_start,
-                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="udp",
+                port_range_max=udp_port_start + 9,
+                port_range_min=udp_port_start,
+                security_group_id=new_security_group["id"],
+            )
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                ether_type="IPv6",
+                protocol="udp",
+                port_range_max=udp_port_start + 9,
+                port_range_min=udp_port_start,
+                security_group_id=new_security_group["id"],
+            )
         if ssh:
             self.logger.info("Add ssh rule to security group {}".format(name))
 
-            self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp',
-                                                         port_range_max=22,
-                                                         port_range_min=22,
-                                                         security_group_id=new_security_group['id'])
-            self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
-                                                         port_range_max=22,
-                                                         port_range_min=22,
-                                                         security_group_id=new_security_group['id'])
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=22,
+                port_range_min=22,
+                security_group_id=new_security_group["id"],
+            )
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                ether_type="IPv6",
+                protocol="tcp",
+                port_range_max=22,
+                port_range_min=22,
+                security_group_id=new_security_group["id"],
+            )
 
         return new_security_group
 
@@ -1029,15 +1104,15 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Limits")
         limits = self.conn.get_compute_limits()
         limits.update(self.conn.get_volume_limits())
-        maxTotalVolumes = str(limits['absolute']['maxTotalVolumes'])
-        maxTotalInstances = str(limits['max_total_instances'])
-        maxTotalVolumeGigabytes = str(
-            limits['absolute']['maxTotalVolumeGigabytes'])
-        totalRamUsed = str(limits['total_ram_used'])
-        totalInstancesUsed = str(limits['total_instances_used'])
+        maxTotalVolumes = str(limits["absolute"]["maxTotalVolumes"])
+        maxTotalInstances = str(limits["max_total_instances"])
+        maxTotalVolumeGigabytes = str(limits["absolute"]["maxTotalVolumeGigabytes"])
+        totalRamUsed = str(limits["total_ram_used"])
+        totalInstancesUsed = str(limits["total_instances_used"])
         return {
-            'maxTotalVolumes': maxTotalVolumes,
-            'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
-            'maxTotalInstances': maxTotalInstances,
-            'totalRamUsed': totalRamUsed,
-            'totalInstancesUsed': totalInstancesUsed}
+            "maxTotalVolumes": maxTotalVolumes,
+            "maxTotalVolumeGigabytes": maxTotalVolumeGigabytes,
+            "maxTotalInstances": maxTotalInstances,
+            "totalRamUsed": totalRamUsed,
+            "totalInstancesUsed": totalInstancesUsed,
+        }

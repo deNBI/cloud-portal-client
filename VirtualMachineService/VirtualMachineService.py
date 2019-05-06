@@ -12,7 +12,7 @@ from thrift.TRecursive import fix_spec
 
 import sys
 import logging
-from .ttypes import *
+from ttypes import *
 from thrift.Thrift import TProcessor
 from thrift.transport import TTransport
 all_structs = []
@@ -148,7 +148,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename, http, https, udp):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         Start a new server.
 
@@ -160,9 +160,19 @@ class Iface(object):
          - elixir_id: Elixir-Id of the user who requested to start a new server
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
+
+        """
+        pass
+
+    def add_security_group_to_server(self, http, https, udp, server_id):
+        """
+        Adds a security group to a server
+
+        Parameters:
          - http: If http ports are open
          - https: If https ports are open
          - udp: If udp ports are open
+         - server_id: OpenStack id of the server
 
         """
         pass
@@ -762,7 +772,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename, http, https, udp):
+    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         """
         Start a new server.
 
@@ -774,15 +784,12 @@ class Client(Iface):
          - elixir_id: Elixir-Id of the user who requested to start a new server
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
-         - http: If http ports are open
-         - https: If https ports are open
-         - udp: If udp ports are open
 
         """
-        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename, http, https, udp)
+        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename, http, https, udp):
+    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
@@ -792,9 +799,6 @@ class Client(Iface):
         args.elixir_id = elixir_id
         args.diskspace = diskspace
         args.volumename = volumename
-        args.http = http
-        args.https = https
-        args.udp = udp
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -827,6 +831,50 @@ class Client(Iface):
         if result.o is not None:
             raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
+
+    def add_security_group_to_server(self, http, https, udp, server_id):
+        """
+        Adds a security group to a server
+
+        Parameters:
+         - http: If http ports are open
+         - https: If https ports are open
+         - udp: If udp ports are open
+         - server_id: OpenStack id of the server
+
+        """
+        self.send_add_security_group_to_server(http, https, udp, server_id)
+        return self.recv_add_security_group_to_server()
+
+    def send_add_security_group_to_server(self, http, https, udp, server_id):
+        self._oprot.writeMessageBegin('add_security_group_to_server', TMessageType.CALL, self._seqid)
+        args = add_security_group_to_server_args()
+        args.http = http
+        args.https = https
+        args.udp = udp
+        args.server_id = server_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_add_security_group_to_server(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = add_security_group_to_server_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.r is not None:
+            raise result.r
+        if result.s is not None:
+            raise result.s
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "add_security_group_to_server failed: unknown result")
 
     def get_server(self, openstack_id):
         """
@@ -1344,6 +1392,7 @@ class Processor(Iface, TProcessor):
         self._processMap["add_floating_ip_to_server"] = Processor.process_add_floating_ip_to_server
         self._processMap["create_connection"] = Processor.process_create_connection
         self._processMap["start_server"] = Processor.process_start_server
+        self._processMap["add_security_group_to_server"] = Processor.process_add_security_group_to_server
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["create_snapshot"] = Processor.process_create_snapshot
@@ -1673,7 +1722,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename, args.http, args.https, args.udp)
+            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -1707,6 +1756,35 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("start_server", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_add_security_group_to_server(self, seqid, iprot, oprot):
+        args = add_security_group_to_server_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = add_security_group_to_server_result()
+        try:
+            result.success = self._handler.add_security_group_to_server(args.http, args.https, args.udp, args.server_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except ressourceException as r:
+            msg_type = TMessageType.REPLY
+            result.r = r
+        except serverNotFoundException as s:
+            msg_type = TMessageType.REPLY
+            result.s = s
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("add_security_group_to_server", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -3721,14 +3799,11 @@ class start_server_args(object):
      - elixir_id: Elixir-Id of the user who requested to start a new server
      - diskspace: Diskspace in GB for additional volume.
      - volumename: Name of additional Volume
-     - http: If http ports are open
-     - https: If https ports are open
-     - udp: If udp ports are open
 
     """
 
 
-    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None, http=None, https=None, udp=None,):
+    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
         self.flavor = flavor
         self.image = image
         self.public_key = public_key
@@ -3736,9 +3811,6 @@ class start_server_args(object):
         self.elixir_id = elixir_id
         self.diskspace = diskspace
         self.volumename = volumename
-        self.http = http
-        self.https = https
-        self.udp = udp
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -3784,21 +3856,6 @@ class start_server_args(object):
                     self.volumename = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
-            elif fid == 8:
-                if ftype == TType.BOOL:
-                    self.http = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 9:
-                if ftype == TType.BOOL:
-                    self.https = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 10:
-                if ftype == TType.BOOL:
-                    self.udp = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -3837,18 +3894,6 @@ class start_server_args(object):
             oprot.writeFieldBegin('volumename', TType.STRING, 7)
             oprot.writeString(self.volumename.encode('utf-8') if sys.version_info[0] == 2 else self.volumename)
             oprot.writeFieldEnd()
-        if self.http is not None:
-            oprot.writeFieldBegin('http', TType.BOOL, 8)
-            oprot.writeBool(self.http)
-            oprot.writeFieldEnd()
-        if self.https is not None:
-            oprot.writeFieldBegin('https', TType.BOOL, 9)
-            oprot.writeBool(self.https)
-            oprot.writeFieldEnd()
-        if self.udp is not None:
-            oprot.writeFieldBegin('udp', TType.BOOL, 10)
-            oprot.writeBool(self.udp)
-            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -3875,9 +3920,6 @@ start_server_args.thrift_spec = (
     (5, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 5
     (6, TType.STRING, 'diskspace', 'UTF8', None, ),  # 6
     (7, TType.STRING, 'volumename', 'UTF8', None, ),  # 7
-    (8, TType.BOOL, 'http', None, None, ),  # 8
-    (9, TType.BOOL, 'https', None, None, ),  # 9
-    (10, TType.BOOL, 'udp', None, None, ),  # 10
 )
 
 
@@ -4040,6 +4082,191 @@ start_server_result.thrift_spec = (
     (5, TType.STRUCT, 'i', [imageNotFoundException, None], None, ),  # 5
     (6, TType.STRUCT, 'f', [flavorNotFoundException, None], None, ),  # 6
     (7, TType.STRUCT, 'o', [otherException, None], None, ),  # 7
+)
+
+
+class add_security_group_to_server_args(object):
+    """
+    Attributes:
+     - http: If http ports are open
+     - https: If https ports are open
+     - udp: If udp ports are open
+     - server_id: OpenStack id of the server
+
+    """
+
+
+    def __init__(self, http=None, https=None, udp=None, server_id=None,):
+        self.http = http
+        self.https = https
+        self.udp = udp
+        self.server_id = server_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.BOOL:
+                    self.http = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.BOOL:
+                    self.https = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.BOOL:
+                    self.udp = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.server_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('add_security_group_to_server_args')
+        if self.http is not None:
+            oprot.writeFieldBegin('http', TType.BOOL, 1)
+            oprot.writeBool(self.http)
+            oprot.writeFieldEnd()
+        if self.https is not None:
+            oprot.writeFieldBegin('https', TType.BOOL, 2)
+            oprot.writeBool(self.https)
+            oprot.writeFieldEnd()
+        if self.udp is not None:
+            oprot.writeFieldBegin('udp', TType.BOOL, 3)
+            oprot.writeBool(self.udp)
+            oprot.writeFieldEnd()
+        if self.server_id is not None:
+            oprot.writeFieldBegin('server_id', TType.STRING, 4)
+            oprot.writeString(self.server_id.encode('utf-8') if sys.version_info[0] == 2 else self.server_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(add_security_group_to_server_args)
+add_security_group_to_server_args.thrift_spec = (
+    None,  # 0
+    (1, TType.BOOL, 'http', None, None, ),  # 1
+    (2, TType.BOOL, 'https', None, None, ),  # 2
+    (3, TType.BOOL, 'udp', None, None, ),  # 3
+    (4, TType.STRING, 'server_id', 'UTF8', None, ),  # 4
+)
+
+
+class add_security_group_to_server_result(object):
+    """
+    Attributes:
+     - success
+     - r
+     - s
+
+    """
+
+
+    def __init__(self, success=None, r=None, s=None,):
+        self.success = success
+        self.r = r
+        self.s = s
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.r = ressourceException()
+                    self.r.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.s = serverNotFoundException()
+                    self.s.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('add_security_group_to_server_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.r is not None:
+            oprot.writeFieldBegin('r', TType.STRUCT, 1)
+            self.r.write(oprot)
+            oprot.writeFieldEnd()
+        if self.s is not None:
+            oprot.writeFieldBegin('s', TType.STRUCT, 2)
+            self.s.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(add_security_group_to_server_result)
+add_security_group_to_server_result.thrift_spec = (
+    (0, TType.BOOL, 'success', None, None, ),  # 0
+    (1, TType.STRUCT, 'r', [ressourceException, None], None, ),  # 1
+    (2, TType.STRUCT, 's', [serverNotFoundException, None], None, ),  # 2
 )
 
 
