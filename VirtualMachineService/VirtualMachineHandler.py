@@ -409,7 +409,7 @@ class VirtualMachineHandler(Iface):
             servername,
             elixir_id,
             diskspace,
-            volumename):
+            volumename, http, https, udp):
         """
         Start a new Server.
 
@@ -961,8 +961,10 @@ class VirtualMachineHandler(Iface):
             return False
 
     def create_security_group(self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False):
+        self.logger.info("Create new security group {}".format(name))
         new_security_group = self.conn.network.create_security_group(name=name)
         if http:
+            self.logger.info("Add http rule to security group {}".format(name))
             self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=80,
                                                          port_range_min=80, security_group_id=new_security_group['id'])
             self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
@@ -970,12 +972,17 @@ class VirtualMachineHandler(Iface):
                                                          security_group_id=new_security_group['id'])
 
         if https:
+            self.logger.info("Add https rule to security group {}".format(name))
+
             self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp', port_range_max=443,
                                                          port_range_min=443, security_group_id=new_security_group['id'])
             self.conn.network.create_security_group_rule(direction='ingress', ether_type='IPv6', protocol='tcp',
                                                          port_range_max=443, port_range_min=443,
                                                          security_group_id=new_security_group['id'])
         if udp:
+            self.logger.info(
+                "Add udp rule ports {} - {} to security group {}".format(udp_port_start, udp_port_start + 9, name))
+
             self.conn.network.create_security_group_rule(direction='ingress', protocol='udp',
                                                          port_range_max=udp_port_start + 9,
                                                          port_range_min=udp_port_start,
@@ -985,6 +992,8 @@ class VirtualMachineHandler(Iface):
                                                          port_range_min=udp_port_start,
                                                          security_group_id=new_security_group['id'])
         if ssh:
+            self.logger.info("Add ssh rule to security group {}".format(name))
+
             self.conn.network.create_security_group_rule(direction='ingress', protocol='tcp',
                                                          port_range_max=22,
                                                          port_range_min=22,
@@ -994,7 +1003,7 @@ class VirtualMachineHandler(Iface):
                                                          port_range_min=22,
                                                          security_group_id=new_security_group['id'])
 
-        return
+        return True
 
     def get_limits(self):
         """
