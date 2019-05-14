@@ -51,10 +51,10 @@ class Iface(object):
         """
         pass
 
-    def get_IP_PORT(self, openstack_id):
+    def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of server
-        Returns:  {'IP': ip, 'PORT': port}
+        Returns:  {'IP': ip, 'PORT': port,'UDP':udp}
 
         Parameters:
          - openstack_id: Id of server
@@ -442,27 +442,27 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "import_keypair failed: unknown result")
 
-    def get_IP_PORT(self, openstack_id):
+    def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of server
-        Returns:  {'IP': ip, 'PORT': port}
+        Returns:  {'IP': ip, 'PORT': port,'UDP':udp}
 
         Parameters:
          - openstack_id: Id of server
 
         """
-        self.send_get_IP_PORT(openstack_id)
-        return self.recv_get_IP_PORT()
+        self.send_get_ip_ports(openstack_id)
+        return self.recv_get_ip_ports()
 
-    def send_get_IP_PORT(self, openstack_id):
-        self._oprot.writeMessageBegin('get_IP_PORT', TMessageType.CALL, self._seqid)
-        args = get_IP_PORT_args()
+    def send_get_ip_ports(self, openstack_id):
+        self._oprot.writeMessageBegin('get_ip_ports', TMessageType.CALL, self._seqid)
+        args = get_ip_ports_args()
         args.openstack_id = openstack_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_get_IP_PORT(self):
+    def recv_get_ip_ports(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -470,12 +470,12 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = get_IP_PORT_result()
+        result = get_ip_ports_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
-        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_IP_PORT failed: unknown result")
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_ip_ports failed: unknown result")
 
     def get_Flavors(self):
         """
@@ -1382,7 +1382,7 @@ class Processor(Iface, TProcessor):
         self._processMap["check_Version"] = Processor.process_check_Version
         self._processMap["get_client_version"] = Processor.process_get_client_version
         self._processMap["import_keypair"] = Processor.process_import_keypair
-        self._processMap["get_IP_PORT"] = Processor.process_get_IP_PORT
+        self._processMap["get_ip_ports"] = Processor.process_get_ip_ports
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
         self._processMap["get_Images"] = Processor.process_get_Images
         self._processMap["get_Image_with_Tag"] = Processor.process_get_Image_with_Tag
@@ -1491,13 +1491,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_get_IP_PORT(self, seqid, iprot, oprot):
-        args = get_IP_PORT_args()
+    def process_get_ip_ports(self, seqid, iprot, oprot):
+        args = get_ip_ports_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = get_IP_PORT_result()
+        result = get_ip_ports_result()
         try:
-            result.success = self._handler.get_IP_PORT(args.openstack_id)
+            result.success = self._handler.get_ip_ports(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -1509,7 +1509,7 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("get_IP_PORT", msg_type, seqid)
+        oprot.writeMessageBegin("get_ip_ports", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -2489,7 +2489,7 @@ import_keypair_result.thrift_spec = (
 )
 
 
-class get_IP_PORT_args(object):
+class get_ip_ports_args(object):
     """
     Attributes:
      - openstack_id: Id of server
@@ -2523,7 +2523,7 @@ class get_IP_PORT_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('get_IP_PORT_args')
+        oprot.writeStructBegin('get_ip_ports_args')
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 1)
             oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
@@ -2544,14 +2544,14 @@ class get_IP_PORT_args(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(get_IP_PORT_args)
-get_IP_PORT_args.thrift_spec = (
+all_structs.append(get_ip_ports_args)
+get_ip_ports_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
 )
 
 
-class get_IP_PORT_result(object):
+class get_ip_ports_result(object):
     """
     Attributes:
      - success
@@ -2591,7 +2591,7 @@ class get_IP_PORT_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('get_IP_PORT_result')
+        oprot.writeStructBegin('get_ip_ports_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
@@ -2616,8 +2616,8 @@ class get_IP_PORT_result(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(get_IP_PORT_result)
-get_IP_PORT_result.thrift_spec = (
+all_structs.append(get_ip_ports_result)
+get_ip_ports_result.thrift_spec = (
     (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
 )
 

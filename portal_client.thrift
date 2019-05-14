@@ -188,9 +188,9 @@ service VirtualMachineService {
 
     /**
      * Get Ip and Port of server
-     * Returns:  {'IP': ip, 'PORT': port}
+     * Returns:  {'IP': ip, 'PORT': port,'UDP':udp}
      */
-    map<string,string> get_IP_PORT(
+    map<string,string> get_ip_ports(
 
     /** Id of server */
     1: string openstack_id)

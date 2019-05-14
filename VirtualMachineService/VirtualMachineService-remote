@@ -27,7 +27,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool check_Version(double version)')
     print('  string get_client_version()')
     print('  string import_keypair(string keyname, string public_key)')
-    print('   get_IP_PORT(string openstack_id)')
+    print('   get_ip_ports(string openstack_id)')
     print('   get_Flavors()')
     print('   get_Images()')
     print('  Image get_Image_with_Tag(string openstack_id)')
@@ -148,11 +148,11 @@ elif cmd == 'import_keypair':
         sys.exit(1)
     pp.pprint(client.import_keypair(args[0], args[1],))
 
-elif cmd == 'get_IP_PORT':
+elif cmd == 'get_ip_ports':
     if len(args) != 1:
-        print('get_IP_PORT requires 1 args')
+        print('get_ip_ports requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_IP_PORT(args[0],))
+    pp.pprint(client.get_ip_ports(args[0],))
 
 elif cmd == 'get_Flavors':
     if len(args) != 0:

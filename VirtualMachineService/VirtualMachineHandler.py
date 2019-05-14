@@ -112,11 +112,14 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
+            self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
             # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             if self.USE_GATEWAY:
                 self.GATEWAY_BASE = cfg["openstack_connection"]["gateway_base"]
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.UDP_BASE = cfg["openstack_connection"]["udp_base"]
+
+                self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
 
         self.conn = self.create_connection()
 
@@ -652,10 +655,40 @@ class VirtualMachineHandler(Iface):
             return None
 
     def add_security_group_to_server(self, http, https, udp, server_id):
+        """
+        Adds the default simple vm security group to the vm.
+        Also adds a security group which can open http,https and udp ports.
+        :param http: If http ports should be open
+        :param https: If https ports should be open
+        :param udp: If udp ports should be open
+        :param server_id: The id of the server
+        :return:
+        """
+
+        standart_default_security_group = self.conn.network.find_security_group(name_or_id='default')
+        default_security_group_simple_vm = self.conn.network.get_security_group(
+            security_group=self.DEFAULT_SECURITY_GROUP)
+
+        if standart_default_security_group:
+            self.logger.info("Remove default OpenStack security  from  {}".format(server_id))
+
+            self.conn.compute.remove_security_group_from_server(server=server_id,
+                                                                security_group=standart_default_security_group)
+        if default_security_group_simple_vm:
+            self.logger.info(
+                "Add default simple vm security group {} to {}".format(self.DEFAULT_SECURITY_GROUP, server_id))
+            self.conn.compute.add_security_group_to_server(
+                server=server_id, security_group=default_security_group_simple_vm
+            )
+
         ip_base = list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
-        self.logger.info(ip_base)
 
         udp_port_start = int(ip_base) * 10 + int(self.UDP_BASE)
+
+        security_group = self.conn.network.find_security_group(name_or_id=server_id)
+        if security_group:
+            self.conn.compute.remove_security_group_from_server(server=server_id, security_group=security_group)
+            self.conn.network.delete_security_group(security_group)
 
         security_group = self.create_security_group(
             name=server_id,
@@ -671,12 +704,12 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-    def get_IP_PORT(self, openstack_id):
+    def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of the sever.
 
         :param openstack_id: Id of the server
-        :return: {'IP': ip, 'PORT': port}
+        :return: {'IP': ip, 'PORT': port, 'UDP':start_port}
         """
         self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
 
@@ -686,7 +719,8 @@ class VirtualMachineHandler(Iface):
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
                 port = int(self.GATEWAY_BASE) + int(server_base) * 3
-                return {"IP": str(self.GATEWAY_IP), "PORT": str(port)}
+                udp_port_start = int(server_base) * 10 + int(self.UDP_BASE)
+                return {"IP": str(self.GATEWAY_IP), "PORT": str(port), "UDP": str(udp_port_start)}
 
             else:
                 # todo security groups floating ips
@@ -847,13 +881,13 @@ class VirtualMachineHandler(Iface):
             if server.status == "SUSPENDED":
                 self.conn.compute.resume_server(server)
                 server = self.conn.compute.get_server(server)
-                self.conn.compute.wait_for_server(server=server,status='ACTIVE')
+                self.conn.compute.wait_for_server(server=server, status='ACTIVE')
             self.logger.info(server)
             self.logger.info(server.name)
-            security_group=self.conn.network.find_security_group(name_or_id=openstack_id)
+            security_group = self.conn.network.find_security_group(name_or_id=openstack_id)
             if security_group:
                 self.logger.info("Delete security group {}".format(openstack_id))
-                self.conn.compute.remove_security_group_from_server(server=server,security_group=security_group)
+                self.conn.compute.remove_security_group_from_server(server=server, security_group=security_group)
                 self.conn.network.delete_security_group(security_group)
             self.conn.compute.delete_server(server)
 
