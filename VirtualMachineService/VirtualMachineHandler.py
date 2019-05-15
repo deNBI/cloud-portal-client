@@ -665,7 +665,8 @@ class VirtualMachineHandler(Iface):
         :return:
         """
 
-        standart_default_security_group = self.conn.network.find_security_group(name_or_id='default')
+        standart_default_security_group = self.conn.network.find_security_group(
+            name_or_id='default')
         default_security_group_simple_vm = self.conn.network.get_security_group(
             security_group=self.DEFAULT_SECURITY_GROUP)
 
@@ -676,18 +677,21 @@ class VirtualMachineHandler(Iface):
                                                                 security_group=standart_default_security_group)
         if default_security_group_simple_vm:
             self.logger.info(
-                "Add default simple vm security group {} to {}".format(self.DEFAULT_SECURITY_GROUP, server_id))
+                "Add default simple vm security group {} to {}".format(self.DEFAULT_SECURITY_GROUP,
+                                                                       server_id))
             self.conn.compute.add_security_group_to_server(
                 server=server_id, security_group=default_security_group_simple_vm
             )
 
-        ip_base = list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
+        ip_base = \
+        list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
 
         udp_port_start = int(ip_base) * 10 + int(self.UDP_BASE)
 
         security_group = self.conn.network.find_security_group(name_or_id=server_id)
         if security_group:
-            self.conn.compute.remove_security_group_from_server(server=server_id, security_group=security_group)
+            self.conn.compute.remove_security_group_from_server(server=server_id,
+                                                                security_group=security_group)
             self.conn.network.delete_security_group(security_group)
 
         security_group = self.create_security_group(
@@ -887,7 +891,8 @@ class VirtualMachineHandler(Iface):
             security_group = self.conn.network.find_security_group(name_or_id=openstack_id)
             if security_group:
                 self.logger.info("Delete security group {}".format(openstack_id))
-                self.conn.compute.remove_security_group_from_server(server=server, security_group=security_group)
+                self.conn.compute.remove_security_group_from_server(server=server,
+                                                                    security_group=security_group)
                 self.conn.network.delete_security_group(security_group)
             self.conn.compute.delete_server(server)
 
