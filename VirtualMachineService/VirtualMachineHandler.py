@@ -60,7 +60,7 @@ class VirtualMachineHandler(Iface):
                 auth_url=self.AUTH_URL,
                 project_name=self.PROJECT_NAME,
                 user_domain_name=self.USER_DOMAIN_NAME,
-                project_domain_name="default",
+                project_domain_id=self.PROJECT_DOMAIN_ID
             )
             conn.authorize()
         except Exception as e:
@@ -102,6 +102,7 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_ID = os.environ["OS_PROJECT_ID"]
         self.USER_DOMAIN_NAME = os.environ["OS_USER_DOMAIN_NAME"]
         self.AUTH_URL = os.environ["OS_AUTH_URL"]
+        self.PROJECT_DOMAIN_ID=os.environ["OS_PROJECT_DOMAIN_ID"]
         self.SSH_PORT = 22
 
         with open(config, "r") as ymlfile:
