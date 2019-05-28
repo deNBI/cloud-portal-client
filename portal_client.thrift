@@ -188,9 +188,9 @@ service VirtualMachineService {
 
     /**
      * Get Ip and Port of server
-     * Returns:  {'IP': ip, 'PORT': port}
+     * Returns:  {'IP': ip, 'PORT': port,'UDP':udp}
      */
-    map<string,string> get_IP_PORT(
+    map<string,string> get_ip_ports(
 
     /** Id of server */
     1: string openstack_id)
@@ -300,6 +300,28 @@ service VirtualMachineService {
     7:string volumename)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+
+
+    /**
+    * Adds a security group to a server
+    */
+    bool add_security_group_to_server(
+    /** If http ports are open*/
+    1:bool http,
+
+    /** If https ports are open*/
+    2:bool https,
+
+    /** If udp ports are open*/
+    3:bool udp,
+
+    /** OpenStack id of the server*/
+    4:string server_id)
+
+    throws (1:ressourceException r,2:serverNotFoundException s
+
+    )
+
 
 
 	/**
