@@ -1,3 +1,16 @@
+##  (2019-05-28)
+
+
+#### Features
+
+* **Client:**  added info when rc file isn't sourced ([19121659](19121659))
+* **SecurityGroups:** added security groups" ([282b2e9d](282b2e9d))
+
+#### Bug Fixes
+
+* **Project:** added project domain id ([9e8bd566](9e8bd566))
+
+
 #### Features
 
 * **Snapshot:** check status
