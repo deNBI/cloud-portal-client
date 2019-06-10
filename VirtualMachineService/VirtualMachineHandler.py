@@ -82,7 +82,7 @@ class VirtualMachineHandler(Iface):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         # create file handler which logs even debug messages
-        self.fh = logging.FileHandler("debug.log")
+        self.fh = logging.FileHandler("log/portal_client_debug.log")
         self.fh.setLevel(logging.DEBUG)
         # create console handler with a higher log level
         self.ch = logging.StreamHandler()
