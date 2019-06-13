@@ -95,6 +95,8 @@ Run the following command in order to start the container setup:
 docker-compose up
 ```
 
+***NOTE!*** If you update any script you have to rebuild the image with `docker-compose build .`.
+
 ### Thrift Development
 
 A detailed instruction for installing thrift can be found [here](http://thrift-tutorial.readthedocs.io/en/latest/installation.html).

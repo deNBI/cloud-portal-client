@@ -1,3 +1,9 @@
+##  (2019-06-11)
+
+#### Refactor
+
+* **Loggin:** filehandler logs to /log/portal_client_log, removed filebeat from dockerfile
+
 ##  (2019-05-28)
 
 
@@ -9,7 +15,6 @@
 #### Bug Fixes
 
 * **Project:** added project domain id ([9e8bd566](9e8bd566))
-
 
 #### Features
 
