@@ -49,6 +49,7 @@ def startServer(config):
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
         CERTFILE = cfg['openstack_connection']['certfile']
+    click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
     transport = TSSLSocket.TSSLServerSocket(

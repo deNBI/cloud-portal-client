@@ -122,6 +122,11 @@ class VirtualMachineHandler(Iface):
 
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
 
+            if cfg["openstack_connection"]["openstack_default_security_group"]:
+                self.OPENSTACK_DEFAULT_SECURITY_GROUP=cfg["openstack_connection"]["openstack_default_security_group"]
+            else:
+                self.OPENSTACK_DEFAULT_SECURITY_GROUP="default"
+
         self.conn = self.create_connection()
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
@@ -667,7 +672,7 @@ class VirtualMachineHandler(Iface):
         """
 
         standart_default_security_group = self.conn.network.find_security_group(
-            name_or_id='default')
+            name_or_id=self.OPENSTACK_DEFAULT_SECURITY_GROUP)
         default_security_group_simple_vm = self.conn.network.get_security_group(
             security_group=self.DEFAULT_SECURITY_GROUP)
 
