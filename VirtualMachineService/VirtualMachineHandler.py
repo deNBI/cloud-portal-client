@@ -102,7 +102,7 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_ID = os.environ["OS_PROJECT_ID"]
         self.USER_DOMAIN_NAME = os.environ["OS_USER_DOMAIN_NAME"]
         self.AUTH_URL = os.environ["OS_AUTH_URL"]
-        self.PROJECT_DOMAIN_ID=os.environ["OS_PROJECT_DOMAIN_ID"]
+        self.PROJECT_DOMAIN_ID = os.environ["OS_PROJECT_DOMAIN_ID"]
         self.SSH_PORT = 22
 
         with open(config, "r") as ymlfile:
@@ -123,9 +123,10 @@ class VirtualMachineHandler(Iface):
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
 
             if cfg["openstack_connection"]["openstack_default_security_group"]:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP=cfg["openstack_connection"]["openstack_default_security_group"]
+                self.OPENSTACK_DEFAULT_SECURITY_GROUP = cfg["openstack_connection"][
+                    "openstack_default_security_group"]
             else:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP="default"
+                self.OPENSTACK_DEFAULT_SECURITY_GROUP = "default"
 
         self.conn = self.create_connection()
 
@@ -690,7 +691,8 @@ class VirtualMachineHandler(Iface):
             )
 
         ip_base = \
-        list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
+            list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
+                -1]
 
         udp_port_start = int(ip_base) * 10 + int(self.UDP_BASE)
 
