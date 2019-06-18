@@ -106,7 +106,7 @@ class VirtualMachineHandler(Iface):
         self.SSH_PORT = 22
 
         with open(config, "r") as ymlfile:
-            cfg = yaml.load(ymlfile)
+            cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][

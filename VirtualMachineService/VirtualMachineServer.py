@@ -45,7 +45,7 @@ def startServer(config):
     CONFIG_FILE = config
 
     with open(CONFIG_FILE, 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
+        cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
         HOST = cfg['openstack_connection']['host']
         PORT = cfg['openstack_connection']['port']
         CERTFILE = cfg['openstack_connection']['certfile']
