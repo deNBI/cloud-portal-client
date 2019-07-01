@@ -199,7 +199,7 @@ class Iface(object):
         """
         pass
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -210,6 +210,7 @@ class Iface(object):
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
          - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+         - description: Description of the new snapshot
 
         """
         pass
@@ -950,7 +951,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -961,18 +962,20 @@ class Client(Iface):
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
          - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+         - description: Description of the new snapshot
 
         """
-        self.send_create_snapshot(openstack_id, name, elixir_id, base_tag)
+        self.send_create_snapshot(openstack_id, name, elixir_id, base_tag, description)
         return self.recv_create_snapshot()
 
-    def send_create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+    def send_create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         self._oprot.writeMessageBegin('create_snapshot', TMessageType.CALL, self._seqid)
         args = create_snapshot_args()
         args.openstack_id = openstack_id
         args.name = name
         args.elixir_id = elixir_id
         args.base_tag = base_tag
+        args.description = description
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1847,7 +1850,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_snapshot_result()
         try:
-            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id, args.base_tag)
+            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id, args.base_tag, args.description)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4550,15 +4553,17 @@ class create_snapshot_args(object):
      - name: Name of new Snapshot
      - elixir_id: Elixir-Id of the user who requested creation of Snapshot
      - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+     - description: Description of the new snapshot
 
     """
 
 
-    def __init__(self, openstack_id=None, name=None, elixir_id=None, base_tag=None,):
+    def __init__(self, openstack_id=None, name=None, elixir_id=None, base_tag=None, description=None,):
         self.openstack_id = openstack_id
         self.name = name
         self.elixir_id = elixir_id
         self.base_tag = base_tag
+        self.description = description
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -4589,6 +4594,11 @@ class create_snapshot_args(object):
                     self.base_tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.description = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -4615,6 +4625,10 @@ class create_snapshot_args(object):
             oprot.writeFieldBegin('base_tag', TType.STRING, 4)
             oprot.writeString(self.base_tag.encode('utf-8') if sys.version_info[0] == 2 else self.base_tag)
             oprot.writeFieldEnd()
+        if self.description is not None:
+            oprot.writeFieldBegin('description', TType.STRING, 5)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -4638,6 +4652,7 @@ create_snapshot_args.thrift_spec = (
     (2, TType.STRING, 'name', 'UTF8', None, ),  # 2
     (3, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 3
     (4, TType.STRING, 'base_tag', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'description', 'UTF8', None, ),  # 5
 )
 
 
