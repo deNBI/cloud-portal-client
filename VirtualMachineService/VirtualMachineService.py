@@ -164,6 +164,18 @@ class Iface(object):
         """
         pass
 
+    def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+        """
+        Create and deploy an anaconda ansible playbook
+
+        Parameters:
+         - private_key
+         - play_source
+         - openstack_id
+
+        """
+        pass
+
     def add_security_group_to_server(self, http, https, udp, server_id):
         """
         Adds a security group to a server
@@ -832,6 +844,44 @@ class Client(Iface):
             raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
 
+    def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+        """
+        Create and deploy an anaconda ansible playbook
+
+        Parameters:
+         - private_key
+         - play_source
+         - openstack_id
+
+        """
+        self.send_create_and_deploy_playbook(private_key, play_source, openstack_id)
+        return self.recv_create_and_deploy_playbook()
+
+    def send_create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+        self._oprot.writeMessageBegin('create_and_deploy_playbook', TMessageType.CALL, self._seqid)
+        args = create_and_deploy_playbook_args()
+        args.private_key = private_key
+        args.play_source = play_source
+        args.openstack_id = openstack_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_create_and_deploy_playbook(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = create_and_deploy_playbook_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "create_and_deploy_playbook failed: unknown result")
+
     def add_security_group_to_server(self, http, https, udp, server_id):
         """
         Adds a security group to a server
@@ -1392,6 +1442,7 @@ class Processor(Iface, TProcessor):
         self._processMap["add_floating_ip_to_server"] = Processor.process_add_floating_ip_to_server
         self._processMap["create_connection"] = Processor.process_create_connection
         self._processMap["start_server"] = Processor.process_start_server
+        self._processMap["create_and_deploy_playbook"] = Processor.process_create_and_deploy_playbook
         self._processMap["add_security_group_to_server"] = Processor.process_add_security_group_to_server
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
@@ -1756,6 +1807,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("start_server", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_create_and_deploy_playbook(self, seqid, iprot, oprot):
+        args = create_and_deploy_playbook_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = create_and_deploy_playbook_result()
+        try:
+            result.success = self._handler.create_and_deploy_playbook(args.private_key, args.play_source, args.openstack_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("create_and_deploy_playbook", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -4082,6 +4156,153 @@ start_server_result.thrift_spec = (
     (5, TType.STRUCT, 'i', [imageNotFoundException, None], None, ),  # 5
     (6, TType.STRUCT, 'f', [flavorNotFoundException, None], None, ),  # 6
     (7, TType.STRUCT, 'o', [otherException, None], None, ),  # 7
+)
+
+
+class create_and_deploy_playbook_args(object):
+    """
+    Attributes:
+     - private_key
+     - play_source
+     - openstack_id
+
+    """
+
+
+    def __init__(self, private_key=None, play_source=None, openstack_id=None,):
+        self.private_key = private_key
+        self.play_source = play_source
+        self.openstack_id = openstack_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.private_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.play_source = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.openstack_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('create_and_deploy_playbook_args')
+        if self.private_key is not None:
+            oprot.writeFieldBegin('private_key', TType.STRING, 1)
+            oprot.writeString(self.private_key.encode('utf-8') if sys.version_info[0] == 2 else self.private_key)
+            oprot.writeFieldEnd()
+        if self.play_source is not None:
+            oprot.writeFieldBegin('play_source', TType.STRING, 2)
+            oprot.writeString(self.play_source.encode('utf-8') if sys.version_info[0] == 2 else self.play_source)
+            oprot.writeFieldEnd()
+        if self.openstack_id is not None:
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 3)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(create_and_deploy_playbook_args)
+create_and_deploy_playbook_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'private_key', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'play_source', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 3
+)
+
+
+class create_and_deploy_playbook_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.I32:
+                    self.success = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('create_and_deploy_playbook_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.I32, 0)
+            oprot.writeI32(self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(create_and_deploy_playbook_result)
+create_and_deploy_playbook_result.thrift_spec = (
+    (0, TType.I32, 'success', None, None, ),  # 0
 )
 
 

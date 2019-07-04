@@ -299,8 +299,14 @@ service VirtualMachineService {
     /** Name of additional Volume*/
     7:string volumename)
 
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
+    /** Create and deploy an anaconda ansible playbook*/
+    int create_and_deploy_playbook(
+    1:string private_key,
+    2:string play_source,
+    3:string openstack_id
+   )
 
     /**
     * Adds a security group to a server
