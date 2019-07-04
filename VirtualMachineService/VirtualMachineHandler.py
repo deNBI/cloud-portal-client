@@ -46,9 +46,13 @@ import yaml
 import base64
 from oslo_utils import encodeutils
 
+osi_key_dict = dict()
+
 
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
+
+    global osi_key_dict
 
     def create_connection(self):
         """
@@ -592,7 +596,8 @@ class VirtualMachineHandler(Iface):
                 )
 
             openstack_id = server.to_dict()["id"]
-
+            global osi_key_dict
+            osi_key_dict[openstack_id] = private_key
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
@@ -610,7 +615,8 @@ class VirtualMachineHandler(Iface):
         fields = self.get_ip_ports(openstack_id=openstack_id)
         # ip = fields["IP"]
         # port = fields["PORT"]
-
+        global osi_key_dict
+        self.logger.info(osi_key_dict)
         playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source)
         playbook.run_it()
 
