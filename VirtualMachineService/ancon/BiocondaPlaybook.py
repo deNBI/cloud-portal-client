@@ -1,3 +1,4 @@
+import logging
 import shlex
 import shutil
 import sys
@@ -9,6 +10,23 @@ import subprocess
 class BiocondaPlaybook(object):
 
     def __init__(self, ip, port, play_source, osi_private_key, public_key):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        # create file handler which logs even debug messages
+        self.fh = logging.FileHandler("log/portal_client_ansible.log")
+        self.fh.setLevel(logging.DEBUG)
+        self.ch = logging.StreamHandler()
+        self.ch.setLevel(logging.DEBUG)
+        # create console handler with a higher log level
+        # create formatter and add it to the handlers
+        self.formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        self.fh.setFormatter(self.formatter)
+        self.ch.setFormatter(self.formatter)
+        # add the handlers to the logger
+        self.logger.addHandler(self.fh)
+        self.logger.addHandler(self.ch)
         self.ancon_dir = "/code/VirtualMachineService/ancon"
         self.playbooks_dir = self.ancon_dir + "/playbooks"
         self.directory = TemporaryDirectory(dir=self.ancon_dir)
@@ -36,5 +54,7 @@ class BiocondaPlaybook(object):
     def run_it(self):
         command_string = "/usr/local/bin/ansible-playbook -vvv -i " + self.inventory.name + " " + self.directory.name + "/bioconda.yml"
         command_string = shlex.split(command_string)
-        process = subprocess.run(command_string, stdout=sys.stdout, stderr=sys.stderr, universal_newlines=True)
+        process = subprocess.run(command_string, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.logger.log(level=20, msg=process.stdout)
+        self.logger.log(level=50, msg=process.stderr)
         self.directory.cleanup()
