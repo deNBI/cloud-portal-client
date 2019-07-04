@@ -53,6 +53,8 @@ class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
     global osi_key_dict
+    BUILD = "BUILD"
+    ACTIVE = "ACTIVE"
 
     def create_connection(self):
         """
@@ -597,7 +599,7 @@ class VirtualMachineHandler(Iface):
 
             openstack_id = server.to_dict()["id"]
             global osi_key_dict
-            osi_key_dict[openstack_id] = dict(key=private_key, name=servername)
+            osi_key_dict[openstack_id] = dict(key=private_key, name=servername, status=self.BUILD)
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
@@ -618,7 +620,7 @@ class VirtualMachineHandler(Iface):
         global osi_key_dict
         playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source, osi_key_dict[openstack_id]["key"], private_key)
         playbook.run_it()
-
+        osi_key_dict[openstack_id]["status"] = self.ACTIVE
         # FOR DEV PURPOSES ONLY! create private key
         #         private_key = NamedTemporaryFile(mode="w+", dir=directory.name, delete=False)
         #         private_key.write("""-----BEGIN RSA PRIVATE KEY-----
@@ -775,7 +777,8 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv["status"] == "ACTIVE":
+            global osi_key_dict
+            if serv["status"] == self.ACTIVE:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
@@ -788,7 +791,8 @@ class VirtualMachineHandler(Iface):
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK
                     )
-                if self.netcat(host, port):
+                if self.netcat(host, port)\
+                        and (openstack_id in osi_key_dict and osi_key_dict[openstack_id]["status"] == self.ACTIVE or openstack_id not in osi_key_dict):
                     if diskspace > 0:
                         attached = self.attach_volume_to_server(
                             openstack_id=openstack_id, volume_id=volume_id
