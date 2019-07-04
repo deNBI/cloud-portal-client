@@ -811,7 +811,7 @@ class VirtualMachineHandler(Iface):
                     return server
             else:
                 server = self.get_server(openstack_id)
-                server.status = "BUILD"
+                server.status = self.BUILD
                 return server
         except Exception as e:
             self.logger.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
