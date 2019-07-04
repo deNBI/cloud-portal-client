@@ -41,7 +41,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
-    print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag)')
+    print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag, string description)')
     print('   get_limits()')
     print('  bool delete_image(string image_id)')
     print('  bool delete_volume_attachment(string volume_id, string server_id)')
@@ -234,10 +234,10 @@ elif cmd == 'stop_server':
     pp.pprint(client.stop_server(args[0],))
 
 elif cmd == 'create_snapshot':
-    if len(args) != 4:
-        print('create_snapshot requires 4 args')
+    if len(args) != 5:
+        print('create_snapshot requires 5 args')
         sys.exit(1)
-    pp.pprint(client.create_snapshot(args[0], args[1], args[2], args[3],))
+    pp.pprint(client.create_snapshot(args[0], args[1], args[2], args[3], args[4],))
 
 elif cmd == 'get_limits':
     if len(args) != 0:

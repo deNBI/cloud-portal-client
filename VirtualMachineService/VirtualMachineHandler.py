@@ -820,7 +820,7 @@ class VirtualMachineHandler(Iface):
             )
             return {}
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
         Create an Snapshot from an server.
 
@@ -844,11 +844,27 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Instance {0} not found".format(openstack_id))
             return
         try:
-            snapshot_id = snapshot_munch["id"]
-            self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
-            self.conn.image.add_tag(
-                image=snapshot_id, tag="snapshot_image:{0}".format(base_tag)
-            )
+            snapshot = self.conn.get_image_by_id(snapshot_munch["id"])
+            snapshot_id = snapshot["id"]
+            # todo check again
+            try:
+                image = self.conn.get_image(name_or_id=snapshot_id)
+                if description:
+                    self.conn.update_image_properties(
+                        image=image,
+                        meta={'description': description})
+
+                self.conn.image.add_tag(
+                    image=snapshot_id, tag="snapshot_image:{0}".format(base_tag)
+                )
+            except Exception:
+                self.logger.exception("Tag error catched")
+                pass
+            try:
+                self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
+            except Exception:
+                pass
+
             return snapshot_id
         except Exception as e:
             self.logger.exception(

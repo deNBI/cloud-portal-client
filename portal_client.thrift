@@ -370,7 +370,9 @@ service VirtualMachineService {
      3: string elixir_id,
 
      /** Tag with which the servers image is also tagged ( for connection information at the webapp) */
-     4:string base_tag)
+     4:string base_tag,
+     /** Description of the new snapshot*/
+     5:string description)
 
      throws (1:serverNotFoundException e),
 
