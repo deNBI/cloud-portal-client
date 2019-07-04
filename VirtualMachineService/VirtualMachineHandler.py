@@ -597,7 +597,7 @@ class VirtualMachineHandler(Iface):
 
             openstack_id = server.to_dict()["id"]
             global osi_key_dict
-            osi_key_dict[openstack_id] = private_key
+            osi_key_dict[openstack_id] = dict(key=private_key, name=servername)
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
@@ -616,7 +616,7 @@ class VirtualMachineHandler(Iface):
         # ip = fields["IP"]
         # port = fields["PORT"]
         global osi_key_dict
-        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source, osi_key_dict[openstack_id], private_key)
+        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source, osi_key_dict[openstack_id]["key"], private_key)
         playbook.run_it()
 
         # FOR DEV PURPOSES ONLY! create private key
