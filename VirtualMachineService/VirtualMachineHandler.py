@@ -424,6 +424,60 @@ class VirtualMachineHandler(Iface):
             )
         return server
 
+    def get_image(self, image):
+        image = self.conn.compute.find_image(image)
+        if image is None:
+            self.logger.exception("Image {0} not found!".format(image))
+            raise imageNotFoundException(
+                Reason=("Image {0} not found".format(image))
+            )
+        return image
+
+    def get_flavor(self, flavor):
+        flavor = self.conn.compute.find_flavor(flavor)
+        if flavor is None:
+            self.logger.exception("Flavor {0} not found!".format(flavor))
+            raise flavorNotFoundException(
+                Reason="Flavor {0} not found!".format(flavor)
+            )
+        return flavor
+
+    def get_network(self):
+        network = self.conn.network.find_network(self.NETWORK)
+        if network is None:
+            self.logger.exception("Network {0} not found!".format(network))
+            raise networkNotFoundException(
+                Reason="Network {0} not found!".format(network)
+            )
+        return network
+
+    def create_volume(self, volume_storage, volume_name, server_name):
+        self.logger.info(
+            "Creating volume with {0} GB diskspace".format(volume_storage)
+        )
+        try:
+            volume = self.conn.block_storage.create_volume(
+                name=volume_name, size=int(volume_storage)
+            ).to_dict()
+        except Exception as e:
+            self.logger.exception(
+                "Trying to create volume with {0}"
+                " GB for vm {1} error : {2}".format(volume_storage, server_name, e),
+                exc_info=True,
+            )
+            raise ressourceException(Reason=str(e))
+        return volume["id"]
+
+    def create_mount_init_script(self, volume_id):
+        fileDir = os.path.dirname(os.path.abspath(__file__))
+        mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+        with open(mount_script, "r") as file:
+            text = file.read()
+            text = text.replace("VOLUMEID", "virtio-" + volume_id[0:20])
+            text = encodeutils.safe_encode(text.encode("utf-8"))
+        init_script = base64.b64encode(text).decode("utf-8")
+        return init_script
+
     def start_server(
             self,
             flavor,
@@ -446,64 +500,28 @@ class VirtualMachineHandler(Iface):
         :param volumename: Name of the volume
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volumeId = ""
+        volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = {"elixir_id": elixir_id}
-            image = self.conn.compute.find_image(image)
-            if image is None:
-                self.logger.exception("Image {0} not found!".format(image))
-                raise imageNotFoundException(
-                    Reason=("Image {0} not fournd".format(image))
-                )
-            flavor = self.conn.compute.find_flavor(flavor)
-            if flavor is None:
-                self.logger.exception("Flavor {0} not found!".format(flavor))
-                raise flavorNotFoundException(
-                    Reason="Flavor {0} not found!".format(flavor)
-                )
-            network = self.conn.network.find_network(self.NETWORK)
-            if network is None:
-                self.logger.exception("Network {0} not found!".format(network))
-                raise networkNotFoundException(
-                    Reason="Network {0} not found!".format(network)
-                )
-
-            keyname = elixir_id[:-18]
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            key_name = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
-            keypair = self.import_keypair(keyname, public_key)
+            key_pair = self.import_keypair(key_name, public_key)
 
             if diskspace > "0":
-                self.logger.info(
-                    "Creating volume with {0} GB diskspace".format(diskspace)
-                )
-                try:
-                    volume = self.conn.block_storage.create_volume(
-                        name=volumename, size=int(diskspace)
-                    ).to_dict()
-                except Exception as e:
-                    self.logger.exception(
-                        "Trying to create volume with {0}"
-                        " GB for vm {1} error : {2}".format(diskspace, servername, e),
-                        exc_info=True,
-                    )
-                    raise ressourceException(Reason=str(e))
-                volumeId = volume["id"]
-
-                fileDir = os.path.dirname(os.path.abspath(__file__))
-                mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
-                with open(mount_script, "r") as file:
-                    text = file.read()
-                    text = text.replace("VOLUMEID", "virtio-" + volumeId[0:20])
-                    text = encodeutils.safe_encode(text.encode("utf-8"))
-                init_script = base64.b64encode(text).decode("utf-8")
+                volume_id = self.create_volume(volume_storage=diskspace, volume_name=volumename,
+                                               server_name=servername)
+                init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
                     name=servername,
                     image_id=image.id,
                     flavor_id=flavor.id,
                     networks=[{"uuid": network.id}],
-                    key_name=keypair.name,
+                    key_name=key_pair.name,
                     metadata=metadata,
                     user_data=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
@@ -514,13 +532,13 @@ class VirtualMachineHandler(Iface):
                     image_id=image.id,
                     flavor_id=flavor.id,
                     networks=[{"uuid": network.id}],
-                    key_name=keypair.name,
+                    key_name=key_pair.name,
                     metadata=metadata,
                 )
 
             openstack_id = server.to_dict()["id"]
 
-            return {"openstackid": openstack_id, "volumeId": volumeId}
+            return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
@@ -540,56 +558,18 @@ class VirtualMachineHandler(Iface):
         :param volumename: Name of the volume
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volumeId = ""
         self.logger.info("Start Server {} with custom key".format(servername))
+        volume_id = ''
         try:
             metadata = {"elixir_id": elixir_id}
-            image = self.conn.compute.find_image(image)
-            if image is None:
-                self.logger.exception("Image {0} not found!".format(image))
-                raise imageNotFoundException(
-                    Reason=("Image {0} not fournd".format(image))
-                )
-            flavor = self.conn.compute.find_flavor(flavor)
-            if flavor is None:
-                self.logger.exception("Flavor {0} not found!".format(flavor))
-                raise flavorNotFoundException(
-                    Reason="Flavor {0} not found!".format(flavor)
-                )
-            network = self.conn.network.find_network(self.NETWORK)
-            if network is None:
-                self.logger.exception("Network {0} not found!".format(network))
-                raise networkNotFoundException(
-                    Reason="Network {0} not found!".format(network)
-                )
-
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
             private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
-            self.logger.info("Private key {}".format(private_key))
-
-            if diskspace > "0":
-                self.logger.info(
-                    "Creating volume with {0} GB diskspace".format(diskspace)
-                )
-                try:
-                    volume = self.conn.block_storage.create_volume(
-                        name=volumename, size=int(diskspace)
-                    ).to_dict()
-                except Exception as e:
-                    self.logger.exception(
-                        "Trying to create volume with {0}"
-                        " GB for vm {1} error : {2}".format(diskspace, servername, e),
-                        exc_info=True,
-                    )
-                    raise ressourceException(Reason=str(e))
-                volumeId = volume["id"]
-
-                fileDir = os.path.dirname(os.path.abspath(__file__))
-                mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
-                with open(mount_script, "r") as file:
-                    text = file.read()
-                    text = text.replace("VOLUMEID", "virtio-" + volumeId[0:20])
-                    text = encodeutils.safe_encode(text.encode("utf-8"))
-                init_script = base64.b64encode(text).decode("utf-8")
+            if int(diskspace) > 0:
+                volume_id = self.create_volume(volume_storage=diskspace, volume_name=volumename,
+                                               server_name=servername)
+                init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
                     name=servername,
@@ -613,7 +593,7 @@ class VirtualMachineHandler(Iface):
 
             openstack_id = server.to_dict()["id"]
 
-            return {"openstackid": openstack_id, "volumeId": volumeId, 'private_key': private_key}
+            return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
