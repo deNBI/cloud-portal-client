@@ -55,6 +55,8 @@ class VirtualMachineHandler(Iface):
     global osi_key_dict
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
+    PREPARE_BIOCONDA_BUILD = "PREPARE_BIOCONDA_BUILD"
+    BUILD_BIOCONDA = "BUILD_BIOCONDA"
 
     def create_connection(self):
         """
@@ -606,7 +608,8 @@ class VirtualMachineHandler(Iface):
 
             openstack_id = server.to_dict()["id"]
             global osi_key_dict
-            osi_key_dict[openstack_id] = dict(key=private_key, name=servername, status=self.BUILD)
+            osi_key_dict[openstack_id] = dict(key=private_key, name=servername,
+                                              status=self.PREPARE_BIOCONDA_BUILD)
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
@@ -626,6 +629,7 @@ class VirtualMachineHandler(Iface):
         # ip = fields["IP"]
         # port = fields["PORT"]
         global osi_key_dict
+        osi_key_dict[openstack_id]["status"] = self.BUILD
         key_name = osi_key_dict[openstack_id]['name']
         playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source,
                                     osi_key_dict[openstack_id]["key"], private_key)
@@ -781,19 +785,29 @@ class VirtualMachineHandler(Iface):
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK
                     )
-                if self.netcat(host, port)\
-                        and (openstack_id in osi_key_dict and osi_key_dict[openstack_id]["status"] == self.ACTIVE or openstack_id not in osi_key_dict):
+                if self.netcat(host, port):
+                    server = self.get_server(openstack_id)
+
                     if diskspace > 0:
                         attached = self.attach_volume_to_server(
                             openstack_id=openstack_id, volume_id=volume_id
                         )
 
                         if attached is False:
-                            server = self.get_server(openstack_id)
                             self.delete_server(openstack_id=openstack_id)
                             server.status = "DESTROYED"
                             return server
-                        return self.get_server(openstack_id)
+                    if openstack_id in osi_key_dict:
+                        if osi_key_dict[openstack_id][
+                            "status"] == self.PREPARE_BIOCONDA_BUILD:
+                            server.status = self.PREPARE_BIOCONDA_BUILD
+                            return server
+                        elif osi_key_dict[openstack_id][
+                            "status"] == self.BUILD_BIOCONDA:
+                            server.status = self.BUILD_BIOCONDA
+                            return server
+                        else:
+                            return server
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
