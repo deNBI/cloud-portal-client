@@ -629,10 +629,11 @@ class VirtualMachineHandler(Iface):
         # ip = fields["IP"]
         # port = fields["PORT"]
         global osi_key_dict
-        osi_key_dict[openstack_id]["status"] = self.BUILD
         key_name = osi_key_dict[openstack_id]['name']
         playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source,
                                     osi_key_dict[openstack_id]["key"], private_key)
+        osi_key_dict[openstack_id]["status"] = self.BUILD_BIOCONDA
+
         playbook.run_it()
         osi_key_dict[openstack_id]["status"] = self.ACTIVE
         # FOR DEV PURPOSES ONLY! create private key
@@ -797,6 +798,7 @@ class VirtualMachineHandler(Iface):
                             self.delete_server(openstack_id=openstack_id)
                             server.status = "DESTROYED"
                             return server
+
                     if openstack_id in osi_key_dict:
                         if osi_key_dict[openstack_id][
                             "status"] == self.PREPARE_BIOCONDA_BUILD:

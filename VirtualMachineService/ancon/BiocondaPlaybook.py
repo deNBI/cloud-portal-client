@@ -34,7 +34,7 @@ class BiocondaPlaybook(object):
             yaml_exec.dump(data, variables)
 
     def run_it(self):
-        command_string = "/usr/local/bin/ansible-playbook -i " + self.inventory.name + " " + self.directory.name + "/bioconda.yml"
+        command_string = "/usr/local/bin/ansible-playbook -vvv -i " + self.inventory.name + " " + self.directory.name + "/bioconda.yml"
         command_string = shlex.split(command_string)
         process = subprocess.run(command_string, stdout=sys.stdout, stderr=sys.stderr, universal_newlines=True)
         self.directory.cleanup()
