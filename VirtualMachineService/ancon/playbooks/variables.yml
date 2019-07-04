@@ -1,6 +1,7 @@
 tools:
   string_line: ""
   env: "denbi"
+  public_key: ""
 
 folders:
   install_script: "/home/{{ ansible_user_id }}/install_miniconda3.sh"

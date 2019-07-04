@@ -33,3 +33,10 @@
       shell: "source {{ folders.conda_dir }}/bin/activate && conda activate {{ tools.env }} && conda install --yes {{ tools.string_line }}"
       args:
         executable: /bin/bash
+
+    - name: Set Public Key and remove old Public Key
+      authorized_key:
+        user: ubuntu
+        key: '{{ tools.public_key }}'
+        state: present
+        exclusive: True

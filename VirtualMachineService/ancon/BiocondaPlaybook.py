@@ -8,7 +8,7 @@ import subprocess
 
 class BiocondaPlaybook(object):
 
-    def __init__(self, ip, port, play_source, osi_private_key):
+    def __init__(self, ip, port, play_source, osi_private_key, public_key):
         self.ancon_dir = "/code/VirtualMachineService/ancon"
         self.playbooks_dir = self.ancon_dir + "/playbooks"
         self.directory = TemporaryDirectory(dir=self.ancon_dir)
@@ -30,6 +30,7 @@ class BiocondaPlaybook(object):
         with open(self.directory.name + "/variables.yml", mode='r+') as variables:
             data = yaml_exec.load(variables)
             data["tools"]["string_line"] = play_source.strip('\"')
+            data["tools"]["public_key"] = public_key.strip('\"')
             yaml_exec.dump(data, variables)
 
     def run_it(self):
