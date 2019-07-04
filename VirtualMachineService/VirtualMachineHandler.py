@@ -616,8 +616,7 @@ class VirtualMachineHandler(Iface):
         # ip = fields["IP"]
         # port = fields["PORT"]
         global osi_key_dict
-        self.logger.info(osi_key_dict)
-        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source)
+        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source, osi_key_dict[openstack_id])
         playbook.run_it()
 
         # FOR DEV PURPOSES ONLY! create private key
