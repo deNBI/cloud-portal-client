@@ -27,10 +27,9 @@ class BiocondaPlaybook(object):
         self.inventory.write(inventory_string)
         self.inventory.close()
         yaml_exec = ruamel.yaml.YAML()
-        self.play_source = play_source.strip('\"')
         with open(self.directory.name + "/variables.yml", mode='r+') as variables:
             data = yaml_exec.load(variables)
-            data["tools"]["string_line"] = play_source
+            data["tools"]["string_line"] = play_source.strip('\"')
             yaml_exec.dump(data, variables)
 
     def run_it(self):
