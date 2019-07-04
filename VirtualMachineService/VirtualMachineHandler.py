@@ -307,6 +307,11 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Get Image {0} with Tag Error: {1}".format(id, e))
             return
 
+    def delete_keypair(self, key_name):
+        key_pair = self.conn.compute.find_keypair(key_name)
+        if key_pair:
+            self.conn.compute.delete_keypair(key_pair)
+
     def import_keypair(self, keyname, public_key):
         """
         Import Keypair to OpenStack.
@@ -457,7 +462,7 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_volume(self, volume_storage, volume_name, server_name):
+    def create_volume_by_start(self, volume_storage, volume_name, server_name):
         self.logger.info(
             "Creating volume with {0} GB diskspace".format(volume_storage)
         )
@@ -518,8 +523,9 @@ class VirtualMachineHandler(Iface):
             key_pair = self.import_keypair(key_name, public_key)
 
             if diskspace > "0":
-                volume_id = self.create_volume(volume_storage=diskspace, volume_name=volumename,
-                                               server_name=servername)
+                volume_id = self.create_volume_by_start(volume_storage=diskspace,
+                                                        volume_name=volumename,
+                                                        server_name=servername)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
@@ -573,8 +579,9 @@ class VirtualMachineHandler(Iface):
             network = self.get_network()
             private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
             if int(diskspace) > 0:
-                volume_id = self.create_volume(volume_storage=diskspace, volume_name=volumename,
-                                               server_name=servername)
+                volume_id = self.create_volume_by_start(volume_storage=diskspace,
+                                                        volume_name=volumename,
+                                                        server_name=servername)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
@@ -602,6 +609,7 @@ class VirtualMachineHandler(Iface):
             osi_key_dict[openstack_id] = dict(key=private_key, name=servername, status=self.BUILD)
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
+            self.delete_keypair(key_name=servername)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -618,7 +626,9 @@ class VirtualMachineHandler(Iface):
         # ip = fields["IP"]
         # port = fields["PORT"]
         global osi_key_dict
-        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source, osi_key_dict[openstack_id]["key"], private_key)
+        key_name = osi_key_dict[openstack_id]['name']
+        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source,
+                                    osi_key_dict[openstack_id]["key"], private_key)
         playbook.run_it()
         osi_key_dict[openstack_id]["status"] = self.ACTIVE
         # FOR DEV PURPOSES ONLY! create private key
@@ -673,29 +683,9 @@ class VirtualMachineHandler(Iface):
         #         command_string = shlex.split(command_string)
         #         process = subprocess.run(command_string, stdout=sys.stdout, stderr=sys.stderr, universal_newlines=True)
         #         directory.cleanup()
+
+        self.delete_keypair(key_name=key_name)
         return 0
-
-    def create_volume(self, volume_name, diskspace):
-        """
-        Create volume.
-
-        :param volume_name: Name of volume
-        :param diskspace: Diskspace in GB for new volume
-        :return: Id of new volume
-        """
-        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
-        try:
-            volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace)
-            ).to_dict()
-            volumeId = volume["id"]
-            return volumeId
-        except Exception as e:
-            self.logger.exception(
-                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
-                exc_info=True,
-            )
-            raise ressourceException(Reason=str(e))
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
