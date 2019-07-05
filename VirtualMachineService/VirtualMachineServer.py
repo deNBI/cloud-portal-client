@@ -4,12 +4,12 @@ import sys
 try:
     from VirtualMachineService import Client, Processor
 except Exception:
-    from .VirtualMachineService import Client, Processor
+    from VirtualMachineService import Client, Processor
 
 try:
     from VirtualMachineHandler import VirtualMachineHandler
 except Exception:
-    from .VirtualMachineHandler import VirtualMachineHandler
+    from VirtualMachineHandler import VirtualMachineHandler
 
 from thrift.transport import TSSLSocket
 from thrift.transport import TTransport

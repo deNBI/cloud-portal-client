@@ -1,0 +1,9 @@
+tools:
+  string_line: ""
+  env: "denbi"
+  public_key: ""
+
+folders:
+  install_script: "/home/{{ ansible_user_id }}/install_miniconda3.sh"
+  conda_dir: "/home/{{ ansible_user_id }}/miniconda3"
+  conda_installer_url: "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
