@@ -15,6 +15,8 @@ try:
     from ttypes import ressourceException
     from ttypes import Flavor, Image, VM
     from constants import VERSION
+    from ancon.BiocondaPlaybook import BiocondaPlaybook
+
 except Exception:
     from .VirtualMachineService import Iface
     from .ttypes import serverNotFoundException
@@ -26,6 +28,8 @@ except Exception:
     from .ttypes import ressourceException
     from .ttypes import Flavor, Image, VM
     from .constants import VERSION
+    from .ancon.BiocondaPlaybook import BiocondaPlaybook
+
 from openstack import connection
 from deprecated import deprecated
 from keystoneauth1.identity import v3
@@ -42,9 +46,17 @@ import yaml
 import base64
 from oslo_utils import encodeutils
 
+osi_key_dict = dict()
+
 
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
+
+    global osi_key_dict
+    BUILD = "BUILD"
+    ACTIVE = "ACTIVE"
+    PREPARE_BIOCONDA_BUILD = "PREPARE_BIOCONDA_BUILD"
+    BUILD_BIOCONDA = "BUILD_BIOCONDA"
 
     def create_connection(self):
         """
@@ -297,6 +309,11 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Get Image {0} with Tag Error: {1}".format(id, e))
             return
 
+    def delete_keypair(self, key_name):
+        key_pair = self.conn.compute.find_keypair(key_name)
+        if key_pair:
+            self.conn.compute.delete_keypair(key_pair)
+
     def import_keypair(self, keyname, public_key):
         """
         Import Keypair to OpenStack.
@@ -420,6 +437,60 @@ class VirtualMachineHandler(Iface):
             )
         return server
 
+    def get_image(self, image):
+        image = self.conn.compute.find_image(image)
+        if image is None:
+            self.logger.exception("Image {0} not found!".format(image))
+            raise imageNotFoundException(
+                Reason=("Image {0} not found".format(image))
+            )
+        return image
+
+    def get_flavor(self, flavor):
+        flavor = self.conn.compute.find_flavor(flavor)
+        if flavor is None:
+            self.logger.exception("Flavor {0} not found!".format(flavor))
+            raise flavorNotFoundException(
+                Reason="Flavor {0} not found!".format(flavor)
+            )
+        return flavor
+
+    def get_network(self):
+        network = self.conn.network.find_network(self.NETWORK)
+        if network is None:
+            self.logger.exception("Network {0} not found!".format(network))
+            raise networkNotFoundException(
+                Reason="Network {0} not found!".format(network)
+            )
+        return network
+
+    def create_volume_by_start(self, volume_storage, volume_name, server_name):
+        self.logger.info(
+            "Creating volume with {0} GB diskspace".format(volume_storage)
+        )
+        try:
+            volume = self.conn.block_storage.create_volume(
+                name=volume_name, size=int(volume_storage)
+            ).to_dict()
+        except Exception as e:
+            self.logger.exception(
+                "Trying to create volume with {0}"
+                " GB for vm {1} error : {2}".format(volume_storage, server_name, e),
+                exc_info=True,
+            )
+            raise ressourceException(Reason=str(e))
+        return volume["id"]
+
+    def create_mount_init_script(self, volume_id):
+        fileDir = os.path.dirname(os.path.abspath(__file__))
+        mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+        with open(mount_script, "r") as file:
+            text = file.read()
+            text = text.replace("VOLUMEID", "virtio-" + volume_id[0:20])
+            text = encodeutils.safe_encode(text.encode("utf-8"))
+        init_script = base64.b64encode(text).decode("utf-8")
+        return init_script
+
     def start_server(
             self,
             flavor,
@@ -442,64 +513,29 @@ class VirtualMachineHandler(Iface):
         :param volumename: Name of the volume
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volumeId = ""
+        volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
         try:
             metadata = {"elixir_id": elixir_id}
-            image = self.conn.compute.find_image(image)
-            if image is None:
-                self.logger.exception("Image {0} not found!".format(image))
-                raise imageNotFoundException(
-                    Reason=("Image {0} not fournd".format(image))
-                )
-            flavor = self.conn.compute.find_flavor(flavor)
-            if flavor is None:
-                self.logger.exception("Flavor {0} not found!".format(flavor))
-                raise flavorNotFoundException(
-                    Reason="Flavor {0} not found!".format(flavor)
-                )
-            network = self.conn.network.find_network(self.NETWORK)
-            if network is None:
-                self.logger.exception("Network {0} not found!".format(network))
-                raise networkNotFoundException(
-                    Reason="Network {0} not found!".format(network)
-                )
-
-            keyname = elixir_id[:-18]
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            key_name = elixir_id[:-18]
             public_key = urllib.parse.unquote(public_key)
-            keypair = self.import_keypair(keyname, public_key)
+            key_pair = self.import_keypair(key_name, public_key)
 
             if diskspace > "0":
-                self.logger.info(
-                    "Creating volume with {0} GB diskspace".format(diskspace)
-                )
-                try:
-                    volume = self.conn.block_storage.create_volume(
-                        name=volumename, size=int(diskspace)
-                    ).to_dict()
-                except Exception as e:
-                    self.logger.exception(
-                        "Trying to create volume with {0}"
-                        " GB for vm {1} error : {2}".format(diskspace, servername, e),
-                        exc_info=True,
-                    )
-                    raise ressourceException(Reason=str(e))
-                volumeId = volume["id"]
-
-                fileDir = os.path.dirname(os.path.abspath(__file__))
-                mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
-                with open(mount_script, "r") as file:
-                    text = file.read()
-                    text = text.replace("VOLUMEID", "virtio-" + volumeId[0:20])
-                    text = encodeutils.safe_encode(text.encode("utf-8"))
-                init_script = base64.b64encode(text).decode("utf-8")
+                volume_id = self.create_volume_by_start(volume_storage=diskspace,
+                                                        volume_name=volumename,
+                                                        server_name=servername)
+                init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
                     name=servername,
                     image_id=image.id,
                     flavor_id=flavor.id,
                     networks=[{"uuid": network.id}],
-                    key_name=keypair.name,
+                    key_name=key_pair.name,
                     metadata=metadata,
                     user_data=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
@@ -510,38 +546,88 @@ class VirtualMachineHandler(Iface):
                     image_id=image.id,
                     flavor_id=flavor.id,
                     networks=[{"uuid": network.id}],
-                    key_name=keypair.name,
+                    key_name=key_pair.name,
                     metadata=metadata,
                 )
 
             openstack_id = server.to_dict()["id"]
 
-            return {"openstackid": openstack_id, "volumeId": volumeId}
+            return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
-    def create_volume(self, volume_name, diskspace):
-        """
-        Create volume.
+    def start_server_with_custom_key(self, flavor, image, servername, elixir_id, diskspace,
+                                     volumename):
 
-        :param volume_name: Name of volume
-        :param diskspace: Diskspace in GB for new volume
-        :return: Id of new volume
         """
-        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
+        Start a new Server.
+
+        :param flavor: Name of flavor which should be used.
+        :param image: Name of image which should be used
+        :param public_key: Publickey which should be used
+        :param servername: Name of the new server
+        :param elixir_id: Elixir_id of the user who started a new server
+        :param diskspace: Diskspace in GB for volume which should be created
+        :param volumename: Name of the volume
+        :return: {'openstackid': serverId, 'volumeId': volumeId}
+        """
+        self.logger.info("Start Server {} with custom key".format(servername))
+        volume_id = ''
         try:
-            volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace)
-            ).to_dict()
-            volumeId = volume["id"]
-            return volumeId
+            metadata = {"elixir_id": elixir_id}
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
+            if int(diskspace) > 0:
+                volume_id = self.create_volume_by_start(volume_storage=diskspace,
+                                                        volume_name=volumename,
+                                                        server_name=servername)
+                init_script = self.create_mount_init_script(volume_id=volume_id)
+
+                server = self.conn.compute.create_server(
+                    name=servername,
+                    image_id=image.id,
+                    flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}],
+                    key_name=servername,
+                    metadata=metadata,
+                    user_data=init_script,
+                    availability_zone=self.AVAIALABILITY_ZONE,
+                )
+            else:
+                server = self.conn.compute.create_server(
+                    name=servername,
+                    image_id=image.id,
+                    flavor_id=flavor.id,
+                    networks=[{"uuid": network.id}],
+                    key_name=servername,
+                    metadata=metadata,
+                )
+
+            openstack_id = server.to_dict()["id"]
+            global osi_key_dict
+            osi_key_dict[openstack_id] = dict(key=private_key, name=servername,
+                                              status=self.PREPARE_BIOCONDA_BUILD)
+            return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
-            self.logger.exception(
-                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
-                exc_info=True,
-            )
-            raise ressourceException(Reason=str(e))
+            self.delete_keypair(key_name=servername)
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
+            return {}
+
+    def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+        # get ip and port for inventory
+        fields = self.get_ip_ports(openstack_id=openstack_id)
+        global osi_key_dict
+        key_name = osi_key_dict[openstack_id]['name']
+        playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source,
+                                    osi_key_dict[openstack_id]["key"], private_key)
+        osi_key_dict[openstack_id]["status"] = self.BUILD_BIOCONDA
+        playbook.run_it()
+        osi_key_dict[openstack_id]["status"] = self.ACTIVE
+        self.delete_keypair(key_name=key_name)
+        return 0
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -623,7 +709,8 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv["status"] == "ACTIVE":
+            global osi_key_dict
+            if serv["status"] == self.ACTIVE:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
@@ -637,17 +724,29 @@ class VirtualMachineHandler(Iface):
                         openstack_id, self.FLOATING_IP_NETWORK
                     )
                 if self.netcat(host, port):
+                    server = self.get_server(openstack_id)
+
                     if diskspace > 0:
                         attached = self.attach_volume_to_server(
                             openstack_id=openstack_id, volume_id=volume_id
                         )
 
                         if attached is False:
-                            server = self.get_server(openstack_id)
                             self.delete_server(openstack_id=openstack_id)
                             server.status = "DESTROYED"
                             return server
-                        return self.get_server(openstack_id)
+
+                    if openstack_id in osi_key_dict:
+                        if osi_key_dict[openstack_id][
+                            "status"] == self.PREPARE_BIOCONDA_BUILD:
+                            server.status = self.PREPARE_BIOCONDA_BUILD
+                            return server
+                        elif osi_key_dict[openstack_id][
+                            "status"] == self.BUILD_BIOCONDA:
+                            server.status = self.BUILD_BIOCONDA
+                            return server
+                        else:
+                            return server
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
@@ -655,7 +754,7 @@ class VirtualMachineHandler(Iface):
                     return server
             else:
                 server = self.get_server(openstack_id)
-                server.status = "BUILD"
+                server.status = self.BUILD
                 return server
         except Exception as e:
             self.logger.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
@@ -744,7 +843,7 @@ class VirtualMachineHandler(Iface):
             )
             return {}
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
         Create an Snapshot from an server.
 
@@ -770,17 +869,21 @@ class VirtualMachineHandler(Iface):
         try:
             snapshot = self.conn.get_image_by_id(snapshot_munch["id"])
             snapshot_id = snapshot["id"]
-            #todo check again
+            # todo check again
             try:
+                image = self.conn.get_image(name_or_id=snapshot_id)
+                if description:
+                    self.conn.update_image_properties(
+                        image=image,
+                        meta={'description': description})
+
                 self.conn.image.add_tag(
                     image=snapshot_id, tag="snapshot_image:{0}".format(base_tag)
                 )
             except Exception:
                 self.logger.exception("Tag error catched")
                 pass
-            try :
-                self.logger.exception("Tag error catched")
-
+            try:
                 self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
             except Exception:
                 pass

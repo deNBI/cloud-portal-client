@@ -1,3 +1,15 @@
+##  (2019-07-10)
+
+
+#### Features
+
+* **Snapshot:** addeed description ([e7570b12](e7570b12))
+
+#### Bug Fixes
+
+* **ansible:**  fix string.strip error ([dafd8045](dafd8045))
+
+
 ##  (2019-06-18)
 
 #### Refactor

@@ -299,8 +299,40 @@ service VirtualMachineService {
     /** Name of additional Volume*/
     7:string volumename)
 
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o),
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
+
+    /**
+	 * Start a new server.
+	 */
+    map<string,string> start_server_with_custom_key(
+
+    /** Name of the  Flavor to use.*/
+    1:string flavor,
+
+    /** Name of the image to use. */
+    2:string image,
+
+    /** Name for the new server */
+    3:string servername,
+
+    /** Elixir-Id of the user who requested to start a new server*/
+    4:string elixir_id,
+
+    /** Diskspace in GB for additional volume.*/
+    5:string diskspace,
+
+    /** Name of additional Volume*/
+    6:string volumename)
+
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+
+    /** Create and deploy an anaconda ansible playbook*/
+    int create_and_deploy_playbook(
+    1:string private_key,
+    2:string play_source,
+    3:string openstack_id
+   )
 
     /**
     * Adds a security group to a server
@@ -364,7 +396,9 @@ service VirtualMachineService {
      3: string elixir_id,
 
      /** Tag with which the servers image is also tagged ( for connection information at the webapp) */
-     4:string base_tag)
+     4:string base_tag,
+     /** Description of the new snapshot*/
+     5:string description)
 
      throws (1:serverNotFoundException e),
 
