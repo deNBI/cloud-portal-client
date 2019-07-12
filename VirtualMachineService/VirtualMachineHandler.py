@@ -491,6 +491,28 @@ class VirtualMachineHandler(Iface):
         init_script = base64.b64encode(text).decode("utf-8")
         return init_script
 
+    def create_volume(self, volume_name, diskspace):
+        """
+        Create volume.
+        :param volume_name: Name of volume
+        :param diskspace: Diskspace in GB for new volume
+        :return: Id of new volume
+        """
+        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
+        try:
+            volume = self.conn.block_storage.create_volume(
+                name=volume_name, size=int(diskspace)
+            ).to_dict()
+            volumeId = volume["id"]
+            return volumeId
+        except Exception as e:
+            self.logger.exception(
+                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
+                exc_info=True,
+            )
+
+            raise ressourceException(Reason=str(e))
+
     def start_server(
             self,
             flavor,
