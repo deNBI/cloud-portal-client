@@ -2,6 +2,7 @@ tools:
   string_line: ""
   env: "denbi"
   public_key: ""
+  timeout_length: "5m"
 
 folders:
   install_script: "/home/{{ ansible_user_id }}/install_miniconda3.sh"

@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM
+    from ttypes import Flavor, Image, VM, PlaybookResult
     from constants import VERSION
     from ancon.BiocondaPlaybook import BiocondaPlaybook
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM
+    from .ttypes import Flavor, Image, VM, PlaybookResult
     from .constants import VERSION
     from .ancon.BiocondaPlaybook import BiocondaPlaybook
 
@@ -47,6 +47,7 @@ import base64
 from oslo_utils import encodeutils
 
 osi_key_dict = dict()
+active_playbooks = dict()
 
 
 class VirtualMachineHandler(Iface):
@@ -57,6 +58,7 @@ class VirtualMachineHandler(Iface):
     ACTIVE = "ACTIVE"
     PREPARE_BIOCONDA_BUILD = "PREPARE_BIOCONDA_BUILD"
     BUILD_BIOCONDA = "BUILD_BIOCONDA"
+    BIOCONDA_FAILED = "BIOCONDA_FAILED"
 
     def create_connection(self):
         """
@@ -617,17 +619,39 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+        self.logger.info(msg="Starting Bioconda Playbook for (openstack_id): {0} with packages {1}"
+                         .format(openstack_id, play_source))
         # get ip and port for inventory
         fields = self.get_ip_ports(openstack_id=openstack_id)
         global osi_key_dict
+        global active_playbooks
         key_name = osi_key_dict[openstack_id]['name']
         playbook = BiocondaPlaybook(fields["IP"], fields["PORT"], play_source,
                                     osi_key_dict[openstack_id]["key"], private_key)
+        active_playbooks[openstack_id] = playbook
         osi_key_dict[openstack_id]["status"] = self.BUILD_BIOCONDA
-        playbook.run_it()
-        osi_key_dict[openstack_id]["status"] = self.ACTIVE
+        status, stdout, stderr = playbook.run_it()
         self.delete_keypair(key_name=key_name)
-        return 0
+        if status != 0:
+        #    self.logger.exception(msg="Bioconda playbook for {0} encountered an error with status code {1}. The messages are:"
+        #                              "stdout: {2}"
+        #                              "stderr: {3}".format(openstack_id, status, stdout, stderr))
+            osi_key_dict[openstack_id]["status"] = self.BIOCONDA_FAILED
+        else:
+        #    self.logger.info("Finished Bioconda Playbook for (openstack_id): {0} with status code: {1}"
+        #                     .format(openstack_id, status))
+            osi_key_dict[openstack_id]["status"] = self.ACTIVE
+        return status
+
+    def get_playbook_logs(self, openstack_id):
+        global active_playbooks
+        if openstack_id in active_playbooks:
+            playbook = active_playbooks.pop(openstack_id)
+            status, stdout, stderr = playbook.get_logs()
+            playbook.cleanup()
+            return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
+        else:
+            return PlaybookResult(status=-2, stdout='', stderr='')
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -737,13 +761,14 @@ class VirtualMachineHandler(Iface):
                             return server
 
                     if openstack_id in osi_key_dict:
-                        if osi_key_dict[openstack_id][
-                            "status"] == self.PREPARE_BIOCONDA_BUILD:
+                        if osi_key_dict[openstack_id]["status"] == self.PREPARE_BIOCONDA_BUILD:
                             server.status = self.PREPARE_BIOCONDA_BUILD
                             return server
-                        elif osi_key_dict[openstack_id][
-                            "status"] == self.BUILD_BIOCONDA:
+                        elif osi_key_dict[openstack_id]["status"] == self.BUILD_BIOCONDA:
                             server.status = self.BUILD_BIOCONDA
+                            return server
+                        elif osi_key_dict[openstack_id]["status"] == self.BIOCONDA_FAILED:
+                            server.status = self.BIOCONDA_FAILED
                             return server
                         else:
                             return server
