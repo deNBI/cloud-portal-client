@@ -1,4 +1,4 @@
-- name: Install miniconda3 and a Test-Package
+- name: Install miniconda3 and the chosen packages
   hosts: all
   connection: paramiko_ssh
   gather_facts: yes
@@ -12,29 +12,30 @@
         url: "{{ folders.conda_installer_url }}"
         dest: "{{ folders.install_script }}"
         mode: 0755
+        timeout: 180
 
     - name: Install miniconda
-      shell: "{{ folders.install_script }} -b"
+      shell: "timeout 3m {{ folders.install_script }} -b"
       args:
         executable: /bin/bash
         creates: "{{ folders.conda_dir }}"
 
-    - name: Add Channels
-      shell: "source {{ folders.conda_dir }}/bin/activate && conda config --add channels default && conda config --add channels bioconda && conda config --add channels conda-forge"
+    - name: Add channels
+      shell: "timeout 2m bash -c 'source {{ folders.conda_dir }}/bin/activate && conda config --add channels default && conda config --add channels bioconda && conda config --add channels conda-forge'"
       args:
         executable: /bin/bash
 
-    - name: Create Environment
-      shell: "source {{ folders.conda_dir }}/bin/activate && conda create --yes -n {{ tools.env }}"
+    - name: Create environment
+      shell: "timeout 2m bash -c 'source {{ folders.conda_dir }}/bin/activate && conda create --yes -n {{ tools.env }}'"
       args:
         executable: /bin/bash
 
-    - name: Install Test-Package
-      shell: "source {{ folders.conda_dir }}/bin/activate && conda activate {{ tools.env }} && conda install --yes {{ tools.string_line }}"
+    - name: Install chosen packages
+      shell: "timeout {{ tools.timeout_length }} bash -c 'source {{ folders.conda_dir }}/bin/activate && conda activate {{ tools.env }} && conda install --yes {{ tools.string_line }}'"
       args:
         executable: /bin/bash
 
-    - name: Set Public Key and remove old Public Key
+    - name: Set user public Key and remove created public Key
       authorized_key:
         user: ubuntu
         key: '{{ tools.public_key }}'

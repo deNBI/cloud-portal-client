@@ -2,12 +2,12 @@ import os
 import sys
 
 try:
-    from VirtualMachineService import Client, Processor
+    from VirtualMachineService.VirtualMachineService import Client, Processor
 except Exception:
     from VirtualMachineService import Client, Processor
 
 try:
-    from VirtualMachineHandler import VirtualMachineHandler
+    from  VirtualMachineService.VirtualMachineHandler import VirtualMachineHandler
 except Exception:
     from VirtualMachineHandler import VirtualMachineHandler
 

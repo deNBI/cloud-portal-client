@@ -547,6 +547,93 @@ class VM(object):
         return not (self == other)
 
 
+class PlaybookResult(object):
+    """
+    This Struct defines the result of a playbook run.
+
+    Attributes:
+     - status: The exit status code of the run
+     - stdout: The standard logs of the run
+     - stderr: The error logs of the run
+
+    """
+
+
+    def __init__(self, status=None, stdout=None, stderr=None,):
+        self.status = status
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I32:
+                    self.status = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.stdout = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.stderr = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('PlaybookResult')
+        if self.status is not None:
+            oprot.writeFieldBegin('status', TType.I32, 1)
+            oprot.writeI32(self.status)
+            oprot.writeFieldEnd()
+        if self.stdout is not None:
+            oprot.writeFieldBegin('stdout', TType.STRING, 2)
+            oprot.writeString(self.stdout.encode('utf-8') if sys.version_info[0] == 2 else self.stdout)
+            oprot.writeFieldEnd()
+        if self.stderr is not None:
+            oprot.writeFieldBegin('stderr', TType.STRING, 3)
+            oprot.writeString(self.stderr.encode('utf-8') if sys.version_info[0] == 2 else self.stderr)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        if self.status is None:
+            raise TProtocolException(message='Required field status is unset!')
+        if self.stdout is None:
+            raise TProtocolException(message='Required field stdout is unset!')
+        if self.stderr is None:
+            raise TProtocolException(message='Required field stderr is unset!')
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class otherException(TException):
     """
     Attributes:
@@ -1067,6 +1154,13 @@ VM.thrift_spec = (
     (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
     (12, TType.I32, 'diskspace', None, None, ),  # 12
     (13, TType.STRING, 'volume_id', 'UTF8', None, ),  # 13
+)
+all_structs.append(PlaybookResult)
+PlaybookResult.thrift_spec = (
+    None,  # 0
+    (1, TType.I32, 'status', None, None, ),  # 1
+    (2, TType.STRING, 'stdout', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'stderr', 'UTF8', None, ),  # 3
 )
 all_structs.append(otherException)
 otherException.thrift_spec = (
