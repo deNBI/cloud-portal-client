@@ -111,12 +111,22 @@ struct VM {
 
     /** Id of additional volume */
 	13:optional string volume_id
-
-
-
-
-	
 }
+
+/**
+ * This Struct defines the result of a playbook run.
+ */
+struct PlaybookResult {
+    /**The exit status code of the run*/
+    1: required int status
+    /**The standard logs of the run*/
+    2: required string stdout
+    /**The error logs of the run*/
+    3: required string stderr
+}
+
+
+
 
 
 exception otherException {
@@ -332,7 +342,12 @@ service VirtualMachineService {
     1:string private_key,
     2:string play_source,
     3:string openstack_id
-   )
+    )
+
+    /** Get the logs from a playbook run*/
+    PlaybookResult get_playbook_logs(
+    1:string openstack_id
+    )
 
     /**
     * Adds a security group to a server
