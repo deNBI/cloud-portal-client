@@ -179,13 +179,13 @@ class Iface(object):
         """
         pass
 
-    def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+    def create_and_deploy_playbook(self, public_key, playbooks_information, openstack_id):
         """
         Create and deploy an anaconda ansible playbook
 
         Parameters:
-         - private_key
-         - play_source
+         - public_key
+         - playbooks_information
          - openstack_id
 
         """
@@ -928,24 +928,24 @@ class Client(Iface):
             raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server_with_custom_key failed: unknown result")
 
-    def create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+    def create_and_deploy_playbook(self, public_key, playbooks_information, openstack_id):
         """
         Create and deploy an anaconda ansible playbook
 
         Parameters:
-         - private_key
-         - play_source
+         - public_key
+         - playbooks_information
          - openstack_id
 
         """
-        self.send_create_and_deploy_playbook(private_key, play_source, openstack_id)
+        self.send_create_and_deploy_playbook(public_key, playbooks_information, openstack_id)
         return self.recv_create_and_deploy_playbook()
 
-    def send_create_and_deploy_playbook(self, private_key, play_source, openstack_id):
+    def send_create_and_deploy_playbook(self, public_key, playbooks_information, openstack_id):
         self._oprot.writeMessageBegin('create_and_deploy_playbook', TMessageType.CALL, self._seqid)
         args = create_and_deploy_playbook_args()
-        args.private_key = private_key
-        args.play_source = play_source
+        args.public_key = public_key
+        args.playbooks_information = playbooks_information
         args.openstack_id = openstack_id
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -1983,7 +1983,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_and_deploy_playbook_result()
         try:
-            result.success = self._handler.create_and_deploy_playbook(args.private_key, args.play_source, args.openstack_id)
+            result.success = self._handler.create_and_deploy_playbook(args.public_key, args.playbooks_information, args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -2837,11 +2837,11 @@ class get_ip_ports_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
-                    for _i27 in range(_size23):
-                        _key28 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val29 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key28] = _val29
+                    (_ktype33, _vtype34, _size32) = iprot.readMapBegin()
+                    for _i36 in range(_size32):
+                        _key37 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val38 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key37] = _val38
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -2858,9 +2858,9 @@ class get_ip_ports_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter30, viter31 in self.success.items():
-                oprot.writeString(kiter30.encode('utf-8') if sys.version_info[0] == 2 else kiter30)
-                oprot.writeString(viter31.encode('utf-8') if sys.version_info[0] == 2 else viter31)
+            for kiter39, viter40 in self.success.items():
+                oprot.writeString(kiter39.encode('utf-8') if sys.version_info[0] == 2 else kiter39)
+                oprot.writeString(viter40.encode('utf-8') if sys.version_info[0] == 2 else viter40)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2951,11 +2951,11 @@ class get_Flavors_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype35, _size32) = iprot.readListBegin()
-                    for _i36 in range(_size32):
-                        _elem37 = Flavor()
-                        _elem37.read(iprot)
-                        self.success.append(_elem37)
+                    (_etype44, _size41) = iprot.readListBegin()
+                    for _i45 in range(_size41):
+                        _elem46 = Flavor()
+                        _elem46.read(iprot)
+                        self.success.append(_elem46)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -2972,8 +2972,8 @@ class get_Flavors_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter38 in self.success:
-                iter38.write(oprot)
+            for iter47 in self.success:
+                iter47.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3064,11 +3064,11 @@ class get_Images_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype42, _size39) = iprot.readListBegin()
-                    for _i43 in range(_size39):
-                        _elem44 = Image()
-                        _elem44.read(iprot)
-                        self.success.append(_elem44)
+                    (_etype51, _size48) = iprot.readListBegin()
+                    for _i52 in range(_size48):
+                        _elem53 = Image()
+                        _elem53.read(iprot)
+                        self.success.append(_elem53)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -3085,8 +3085,8 @@ class get_Images_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter45 in self.success:
-                iter45.write(oprot)
+            for iter54 in self.success:
+                iter54.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3401,11 +3401,11 @@ class add_metadata_to_server_args(object):
             elif fid == 2:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype47, _vtype48, _size46) = iprot.readMapBegin()
-                    for _i50 in range(_size46):
-                        _key51 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val52 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key51] = _val52
+                    (_ktype56, _vtype57, _size55) = iprot.readMapBegin()
+                    for _i59 in range(_size55):
+                        _key60 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val61 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key60] = _val61
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -3426,9 +3426,9 @@ class add_metadata_to_server_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 2)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter53, viter54 in self.metadata.items():
-                oprot.writeString(kiter53.encode('utf-8') if sys.version_info[0] == 2 else kiter53)
-                oprot.writeString(viter54.encode('utf-8') if sys.version_info[0] == 2 else viter54)
+            for kiter62, viter63 in self.metadata.items():
+                oprot.writeString(kiter62.encode('utf-8') if sys.version_info[0] == 2 else kiter62)
+                oprot.writeString(viter63.encode('utf-8') if sys.version_info[0] == 2 else viter63)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3480,11 +3480,11 @@ class add_metadata_to_server_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype56, _vtype57, _size55) = iprot.readMapBegin()
-                    for _i59 in range(_size55):
-                        _key60 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val61 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key60] = _val61
+                    (_ktype65, _vtype66, _size64) = iprot.readMapBegin()
+                    for _i68 in range(_size64):
+                        _key69 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val70 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key69] = _val70
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -3507,9 +3507,9 @@ class add_metadata_to_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter62, viter63 in self.success.items():
-                oprot.writeString(kiter62.encode('utf-8') if sys.version_info[0] == 2 else kiter62)
-                oprot.writeString(viter63.encode('utf-8') if sys.version_info[0] == 2 else viter63)
+            for kiter71, viter72 in self.success.items():
+                oprot.writeString(kiter71.encode('utf-8') if sys.version_info[0] == 2 else kiter71)
+                oprot.writeString(viter72.encode('utf-8') if sys.version_info[0] == 2 else viter72)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -3569,10 +3569,10 @@ class delete_metadata_from_server_args(object):
             elif fid == 2:
                 if ftype == TType.SET:
                     self.keys = set()
-                    (_etype67, _size64) = iprot.readSetBegin()
-                    for _i68 in range(_size64):
-                        _elem69 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.keys.add(_elem69)
+                    (_etype76, _size73) = iprot.readSetBegin()
+                    for _i77 in range(_size73):
+                        _elem78 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.keys.add(_elem78)
                     iprot.readSetEnd()
                 else:
                     iprot.skip(ftype)
@@ -3593,8 +3593,8 @@ class delete_metadata_from_server_args(object):
         if self.keys is not None:
             oprot.writeFieldBegin('keys', TType.SET, 2)
             oprot.writeSetBegin(TType.STRING, len(self.keys))
-            for iter70 in self.keys:
-                oprot.writeString(iter70.encode('utf-8') if sys.version_info[0] == 2 else iter70)
+            for iter79 in self.keys:
+                oprot.writeString(iter79.encode('utf-8') if sys.version_info[0] == 2 else iter79)
             oprot.writeSetEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -3646,10 +3646,10 @@ class delete_metadata_from_server_result(object):
             if fid == 0:
                 if ftype == TType.SET:
                     self.success = set()
-                    (_etype74, _size71) = iprot.readSetBegin()
-                    for _i75 in range(_size71):
-                        _elem76 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success.add(_elem76)
+                    (_etype83, _size80) = iprot.readSetBegin()
+                    for _i84 in range(_size80):
+                        _elem85 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success.add(_elem85)
                     iprot.readSetEnd()
                 else:
                     iprot.skip(ftype)
@@ -3672,8 +3672,8 @@ class delete_metadata_from_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.SET, 0)
             oprot.writeSetBegin(TType.STRING, len(self.success))
-            for iter77 in self.success:
-                oprot.writeString(iter77.encode('utf-8') if sys.version_info[0] == 2 else iter77)
+            for iter86 in self.success:
+                oprot.writeString(iter86.encode('utf-8') if sys.version_info[0] == 2 else iter86)
             oprot.writeSetEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -4223,11 +4223,11 @@ class start_server_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype79, _vtype80, _size78) = iprot.readMapBegin()
-                    for _i82 in range(_size78):
-                        _key83 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val84 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key83] = _val84
+                    (_ktype88, _vtype89, _size87) = iprot.readMapBegin()
+                    for _i91 in range(_size87):
+                        _key92 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val93 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key92] = _val93
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -4286,9 +4286,9 @@ class start_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter85, viter86 in self.success.items():
-                oprot.writeString(kiter85.encode('utf-8') if sys.version_info[0] == 2 else kiter85)
-                oprot.writeString(viter86.encode('utf-8') if sys.version_info[0] == 2 else viter86)
+            for kiter94, viter95 in self.success.items():
+                oprot.writeString(kiter94.encode('utf-8') if sys.version_info[0] == 2 else kiter94)
+                oprot.writeString(viter95.encode('utf-8') if sys.version_info[0] == 2 else viter95)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -4507,11 +4507,11 @@ class start_server_with_custom_key_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype88, _vtype89, _size87) = iprot.readMapBegin()
-                    for _i91 in range(_size87):
-                        _key92 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val93 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key92] = _val93
+                    (_ktype97, _vtype98, _size96) = iprot.readMapBegin()
+                    for _i100 in range(_size96):
+                        _key101 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val102 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key101] = _val102
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -4570,9 +4570,9 @@ class start_server_with_custom_key_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter94, viter95 in self.success.items():
-                oprot.writeString(kiter94.encode('utf-8') if sys.version_info[0] == 2 else kiter94)
-                oprot.writeString(viter95.encode('utf-8') if sys.version_info[0] == 2 else viter95)
+            for kiter103, viter104 in self.success.items():
+                oprot.writeString(kiter103.encode('utf-8') if sys.version_info[0] == 2 else kiter103)
+                oprot.writeString(viter104.encode('utf-8') if sys.version_info[0] == 2 else viter104)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -4635,16 +4635,16 @@ start_server_with_custom_key_result.thrift_spec = (
 class create_and_deploy_playbook_args(object):
     """
     Attributes:
-     - private_key
-     - play_source
+     - public_key
+     - playbooks_information
      - openstack_id
 
     """
 
 
-    def __init__(self, private_key=None, play_source=None, openstack_id=None,):
-        self.private_key = private_key
-        self.play_source = play_source
+    def __init__(self, public_key=None, playbooks_information=None, openstack_id=None,):
+        self.public_key = public_key
+        self.playbooks_information = playbooks_information
         self.openstack_id = openstack_id
 
     def read(self, iprot):
@@ -4658,12 +4658,24 @@ class create_and_deploy_playbook_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.private_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.STRING:
-                    self.play_source = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.MAP:
+                    self.playbooks_information = {}
+                    (_ktype106, _vtype107, _size105) = iprot.readMapBegin()
+                    for _i109 in range(_size105):
+                        _key110 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val111 = {}
+                        (_ktype113, _vtype114, _size112) = iprot.readMapBegin()
+                        for _i116 in range(_size112):
+                            _key117 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val118 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val111[_key117] = _val118
+                        iprot.readMapEnd()
+                        self.playbooks_information[_key110] = _val111
+                    iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -4681,13 +4693,21 @@ class create_and_deploy_playbook_args(object):
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
         oprot.writeStructBegin('create_and_deploy_playbook_args')
-        if self.private_key is not None:
-            oprot.writeFieldBegin('private_key', TType.STRING, 1)
-            oprot.writeString(self.private_key.encode('utf-8') if sys.version_info[0] == 2 else self.private_key)
+        if self.public_key is not None:
+            oprot.writeFieldBegin('public_key', TType.STRING, 1)
+            oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
             oprot.writeFieldEnd()
-        if self.play_source is not None:
-            oprot.writeFieldBegin('play_source', TType.STRING, 2)
-            oprot.writeString(self.play_source.encode('utf-8') if sys.version_info[0] == 2 else self.play_source)
+        if self.playbooks_information is not None:
+            oprot.writeFieldBegin('playbooks_information', TType.MAP, 2)
+            oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.playbooks_information))
+            for kiter119, viter120 in self.playbooks_information.items():
+                oprot.writeString(kiter119.encode('utf-8') if sys.version_info[0] == 2 else kiter119)
+                oprot.writeMapBegin(TType.STRING, TType.STRING, len(viter120))
+                for kiter121, viter122 in viter120.items():
+                    oprot.writeString(kiter121.encode('utf-8') if sys.version_info[0] == 2 else kiter121)
+                    oprot.writeString(viter122.encode('utf-8') if sys.version_info[0] == 2 else viter122)
+                oprot.writeMapEnd()
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.openstack_id is not None:
             oprot.writeFieldBegin('openstack_id', TType.STRING, 3)
@@ -4712,8 +4732,8 @@ class create_and_deploy_playbook_args(object):
 all_structs.append(create_and_deploy_playbook_args)
 create_and_deploy_playbook_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, 'private_key', 'UTF8', None, ),  # 1
-    (2, TType.STRING, 'play_source', 'UTF8', None, ),  # 2
+    (1, TType.STRING, 'public_key', 'UTF8', None, ),  # 1
+    (2, TType.MAP, 'playbooks_information', (TType.STRING, 'UTF8', TType.MAP, (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), False), None, ),  # 2
     (3, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 3
 )
 
@@ -5611,11 +5631,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype97, _vtype98, _size96) = iprot.readMapBegin()
-                    for _i100 in range(_size96):
-                        _key101 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val102 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key101] = _val102
+                    (_ktype124, _vtype125, _size123) = iprot.readMapBegin()
+                    for _i127 in range(_size123):
+                        _key128 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val129 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key128] = _val129
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -5632,9 +5652,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter103, viter104 in self.success.items():
-                oprot.writeString(kiter103.encode('utf-8') if sys.version_info[0] == 2 else kiter103)
-                oprot.writeString(viter104.encode('utf-8') if sys.version_info[0] == 2 else viter104)
+            for kiter130, viter131 in self.success.items():
+                oprot.writeString(kiter130.encode('utf-8') if sys.version_info[0] == 2 else kiter130)
+                oprot.writeString(viter131.encode('utf-8') if sys.version_info[0] == 2 else viter131)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
