@@ -1,4 +1,3 @@
-import logging
 import shlex
 import shutil
 from tempfile import NamedTemporaryFile, TemporaryDirectory
@@ -39,8 +38,6 @@ class Playbook(object):
         self.inventory.close()
 
     def copy_playbooks_and_init(self, playbooks_information, public_key):
-        self.logger.info(type(playbooks_information))
-        self.logger.info(playbooks_information)
         for k, v in playbooks_information.items():
             self.copy_and_init(k, v)
 
