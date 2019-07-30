@@ -5,6 +5,8 @@ import ruamel.yaml
 import subprocess
 
 BIOCONDA = "bioconda"
+THEIA = "theia"
+RSTUDIO = "rstudio"
 
 
 class Playbook(object):
@@ -68,6 +70,13 @@ class Playbook(object):
                     if k == "string_line":
                         data[playbook_name + "_tools"][k] = v.strip('\"')
                         data[playbook_name + "_tools"]["timeout_length"] = str(len(v.split()) * 5) + "m"
+            if playbook_name == THEIA:
+                for k, v in playbook_vars.items():
+                    if k == "version":
+                        data[playbook_name + "_vars"][k] = v
+            if playbook_name == RSTUDIO:
+                for k, v in playbook_vars.items():
+                    pass
 
         playbook_yml = "/{0}.yml".format(playbook_name)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)
@@ -86,7 +95,12 @@ class Playbook(object):
             except shutil.Error as e:
                 self.logger.exception(e)
                 self.add_tasks_only(playbook_name)
+            except IOError as e:
+                self.logger.exception(e)
+                self.add_tasks_only(playbook_name)
         except shutil.Error as e:
+            self.logger.exception(e)
+        except IOError as e:
             self.logger.exception(e)
 
     def add_to_playbook_lists(self, playbook_name):
