@@ -1146,14 +1146,8 @@ class VirtualMachineHandler(Iface):
 
             if server.status == "ACTIVE":
                 self.conn.compute.suspend_server(server)
-                server = self.conn.compute.get_server(server)
-                while server.status != "SUSPENDED":
-                    server = self.conn.compute.get_server(server)
-                    time.sleep(3)
-
                 return True
             else:
-
                 return False
         except Exception as e:
             self.logger.exception("Stop Server {0} error:".format(openstack_id, e))
@@ -1199,10 +1193,6 @@ class VirtualMachineHandler(Iface):
 
             if server.status == "SUSPENDED":
                 self.conn.compute.resume_server(server)
-                while server.status != "ACTIVE":
-                    server = self.conn.compute.get_server(server)
-                    time.sleep(3)
-
                 return True
             else:
 
