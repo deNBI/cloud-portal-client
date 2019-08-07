@@ -128,7 +128,13 @@ struct PlaybookResult {
     3: required string stderr
 }
 
-
+/**
+ * This struct contains a mapping of variable keys to their content. This struct should be mapped by a playbook name.
+ */
+struct PlaybookVars {
+    /**The mapping of variable key to variable content*/
+    1: required map<string,string> needed_variables
+}
 
 
 
@@ -342,8 +348,8 @@ service VirtualMachineService {
 
     /** Create and deploy an anaconda ansible playbook*/
     int create_and_deploy_playbook(
-    1:string private_key,
-    2:string play_source,
+    1:string public_key,
+    2:map<string, map<string,string>> playbooks_information
     3:string openstack_id
     )
 
