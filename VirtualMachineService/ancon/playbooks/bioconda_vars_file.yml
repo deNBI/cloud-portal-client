@@ -1,5 +1,5 @@
 bioconda_tools:
-  string_line: ""
+  packages:
   env: "denbi"
   timeout_length: "5m"
 

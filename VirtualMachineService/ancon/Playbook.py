@@ -67,9 +67,21 @@ class Playbook(object):
         def load_vars():
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
-                    if k == "string_line":
-                        data[playbook_name + "_tools"][k] = v.strip('\"')
-                        data[playbook_name + "_tools"]["timeout_length"] = str(len(v.split()) * 5) + "m"
+                    if k == "packages":
+                        p_array = []
+                        p_dict = {}
+                        for p in (v.strip('\"')).split():
+                            p_array.append(p.split("="))
+                        for p in p_array:
+                            p_dict.update(
+                                {
+                                    p[0]: {
+                                        "version": p[1],
+                                        "build": p[2]
+                                    }
+                                }
+                            )
+                        data[playbook_name + "_tools"][k] = p_dict
             if playbook_name == THEIA:
                 for k, v in playbook_vars.items():
                     if k == "version":
