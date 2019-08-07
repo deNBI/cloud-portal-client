@@ -260,6 +260,7 @@ class VirtualMachineHandler(Iface):
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
+                image_type = img.get("image_type", "image")
                 if description is None:
                     self.logger.warning("No Description and  for " + img["name"])
 
@@ -273,7 +274,10 @@ class VirtualMachineHandler(Iface):
                     openstack_id=img["id"],
                     description=description,
                     tag=tags,
+                    is_snapshot=image_type == "snapshot"
                 )
+                self.logger.info(image)
+
                 images.append(image)
 
             return images
@@ -655,13 +659,13 @@ class VirtualMachineHandler(Iface):
         status, stdout, stderr = playbook.run_it()
         self.delete_keypair(key_name=key_name)
         if status != 0:
-        #    self.logger.exception(msg="Bioconda playbook for {0} encountered an error with status code {1}. The messages are:"
-        #                              "stdout: {2}"
-        #                              "stderr: {3}".format(openstack_id, status, stdout, stderr))
+            #    self.logger.exception(msg="Bioconda playbook for {0} encountered an error with status code {1}. The messages are:"
+            #                              "stdout: {2}"
+            #                              "stderr: {3}".format(openstack_id, status, stdout, stderr))
             osi_key_dict[openstack_id]["status"] = self.BIOCONDA_FAILED
         else:
-        #    self.logger.info("Finished Bioconda Playbook for (openstack_id): {0} with status code: {1}"
-        #                     .format(openstack_id, status))
+            #    self.logger.info("Finished Bioconda Playbook for (openstack_id): {0} with status code: {1}"
+            #                     .format(openstack_id, status))
             osi_key_dict[openstack_id]["status"] = self.ACTIVE
         return status
 

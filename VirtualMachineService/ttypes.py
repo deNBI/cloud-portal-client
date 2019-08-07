@@ -175,11 +175,12 @@ class Image(object):
      - openstack_id: The openstack_id the image
      - description: The description of the image
      - tag: List of tags from image
+     - is_snapshot: If the Image is a snapshot
 
     """
 
 
-    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None,):
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None, is_snapshot=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -189,6 +190,7 @@ class Image(object):
         self.openstack_id = openstack_id
         self.description = description
         self.tag = tag
+        self.is_snapshot = is_snapshot
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -249,6 +251,11 @@ class Image(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 10:
+                if ftype == TType.BOOL:
+                    self.is_snapshot = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -297,6 +304,10 @@ class Image(object):
             for iter13 in self.tag:
                 oprot.writeString(iter13.encode('utf-8') if sys.version_info[0] == 2 else iter13)
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.is_snapshot is not None:
+            oprot.writeFieldBegin('is_snapshot', TType.BOOL, 10)
+            oprot.writeBool(self.is_snapshot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1137,6 +1148,7 @@ Image.thrift_spec = (
     (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
     (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
     (9, TType.LIST, 'tag', (TType.STRING, 'UTF8', False), None, ),  # 9
+    (10, TType.BOOL, 'is_snapshot', None, None, ),  # 10
 )
 all_structs.append(VM)
 VM.thrift_spec = (
