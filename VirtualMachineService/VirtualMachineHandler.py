@@ -1051,8 +1051,8 @@ class VirtualMachineHandler(Iface):
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
 
-            if server.status == "SUSPENDED":
-                self.conn.compute.resume_server(server)
+            if server.status == "SHUTOFF":
+                self.conn.compute.start_server(server)
                 server = self.conn.compute.get_server(server)
                 self.conn.compute.wait_for_server(server=server, status='ACTIVE')
             self.logger.info(server)
@@ -1145,7 +1145,7 @@ class VirtualMachineHandler(Iface):
                 raise serverNotFoundException
 
             if server.status == "ACTIVE":
-                self.conn.compute.suspend_server(server)
+                self.conn.compute.stop_server(server)
                 return True
             else:
                 return False
@@ -1190,12 +1190,10 @@ class VirtualMachineHandler(Iface):
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
-
-            if server.status == "SUSPENDED":
-                self.conn.compute.resume_server(server)
+            if server.status == "SHUTOFF":
+                self.conn.compute.start_server(server)
                 return True
             else:
-
                 return False
         except Exception as e:
             self.logger.exception("Resume Server {0} error:".format(openstack_id, e))
