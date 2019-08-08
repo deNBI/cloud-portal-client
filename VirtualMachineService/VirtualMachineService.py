@@ -148,7 +148,7 @@ class Iface(object):
         """
         pass
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def start_server(self, flavor, image, public_key, servername, metadata, diskspace, volumename):
         """
         Start a new server.
 
@@ -157,22 +157,22 @@ class Iface(object):
          - image: Name of the image to use.
          - public_key: Public Key to use
          - servername: Name for the new server
-         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
 
         """
         pass
 
-    def start_server_with_custom_key(self, flavor, image, servername, elixir_id, diskspace, volumename):
+    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
         """
-        Start a new server.
+        Start a new server with custom key for ansible.
 
         Parameters:
          - flavor: Name of the  Flavor to use.
          - image: Name of the image to use.
          - servername: Name for the new server
-         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
 
@@ -344,7 +344,7 @@ class Iface(object):
         """
         pass
 
-    def create_volume(self, volume_name, diskspace):
+    def create_volume(self, volume_name, diskspace, metadata):
         """
         Create volume.
         Returns: Id of new volume
@@ -352,6 +352,7 @@ class Iface(object):
         Parameters:
          - volume_name: Name of volume
          - diskspace: Diskspace in GB for new volume
+         - metadata: Metadata for the new volume
 
         """
         pass
@@ -810,7 +811,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "create_connection failed: unknown result")
 
-    def start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def start_server(self, flavor, image, public_key, servername, metadata, diskspace, volumename):
         """
         Start a new server.
 
@@ -819,22 +820,22 @@ class Client(Iface):
          - image: Name of the image to use.
          - public_key: Public Key to use
          - servername: Name for the new server
-         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
 
         """
-        self.send_start_server(flavor, image, public_key, servername, elixir_id, diskspace, volumename)
+        self.send_start_server(flavor, image, public_key, servername, metadata, diskspace, volumename)
         return self.recv_start_server()
 
-    def send_start_server(self, flavor, image, public_key, servername, elixir_id, diskspace, volumename):
+    def send_start_server(self, flavor, image, public_key, servername, metadata, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server', TMessageType.CALL, self._seqid)
         args = start_server_args()
         args.flavor = flavor
         args.image = image
         args.public_key = public_key
         args.servername = servername
-        args.elixir_id = elixir_id
+        args.metadata = metadata
         args.diskspace = diskspace
         args.volumename = volumename
         args.write(self._oprot)
@@ -870,29 +871,29 @@ class Client(Iface):
             raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
 
-    def start_server_with_custom_key(self, flavor, image, servername, elixir_id, diskspace, volumename):
+    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
         """
-        Start a new server.
+        Start a new server with custom key for ansible.
 
         Parameters:
          - flavor: Name of the  Flavor to use.
          - image: Name of the image to use.
          - servername: Name for the new server
-         - elixir_id: Elixir-Id of the user who requested to start a new server
+         - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
 
         """
-        self.send_start_server_with_custom_key(flavor, image, servername, elixir_id, diskspace, volumename)
+        self.send_start_server_with_custom_key(flavor, image, servername, metadata, diskspace, volumename)
         return self.recv_start_server_with_custom_key()
 
-    def send_start_server_with_custom_key(self, flavor, image, servername, elixir_id, diskspace, volumename):
+    def send_start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
         self._oprot.writeMessageBegin('start_server_with_custom_key', TMessageType.CALL, self._seqid)
         args = start_server_with_custom_key_args()
         args.flavor = flavor
         args.image = image
         args.servername = servername
-        args.elixir_id = elixir_id
+        args.metadata = metadata
         args.diskspace = diskspace
         args.volumename = volumename
         args.write(self._oprot)
@@ -1466,7 +1467,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "resume_server failed: unknown result")
 
-    def create_volume(self, volume_name, diskspace):
+    def create_volume(self, volume_name, diskspace, metadata):
         """
         Create volume.
         Returns: Id of new volume
@@ -1474,16 +1475,18 @@ class Client(Iface):
         Parameters:
          - volume_name: Name of volume
          - diskspace: Diskspace in GB for new volume
+         - metadata: Metadata for the new volume
 
         """
-        self.send_create_volume(volume_name, diskspace)
+        self.send_create_volume(volume_name, diskspace, metadata)
         return self.recv_create_volume()
 
-    def send_create_volume(self, volume_name, diskspace):
+    def send_create_volume(self, volume_name, diskspace, metadata):
         self._oprot.writeMessageBegin('create_volume', TMessageType.CALL, self._seqid)
         args = create_volume_args()
         args.volume_name = volume_name
         args.diskspace = diskspace
+        args.metadata = metadata
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1895,7 +1898,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_result()
         try:
-            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.elixir_id, args.diskspace, args.volumename)
+            result.success = self._handler.start_server(args.flavor, args.image, args.public_key, args.servername, args.metadata, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -1939,7 +1942,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_with_custom_key_result()
         try:
-            result.success = self._handler.start_server_with_custom_key(args.flavor, args.image, args.servername, args.elixir_id, args.diskspace, args.volumename)
+            result.success = self._handler.start_server_with_custom_key(args.flavor, args.image, args.servername, args.metadata, args.diskspace, args.volumename)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -2341,7 +2344,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_volume_result()
         try:
-            result.success = self._handler.create_volume(args.volume_name, args.diskspace)
+            result.success = self._handler.create_volume(args.volume_name, args.diskspace, args.metadata)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4059,19 +4062,19 @@ class start_server_args(object):
      - image: Name of the image to use.
      - public_key: Public Key to use
      - servername: Name for the new server
-     - elixir_id: Elixir-Id of the user who requested to start a new server
+     - metadata: Metadata for the new instance
      - diskspace: Diskspace in GB for additional volume.
      - volumename: Name of additional Volume
 
     """
 
 
-    def __init__(self, flavor=None, image=None, public_key=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
+    def __init__(self, flavor=None, image=None, public_key=None, servername=None, metadata=None, diskspace=None, volumename=None,):
         self.flavor = flavor
         self.image = image
         self.public_key = public_key
         self.servername = servername
-        self.elixir_id = elixir_id
+        self.metadata = metadata
         self.diskspace = diskspace
         self.volumename = volumename
 
@@ -4105,8 +4108,14 @@ class start_server_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
-                if ftype == TType.STRING:
-                    self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.MAP:
+                    self.metadata = {}
+                    (_ktype88, _vtype89, _size87) = iprot.readMapBegin()
+                    for _i91 in range(_size87):
+                        _key92 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val93 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key92] = _val93
+                    iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
@@ -4145,9 +4154,13 @@ class start_server_args(object):
             oprot.writeFieldBegin('servername', TType.STRING, 4)
             oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
             oprot.writeFieldEnd()
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin('elixir_id', TType.STRING, 5)
-            oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
+        if self.metadata is not None:
+            oprot.writeFieldBegin('metadata', TType.MAP, 5)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
+            for kiter94, viter95 in self.metadata.items():
+                oprot.writeString(kiter94.encode('utf-8') if sys.version_info[0] == 2 else kiter94)
+                oprot.writeString(viter95.encode('utf-8') if sys.version_info[0] == 2 else viter95)
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.STRING, 6)
@@ -4180,297 +4193,13 @@ start_server_args.thrift_spec = (
     (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
     (3, TType.STRING, 'public_key', 'UTF8', None, ),  # 3
     (4, TType.STRING, 'servername', 'UTF8', None, ),  # 4
-    (5, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 5
+    (5, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 5
     (6, TType.STRING, 'diskspace', 'UTF8', None, ),  # 6
     (7, TType.STRING, 'volumename', 'UTF8', None, ),  # 7
 )
 
 
 class start_server_result(object):
-    """
-    Attributes:
-     - success
-     - e
-     - r
-     - s
-     - n
-     - i
-     - f
-     - o
-
-    """
-
-
-    def __init__(self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,):
-        self.success = success
-        self.e = e
-        self.r = r
-        self.s = s
-        self.n = n
-        self.i = i
-        self.f = f
-        self.o = o
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 0:
-                if ftype == TType.MAP:
-                    self.success = {}
-                    (_ktype88, _vtype89, _size87) = iprot.readMapBegin()
-                    for _i91 in range(_size87):
-                        _key92 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val93 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key92] = _val93
-                    iprot.readMapEnd()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
-                if ftype == TType.STRUCT:
-                    self.e = nameException()
-                    self.e.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRUCT:
-                    self.r = ressourceException()
-                    self.r.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRUCT:
-                    self.s = serverNotFoundException()
-                    self.s.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRUCT:
-                    self.n = networkNotFoundException()
-                    self.n.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRUCT:
-                    self.i = imageNotFoundException()
-                    self.i.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRUCT:
-                    self.f = flavorNotFoundException()
-                    self.f.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
-                if ftype == TType.STRUCT:
-                    self.o = otherException()
-                    self.o.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
-            return
-        oprot.writeStructBegin('start_server_result')
-        if self.success is not None:
-            oprot.writeFieldBegin('success', TType.MAP, 0)
-            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter94, viter95 in self.success.items():
-                oprot.writeString(kiter94.encode('utf-8') if sys.version_info[0] == 2 else kiter94)
-                oprot.writeString(viter95.encode('utf-8') if sys.version_info[0] == 2 else viter95)
-            oprot.writeMapEnd()
-            oprot.writeFieldEnd()
-        if self.e is not None:
-            oprot.writeFieldBegin('e', TType.STRUCT, 1)
-            self.e.write(oprot)
-            oprot.writeFieldEnd()
-        if self.r is not None:
-            oprot.writeFieldBegin('r', TType.STRUCT, 2)
-            self.r.write(oprot)
-            oprot.writeFieldEnd()
-        if self.s is not None:
-            oprot.writeFieldBegin('s', TType.STRUCT, 3)
-            self.s.write(oprot)
-            oprot.writeFieldEnd()
-        if self.n is not None:
-            oprot.writeFieldBegin('n', TType.STRUCT, 4)
-            self.n.write(oprot)
-            oprot.writeFieldEnd()
-        if self.i is not None:
-            oprot.writeFieldBegin('i', TType.STRUCT, 5)
-            self.i.write(oprot)
-            oprot.writeFieldEnd()
-        if self.f is not None:
-            oprot.writeFieldBegin('f', TType.STRUCT, 6)
-            self.f.write(oprot)
-            oprot.writeFieldEnd()
-        if self.o is not None:
-            oprot.writeFieldBegin('o', TType.STRUCT, 7)
-            self.o.write(oprot)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-all_structs.append(start_server_result)
-start_server_result.thrift_spec = (
-    (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
-    (1, TType.STRUCT, 'e', [nameException, None], None, ),  # 1
-    (2, TType.STRUCT, 'r', [ressourceException, None], None, ),  # 2
-    (3, TType.STRUCT, 's', [serverNotFoundException, None], None, ),  # 3
-    (4, TType.STRUCT, 'n', [networkNotFoundException, None], None, ),  # 4
-    (5, TType.STRUCT, 'i', [imageNotFoundException, None], None, ),  # 5
-    (6, TType.STRUCT, 'f', [flavorNotFoundException, None], None, ),  # 6
-    (7, TType.STRUCT, 'o', [otherException, None], None, ),  # 7
-)
-
-
-class start_server_with_custom_key_args(object):
-    """
-    Attributes:
-     - flavor: Name of the  Flavor to use.
-     - image: Name of the image to use.
-     - servername: Name for the new server
-     - elixir_id: Elixir-Id of the user who requested to start a new server
-     - diskspace: Diskspace in GB for additional volume.
-     - volumename: Name of additional Volume
-
-    """
-
-
-    def __init__(self, flavor=None, image=None, servername=None, elixir_id=None, diskspace=None, volumename=None,):
-        self.flavor = flavor
-        self.image = image
-        self.servername = servername
-        self.elixir_id = elixir_id
-        self.diskspace = diskspace
-        self.volumename = volumename
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.STRING:
-                    self.flavor = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRING:
-                    self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRING:
-                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRING:
-                    self.elixir_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 5:
-                if ftype == TType.STRING:
-                    self.diskspace = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRING:
-                    self.volumename = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
-            return
-        oprot.writeStructBegin('start_server_with_custom_key_args')
-        if self.flavor is not None:
-            oprot.writeFieldBegin('flavor', TType.STRING, 1)
-            oprot.writeString(self.flavor.encode('utf-8') if sys.version_info[0] == 2 else self.flavor)
-            oprot.writeFieldEnd()
-        if self.image is not None:
-            oprot.writeFieldBegin('image', TType.STRING, 2)
-            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
-            oprot.writeFieldEnd()
-        if self.servername is not None:
-            oprot.writeFieldBegin('servername', TType.STRING, 3)
-            oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
-            oprot.writeFieldEnd()
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin('elixir_id', TType.STRING, 4)
-            oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
-            oprot.writeFieldEnd()
-        if self.diskspace is not None:
-            oprot.writeFieldBegin('diskspace', TType.STRING, 5)
-            oprot.writeString(self.diskspace.encode('utf-8') if sys.version_info[0] == 2 else self.diskspace)
-            oprot.writeFieldEnd()
-        if self.volumename is not None:
-            oprot.writeFieldBegin('volumename', TType.STRING, 6)
-            oprot.writeString(self.volumename.encode('utf-8') if sys.version_info[0] == 2 else self.volumename)
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-all_structs.append(start_server_with_custom_key_args)
-start_server_with_custom_key_args.thrift_spec = (
-    None,  # 0
-    (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
-    (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
-    (3, TType.STRING, 'servername', 'UTF8', None, ),  # 3
-    (4, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 4
-    (5, TType.STRING, 'diskspace', 'UTF8', None, ),  # 5
-    (6, TType.STRING, 'volumename', 'UTF8', None, ),  # 6
-)
-
-
-class start_server_with_custom_key_result(object):
     """
     Attributes:
      - success
@@ -4566,13 +4295,307 @@ class start_server_with_custom_key_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('start_server_with_custom_key_result')
+        oprot.writeStructBegin('start_server_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
             for kiter103, viter104 in self.success.items():
                 oprot.writeString(kiter103.encode('utf-8') if sys.version_info[0] == 2 else kiter103)
                 oprot.writeString(viter104.encode('utf-8') if sys.version_info[0] == 2 else viter104)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin('e', TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        if self.r is not None:
+            oprot.writeFieldBegin('r', TType.STRUCT, 2)
+            self.r.write(oprot)
+            oprot.writeFieldEnd()
+        if self.s is not None:
+            oprot.writeFieldBegin('s', TType.STRUCT, 3)
+            self.s.write(oprot)
+            oprot.writeFieldEnd()
+        if self.n is not None:
+            oprot.writeFieldBegin('n', TType.STRUCT, 4)
+            self.n.write(oprot)
+            oprot.writeFieldEnd()
+        if self.i is not None:
+            oprot.writeFieldBegin('i', TType.STRUCT, 5)
+            self.i.write(oprot)
+            oprot.writeFieldEnd()
+        if self.f is not None:
+            oprot.writeFieldBegin('f', TType.STRUCT, 6)
+            self.f.write(oprot)
+            oprot.writeFieldEnd()
+        if self.o is not None:
+            oprot.writeFieldBegin('o', TType.STRUCT, 7)
+            self.o.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(start_server_result)
+start_server_result.thrift_spec = (
+    (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
+    (1, TType.STRUCT, 'e', [nameException, None], None, ),  # 1
+    (2, TType.STRUCT, 'r', [ressourceException, None], None, ),  # 2
+    (3, TType.STRUCT, 's', [serverNotFoundException, None], None, ),  # 3
+    (4, TType.STRUCT, 'n', [networkNotFoundException, None], None, ),  # 4
+    (5, TType.STRUCT, 'i', [imageNotFoundException, None], None, ),  # 5
+    (6, TType.STRUCT, 'f', [flavorNotFoundException, None], None, ),  # 6
+    (7, TType.STRUCT, 'o', [otherException, None], None, ),  # 7
+)
+
+
+class start_server_with_custom_key_args(object):
+    """
+    Attributes:
+     - flavor: Name of the  Flavor to use.
+     - image: Name of the image to use.
+     - servername: Name for the new server
+     - metadata: Metadata for the new instance
+     - diskspace: Diskspace in GB for additional volume.
+     - volumename: Name of additional Volume
+
+    """
+
+
+    def __init__(self, flavor=None, image=None, servername=None, metadata=None, diskspace=None, volumename=None,):
+        self.flavor = flavor
+        self.image = image
+        self.servername = servername
+        self.metadata = metadata
+        self.diskspace = diskspace
+        self.volumename = volumename
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.flavor = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.image = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.servername = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.MAP:
+                    self.metadata = {}
+                    (_ktype106, _vtype107, _size105) = iprot.readMapBegin()
+                    for _i109 in range(_size105):
+                        _key110 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val111 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key110] = _val111
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.diskspace = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRING:
+                    self.volumename = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('start_server_with_custom_key_args')
+        if self.flavor is not None:
+            oprot.writeFieldBegin('flavor', TType.STRING, 1)
+            oprot.writeString(self.flavor.encode('utf-8') if sys.version_info[0] == 2 else self.flavor)
+            oprot.writeFieldEnd()
+        if self.image is not None:
+            oprot.writeFieldBegin('image', TType.STRING, 2)
+            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
+            oprot.writeFieldEnd()
+        if self.servername is not None:
+            oprot.writeFieldBegin('servername', TType.STRING, 3)
+            oprot.writeString(self.servername.encode('utf-8') if sys.version_info[0] == 2 else self.servername)
+            oprot.writeFieldEnd()
+        if self.metadata is not None:
+            oprot.writeFieldBegin('metadata', TType.MAP, 4)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
+            for kiter112, viter113 in self.metadata.items():
+                oprot.writeString(kiter112.encode('utf-8') if sys.version_info[0] == 2 else kiter112)
+                oprot.writeString(viter113.encode('utf-8') if sys.version_info[0] == 2 else viter113)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.diskspace is not None:
+            oprot.writeFieldBegin('diskspace', TType.STRING, 5)
+            oprot.writeString(self.diskspace.encode('utf-8') if sys.version_info[0] == 2 else self.diskspace)
+            oprot.writeFieldEnd()
+        if self.volumename is not None:
+            oprot.writeFieldBegin('volumename', TType.STRING, 6)
+            oprot.writeString(self.volumename.encode('utf-8') if sys.version_info[0] == 2 else self.volumename)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(start_server_with_custom_key_args)
+start_server_with_custom_key_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'flavor', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'servername', 'UTF8', None, ),  # 3
+    (4, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
+    (5, TType.STRING, 'diskspace', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'volumename', 'UTF8', None, ),  # 6
+)
+
+
+class start_server_with_custom_key_result(object):
+    """
+    Attributes:
+     - success
+     - e
+     - r
+     - s
+     - n
+     - i
+     - f
+     - o
+
+    """
+
+
+    def __init__(self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,):
+        self.success = success
+        self.e = e
+        self.r = r
+        self.s = s
+        self.n = n
+        self.i = i
+        self.f = f
+        self.o = o
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype115, _vtype116, _size114) = iprot.readMapBegin()
+                    for _i118 in range(_size114):
+                        _key119 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val120 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key119] = _val120
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = nameException()
+                    self.e.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.r = ressourceException()
+                    self.r.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRUCT:
+                    self.s = serverNotFoundException()
+                    self.s.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRUCT:
+                    self.n = networkNotFoundException()
+                    self.n.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRUCT:
+                    self.i = imageNotFoundException()
+                    self.i.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRUCT:
+                    self.f = flavorNotFoundException()
+                    self.f.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.STRUCT:
+                    self.o = otherException()
+                    self.o.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('start_server_with_custom_key_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter121, viter122 in self.success.items():
+                oprot.writeString(kiter121.encode('utf-8') if sys.version_info[0] == 2 else kiter121)
+                oprot.writeString(viter122.encode('utf-8') if sys.version_info[0] == 2 else viter122)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
@@ -4664,17 +4687,17 @@ class create_and_deploy_playbook_args(object):
             elif fid == 2:
                 if ftype == TType.MAP:
                     self.playbooks_information = {}
-                    (_ktype106, _vtype107, _size105) = iprot.readMapBegin()
-                    for _i109 in range(_size105):
-                        _key110 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val111 = {}
-                        (_ktype113, _vtype114, _size112) = iprot.readMapBegin()
-                        for _i116 in range(_size112):
-                            _key117 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _val118 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _val111[_key117] = _val118
+                    (_ktype124, _vtype125, _size123) = iprot.readMapBegin()
+                    for _i127 in range(_size123):
+                        _key128 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val129 = {}
+                        (_ktype131, _vtype132, _size130) = iprot.readMapBegin()
+                        for _i134 in range(_size130):
+                            _key135 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val136 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val129[_key135] = _val136
                         iprot.readMapEnd()
-                        self.playbooks_information[_key110] = _val111
+                        self.playbooks_information[_key128] = _val129
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -4700,12 +4723,12 @@ class create_and_deploy_playbook_args(object):
         if self.playbooks_information is not None:
             oprot.writeFieldBegin('playbooks_information', TType.MAP, 2)
             oprot.writeMapBegin(TType.STRING, TType.MAP, len(self.playbooks_information))
-            for kiter119, viter120 in self.playbooks_information.items():
-                oprot.writeString(kiter119.encode('utf-8') if sys.version_info[0] == 2 else kiter119)
-                oprot.writeMapBegin(TType.STRING, TType.STRING, len(viter120))
-                for kiter121, viter122 in viter120.items():
-                    oprot.writeString(kiter121.encode('utf-8') if sys.version_info[0] == 2 else kiter121)
-                    oprot.writeString(viter122.encode('utf-8') if sys.version_info[0] == 2 else viter122)
+            for kiter137, viter138 in self.playbooks_information.items():
+                oprot.writeString(kiter137.encode('utf-8') if sys.version_info[0] == 2 else kiter137)
+                oprot.writeMapBegin(TType.STRING, TType.STRING, len(viter138))
+                for kiter139, viter140 in viter138.items():
+                    oprot.writeString(kiter139.encode('utf-8') if sys.version_info[0] == 2 else kiter139)
+                    oprot.writeString(viter140.encode('utf-8') if sys.version_info[0] == 2 else viter140)
                 oprot.writeMapEnd()
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -5631,11 +5654,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype124, _vtype125, _size123) = iprot.readMapBegin()
-                    for _i127 in range(_size123):
-                        _key128 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val129 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key128] = _val129
+                    (_ktype142, _vtype143, _size141) = iprot.readMapBegin()
+                    for _i145 in range(_size141):
+                        _key146 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val147 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key146] = _val147
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -5652,9 +5675,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter130, viter131 in self.success.items():
-                oprot.writeString(kiter130.encode('utf-8') if sys.version_info[0] == 2 else kiter130)
-                oprot.writeString(viter131.encode('utf-8') if sys.version_info[0] == 2 else viter131)
+            for kiter148, viter149 in self.success.items():
+                oprot.writeString(kiter148.encode('utf-8') if sys.version_info[0] == 2 else kiter148)
+                oprot.writeString(viter149.encode('utf-8') if sys.version_info[0] == 2 else viter149)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -6697,13 +6720,15 @@ class create_volume_args(object):
     Attributes:
      - volume_name: Name of volume
      - diskspace: Diskspace in GB for new volume
+     - metadata: Metadata for the new volume
 
     """
 
 
-    def __init__(self, volume_name=None, diskspace=None,):
+    def __init__(self, volume_name=None, diskspace=None, metadata=None,):
         self.volume_name = volume_name
         self.diskspace = diskspace
+        self.metadata = metadata
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -6724,6 +6749,17 @@ class create_volume_args(object):
                     self.diskspace = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.MAP:
+                    self.metadata = {}
+                    (_ktype151, _vtype152, _size150) = iprot.readMapBegin()
+                    for _i154 in range(_size150):
+                        _key155 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val156 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key155] = _val156
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -6741,6 +6777,14 @@ class create_volume_args(object):
         if self.diskspace is not None:
             oprot.writeFieldBegin('diskspace', TType.I32, 2)
             oprot.writeI32(self.diskspace)
+            oprot.writeFieldEnd()
+        if self.metadata is not None:
+            oprot.writeFieldBegin('metadata', TType.MAP, 3)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
+            for kiter157, viter158 in self.metadata.items():
+                oprot.writeString(kiter157.encode('utf-8') if sys.version_info[0] == 2 else kiter157)
+                oprot.writeString(viter158.encode('utf-8') if sys.version_info[0] == 2 else viter158)
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6763,6 +6807,7 @@ create_volume_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'volume_name', 'UTF8', None, ),  # 1
     (2, TType.I32, 'diskspace', None, None, ),  # 2
+    (3, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 3
 )
 
 

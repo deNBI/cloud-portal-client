@@ -36,8 +36,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string openstack_id, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
-    print('   start_server(string flavor, string image, string public_key, string servername, string elixir_id, string diskspace, string volumename)')
-    print('   start_server_with_custom_key(string flavor, string image, string servername, string elixir_id, string diskspace, string volumename)')
+    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename)')
+    print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, string diskspace, string volumename)')
     print('  int create_and_deploy_playbook(string public_key,  playbooks_information, string openstack_id)')
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
     print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
@@ -52,7 +52,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  VM check_server_status(string openstack_id, int diskspace, string volume_id)')
     print('  string setUserPassword(string user, string password)')
     print('  bool resume_server(string openstack_id)')
-    print('  string create_volume(string volume_name, int diskspace)')
+    print('  string create_volume(string volume_name, int diskspace,  metadata)')
     print('  bool reboot_server(string server_id, string reboot_type)')
     print('')
     sys.exit(0)
@@ -209,13 +209,13 @@ elif cmd == 'start_server':
     if len(args) != 7:
         print('start_server requires 7 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], args[4], args[5], args[6],))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6],))
 
 elif cmd == 'start_server_with_custom_key':
     if len(args) != 6:
         print('start_server_with_custom_key requires 6 args')
         sys.exit(1)
-    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], args[3], args[4], args[5],))
+    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), args[4], args[5],))
 
 elif cmd == 'create_and_deploy_playbook':
     if len(args) != 3:
@@ -302,10 +302,10 @@ elif cmd == 'resume_server':
     pp.pprint(client.resume_server(args[0],))
 
 elif cmd == 'create_volume':
-    if len(args) != 2:
-        print('create_volume requires 2 args')
+    if len(args) != 3:
+        print('create_volume requires 3 args')
         sys.exit(1)
-    pp.pprint(client.create_volume(args[0], eval(args[1]),))
+    pp.pprint(client.create_volume(args[0], eval(args[1]), eval(args[2]),))
 
 elif cmd == 'reboot_server':
     if len(args) != 2:
