@@ -466,13 +466,13 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_volume_by_start(self, volume_storage, volume_name, server_name):
+    def create_volume_by_start(self, volume_storage, volume_name, server_name, metadata):
         self.logger.info(
             "Creating volume with {0} GB diskspace".format(volume_storage)
         )
         try:
             volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(volume_storage)
+                name=volume_name, size=int(volume_storage), metadata=metadata
             ).to_dict()
         except Exception as e:
             self.logger.exception(
@@ -493,7 +493,7 @@ class VirtualMachineHandler(Iface):
         init_script = base64.b64encode(text).decode("utf-8")
         return init_script
 
-    def create_volume(self, volume_name, diskspace):
+    def create_volume(self, volume_name, diskspace, metadata):
         """
         Create volume.
         :param volume_name: Name of volume
@@ -503,7 +503,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
         try:
             volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace)
+                name=volume_name, size=int(diskspace), metadata=metadata
             ).to_dict()
             volumeId = volume["id"]
             return volumeId
@@ -521,7 +521,7 @@ class VirtualMachineHandler(Iface):
             image,
             public_key,
             servername,
-            elixir_id,
+            metadata,
             diskspace,
             volumename,
     ):
@@ -540,11 +540,10 @@ class VirtualMachineHandler(Iface):
         volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
         try:
-            metadata = {"elixir_id": elixir_id}
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            key_name = elixir_id[:-18]
+            key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
 
@@ -581,7 +580,7 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
-    def start_server_with_custom_key(self, flavor, image, servername, elixir_id, diskspace,
+    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
                                      volumename):
 
         """
@@ -599,7 +598,6 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Start Server {} with custom key".format(servername))
         volume_id = ''
         try:
-            metadata = {"elixir_id": elixir_id}
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
