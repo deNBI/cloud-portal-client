@@ -1,0 +1,6 @@
+- name: Setting up your virtual machine
+  hosts: all
+  connection: paramiko_ssh
+  gather_facts: yes
+  vars_files:
+  tasks:
