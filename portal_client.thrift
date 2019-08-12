@@ -309,8 +309,8 @@ service VirtualMachineService {
     /** Name for the new server */
     4:string servername,
 
-    /** Elixir-Id of the user who requested to start a new server*/
-    5:string elixir_id,
+    /** Metadata for the new instance*/
+    5:map<string,string> metadata,
 
     /** Diskspace in GB for additional volume.*/
     6:string diskspace,
@@ -322,7 +322,7 @@ service VirtualMachineService {
 
 
     /**
-	 * Start a new server.
+	 * Start a new server with custom key for ansible.
 	 */
     map<string,string> start_server_with_custom_key(
 
@@ -335,8 +335,8 @@ service VirtualMachineService {
     /** Name for the new server */
     3:string servername,
 
-    /** Elixir-Id of the user who requested to start a new server*/
-    4:string elixir_id,
+    /** Metadata for the new instance*/
+    4:map<string,string> metadata,
 
     /** Diskspace in GB for additional volume.*/
     5:string diskspace,
@@ -532,7 +532,10 @@ service VirtualMachineService {
     1:string volume_name,
 
     /** Diskspace in GB for new volume */
-    2:int diskspace)
+    2:int diskspace,
+
+     /** Metadata for the new volume*/
+    3:map<string,string> metadata)
 
     throws (1:ressourceException r)
 

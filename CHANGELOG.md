@@ -1,3 +1,12 @@
+##  (2019-08-08)
+
+
+#### Bug Fixes
+
+* **Virtualmachine:** not timeout when stopping or resuming vm ([3b435835](3b435835))
+* **playbook:**  try except for _vars_file.yml ([58c97068](58c97068))
+* **vm:**  stops instead of suspending ([085f7f74](085f7f74))
+
 ##  (2019-07-10)
 
 
