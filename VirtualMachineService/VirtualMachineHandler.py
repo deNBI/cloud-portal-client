@@ -550,7 +550,7 @@ class VirtualMachineHandler(Iface):
             if diskspace > "0":
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
                                                         volume_name=volumename,
-                                                        server_name=servername)
+                                                        server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
