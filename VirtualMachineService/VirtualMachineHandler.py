@@ -721,8 +721,6 @@ class VirtualMachineHandler(Iface):
                     ),
                     exc_info=True,
                 )
-                self.logger.info("Delete Volume  {0}".format(volume_id))
-                self.conn.block_storage.delete_volume(volume=volume_id)
                 return False
 
             return True
