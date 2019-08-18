@@ -3,6 +3,7 @@ import shutil
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 import ruamel.yaml
 import subprocess
+import redis
 
 BIOCONDA = "bioconda"
 THEIA = "theia"
@@ -11,15 +12,19 @@ RSTUDIO = "rstudio"
 
 class Playbook(object):
 
-    def __init__(self, ip, port, playbooks_information, osi_private_key, public_key, logger):
+    ACTIVE = "ACTIVE"
+    PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
+
+    def __init__(self, ip, port, playbooks_information, osi_private_key, public_key, logger, pool):
+        self.redis = redis.Redis(connection_pool=pool)
         self.yaml_exec = ruamel.yaml.YAML()
         self.vars_files = []
         self.tasks = []
         self.logger = logger
-        # init return logs
-        self.status = -1
-        self.stdout = ''
-        self.stderr = ''
+        self.process = None
+        self.returncode = -1
+        self.stdout = ""
+        self.stderr = ""
         # init temporary directories and mandatory generic files
         self.ancon_dir = "/code/VirtualMachineService/ancon"  # path to this directory
         self.playbooks_dir = self.ancon_dir + "/playbooks"  # path to source playbooks
@@ -27,6 +32,9 @@ class Playbook(object):
         self.private_key = NamedTemporaryFile(mode="w+", dir=self.directory.name, delete=False)
         self.private_key.write(osi_private_key)
         self.private_key.close()
+
+        self.log_file_stdout = NamedTemporaryFile(mode="w+", dir=self.directory.name, delete=False)
+        self.log_file_stderr = NamedTemporaryFile(mode="w+", dir=self.directory.name, delete=False)
 
         # create the custom playbook and save its name
         self.playbook_exec_name = "generic_playbook.yml"
@@ -40,6 +48,7 @@ class Playbook(object):
         self.inventory.close()
 
     def copy_playbooks_and_init(self, playbooks_information, public_key):
+        # go through every wanted playbook
         for k, v in playbooks_information.items():
             self.copy_and_init(k, v)
 
@@ -114,18 +123,49 @@ class Playbook(object):
         command_string = "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}"\
             .format(self.inventory.name, self.directory.name, self.playbook_exec_name)
         command_string = shlex.split(command_string)
-        process = subprocess.run(command_string,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 universal_newlines=True)
-        self.stdout = process.stdout
-        if len(process.stderr) > 0:
-            self.stderr = process.stderr
-        self.status = process.returncode
-        return process.returncode, process.stdout, process.stderr
+        self.process = subprocess.Popen(command_string,
+                                        stdout=self.log_file_stdout,
+                                        stderr=self.log_file_stderr,
+                                        universal_newlines=True)
+
+    def check_status(self, openstack_id):
+        done = self.process.poll()
+        if done is None:
+            self.logger.info("Playbook for (openstack_id) {0} still in progress.".format(openstack_id))
+        elif done != 0:
+            self.logger.info("Playbook for (openstack_id) {0} has failed.".format(openstack_id))
+            self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
+            self.returncode = self.process.returncode
+            self.process.wait()
+        else:
+            self.logger.info("Playbook for (openstack_id) {0} is successful.".format(openstack_id))
+            self.redis.hset(openstack_id, "status", self.ACTIVE)
+            self.returncode = self.process.returncode
+            self.process.wait()
+        return done
 
     def get_logs(self):
-        return self.status, self.stdout, self.stderr
+        self.log_file_stdout.seek(0, 0)
+        lines_stdout = self.log_file_stdout.readlines()
+        for line in lines_stdout:
+            self.stdout += line
+        self.log_file_stderr.seek(0, 0)
+        line_stderr = self.log_file_stderr.readlines()
+        for line in line_stderr:
+            self.stderr += line
+        return self.returncode, self.stdout, self.stderr
 
-    def cleanup(self):
+    def cleanup(self, openstack_id):
         self.directory.cleanup()
+        self.redis.delete(openstack_id)
+
+    def stop(self, openstack_id):
+        self.process.terminate()
+        rc, stdout, stderr = self.get_logs()
+        logs_to_save = {
+            "returncode": rc,
+            "stdout": stdout,
+            "stderr": stderr
+        }
+        self.redis.hmset("pb_logs_{0}".format(openstack_id), logs_to_save)
+        self.cleanup(openstack_id)

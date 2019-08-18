@@ -20,3 +20,24 @@ services:
       - ./VirtualMachineService/config/config.yml:/code/VirtualMachineService/config.yml
       - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    networks:
+     - portal
+
+  redis:
+    image: redis:5.0.5
+    expose:
+      - "6379"
+    networks:
+      - portal
+
+
+networks:
+  portal:
+    name: portal_default
+    driver: bridge                       
+    driver_opts:                         
+      com.docker.network.driver.mtu: 1440
+  default:                               
+    driver: bridge                       
+    driver_opts:                         
+      com.docker.network.driver.mtu: 1440
