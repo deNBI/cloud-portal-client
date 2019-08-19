@@ -33,14 +33,14 @@ const string VERSION= '1.0.0'
 
 	/** List of tags from flavor */
 	7: required list<string> tags
-	
-	
+
+
 }
 /**
  * This Struct defines an Image.
  */
-struct Image{	
-	
+struct Image{
+
 	/** The name of the image*/
 	1:required string name
 
@@ -72,7 +72,7 @@ struct Image{
  * This Struct defines a VirtualMachine.
  */
 struct VM {
-   
+
     	/** The flavor of the VM*/
     1: required Flavor flav,
 
@@ -342,6 +342,11 @@ service VirtualMachineService {
     6:string volumename)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+
+    /** Check if there is an instance with name */
+    bool exist_server(
+    1:string name
+    )
 
     /** Create and deploy an anaconda ansible playbook*/
     int create_and_deploy_playbook(

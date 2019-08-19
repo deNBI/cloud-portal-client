@@ -662,6 +662,12 @@ class VirtualMachineHandler(Iface):
             osi_key_dict[openstack_id]["status"] = self.ACTIVE
         return status
 
+    def exist_server(self, name):
+        if self.conn.compute.find_server(name) is not None:
+            return True
+        else:
+            return False
+
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
         if openstack_id in active_playbooks:
