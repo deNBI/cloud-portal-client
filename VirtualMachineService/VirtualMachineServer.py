@@ -1,13 +1,15 @@
 import os
 import sys
 
+import threading
+
 try:
     from VirtualMachineService.VirtualMachineService import Client, Processor
 except Exception:
     from VirtualMachineService import Client, Processor
 
 try:
-    from  VirtualMachineService.VirtualMachineHandler import VirtualMachineHandler
+    from VirtualMachineService.VirtualMachineHandler import VirtualMachineHandler
 except Exception:
     from VirtualMachineHandler import VirtualMachineHandler
 
@@ -17,6 +19,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 import yaml
 import click
+import signal
 
 USERNAME = 'OS_USERNAME'
 PASSWORD = 'OS_PASSWORD'
@@ -40,10 +43,17 @@ environment_variables = [
 @click.command()
 @click.argument('config')
 def startServer(config):
+
+    def catch_shutdown(signal, frame):
+        click.echo("Caught SIGTERM. Shutting down. Signal: {0} Frame: {1}".format(signal, frame))
+        handler.keyboard_interrupt_handler_playbooks()
+        click.echo("SIGTERM was handled. Exiting with Exitcode: -1.")
+        sys.exit(-1)
+
+    signal.signal(signal.SIGTERM, catch_shutdown)
     click.echo("Start Cloud-Client-Portal Server")
 
     CONFIG_FILE = config
-
     with open(CONFIG_FILE, 'r') as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
         HOST = cfg['openstack_connection']['host']
@@ -57,8 +67,9 @@ def startServer(config):
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     server = TServer.TThreadPoolServer(
-        processor, transport, tfactory, pfactory)
+        processor, transport, tfactory, pfactory, daemon=True)
     server.setNumThreads(15)
+
     server.serve()
 
 

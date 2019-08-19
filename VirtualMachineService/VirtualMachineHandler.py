@@ -45,27 +45,37 @@ import logging
 import yaml
 import base64
 from oslo_utils import encodeutils
+import redis
 
-osi_key_dict = dict()
 active_playbooks = dict()
 
 
 class VirtualMachineHandler(Iface):
+
     """Handler which the PortalClient uses."""
 
-    global osi_key_dict
+    global active_playbooks
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
+    def keyboard_interrupt_handler_playbooks(self):
+        global active_playbooks
+        for k, v in active_playbooks.items():
+            self.logger.info("Clearing traces of Playbook-VM for (openstack_id): {0}".format(k))
+            self.delete_keypair(key_name=self.redis.hget(k, "name").decode("utf-8"))
+            v.stop(k)
+            self.delete_server(openstack_id=k)
+        raise SystemExit(0)
+
     def create_connection(self):
         """
-        Create connection to OpenStack.
+            Create connection to OpenStack.
 
-        :return: OpenStack connection instance
-        """
+            :return: OpenStack connection instance
+            """
         try:
 
             conn = connection.Connection(
@@ -88,10 +98,10 @@ class VirtualMachineHandler(Iface):
 
     def __init__(self, config):
         """
-        Initialize the handler.
+            Initialize the handler.
 
-        Read all config variables and creates a connection to OpenStack.
-        """
+            Read all config variables and creates a connection to OpenStack.
+            """
         # create logger with 'spam_application'
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -110,6 +120,11 @@ class VirtualMachineHandler(Iface):
         # add the handlers to the logger
         self.logger.addHandler(self.fh)
         self.logger.addHandler(self.ch)
+
+        # connection to redis. Uses a pool with 10 connections.
+        self.pool = redis.ConnectionPool(host='redis', port=6379)
+        self.redis = redis.Redis(connection_pool=self.pool, charset='utf-8')
+
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
         self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
@@ -147,12 +162,12 @@ class VirtualMachineHandler(Iface):
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
         """
-        Set the password of a user.
+            Set the password of a user.
 
-        :param user: Elixir-Id of the user which wants to set a password
-        :param password: The new password.
-        :return: The new password
-        """
+            :param user: Elixir-Id of the user which wants to set a password
+            :param password: The new password.
+            :return: The new password
+            """
         if str(self.SET_PASSWORD) == "True":
             try:
                 auth = v3.Password(
@@ -163,8 +178,8 @@ class VirtualMachineHandler(Iface):
                     user_domain_id="default",
                     project_domain_id="default",
                 )
-                sess = session.Session(auth=auth)
 
+                sess = session.Session(auth=auth)
                 def findUser(keystone, name):
                     users = keystone.users.list()
                     for user in users:
@@ -633,9 +648,8 @@ class VirtualMachineHandler(Iface):
                 )
 
             openstack_id = server.to_dict()["id"]
-            global osi_key_dict
-            osi_key_dict[openstack_id] = dict(key=private_key, name=servername,
-                                              status=self.PREPARE_PLAYBOOK_BUILD)
+            self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
+                                                status=self.PREPARE_PLAYBOOK_BUILD))
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
@@ -643,35 +657,31 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_and_deploy_playbook(self, public_key, playbooks_information, openstack_id):
+        global active_playbooks
         self.logger.info(msg="Starting Playbook for (openstack_id): {0}"
                          .format(openstack_id))
-        # get ip and port for inventory
         fields = self.get_ip_ports(openstack_id=openstack_id)
-        global osi_key_dict
-        global active_playbooks
-        key_name = osi_key_dict[openstack_id]['name']
+        key = self.redis.hget(openstack_id, "key").decode('utf-8')
         playbook = Playbook(fields["IP"],
                             fields["PORT"],
                             playbooks_information,
-                            osi_key_dict[openstack_id]["key"],
+                            key,
                             public_key,
-                            self.logger)
+                            self.logger,
+                            self.pool)
+        self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
+        playbook.run_it()
         active_playbooks[openstack_id] = playbook
-        osi_key_dict[openstack_id]["status"] = self.BUILD_PLAYBOOK
-        status, stdout, stderr = playbook.run_it()
-        self.delete_keypair(key_name=key_name)
-        if status != 0:
-            osi_key_dict[openstack_id]["status"] = self.PLAYBOOK_FAILED
-        else:
-            osi_key_dict[openstack_id]["status"] = self.ACTIVE
-        return status
+        return 0
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
-        if openstack_id in active_playbooks:
+        if self.redis.exists(openstack_id) == 1 and openstack_id in active_playbooks:
+            key_name = self.redis.hget(openstack_id, 'name').decode('utf-8')
             playbook = active_playbooks.pop(openstack_id)
             status, stdout, stderr = playbook.get_logs()
-            playbook.cleanup()
+            playbook.cleanup(openstack_id)
+            self.delete_keypair(key_name=key_name)
             return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
         else:
             return PlaybookResult(status=-2, stdout='', stderr='')
@@ -754,7 +764,6 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            global osi_key_dict
             if serv["status"] == self.ACTIVE:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
@@ -781,14 +790,19 @@ class VirtualMachineHandler(Iface):
                             server.status = "DESTROYED"
                             return server
 
-                    if openstack_id in osi_key_dict:
-                        if osi_key_dict[openstack_id]["status"] == self.PREPARE_PLAYBOOK_BUILD:
+                    if self.redis.exists(openstack_id) == 1:
+                        global active_playbooks
+                        if openstack_id in active_playbooks:
+                            playbook = active_playbooks[openstack_id]
+                            playbook.check_status(openstack_id)
+                        status = self.redis.hget(openstack_id, "status").decode('utf-8')
+                        if status == self.PREPARE_PLAYBOOK_BUILD:
                             server.status = self.PREPARE_PLAYBOOK_BUILD
                             return server
-                        elif osi_key_dict[openstack_id]["status"] == self.BUILD_PLAYBOOK:
+                        elif status == self.BUILD_PLAYBOOK:
                             server.status = self.BUILD_PLAYBOOK
                             return server
-                        elif osi_key_dict[openstack_id]["status"] == self.PLAYBOOK_FAILED:
+                        elif status == self.PLAYBOOK_FAILED:
                             server.status = self.PLAYBOOK_FAILED
                             return server
                         else:

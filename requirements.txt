@@ -9,3 +9,4 @@ ansible==2.8.0
 ruamel.yaml<0.16.00
 paramiko==2.6.0
 pyvim==2.0.24
+redis==3.3.6
