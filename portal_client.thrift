@@ -67,6 +67,9 @@ struct Image{
 
     /** List of tags from image */
 	9: required list<string> tag
+
+	/** If the Image is a snapshot*/
+	10:optional bool is_snapshot
 }
 /**
  * This Struct defines a VirtualMachine.

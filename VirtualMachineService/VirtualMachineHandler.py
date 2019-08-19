@@ -260,6 +260,7 @@ class VirtualMachineHandler(Iface):
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
+                image_type = img.get("image_type", "image")
                 if description is None:
                     self.logger.warning("No Description and  for " + img["name"])
 
@@ -273,7 +274,10 @@ class VirtualMachineHandler(Iface):
                     openstack_id=img["id"],
                     description=description,
                     tag=tags,
+                    is_snapshot=image_type == "snapshot"
                 )
+                self.logger.info(image)
+
                 images.append(image)
 
             return images
