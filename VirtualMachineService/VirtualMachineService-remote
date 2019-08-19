@@ -38,6 +38,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
     print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename)')
     print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, string diskspace, string volumename)')
+    print('  bool exist_server(string name)')
     print('  int create_and_deploy_playbook(string public_key,  playbooks_information, string openstack_id)')
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
     print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
@@ -216,6 +217,12 @@ elif cmd == 'start_server_with_custom_key':
         print('start_server_with_custom_key requires 6 args')
         sys.exit(1)
     pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), args[4], args[5],))
+
+elif cmd == 'exist_server':
+    if len(args) != 1:
+        print('exist_server requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.exist_server(args[0],))
 
 elif cmd == 'create_and_deploy_playbook':
     if len(args) != 3:
