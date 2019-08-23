@@ -5,6 +5,7 @@
     dest: "{{ bioconda_folders.install_script }}"
     mode: 0755
     timeout: 180
+    force: no
 
 - name: Install miniconda
   shell: "timeout 3m {{ bioconda_folders.install_script }} -b"
@@ -12,17 +13,45 @@
     executable: /bin/bash
     creates: "{{ bioconda_folders.conda_dir }}"
 
-- name: Add channels
-  shell: "timeout 2m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda config --add channels default && conda config --add channels bioconda && conda config --add channels conda-forge'"
+- name: Check for channels
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda config --get channels'"
+  register: added_channels
+
+- name: Add default channel
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda config --add channels default'"
   args:
     executable: /bin/bash
+  when: added_channels.stdout.find('default') == -1
+
+- name: Add bioconda channel
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda config --add channels bioconda'"
+  args:
+    executable: /bin/bash
+  when: added_channels.stdout.find('bioconda') == -1
+
+- name: Add conda-forge channel
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda config --add channels conda-forge'"
+  args:
+    executable: /bin/bash
+  when: added_channels.stdout.find('conda-forge') == -1
+
+- name: Check for environment
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda info -e'"
+  register: added_envs
 
 - name: Create environment
   shell: "timeout 2m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda create --yes -n {{ bioconda_tools.env }}'"
   args:
     executable: /bin/bash
+  when: added_envs.stdout.find(bioconda_tools.env) == -1
+
+- name: Check for installed packages
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda list'"
+  register: added_packages
 
 - name: Install chosen packages
-  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda install --yes {{ bioconda_tools.string_line }}'"
+  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda install --yes {{ item.key }}={{ item.value.version }}={{ item.value.build }}'"
   args:
     executable: /bin/bash
+  loop: "{{ lookup('dict', bioconda_tools.packages) }}"
+  when: added_packages.stdout.find(item.key) == -1
