@@ -384,6 +384,12 @@ service VirtualMachineService {
     )
 
 
+    /**
+	 * Get all servers.
+	 * Returns: List of server instances.
+	 */
+	list<VM> get_servers(),
+
 
 	/**
 	 * Get a Server.

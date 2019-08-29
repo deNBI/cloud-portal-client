@@ -51,7 +51,6 @@ active_playbooks = dict()
 
 
 class VirtualMachineHandler(Iface):
-
     """Handler which the PortalClient uses."""
 
     global active_playbooks
@@ -180,6 +179,7 @@ class VirtualMachineHandler(Iface):
                 )
 
                 sess = session.Session(auth=auth)
+
                 def findUser(keystone, name):
                     users = keystone.users.list()
                     for user in users:
@@ -222,6 +222,7 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Get Flavors Error: {0}".format(e))
             return ()
+
 
     @deprecated(
         version="1.0.0",
@@ -826,6 +827,73 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
             return None
 
+    def openstack_server_to_thrift_server(self, server):
+        serv = server.to_dict()
+        fixed_ip = None
+        floating_ip = None
+
+        if serv["attached_volumes"]:
+            volume_id = serv["attached_volumes"][0]["id"]
+            diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
+        else:
+            diskspace = 0
+        if serv["launched_at"]:
+            dt = datetime.datetime.strptime(
+                serv["launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
+            )
+            timestamp = time.mktime(dt.timetuple())
+        else:
+            timestamp = None
+        try:
+            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
+        except Exception as e:
+            self.logger.exception(e)
+            flav = None
+        try:
+            img = self.get_Image_with_Tag(serv["image"]["id"])
+        except Exception as e:
+            self.logger.exception(e)
+            img = None
+        for values in server.addresses.values():
+            for address in values:
+
+                if address["OS-EXT-IPS:type"] == "floating":
+                    floating_ip = address["addr"]
+                elif address["OS-EXT-IPS:type"] == "fixed":
+                    fixed_ip = address["addr"]
+
+        server = VM(
+            flav=Flavor(
+                vcpus=flav["vcpus"],
+                ram=flav["ram"],
+                disk=flav["disk"],
+                name=flav["name"],
+                openstack_id=flav["id"],
+            ),
+            img=img,
+            status=serv["status"],
+            metadata=serv["metadata"],
+            project_id=serv["project_id"],
+            keyname=serv["key_name"],
+            openstack_id=serv["id"],
+            name=serv["name"],
+            created_at=str(timestamp),
+            fixed_ip=fixed_ip,
+            floating_ip=floating_ip,
+            diskspace=diskspace,
+        )
+        return server
+
+    def get_servers(self):
+        self.logger.info("Get all servers")
+        servers = list(self.conn.compute.servers())
+        server_list=[]
+        for server in servers:
+            server_list.append(self.openstack_server_to_thrift_server(server))
+       # self.logger.info(server_list)
+        return server_list
+
+
     def add_security_group_to_server(self, http, https, udp, server_id):
         """
         Adds the default simple vm security group to the vm.
@@ -881,6 +949,7 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+
     def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of the sever.
@@ -908,6 +977,7 @@ class VirtualMachineHandler(Iface):
                 "Get IP and PORT for server {0} error:".format(openstack_id, e)
             )
             return {}
+
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
@@ -964,6 +1034,7 @@ class VirtualMachineHandler(Iface):
             )
             return
 
+
     def delete_image(self, image_id):
         """
         Delete Image.
@@ -984,6 +1055,7 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Delete Image {0} error : {1}".format(image_id, e))
             return False
+
 
     def add_floating_ip_to_server(self, openstack_id, network):
         """
@@ -1038,6 +1110,7 @@ class VirtualMachineHandler(Iface):
             )
             return
 
+
     def netcat(self, host, port):
         """
         Try to connect to specific host:port.
@@ -1056,6 +1129,7 @@ class VirtualMachineHandler(Iface):
                 return True
             else:
                 return False
+
 
     def delete_server(self, openstack_id):
         """
@@ -1090,6 +1164,7 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Delete Server {0} error: {1}".format(openstack_id, e))
             return False
 
+
     def delete_volume_attachment(self, volume_id, server_id):
         """
         Delete volume attachment.
@@ -1118,6 +1193,7 @@ class VirtualMachineHandler(Iface):
                 )
             )
             return False
+
 
     def delete_volume(self, volume_id):
         """
@@ -1150,6 +1226,7 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Delete Volume {0} error".format(volume_id, e))
             return False
 
+
     def stop_server(self, openstack_id):
         """
         Stop server.
@@ -1174,6 +1251,7 @@ class VirtualMachineHandler(Iface):
 
             return False
 
+
     def reboot_server(self, server_id, reboot_type):
         """
         Reboot server.
@@ -1197,6 +1275,7 @@ class VirtualMachineHandler(Iface):
             )
             return False
 
+
     def resume_server(self, openstack_id):
         """
         Resume stopped server.
@@ -1218,6 +1297,7 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Resume Server {0} error:".format(openstack_id, e))
             return False
+
 
     def create_security_group(
             self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
@@ -1302,6 +1382,7 @@ class VirtualMachineHandler(Iface):
             )
 
         return new_security_group
+
 
     def get_limits(self):
         """
