@@ -216,7 +216,7 @@ class VirtualMachineHandler(Iface):
                     openstack_id=flav["id"],
                     tags=list(flav["extra_specs"].keys()),
                 )
-
+                self.logger.info(flavor)
                 flavors.append(flavor)
             return flavors
         except Exception as e:
