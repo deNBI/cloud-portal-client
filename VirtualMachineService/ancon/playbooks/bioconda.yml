@@ -53,5 +53,5 @@
   shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda install --yes {{ item.key }}={{ item.value.version }}={{ item.value.build }}'"
   args:
     executable: /bin/bash
-  loop: "{{ lookup('dict', bioconda_tools.packages) }}"
+  loop: "{{ q('dict', bioconda_tools.packages) }}"
   when: added_packages.stdout.find(item.key) == -1
