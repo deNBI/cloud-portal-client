@@ -1,3 +1,10 @@
+##  (2019-09-11)
+
+
+#### Bug Fixes
+
+* **bioconda:**
+  *  now able to install only one package (#139) (#140) ([48e91dfd](48e91dfd))
 
 ##  (2019-09-03)
 
