@@ -223,7 +223,6 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Get Flavors Error: {0}".format(e))
             return ()
 
-
     @deprecated(
         version="1.0.0",
         reason="Vers. of Denbi API Client and Portalclient won't be compared",
@@ -625,7 +624,7 @@ class VirtualMachineHandler(Iface):
             if int(diskspace) > 0:
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
                                                         volume_name=volumename,
-                                                        server_name=servername)
+                                                        server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
                 server = self.conn.compute.create_server(
@@ -887,12 +886,11 @@ class VirtualMachineHandler(Iface):
     def get_servers(self):
         self.logger.info("Get all servers")
         servers = list(self.conn.compute.servers())
-        server_list=[]
+        server_list = []
         for server in servers:
             server_list.append(self.openstack_server_to_thrift_server(server))
-       # self.logger.info(server_list)
+        # self.logger.info(server_list)
         return server_list
-
 
     def add_security_group_to_server(self, http, https, udp, server_id):
         """
@@ -949,7 +947,6 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-
     def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of the sever.
@@ -977,7 +974,6 @@ class VirtualMachineHandler(Iface):
                 "Get IP and PORT for server {0} error:".format(openstack_id, e)
             )
             return {}
-
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """
@@ -1034,7 +1030,6 @@ class VirtualMachineHandler(Iface):
             )
             return
 
-
     def delete_image(self, image_id):
         """
         Delete Image.
@@ -1055,7 +1050,6 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Delete Image {0} error : {1}".format(image_id, e))
             return False
-
 
     def add_floating_ip_to_server(self, openstack_id, network):
         """
@@ -1110,7 +1104,6 @@ class VirtualMachineHandler(Iface):
             )
             return
 
-
     def netcat(self, host, port):
         """
         Try to connect to specific host:port.
@@ -1129,7 +1122,6 @@ class VirtualMachineHandler(Iface):
                 return True
             else:
                 return False
-
 
     def delete_server(self, openstack_id):
         """
@@ -1164,7 +1156,6 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Delete Server {0} error: {1}".format(openstack_id, e))
             return False
 
-
     def delete_volume_attachment(self, volume_id, server_id):
         """
         Delete volume attachment.
@@ -1193,7 +1184,6 @@ class VirtualMachineHandler(Iface):
                 )
             )
             return False
-
 
     def delete_volume(self, volume_id):
         """
@@ -1226,7 +1216,6 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Delete Volume {0} error".format(volume_id, e))
             return False
 
-
     def stop_server(self, openstack_id):
         """
         Stop server.
@@ -1251,7 +1240,6 @@ class VirtualMachineHandler(Iface):
 
             return False
 
-
     def reboot_server(self, server_id, reboot_type):
         """
         Reboot server.
@@ -1275,7 +1263,6 @@ class VirtualMachineHandler(Iface):
             )
             return False
 
-
     def resume_server(self, openstack_id):
         """
         Resume stopped server.
@@ -1297,7 +1284,6 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Resume Server {0} error:".format(openstack_id, e))
             return False
-
 
     def create_security_group(
             self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
@@ -1382,7 +1368,6 @@ class VirtualMachineHandler(Iface):
             )
 
         return new_security_group
-
 
     def get_limits(self):
         """
