@@ -1136,11 +1136,6 @@ class VirtualMachineHandler(Iface):
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
-
-            if server.status == "SHUTOFF":
-                self.conn.compute.start_server(server)
-                server = self.conn.compute.get_server(server)
-                self.conn.compute.wait_for_server(server=server, status='ACTIVE')
             self.logger.info(server)
             self.logger.info(server.name)
             security_group = self.conn.network.find_security_group(name_or_id=openstack_id)
