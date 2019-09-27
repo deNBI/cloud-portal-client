@@ -14,7 +14,7 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 #### Download and source rc file
 
-Download and source Openstack RC FILE v3 with the following command:
+Download and source OpenStack RC FILE v3 with the following command:
 
 ~~~BASH
 source NameOfRcFile.sh
@@ -90,12 +90,20 @@ will create documentaion in the /docs directory.
 ### Docker-Compose
 
 Run the following command in order to start the container setup:
+Make sure, that your OpenStack RC File is sourced.
 
 ```
 docker-compose up
 ```
 
-***NOTE!*** If you update any script you have to rebuild the image with `docker-compose build .`.
+***NOTE:*** If you update any script you have to rebuild the image.
+Therefore use:
+
+```
+docker-compose down
+docker-compose build --no-cache
+```
+
 
 ### Thrift Development
 
