@@ -961,7 +961,7 @@ class VirtualMachineHandler(Iface):
             if self.USE_GATEWAY:
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
-                port = int(self.GATEWAY_BASE) + int(server_base) * 3
+                port = int(self.GATEWAY_BASE) + int(server_base)
                 udp_port_start = int(server_base) * 10 + int(self.UDP_BASE)
                 return {"IP": str(self.GATEWAY_IP), "PORT": str(port), "UDP": str(udp_port_start)}
 
