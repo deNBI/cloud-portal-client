@@ -778,7 +778,7 @@ class VirtualMachineHandler(Iface):
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
                     host = str(self.GATEWAY_IP)
-                    port = int(self.GATEWAY_BASE) + int(server_base) * 3
+                    port = int(self.GATEWAY_BASE) + int(server_base)
                 elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK
