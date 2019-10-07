@@ -1138,7 +1138,15 @@ class VirtualMachineHandler(Iface):
                 raise serverNotFoundException
             self.logger.info(server)
             self.logger.info(server.name)
+            self.logger.info(openstack_id)
             security_group = self.conn.network.find_security_group(name_or_id=openstack_id)
+            self.logger.info(security_group)
+            self.logger.info(server.security_groups)
+            try:
+                group = self.conn.compute.fetch_server_security_groups(server)
+                self.logger.info(group)
+            except:
+                pass
             if security_group:
                 self.logger.info("Delete security group {}".format(openstack_id))
                 self.conn.compute.remove_security_group_from_server(server=server,
