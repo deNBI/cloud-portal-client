@@ -31,6 +31,7 @@ except Exception:
     from .ancon.Playbook import Playbook
 
 from openstack import connection
+from openstack import exceptions
 from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
@@ -1138,21 +1139,20 @@ class VirtualMachineHandler(Iface):
                 raise serverNotFoundException
             self.logger.info(server)
             self.logger.info(server.name)
-            self.logger.info(openstack_id)
-            security_group = self.conn.network.find_security_group(name_or_id=openstack_id)
-            self.logger.info(security_group)
-            self.logger.info(server.security_groups)
             try:
-                group = self.conn.compute.fetch_server_security_groups(server)
-                self.logger.info(group)
-            except:
-                pass
-            if security_group:
-                self.logger.info("Delete security group {}".format(openstack_id))
-                self.conn.compute.remove_security_group_from_server(server=server,
-                                                                    security_group=security_group)
-                self.conn.network.delete_security_group(security_group)
-            self.conn.compute.delete_server(server)
+                security_groups = self.conn.network.security_groups(name=openstack_id)
+            except Exception as e:
+                self.logger.info(e)
+            if security_groups is not None:
+                for sg in security_groups:
+                    self.logger.info("Delete security group {0}".format(openstack_id))
+                    self.conn.compute.remove_security_group_from_server(server=server,
+                                                                        security_group=sg)
+                    self.conn.network.delete_security_group(sg)
+                self.conn.compute.delete_server(server)
+            else:
+                return False
+
 
             return True
         except Exception as e:
