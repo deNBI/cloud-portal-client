@@ -1142,7 +1142,7 @@ class VirtualMachineHandler(Iface):
             try:
                 security_groups = self.conn.network.security_groups(name=openstack_id)
             except Exception as e:
-                self.logger.info(e)
+                self.logger.exception(e)
             if security_groups is not None:
                 for sg in security_groups:
                     self.logger.info("Delete security group {0}".format(openstack_id))
