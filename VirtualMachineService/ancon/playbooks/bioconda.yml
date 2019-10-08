@@ -35,22 +35,33 @@
     executable: /bin/bash
   when: added_channels.stdout.find('conda-forge') == -1
 
+- name: Init .bashrc for conda
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda init'"
+  args:
+    executable: /bin/bash
+
 - name: Check for environment
   shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda info -e'"
   register: added_envs
 
+- name: Create alias for environment
+  shell: "echo $ALIAS_VARIABLE > ~/.bash_aliases"
+  environment:
+    ALIAS_VARIABLE: 'alias {{ bioconda_tools.env | quote }}="conda activate {{ bioconda_tools.env | quote }}"'
+  when: added_envs.stdout.find(bioconda_tools.env) == -1
+
 - name: Create environment
-  shell: "timeout 2m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda create --yes -n {{ bioconda_tools.env }}'"
+  shell: "timeout 2m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda create --yes -n {{ bioconda_tools.env | quote}}'"
   args:
     executable: /bin/bash
   when: added_envs.stdout.find(bioconda_tools.env) == -1
 
 - name: Check for installed packages
-  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda list'"
+  shell: "timeout 1m bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env | quote}} && conda list'"
   register: added_packages
 
 - name: Install chosen packages
-  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env }} && conda install --yes {{ item.key }}={{ item.value.version }}={{ item.value.build }}'"
+  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env | quote}} && conda install --yes {{ item.key }}={{ item.value.version }}={{ item.value.build }}'"
   args:
     executable: /bin/bash
   loop: "{{ q('dict', bioconda_tools.packages) }}"
