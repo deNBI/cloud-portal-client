@@ -1,3 +1,14 @@
+##  (2019-10-08)
+
+### Bug Fixes
+
+* **delete-vm:**
+  *  deletes all security groups of server with the same name
+  
+### Features
+
+* **bioconda:** init .bashrc and create alias for environment (#141)
+
 ##  (2019-09-11)
 
 
