@@ -153,4 +153,3 @@ fabric.properties
 
 # additional data
 *.pem
-*.sh
