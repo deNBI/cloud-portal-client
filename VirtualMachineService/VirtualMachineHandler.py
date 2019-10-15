@@ -47,6 +47,7 @@ import yaml
 import base64
 from oslo_utils import encodeutils
 import redis
+import parser
 
 active_playbooks = dict()
 
@@ -143,12 +144,12 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
-            # self.SET_PASSWORD = cfg['openstack_connection']['set_password']
             if self.USE_GATEWAY:
-                self.GATEWAY_BASE = cfg["openstack_connection"]["gateway_base"]
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
-                self.UDP_BASE = cfg["openstack_connection"]["udp_base"]
-
+                self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
+                self.UDP_FORMULAR = cfg["openstack_connection"]["udp_port_calc_formular"]
+                self.SSH_PORT_CALCULATION = parser.expr(self.SSH_FORMULAR).compile()
+                self.UDP_PORT_CALCULATION = parser.expr(self.UDP_FORMULAR).compile()
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
 
             if cfg["openstack_connection"]["openstack_default_security_group"]:
@@ -778,8 +779,9 @@ class VirtualMachineHandler(Iface):
                 if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
+                    x=int(server_base)
                     host = str(self.GATEWAY_IP)
-                    port = int(self.GATEWAY_BASE) + int(server_base)
+                    port =eval(self.SSH_PORT_CALCULATION)
                 elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK
@@ -923,10 +925,9 @@ class VirtualMachineHandler(Iface):
             )
 
         ip_base = \
-            list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
-                -1]
-
-        udp_port_start = int(ip_base) * 10 + int(self.UDP_BASE)
+        list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
+        x=int(ip_base)
+        udp_port_start = eval(self.UDP_PORT_CALCULATION)
 
         security_group = self.conn.network.find_security_group(name_or_id=server_id)
         if security_group:
@@ -962,8 +963,9 @@ class VirtualMachineHandler(Iface):
             if self.USE_GATEWAY:
                 server = self.get_server(openstack_id)
                 server_base = server.fixed_ip.split(".")[-1]
-                port = int(self.GATEWAY_BASE) + int(server_base)
-                udp_port_start = int(server_base) * 10 + int(self.UDP_BASE)
+                x = int(server_base)
+                port = eval(self.SSH_PORT_CALCULATION)
+                udp_port_start = eval(self.UDP_PORT_CALCULATION)
                 return {"IP": str(self.GATEWAY_IP), "PORT": str(port), "UDP": str(udp_port_start)}
 
             else:
@@ -1152,7 +1154,6 @@ class VirtualMachineHandler(Iface):
                 self.conn.compute.delete_server(server)
             else:
                 return False
-
 
             return True
         except Exception as e:

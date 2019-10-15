@@ -2,19 +2,16 @@ openstack_connection:
   host: 0.0.0.0
   # Client Port
   port: 9090
-  # Gateway Port and IP
-  gateway_base: 30000
-  gateway_ip: 129.70.51.75 
+  # Gateway IP
+  gateway_ip: 129.70.51.75
   # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
   use_gateway: True
-  
+
   # Id of the default simple vm security group
   default_security_group: ec824d8f-0e45-4eb1-8f49-089867fef366
 
   # id of default security from  the openstack project  (will be removed from vm after vm is created)
   openstack_default_security_group: 26713dd3-26e9-41cf-b7cd-931a447923fb
-
-  udp_base: 30000
 
   set_password: False
   # network where the project is located
@@ -24,3 +21,7 @@ openstack_connection:
   availability_zone: default
   # If you use docker-compose this path needs to be the path you mount the server.pem into
   certfile: /code/VirtualMachineService/keys/server.pem
+
+  # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
+  ssh_port_calc_formular: 30000 + x
+  udp_port_calc_formular: x * 10 +  30000
