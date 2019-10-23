@@ -20,6 +20,7 @@ class Playbook(object):
         self.yaml_exec = ruamel.yaml.YAML()
         self.vars_files = []
         self.tasks = []
+        self.always_tasks = []
         self.logger = logger
         self.process = None
         self.returncode = -1
@@ -43,7 +44,8 @@ class Playbook(object):
         # create inventory
         self.inventory = NamedTemporaryFile(mode="w+", dir=self.directory.name, delete=False)
         inventory_string = "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu " \
-                                                        "ansible_ssh_private_key_file=" + self.private_key.name
+                                                        "ansible_ssh_private_key_file=" + self.private_key.name \
+                                                        + " ansible_python_interpreter=/usr/bin/python3"
         self.inventory.write(inventory_string)
         self.inventory.close()
 
@@ -60,14 +62,15 @@ class Playbook(object):
             data_ck["change_key_vars"]["key"] = public_key.strip('\"')
         with open(self.directory.name + "/change_key_vars_file.yml", mode='w') as key_file:
             self.yaml_exec.dump(data_ck, key_file)
-        self.add_to_playbook_lists("change_key")
+        self.add_to_playbook_always_lists("change_key")
 
         # write all vars_files and tasks in generic_playbook
         shutil.copy(self.playbooks_dir + "/" + self.playbook_exec_name, self.directory.name)
         with open(self.directory.name + "/" + self.playbook_exec_name, mode='r') as generic_playbook:
             data_gp = self.yaml_exec.load(generic_playbook)
             data_gp[0]["vars_files"] = self.vars_files
-            data_gp[0]["tasks"] = self.tasks
+            data_gp[0]["tasks"][0]["block"] = self.tasks
+            data_gp[0]["tasks"][0]["always"] = self.always_tasks
         with open(self.directory.name + "/" + self.playbook_exec_name, mode='w') as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
@@ -130,6 +133,13 @@ class Playbook(object):
 
     def add_tasks_only(self, playbook_name):
         self.tasks.append(dict(name="Running {0} tasks".format(playbook_name), import_tasks=playbook_name+".yml"))
+
+    def add_to_playbook_always_lists(self, playbook_name):
+        self.vars_files.append(playbook_name + "_vars_file.yml")
+        self.always_tasks.append(dict(name="Running {0} tasks".format(playbook_name), import_tasks=playbook_name+".yml"))
+
+    def add_always_tasks_only(self, playbook_name):
+        self.always_tasks.append(dict(name="Running {0} tasks".format(playbook_name), import_tasks=playbook_name+".yml"))
 
     def run_it(self):
         command_string = "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}"\
