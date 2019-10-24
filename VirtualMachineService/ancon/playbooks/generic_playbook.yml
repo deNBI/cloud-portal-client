@@ -4,3 +4,6 @@
   gather_facts: yes
   vars_files:
   tasks:
+    - name: Setting up your virtual machine
+      block:
+      always:
