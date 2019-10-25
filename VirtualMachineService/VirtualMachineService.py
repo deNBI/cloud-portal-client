@@ -232,6 +232,17 @@ class Iface(object):
         """
         pass
 
+    def get_servers_by_ids(self, server_ids):
+        """
+        	* Get list of servers by ids
+        *
+
+        Parameters:
+         - server_ids
+
+        """
+        pass
+
     def get_server(self, openstack_id):
         """
         Get a Server.
@@ -1128,6 +1139,41 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers failed: unknown result")
 
+    def get_servers_by_ids(self, server_ids):
+        """
+        	* Get list of servers by ids
+        *
+
+        Parameters:
+         - server_ids
+
+        """
+        self.send_get_servers_by_ids(server_ids)
+        return self.recv_get_servers_by_ids()
+
+    def send_get_servers_by_ids(self, server_ids):
+        self._oprot.writeMessageBegin('get_servers_by_ids', TMessageType.CALL, self._seqid)
+        args = get_servers_by_ids_args()
+        args.server_ids = server_ids
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_get_servers_by_ids(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = get_servers_by_ids_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers_by_ids failed: unknown result")
+
     def get_server(self, openstack_id):
         """
         Get a Server.
@@ -1654,6 +1700,7 @@ class Processor(Iface, TProcessor):
         self._processMap["get_playbook_logs"] = Processor.process_get_playbook_logs
         self._processMap["add_security_group_to_server"] = Processor.process_add_security_group_to_server
         self._processMap["get_servers"] = Processor.process_get_servers
+        self._processMap["get_servers_by_ids"] = Processor.process_get_servers_by_ids
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["create_snapshot"] = Processor.process_create_snapshot
@@ -2182,6 +2229,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("get_servers", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_get_servers_by_ids(self, seqid, iprot, oprot):
+        args = get_servers_by_ids_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = get_servers_by_ids_result()
+        try:
+            result.success = self._handler.get_servers_by_ids(args.server_ids)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("get_servers_by_ids", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -5498,6 +5568,146 @@ get_servers_result.thrift_spec = (
 )
 
 
+class get_servers_by_ids_args(object):
+    """
+    Attributes:
+     - server_ids
+
+    """
+
+
+    def __init__(self, server_ids=None,):
+        self.server_ids = server_ids
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.LIST:
+                    self.server_ids = []
+                    (_etype151, _size148) = iprot.readListBegin()
+                    for _i152 in range(_size148):
+                        _elem153 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.server_ids.append(_elem153)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_servers_by_ids_args')
+        if self.server_ids is not None:
+            oprot.writeFieldBegin('server_ids', TType.LIST, 1)
+            oprot.writeListBegin(TType.STRING, len(self.server_ids))
+            for iter154 in self.server_ids:
+                oprot.writeString(iter154.encode('utf-8') if sys.version_info[0] == 2 else iter154)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_servers_by_ids_args)
+get_servers_by_ids_args.thrift_spec = (
+    None,  # 0
+    (1, TType.LIST, 'server_ids', (TType.STRING, 'UTF8', False), None, ),  # 1
+)
+
+
+class get_servers_by_ids_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.LIST:
+                    self.success = []
+                    (_etype158, _size155) = iprot.readListBegin()
+                    for _i159 in range(_size155):
+                        _elem160 = VM()
+                        _elem160.read(iprot)
+                        self.success.append(_elem160)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_servers_by_ids_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.LIST, 0)
+            oprot.writeListBegin(TType.STRUCT, len(self.success))
+            for iter161 in self.success:
+                iter161.write(oprot)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_servers_by_ids_result)
+get_servers_by_ids_result.thrift_spec = (
+    (0, TType.LIST, 'success', (TType.STRUCT, [VM, None], False), None, ),  # 0
+)
+
+
 class get_server_args(object):
     """
     Attributes:
@@ -6021,11 +6231,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype149, _vtype150, _size148) = iprot.readMapBegin()
-                    for _i152 in range(_size148):
-                        _key153 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val154 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key153] = _val154
+                    (_ktype163, _vtype164, _size162) = iprot.readMapBegin()
+                    for _i166 in range(_size162):
+                        _key167 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val168 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key167] = _val168
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -6042,9 +6252,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter155, viter156 in self.success.items():
-                oprot.writeString(kiter155.encode('utf-8') if sys.version_info[0] == 2 else kiter155)
-                oprot.writeString(viter156.encode('utf-8') if sys.version_info[0] == 2 else viter156)
+            for kiter169, viter170 in self.success.items():
+                oprot.writeString(kiter169.encode('utf-8') if sys.version_info[0] == 2 else kiter169)
+                oprot.writeString(viter170.encode('utf-8') if sys.version_info[0] == 2 else viter170)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -7119,11 +7329,11 @@ class create_volume_args(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype158, _vtype159, _size157) = iprot.readMapBegin()
-                    for _i161 in range(_size157):
-                        _key162 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val163 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key162] = _val163
+                    (_ktype172, _vtype173, _size171) = iprot.readMapBegin()
+                    for _i175 in range(_size171):
+                        _key176 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val177 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key176] = _val177
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -7148,9 +7358,9 @@ class create_volume_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 3)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter164, viter165 in self.metadata.items():
-                oprot.writeString(kiter164.encode('utf-8') if sys.version_info[0] == 2 else kiter164)
-                oprot.writeString(viter165.encode('utf-8') if sys.version_info[0] == 2 else viter165)
+            for kiter178, viter179 in self.metadata.items():
+                oprot.writeString(kiter178.encode('utf-8') if sys.version_info[0] == 2 else kiter178)
+                oprot.writeString(viter179.encode('utf-8') if sys.version_info[0] == 2 else viter179)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()

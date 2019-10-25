@@ -43,6 +43,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
     print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
     print('   get_servers()')
+    print('   get_servers_by_ids( server_ids)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
     print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag, string description)')
@@ -248,6 +249,12 @@ elif cmd == 'get_servers':
         print('get_servers requires 0 args')
         sys.exit(1)
     pp.pprint(client.get_servers())
+
+elif cmd == 'get_servers_by_ids':
+    if len(args) != 1:
+        print('get_servers_by_ids requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_servers_by_ids(eval(args[0]),))
 
 elif cmd == 'get_server':
     if len(args) != 1:
