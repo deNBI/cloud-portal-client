@@ -460,6 +460,19 @@ class VirtualMachineHandler(Iface):
             )
         return server
 
+    def get_servers_by_ids(self, ids):
+        servers = []
+        for id in ids:
+            try:
+                servers.append(self.conn.compute.get_server(id))
+            except:
+                self.logger.error("Requested VM {} not found!".format(id))
+                pass
+        server_list = []
+        for server in servers:
+            server_list.append(self.openstack_server_to_thrift_server(server))
+        return server_list
+
     def get_image(self, image):
         image = self.conn.compute.find_image(image)
         if image is None:
@@ -779,9 +792,9 @@ class VirtualMachineHandler(Iface):
                 if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
-                    x=int(server_base)
+                    x = int(server_base)
                     host = str(self.GATEWAY_IP)
-                    port =eval(self.SSH_PORT_CALCULATION)
+                    port = eval(self.SSH_PORT_CALCULATION)
                 elif self.get_server(openstack_id).floating_ip is None:
                     host = self.add_floating_ip_to_server(
                         openstack_id, self.FLOATING_IP_NETWORK
@@ -925,8 +938,9 @@ class VirtualMachineHandler(Iface):
             )
 
         ip_base = \
-        list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[-1]
-        x=int(ip_base)
+            list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
+                -1]
+        x = int(ip_base)
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
 
         security_group = self.conn.network.find_security_group(name_or_id=server_id)

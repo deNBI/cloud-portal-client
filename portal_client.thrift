@@ -390,6 +390,11 @@ service VirtualMachineService {
 	 */
 	list<VM> get_servers(),
 
+	/**
+	* Get list of servers by ids
+**/
+	list<VM> get_servers_by_ids(1:list<string> server_ids)
+
 
 	/**
 	 * Get a Server.
