@@ -1,3 +1,12 @@
+##  (2019-10-25)
+
+
+#### Bug Fixes
+
+* **conda-install:**  conda installing again ([a3161071](a3161071))
+* **playbook:**  user key task always run, fix miniconda3 version, ansible==2.7.14 ([c2d88857](c2d88857))
+
+
 ##  (2019-10-24)
 
 
