@@ -29,7 +29,11 @@ Also you need to provide the path to your config file as the first param when st
 
 The client can use a Gateway for starting and stopping machines which allows to use just one floating IP instead of one floating IP per Machine.
 You can read [here](ProjectGateway.md) how to setup a gateway on an OpenStack instance.
-The client will provide all images which have the tag 'portalclient' and all flavors which have portalclient = True in their extra_specs.
+The client will provide all images which with at least one tag, which will be filtered for in the cloud-api. 
+Also the client provides all flavors, which will also be filtered in the cloud-api.
+
+_**Attention**_: If you are also using the machine where you run the client as a gateway, it is very important to configure the iptables before installing and using docker, otherwise docker could destroy the rules!
+
 
 #### Create certificates
 
