@@ -1,7 +1,7 @@
 setuptools==40.4.3
 thrift >= 0.11.0,<0.20.0
 python-keystoneclient
-openstacksdk ==0.27.0
+openstacksdk ==0.36.0
 deprecated == 1.2.4
 Click==7.0
 flake8==3.7.7
