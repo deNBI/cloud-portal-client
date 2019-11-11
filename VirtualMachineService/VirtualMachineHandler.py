@@ -152,12 +152,6 @@ class VirtualMachineHandler(Iface):
                 self.UDP_PORT_CALCULATION = parser.expr(self.UDP_FORMULAR).compile()
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
 
-            if cfg["openstack_connection"]["openstack_default_security_group"]:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP = cfg["openstack_connection"][
-                    "openstack_default_security_group"]
-            else:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP = "default"
-
         self.conn = self.create_connection()
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
@@ -587,27 +581,30 @@ class VirtualMachineHandler(Iface):
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=key_pair.name,
-                    metadata=metadata,
-                    user_data=init_script,
+                    meta=metadata,
+                    userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
+                    security_groups=['defaultSimpleVM']
+
                 )
             else:
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=key_pair.name,
-                    metadata=metadata,
+                    meta=metadata,
+                    security_groups=['defaultSimpleVM']
                 )
 
-            openstack_id = server.to_dict()["id"]
+            openstack_id = server['id']
 
             return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
@@ -918,24 +915,6 @@ class VirtualMachineHandler(Iface):
         :param server_id: The id of the server
         :return:
         """
-
-        standart_default_security_group = self.conn.network.find_security_group(
-            name_or_id=self.OPENSTACK_DEFAULT_SECURITY_GROUP)
-        default_security_group_simple_vm = self.conn.network.get_security_group(
-            security_group=self.DEFAULT_SECURITY_GROUP)
-
-        if standart_default_security_group:
-            self.logger.info("Remove default OpenStack security  from  {}".format(server_id))
-
-            self.conn.compute.remove_security_group_from_server(server=server_id,
-                                                                security_group=standart_default_security_group)
-        if default_security_group_simple_vm:
-            self.logger.info(
-                "Add default simple vm security group {} to {}".format(self.DEFAULT_SECURITY_GROUP,
-                                                                       server_id))
-            self.conn.compute.add_security_group_to_server(
-                server=server_id, security_group=default_security_group_simple_vm
-            )
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
