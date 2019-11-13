@@ -14,6 +14,9 @@ openstack_connection:
   # subnetwork for starting Clusters
   sub_network: portalexternalsubnetwork
 
+  # Url for Bibigrid API
+  bibigrid_url: https://172.21.0.1:8443/bibigrid/
+
   floating_ip_network: external
   # The name of the availability zone the server should be placed.
   availability_zone: default

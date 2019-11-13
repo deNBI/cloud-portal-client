@@ -29,9 +29,7 @@ except Exception:
     from .ttypes import Flavor, Image, VM, PlaybookResult
     from .constants import VERSION
     from .ancon.Playbook import Playbook
-
 from openstack import connection
-from openstack import exceptions
 from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
@@ -47,6 +45,7 @@ import yaml
 import base64
 from oslo_utils import encodeutils
 import redis
+import requests
 import parser
 
 active_playbooks = dict()
@@ -139,11 +138,14 @@ class VirtualMachineHandler(Iface):
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
+            self.SUB_NETWORK = cfg["openstack_connection"]["sub_network"]
+
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
-            self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
+            if cfg["openstack_connection"]["bibigrid_url"]:
+                self.BIBIGRID_URL = cfg["openstack_connection"]["bibigrid_url"]
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -151,12 +153,6 @@ class VirtualMachineHandler(Iface):
                 self.SSH_PORT_CALCULATION = parser.expr(self.SSH_FORMULAR).compile()
                 self.UDP_PORT_CALCULATION = parser.expr(self.UDP_FORMULAR).compile()
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
-
-            if cfg["openstack_connection"]["openstack_default_security_group"]:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP = cfg["openstack_connection"][
-                    "openstack_default_security_group"]
-            else:
-                self.OPENSTACK_DEFAULT_SECURITY_GROUP = "default"
 
         self.conn = self.create_connection()
 
@@ -549,6 +545,34 @@ class VirtualMachineHandler(Iface):
 
             raise ressourceException(Reason=str(e))
 
+    def start_cluster(self, public_key, master_instance, worker_instances, user):
+        master_instance = master_instance.__dict__
+        del master_instance['count']
+        wI = []
+        for wk in worker_instances:
+            self.logger.info(wk)
+            wI.append(wk.__dict__)
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack", "subnet": self.SUB_NETWORK, "user": user,"sshUser":"ubuntu",
+                "availabilityZone": self.AVAIALABILITY_ZONE, "masterInstance": master_instance,
+                "workerInstances": wI}
+        request_url = self.BIBIGRID_URL + 'create'
+        try:
+            response = requests.post(url=request_url, json=body, headers=headers,
+                                     verify=False,timeout=5000)
+            self.logger.info(response.json())
+            return response.json()
+
+        except:
+            #todo replace when status check
+            self.logger.info("Timeout:maybe started")
+            return {"status":"starting"}
+
+    def terminate_cluster(self, cluster_id):
+        response = requests.delete(url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id))
+        self.logger.info(response.json())
+        return response.json()
+
     def start_server(
             self,
             flavor,
@@ -587,27 +611,30 @@ class VirtualMachineHandler(Iface):
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=key_pair.name,
-                    metadata=metadata,
-                    user_data=init_script,
+                    meta=metadata,
+                    userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
+                    security_groups=['defaultSimpleVM']
+
                 )
             else:
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=key_pair.name,
-                    metadata=metadata,
+                    meta=metadata,
+                    security_groups=['defaultSimpleVM']
                 )
 
-            openstack_id = server.to_dict()["id"]
+            openstack_id = server['id']
 
             return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
@@ -918,24 +945,6 @@ class VirtualMachineHandler(Iface):
         :param server_id: The id of the server
         :return:
         """
-
-        standart_default_security_group = self.conn.network.find_security_group(
-            name_or_id=self.OPENSTACK_DEFAULT_SECURITY_GROUP)
-        default_security_group_simple_vm = self.conn.network.get_security_group(
-            security_group=self.DEFAULT_SECURITY_GROUP)
-
-        if standart_default_security_group:
-            self.logger.info("Remove default OpenStack security  from  {}".format(server_id))
-
-            self.conn.compute.remove_security_group_from_server(server=server_id,
-                                                                security_group=standart_default_security_group)
-        if default_security_group_simple_vm:
-            self.logger.info(
-                "Add default simple vm security group {} to {}".format(self.DEFAULT_SECURITY_GROUP,
-                                                                       server_id))
-            self.conn.compute.add_security_group_to_server(
-                server=server_id, security_group=default_security_group_simple_vm
-            )
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[

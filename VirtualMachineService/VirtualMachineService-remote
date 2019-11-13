@@ -48,6 +48,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool stop_server(string openstack_id)')
     print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag, string description)')
     print('   get_limits()')
+    print('   start_cluster(string public_key, ClusterInstance master_instance,  worker_instance, string user)')
+    print('   terminate_cluster(string cluster_id)')
     print('  bool delete_image(string image_id)')
     print('  bool delete_volume_attachment(string volume_id, string server_id)')
     print('  bool delete_volume(string volume_id)')
@@ -279,6 +281,18 @@ elif cmd == 'get_limits':
         print('get_limits requires 0 args')
         sys.exit(1)
     pp.pprint(client.get_limits())
+
+elif cmd == 'start_cluster':
+    if len(args) != 4:
+        print('start_cluster requires 4 args')
+        sys.exit(1)
+    pp.pprint(client.start_cluster(args[0], eval(args[1]), eval(args[2]), args[3],))
+
+elif cmd == 'terminate_cluster':
+    if len(args) != 1:
+        print('terminate_cluster requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.terminate_cluster(args[0],))
 
 elif cmd == 'delete_image':
     if len(args) != 1:
