@@ -918,6 +918,10 @@ class VirtualMachineHandler(Iface):
         :param server_id: The id of the server
         :return:
         """
+        self.logger.info("Setting up security groups for {0}".format(server_id))
+        if self.conn.network.find_security_group(server_id) is not None:
+            self.logger.info("Security group with name {0} already exists. Returning from function.".format(server_id))
+            return True
 
         standart_default_security_group = self.conn.network.find_security_group(
             name_or_id=self.OPENSTACK_DEFAULT_SECURITY_GROUP)
@@ -925,7 +929,7 @@ class VirtualMachineHandler(Iface):
             security_group=self.DEFAULT_SECURITY_GROUP)
 
         if standart_default_security_group:
-            self.logger.info("Remove default OpenStack security  from  {}".format(server_id))
+            self.logger.info("Remove default OpenStack security from {}".format(server_id))
 
             self.conn.compute.remove_security_group_from_server(server=server_id,
                                                                 security_group=standart_default_security_group)
