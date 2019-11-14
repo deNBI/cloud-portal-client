@@ -31,7 +31,6 @@ except Exception:
     from .ancon.Playbook import Playbook
 
 from openstack import connection
-from openstack import exceptions
 from deprecated import deprecated
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
@@ -61,6 +60,7 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
+    DEFAULT_SECURITY_GROUPS = ['defaultSimpleVM']
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
@@ -590,7 +590,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=['defaultSimpleVM']
+                    security_groups=self.DEFAULT_SECURITY_GROUPS
 
                 )
             else:
@@ -601,7 +601,7 @@ class VirtualMachineHandler(Iface):
                     network=[network.id],
                     key_name=key_pair.name,
                     meta=metadata,
-                    security_groups=['defaultSimpleVM']
+                    security_groups=self.DEFAULT_SECURITY_GROUPS
                 )
 
             openstack_id = server['id']
@@ -648,6 +648,8 @@ class VirtualMachineHandler(Iface):
                     metadata=metadata,
                     user_data=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
+                    security_groups=self.DEFAULT_SECURITY_GROUPS
+
                 )
             else:
                 server = self.conn.compute.create_server(
@@ -657,6 +659,8 @@ class VirtualMachineHandler(Iface):
                     networks=[{"uuid": network.id}],
                     key_name=servername,
                     metadata=metadata,
+                    security_groups=self.DEFAULT_SECURITY_GROUPS
+
                 )
 
             openstack_id = server.to_dict()["id"]

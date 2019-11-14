@@ -24,6 +24,8 @@ source NameOfRcFile.sh
 You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
 Also you need to provide the path to your config file as the first param when starting a server.
 
+#### Security Groups
+The client expects a security group with the name "defaultSimpleVM" to exist which will be assigned to each machine at startup. Also, each machine will have its own security group when it starts.
 
 ##### Gateway
 
