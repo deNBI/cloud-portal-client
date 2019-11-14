@@ -10,9 +10,6 @@ openstack_connection:
   # Id of the default simple vm security group
   default_security_group: ec824d8f-0e45-4eb1-8f49-089867fef366
 
-  # id of default security from  the openstack project  (will be removed from vm after vm is created)
-  openstack_default_security_group: 26713dd3-26e9-41cf-b7cd-931a447923fb
-
   set_password: False
   # network where the project is located
   network: portalexternalnetwork

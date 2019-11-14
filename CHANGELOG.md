@@ -1,3 +1,13 @@
+##  (2019-11-14)
+
+
+#### Features
+
+* **Client:**
+  * updated readme ([6704108f](6704108f))
+  * updated readme ([de9c6fc5](de9c6fc5))
+* **Instance:** starts with defualtSimpleVm security group ([ed9d9e31](ed9d9e31))
+
 ##  (2019-11-13)
 
 

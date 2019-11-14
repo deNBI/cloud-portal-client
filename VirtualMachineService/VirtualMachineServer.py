@@ -1,8 +1,6 @@
 import os
 import sys
 
-import threading
-
 try:
     from VirtualMachineService.VirtualMachineService import Client, Processor
 except Exception:
