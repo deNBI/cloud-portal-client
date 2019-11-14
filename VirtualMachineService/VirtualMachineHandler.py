@@ -915,6 +915,10 @@ class VirtualMachineHandler(Iface):
         :param server_id: The id of the server
         :return:
         """
+        self.logger.info("Setting up security groups for {0}".format(server_id))
+        if self.conn.network.find_security_group(server_id) is not None:
+            self.logger.info("Security group with name {0} already exists. Returning from function.".format(server_id))
+            return True
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
