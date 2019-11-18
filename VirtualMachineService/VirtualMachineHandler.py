@@ -865,7 +865,12 @@ class VirtualMachineHandler(Iface):
             flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
         except Exception as e:
             self.logger.exception(e)
-            flav = None
+
+            try:
+                flav = serv['flavor']
+            except Exception as e:
+                self.logger.exception(e)
+                flav = None
         try:
             img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
@@ -882,10 +887,10 @@ class VirtualMachineHandler(Iface):
         server = VM(
             flav=Flavor(
                 vcpus=flav["vcpus"] if flav else None,
-                ram=flav["ram"],
-                disk=flav["disk"],
-                name=flav["name"],
-                openstack_id=flav["id"],
+                ram=flav["ram"] if flav else None,
+                disk=flav["disk"] if flav else None,
+                name=flav["name"] if flav else None,
+                openstack_id=flav["id"] if flav else None,
             ),
             img=img,
             status=serv["status"],
@@ -922,7 +927,9 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Setting up security groups for {0}".format(server_id))
         if self.conn.network.find_security_group(server_id) is not None:
-            self.logger.info("Security group with name {0} already exists. Returning from function.".format(server_id))
+            self.logger.info(
+                "Security group with name {0} already exists. Returning from function.".format(
+                    server_id))
             return True
 
         ip_base = \
