@@ -845,6 +845,7 @@ class VirtualMachineHandler(Iface):
 
     def openstack_server_to_thrift_server(self, server):
         serv = server.to_dict()
+        self.logger.info(serv)
         fixed_ip = None
         floating_ip = None
 
@@ -880,7 +881,7 @@ class VirtualMachineHandler(Iface):
 
         server = VM(
             flav=Flavor(
-                vcpus=flav["vcpus"],
+                vcpus=flav["vcpus"] if flav else None,
                 ram=flav["ram"],
                 disk=flav["disk"],
                 name=flav["name"],
