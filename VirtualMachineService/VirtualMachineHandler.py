@@ -360,6 +360,37 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Import Keypair {0} error:{1}".format(keyname, e))
             return
 
+    def openstack_flav_to_thrift_flav(self, flavor):
+        try:
+            if "id" in flavor:
+                flav = self.conn.compute.get_flavor(flavor["id"]).to_dict()
+                name = flav["name"]
+                openstack_id = flavor["id"]
+            else:
+                # Giessen
+                flav = flavor['flavor']
+                name = flav["original_name"]
+                openstack_id = None
+
+            flav = Flavor(
+                vcpus=flav["vcpus"],
+                ram=flav["ram"],
+                disk=flav["disk"],
+                name=name,
+                openstack_id=openstack_id,
+            )
+            return flav
+        except Exception as e:
+            self.logger.exception(e)
+            flav = Flavor(
+                vcpus=None,
+                ram=None,
+                disk=None,
+                name=None,
+                openstack_id=None,
+            )
+            return flav
+
     def get_server(self, openstack_id):
         """
         Get a server.
@@ -393,11 +424,9 @@ class VirtualMachineHandler(Iface):
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-        try:
-            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
-        except Exception as e:
-            self.logger.exception(e)
-            flav = None
+
+        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
+
         try:
             img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
@@ -413,13 +442,7 @@ class VirtualMachineHandler(Iface):
 
         if floating_ip:
             server = VM(
-                flav=Flavor(
-                    vcpus=flav["vcpus"],
-                    ram=flav["ram"],
-                    disk=flav["disk"],
-                    name=flav["name"],
-                    openstack_id=flav["id"],
-                ),
+                flav=flav,
                 img=img,
                 status=serv["status"],
                 metadata=serv["metadata"],
@@ -434,13 +457,7 @@ class VirtualMachineHandler(Iface):
             )
         else:
             server = VM(
-                flav=Flavor(
-                    vcpus=flav["vcpus"],
-                    ram=flav["ram"],
-                    disk=flav["disk"],
-                    name=flav["name"],
-                    openstack_id=flav["id"],
-                ),
+                flav=flav,
                 img=img,
                 status=serv["status"],
                 metadata=serv["metadata"],
@@ -861,16 +878,8 @@ class VirtualMachineHandler(Iface):
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-        try:
-            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
-        except Exception as e:
-            self.logger.exception(e)
+        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
 
-            try:
-                flav = serv['flavor']
-            except Exception as e:
-                self.logger.exception(e)
-                flav = None
         try:
             img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
@@ -885,13 +894,7 @@ class VirtualMachineHandler(Iface):
                     fixed_ip = address["addr"]
 
         server = VM(
-            flav=Flavor(
-                vcpus=flav["vcpus"] if flav else None,
-                ram=flav["ram"] if flav else None,
-                disk=flav["disk"] if flav else None,
-                name=flav["name"] if flav else None,
-                openstack_id=flav["id"] if flav else None,
-            ),
+            flav=flav,
             img=img,
             status=serv["status"],
             metadata=serv["metadata"],
