@@ -306,7 +306,9 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Image {0} with tags".format(id))
         try:
             images = self.conn.list_images()
-            img = list(filter(lambda image: image["id"] == id, images))[0]
+            img = list(filter(lambda image: image["id"] == id, images))
+            self.logger.info(img)
+            img = img[0]
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
@@ -360,6 +362,37 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Import Keypair {0} error:{1}".format(keyname, e))
             return
 
+    def openstack_flav_to_thrift_flav(self, flavor):
+        try:
+            if "id" in flavor:
+                flav = self.conn.compute.get_flavor(flavor["id"]).to_dict()
+                name = flav["name"]
+                openstack_id = flavor["id"]
+            else:
+                # Giessen
+                flav = flavor['flavor']
+                name = flav["original_name"]
+                openstack_id = None
+
+            flav = Flavor(
+                vcpus=flav["vcpus"],
+                ram=flav["ram"],
+                disk=flav["disk"],
+                name=name,
+                openstack_id=openstack_id,
+            )
+            return flav
+        except Exception as e:
+            self.logger.exception(e)
+            flav = Flavor(
+                vcpus=None,
+                ram=None,
+                disk=None,
+                name=None,
+                openstack_id=None,
+            )
+            return flav
+
     def get_server(self, openstack_id):
         """
         Get a server.
@@ -393,11 +426,9 @@ class VirtualMachineHandler(Iface):
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-        try:
-            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
-        except Exception as e:
-            self.logger.exception(e)
-            flav = None
+
+        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
+
         try:
             img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
@@ -413,13 +444,7 @@ class VirtualMachineHandler(Iface):
 
         if floating_ip:
             server = VM(
-                flav=Flavor(
-                    vcpus=flav["vcpus"],
-                    ram=flav["ram"],
-                    disk=flav["disk"],
-                    name=flav["name"],
-                    openstack_id=flav["id"],
-                ),
+                flav=flav,
                 img=img,
                 status=serv["status"],
                 metadata=serv["metadata"],
@@ -434,13 +459,7 @@ class VirtualMachineHandler(Iface):
             )
         else:
             server = VM(
-                flav=Flavor(
-                    vcpus=flav["vcpus"],
-                    ram=flav["ram"],
-                    disk=flav["disk"],
-                    name=flav["name"],
-                    openstack_id=flav["id"],
-                ),
+                flav=flav,
                 img=img,
                 status=serv["status"],
                 metadata=serv["metadata"],
@@ -601,6 +620,7 @@ class VirtualMachineHandler(Iface):
                     network=[network.id],
                     key_name=key_pair.name,
                     meta=metadata,
+                    availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
                 )
 
@@ -632,38 +652,45 @@ class VirtualMachineHandler(Iface):
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
+            key_creation = self.conn.create_keypair(name=servername)
+            try:
+                private_key = key_creation["private_key"]
+            except Exception:
+                private_key = key_creation.__dict__["private_key"]
+
             if int(diskspace) > 0:
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
                                                         volume_name=volumename,
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
-                    user_data=init_script,
+                    meta=metadata,
+                    userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
 
                 )
             else:
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
+                    meta=metadata,
+                    availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
 
                 )
 
-            openstack_id = server.to_dict()["id"]
+            openstack_id = server['id']
+
             self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
                                                 status=self.PREPARE_PLAYBOOK_BUILD))
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
@@ -861,16 +888,8 @@ class VirtualMachineHandler(Iface):
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-        try:
-            flav = self.conn.compute.get_flavor(serv["flavor"]["id"]).to_dict()
-        except Exception as e:
-            self.logger.exception(e)
+        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
 
-            try:
-                flav = serv['flavor']
-            except Exception as e:
-                self.logger.exception(e)
-                flav = None
         try:
             img = self.get_Image_with_Tag(serv["image"]["id"])
         except Exception as e:
@@ -885,13 +904,7 @@ class VirtualMachineHandler(Iface):
                     fixed_ip = address["addr"]
 
         server = VM(
-            flav=Flavor(
-                vcpus=flav["vcpus"] if flav else None,
-                ram=flav["ram"] if flav else None,
-                disk=flav["disk"] if flav else None,
-                name=flav["name"] if flav else None,
-                openstack_id=flav["id"] if flav else None,
-            ),
+            flav=flav,
             img=img,
             status=serv["status"],
             metadata=serv["metadata"],
