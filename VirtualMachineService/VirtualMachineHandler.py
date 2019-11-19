@@ -306,7 +306,9 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Get Image {0} with tags".format(id))
         try:
             images = self.conn.list_images()
-            img = list(filter(lambda image: image["id"] == id, images))[0]
+            img = list(filter(lambda image: image["id"] == id, images))
+            self.logger.info(img)
+            img = img[0]
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
@@ -618,6 +620,7 @@ class VirtualMachineHandler(Iface):
                     network=[network.id],
                     key_name=key_pair.name,
                     meta=metadata,
+                    availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
                 )
 
@@ -649,38 +652,45 @@ class VirtualMachineHandler(Iface):
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
+            key_creation = self.conn.create_keypair(name=servername)
+            try:
+                private_key = key_creation["private_key"]
+            except Exception:
+                private_key = key_creation.__dict__["private_key"]
+
             if int(diskspace) > 0:
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
                                                         volume_name=volumename,
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
-                    user_data=init_script,
+                    meta=metadata,
+                    userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
 
                 )
             else:
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
+                    meta=metadata,
+                    availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
 
                 )
 
-            openstack_id = server.to_dict()["id"]
+            openstack_id = server['id']
+
             self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
                                                 status=self.PREPARE_PLAYBOOK_BUILD))
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
