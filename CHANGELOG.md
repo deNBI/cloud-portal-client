@@ -1,3 +1,16 @@
+
+##  (2019-11-19)
+
+
+#### Bug Fixes
+
+* **Bioconda:** also fixed bioconda ([6b9e74db](6b9e74db))
+* **Flavor:** also for giessen ([49312ce8](49312ce8))
+
+#### Features
+
+* **Client:** added docker with image tag in env ([adacf7bc](adacf7bc))
+
 ##  (2019-11-14)
 
 
