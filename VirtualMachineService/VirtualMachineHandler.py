@@ -305,10 +305,7 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Get Image {0} with tags".format(id))
         try:
-            images = self.conn.list_images()
-            img = list(filter(lambda image: image["id"] == id, images))
-            self.logger.info(img)
-            img = img[0]
+            img=self.conn.get_image(name_or_id=id)
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
