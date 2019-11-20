@@ -365,19 +365,18 @@ class VirtualMachineHandler(Iface):
     def openstack_flav_to_thrift_flav(self, flavor):
         try:
             if "id" in flavor:
-                flav = self.conn.compute.get_flavor(flavor["id"]).to_dict()
-                name = flav["name"]
+                flavor = self.conn.compute.get_flavor(flavor["id"]).to_dict()
+                name = flavor["name"]
                 openstack_id = flavor["id"]
             else:
                 # Giessen
-                flav = flavor['flavor']
-                name = flav["original_name"]
+                name = flavor["original_name"]
                 openstack_id = None
 
             flav = Flavor(
-                vcpus=flav["vcpus"],
-                ram=flav["ram"],
-                disk=flav["disk"],
+                vcpus=flavor["vcpus"],
+                ram=flavor["ram"],
+                disk=flavor["disk"],
                 name=name,
                 openstack_id=openstack_id,
             )
