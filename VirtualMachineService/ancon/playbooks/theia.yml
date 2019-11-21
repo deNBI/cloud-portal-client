@@ -1,0 +1,2 @@
+- debug:
+    msg: "{{ theia_vars.template_version }}"

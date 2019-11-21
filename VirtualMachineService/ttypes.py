@@ -645,77 +645,6 @@ class PlaybookResult(object):
         return not (self == other)
 
 
-class PlaybookVars(object):
-    """
-    This struct contains a mapping of variable keys to their content. This struct should be mapped by a playbook name.
-
-    Attributes:
-     - needed_variables: The mapping of variable key to variable content
-
-    """
-
-
-    def __init__(self, needed_variables=None,):
-        self.needed_variables = needed_variables
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.MAP:
-                    self.needed_variables = {}
-                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
-                    for _i27 in range(_size23):
-                        _key28 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val29 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.needed_variables[_key28] = _val29
-                    iprot.readMapEnd()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
-            return
-        oprot.writeStructBegin('PlaybookVars')
-        if self.needed_variables is not None:
-            oprot.writeFieldBegin('needed_variables', TType.MAP, 1)
-            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.needed_variables))
-            for kiter30, viter31 in self.needed_variables.items():
-                oprot.writeString(kiter30.encode('utf-8') if sys.version_info[0] == 2 else kiter30)
-                oprot.writeString(viter31.encode('utf-8') if sys.version_info[0] == 2 else viter31)
-            oprot.writeMapEnd()
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        if self.needed_variables is None:
-            raise TProtocolException(message='Required field needed_variables is unset!')
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
 class otherException(TException):
     """
     Attributes:
@@ -1244,11 +1173,6 @@ PlaybookResult.thrift_spec = (
     (1, TType.I32, 'status', None, None, ),  # 1
     (2, TType.STRING, 'stdout', 'UTF8', None, ),  # 2
     (3, TType.STRING, 'stderr', 'UTF8', None, ),  # 3
-)
-all_structs.append(PlaybookVars)
-PlaybookVars.thrift_spec = (
-    None,  # 0
-    (1, TType.MAP, 'needed_variables', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 1
 )
 all_structs.append(otherException)
 otherException.thrift_spec = (

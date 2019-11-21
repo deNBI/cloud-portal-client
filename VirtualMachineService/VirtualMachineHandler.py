@@ -3,6 +3,7 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+import random
 
 try:
     from VirtualMachineService import Iface
@@ -47,6 +48,8 @@ import base64
 from oslo_utils import encodeutils
 import redis
 import parser
+import requests as req
+from requests.exceptions import Timeout
 
 active_playbooks = dict()
 
@@ -144,6 +147,11 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
+            if cfg["urls"]["forc_url"]:
+                self.RE_BACKEND_URL = cfg["urls"]["forc_url"]
+                self.logger.info(msg="BACKEND URL LOADED {0}".format(self.RE_BACKEND_URL))
+            else:
+                self.RE_BACKEND_URL = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -632,38 +640,41 @@ class VirtualMachineHandler(Iface):
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            private_key = self.conn.create_keypair(name=servername).__dict__['private_key']
+            key_creation = self.conn.create_keypair(name=servername)
+            try:
+                private_key = key_creation["private_key"]
+            except Exception:
+                private_key = key_creation.__dict__["private_key"]
             if int(diskspace) > 0:
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
                                                         volume_name=volumename,
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
-                    user_data=init_script,
+                    meta=metadata,
+                    userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
-
                 )
             else:
-                server = self.conn.compute.create_server(
+                server = self.conn.create_server(
                     name=servername,
-                    image_id=image.id,
-                    flavor_id=flavor.id,
-                    networks=[{"uuid": network.id}],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
                     key_name=servername,
-                    metadata=metadata,
+                    meta=metadata,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
-
                 )
 
-            openstack_id = server.to_dict()["id"]
+            openstack_id = server['id']
+
             self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
                                                 status=self.PREPARE_PLAYBOOK_BUILD))
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
@@ -690,11 +701,168 @@ class VirtualMachineHandler(Iface):
         active_playbooks[openstack_id] = playbook
         return 0
 
+    def has_forc(self):
+        return self.RE_BACKEND_URL is not None
+
+    def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
+        post_url = "{0}backends/".format(self.RE_BACKEND_URL)
+        network = self.get_network()
+        ip = next(self.conn.compute.server_ips(upstream_url, network.name)).address
+        backend_info = {
+            "owner": elixir_id,
+            "user_key_url": user_key_url,
+            "template": template,
+            "template_version": template_version,
+            "upstream_url": "https://{0}/".format(ip)
+        }
+        self.logger.info(backend_info)
+        try:
+            # return {
+            #     "id": str(random.randint(1,100000)),
+            #     "owner": "string",
+            #     "location_url": user_key_url + "SUFFIX",
+            #     "template": "rstudio",
+            #     "template_version": "v1"
+            # }
+            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            self.logger.info(response)
+            return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return {}
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+
+    def get_backends(self):
+        get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
+        try:
+            response = req.get(get_url, timeout=(30, 30))
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_owner(self, elixir_id):
+        get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
+        try:
+            response = req.get(get_url, timeout=(30, 30))
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_template(self, template):
+        get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
+        try:
+            response = req.get(get_url, timeout=(30, 30))
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backend_by_id(self, id):
+        get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        try:
+            response = req.get(get_url, timeout=(30, 30))
+            return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def delete_backend(self, id):
+        delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        return str(True)
+        try:
+            response = req.get(delete_url, timeout=(30, 30))
+            if response.status_code == 401:
+                return str(response.json())
+            elif response.status_code == 200:
+                return str(True)
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return str(-1)
+        except Exception as e:
+            self.logger.exception(e)
+            return str(-1)
+
     def exist_server(self, name):
         if self.conn.compute.find_server(name) is not None:
             return True
         else:
             return False
+
+    def get_templates(self):
+        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
+        self.logger.info(get_url)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            self.logger.info(response)
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                # return [
+                #     {
+                #         "name": "rstudio",
+                #         "version": "v13"
+                #     },
+                #     {
+                #         "name": "rstudio",
+                #         "version": "v16"
+                #     },
+                #     {
+                #         "name": "theia",
+                #         "version": "v13"
+                #     },
+                #     {
+                #         "name": "theia",
+                #         "version": "v16"
+                #     }
+                # ]
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_templates_by_template(self, template_name):
+        get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
+        try:
+            #response = req.get(get_url, timeout=(30, 30))
+            if False: #response.status_code == 401:
+                return [response.json()]
+            else:
+                return [
+                    {
+                        "name": "rstudio",
+                        "version": "v13"
+                    },
+                    {
+                        "name": "rstudio",
+                        "version": "v16"
+                    }
+                ]
+                #return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def check_template(self, template_name, template_version):
+        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
+        try:
+            #response = req.get(get_url, timeout=(30, 30))
+            if False: #response.status_code == 401:
+                return [response.json()]
+            else:
+                return {
+                        "name": "rstudio",
+                        "version": "v13"
+                    }
+                #return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks

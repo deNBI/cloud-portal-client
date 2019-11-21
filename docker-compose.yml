@@ -30,7 +30,6 @@ services:
     networks:
       - portal
 
-
 networks:
   portal:
     name: portal_default

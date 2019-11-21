@@ -128,16 +128,6 @@ struct PlaybookResult {
     3: required string stderr
 }
 
-/**
- * This struct contains a mapping of variable keys to their content. This struct should be mapped by a playbook name.
- */
-struct PlaybookVars {
-    /**The mapping of variable key to variable content*/
-    1: required map<string,string> needed_variables
-}
-
-
-
 exception otherException {
     /** Every other exception. */
     1: string Reason
@@ -362,6 +352,54 @@ service VirtualMachineService {
     PlaybookResult get_playbook_logs(
     1:string openstack_id
     )
+
+
+    /** Get boolean if client has backend url configured*/
+    bool has_forc()
+
+    /** Create a backend*/
+    map<string, string> create_backend(
+    1:string elixir_id,
+    2:string user_key_url,
+    3:string template,
+    4:string template_version,
+    5:string upstream_url
+    )
+
+    /** Get all backends*/
+    list<map<string, string>> get_backends()
+
+    /** Get all backends by owner*/
+    list<map<string, string>> get_backends_by_owner(
+    1:string elixir_id
+    )
+
+    /** Get all backends by template*/
+    list<map<string, string>> get_backends_by_template(
+    1:string template
+    )
+
+    /** Get a backend by id*/
+    map<string, string> get_backend_by_id(
+    1:int id
+    )
+
+    /** Delete a backend*/
+    string delete_backend(
+    1:int id
+    )
+
+    list<map<string, string>> get_templates()
+
+    list<map<string, string>> get_templates_by_template(
+    1:string template_name
+    )
+
+    map<string, string> check_template(
+    1:string template_name
+    2:string template_version
+    )
+
 
     /**
     * Adds a security group to a server
