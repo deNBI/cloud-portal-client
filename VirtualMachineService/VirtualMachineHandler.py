@@ -305,7 +305,7 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Get Image {0} with tags".format(id))
         try:
-            img=self.conn.get_image(name_or_id=id)
+            img = self.conn.get_image(name_or_id=id)
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
@@ -323,7 +323,7 @@ class VirtualMachineHandler(Iface):
             return image
         except Exception as e:
             self.logger.exception("Get Image {0} with Tag Error: {1}".format(id, e))
-            return
+            return None
 
     def delete_keypair(self, key_name):
         key_pair = self.conn.compute.find_keypair(key_name)
@@ -472,10 +472,12 @@ class VirtualMachineHandler(Iface):
     def get_servers_by_ids(self, ids):
         servers = []
         for id in ids:
+            self.logger.info("Get server {}".format(id))
             try:
-                servers.append(self.conn.compute.get_server(id))
-            except:
-                self.logger.error("Requested VM {} not found!".format(id))
+                server = self.conn.get_server_by_id(id)
+                servers.append(server)
+            except Exception as e:
+                self.logger.exception("Requested VM {} not found!\n {}".format(id, e))
                 pass
         server_list = []
         for server in servers:
@@ -867,27 +869,26 @@ class VirtualMachineHandler(Iface):
             return None
 
     def openstack_server_to_thrift_server(self, server):
-        serv = server.to_dict()
-        self.logger.info(serv)
+        self.logger.info("Convert server {} to thrift server".format(server))
         fixed_ip = None
         floating_ip = None
 
-        if serv["attached_volumes"]:
-            volume_id = serv["attached_volumes"][0]["id"]
+        if server["os-extended-volumes:volumes_attached"]:
+            volume_id = server["os-extended-volumes:volumes_attached"][0]["id"]
             diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
         else:
             diskspace = 0
-        if serv["launched_at"]:
+        if server["OS-SRV-USG:launched_at"]:
             dt = datetime.datetime.strptime(
-                serv["launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
+                server["OS-SRV-USG:launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
             )
             timestamp = time.mktime(dt.timetuple())
         else:
             timestamp = None
-        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
+        flav = self.openstack_flav_to_thrift_flav(server["flavor"])
 
         try:
-            img = self.get_Image_with_Tag(serv["image"]["id"])
+            img = self.get_Image_with_Tag(server["image"]["id"])
         except Exception as e:
             self.logger.exception(e)
             img = None
@@ -902,12 +903,12 @@ class VirtualMachineHandler(Iface):
         server = VM(
             flav=flav,
             img=img,
-            status=serv["status"],
-            metadata=serv["metadata"],
-            project_id=serv["project_id"],
-            keyname=serv["key_name"],
-            openstack_id=serv["id"],
-            name=serv["name"],
+            status=server["status"],
+            metadata=server["metadata"],
+            project_id=server["project_id"],
+            keyname=server["key_name"],
+            openstack_id=server["id"],
+            name=server["name"],
             created_at=str(timestamp),
             fixed_ip=fixed_ip,
             floating_ip=floating_ip,
