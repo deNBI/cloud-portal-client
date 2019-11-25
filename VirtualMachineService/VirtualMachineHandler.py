@@ -928,6 +928,7 @@ class VirtualMachineHandler(Iface):
 
             except Exception as e:
                 self.logger.exception("Could not transform to thrift_server: {}".format(e))
+        self.logger.info("Converted {} servers to thrift_server objects".format(len(server_list)))
         # self.logger.info(server_list)
         return server_list
 
