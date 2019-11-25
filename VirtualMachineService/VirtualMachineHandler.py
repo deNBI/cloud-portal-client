@@ -918,10 +918,16 @@ class VirtualMachineHandler(Iface):
 
     def get_servers(self):
         self.logger.info("Get all servers")
-        servers = list(self.conn.compute.servers())
+        servers = self.conn.list_servers()
+        self.logger.info("Found {} servers".format(len(servers)))
         server_list = []
         for server in servers:
-            server_list.append(self.openstack_server_to_thrift_server(server))
+            try:
+                thrift_server = self.openstack_server_to_thrift_server(server)
+                server_list.append(thrift_server)
+
+            except Exception as e:
+                self.logger.exception("Could not transform to thrift_server: {}".format(e))
         # self.logger.info(server_list)
         return server_list
 
