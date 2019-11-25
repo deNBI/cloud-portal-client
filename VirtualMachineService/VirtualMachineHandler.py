@@ -872,12 +872,15 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Convert server {} to thrift server".format(server))
         fixed_ip = None
         floating_ip = None
+        diskspace = 0
 
         if server["os-extended-volumes:volumes_attached"]:
             volume_id = server["os-extended-volumes:volumes_attached"][0]["id"]
-            diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
-        else:
-            diskspace = 0
+            try:
+                diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
+            except Exception as e:
+                self.logger.exception("Could not found volume {}: {}".format(volume_id, e))
+
         if server["OS-SRV-USG:launched_at"]:
             dt = datetime.datetime.strptime(
                 server["OS-SRV-USG:launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
