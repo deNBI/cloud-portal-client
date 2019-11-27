@@ -810,7 +810,6 @@ class VirtualMachineHandler(Iface):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
             response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
-            self.logger.info(response.status_code)
             if response.status_code != 200:
                 return str(response.json())
             elif response.status_code == 200:
@@ -837,24 +836,6 @@ class VirtualMachineHandler(Iface):
             if response.status_code == 401:
                 return [response.json()]
             else:
-                # return [
-                #     {
-                #         "name": "rstudio",
-                #         "version": "v13"
-                #     },
-                #     {
-                #         "name": "rstudio",
-                #         "version": "v16"
-                #     },
-                #     {
-                #         "name": "theia",
-                #         "version": "v13"
-                #     },
-                #     {
-                #         "name": "theia",
-                #         "version": "v16"
-                #     }
-                # ]
                 return response.json()
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
