@@ -7,7 +7,13 @@ typedef i32 int
 const string VERSION= '1.0.0'
 
 
-
+struct Backend {
+    1: i64 id,
+    2: string owner,
+    3: string location_url,
+    4: string template,
+    5: string template_version
+}
 
 /**
  * This Struct defines a Flavor.
@@ -33,8 +39,6 @@ const string VERSION= '1.0.0'
 
 	/** List of tags from flavor */
 	7: required list<string> tags
-
-
 }
 /**
  * This Struct defines an Image.
@@ -358,7 +362,7 @@ service VirtualMachineService {
     bool has_forc()
 
     /** Create a backend*/
-    map<string, string> create_backend(
+    Backend create_backend(
     1:string elixir_id,
     2:string user_key_url,
     3:string template,
@@ -367,26 +371,26 @@ service VirtualMachineService {
     )
 
     /** Get all backends*/
-    list<map<string, string>> get_backends()
+    list<Backend> get_backends()
 
     /** Get all backends by owner*/
-    list<map<string, string>> get_backends_by_owner(
+    list<Backend> get_backends_by_owner(
     1:string elixir_id
     )
 
     /** Get all backends by template*/
-    list<map<string, string>> get_backends_by_template(
+    list<Backend> get_backends_by_template(
     1:string template
     )
 
     /** Get a backend by id*/
-    map<string, string> get_backend_by_id(
-    1:int id
+    Backend get_backend_by_id(
+    1:i64 id
     )
 
     /** Delete a backend*/
     string delete_backend(
-    1:int id
+    1:i64 id
     )
 
     list<map<string, string>> get_templates()

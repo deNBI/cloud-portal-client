@@ -3,7 +3,6 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
-import random
 
 try:
     from VirtualMachineService import Iface
@@ -14,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from constants import VERSION
     from ancon.Playbook import Playbook
 
@@ -27,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from .constants import VERSION
     from .ancon.Playbook import Playbook
 
@@ -705,28 +704,30 @@ class VirtualMachineHandler(Iface):
         return self.RE_BACKEND_URL is not None
 
     def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
-        post_url = "{0}backends/".format(self.RE_BACKEND_URL)
-        network = self.get_network()
-        ip = next(self.conn.compute.server_ips(upstream_url, network.name)).address
-        backend_info = {
-            "owner": elixir_id,
-            "user_key_url": user_key_url,
-            "template": template,
-            "template_version": template_version,
-            "upstream_url": "https://{0}/".format(ip)
-        }
-        self.logger.info(backend_info)
         try:
-            # return {
-            #     "id": str(random.randint(1,100000)),
-            #     "owner": "string",
-            #     "location_url": user_key_url + "SUFFIX",
-            #     "template": "rstudio",
-            #     "template_version": "v1"
-            # }
+            post_url = "{0}backends/".format(self.RE_BACKEND_URL)
+            backend_info = {
+                "owner": elixir_id,
+                "user_key_url": user_key_url,
+                "template": template,
+                "template_version": template_version,
+                "upstream_url": upstream_url
+            }
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+        try:
             response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
-            self.logger.info(response)
-            return response.json()
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
             return {}
@@ -737,50 +738,80 @@ class VirtualMachineHandler(Iface):
     def get_backends(self):
         get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30))
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
             if response.status_code == 401:
                 return [response.json()]
             else:
-                return response.json()
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_backends_by_owner(self, elixir_id):
         get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
         try:
-            response = req.get(get_url, timeout=(30, 30))
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
             if response.status_code == 401:
                 return [response.json()]
             else:
-                return response.json()
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_backends_by_template(self, template):
         get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
         try:
-            response = req.get(get_url, timeout=(30, 30))
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
             if response.status_code == 401:
                 return [response.json()]
             else:
-                return response.json()
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_backend_by_id(self, id):
         get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.get(get_url, timeout=(30, 30))
-            return response.json()
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def delete_backend(self, id):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
-        return str(True)
         try:
-            response = req.get(delete_url, timeout=(30, 30))
-            if response.status_code == 401:
+            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            self.logger.info(response.status_code)
+            if response.status_code != 200:
                 return str(response.json())
             elif response.status_code == 200:
                 return str(True)
@@ -802,7 +833,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info(get_url)
         try:
             response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
-            self.logger.info(response)
+            self.logger.info(response.json())
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -831,36 +862,22 @@ class VirtualMachineHandler(Iface):
     def get_templates_by_template(self, template_name):
         get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
         try:
-            #response = req.get(get_url, timeout=(30, 30))
-            if False: #response.status_code == 401:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
                 return [response.json()]
             else:
-                return [
-                    {
-                        "name": "rstudio",
-                        "version": "v13"
-                    },
-                    {
-                        "name": "rstudio",
-                        "version": "v16"
-                    }
-                ]
-                #return response.json()
+                return response.json()
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def check_template(self, template_name, template_version):
         get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
         try:
-            #response = req.get(get_url, timeout=(30, 30))
-            if False: #response.status_code == 401:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
                 return [response.json()]
             else:
-                return {
-                        "name": "rstudio",
-                        "version": "v13"
-                    }
-                #return response.json()
+                return response.json()
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
