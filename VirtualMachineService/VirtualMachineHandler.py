@@ -481,7 +481,8 @@ class VirtualMachineHandler(Iface):
                 pass
         server_list = []
         for server in servers:
-            server_list.append(self.openstack_server_to_thrift_server(server))
+            if server:
+                server_list.append(self.openstack_server_to_thrift_server(server))
         return server_list
 
     def get_image(self, image):
