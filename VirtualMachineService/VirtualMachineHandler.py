@@ -568,7 +568,7 @@ class VirtualMachineHandler(Iface):
             servername,
             metadata,
             diskspace,
-            volumename,
+            volumename,https,http
     ):
         """
         Start a new Server.
@@ -1322,7 +1322,7 @@ class VirtualMachineHandler(Iface):
             self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
     ):
         self.logger.info("Create new security group {}".format(name))
-        new_security_group = self.conn.network.create_security_group(name=name)
+        new_security_group = self.conn.create_security_group(name=name)
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
             self.conn.network.create_security_group_rule(
