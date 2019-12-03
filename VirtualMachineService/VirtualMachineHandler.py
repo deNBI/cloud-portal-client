@@ -30,23 +30,24 @@ except Exception:
     from .constants import VERSION
     from .ancon.Playbook import Playbook
 
-from openstack import connection
-from deprecated import deprecated
-from keystoneauth1.identity import v3
-from keystoneauth1 import session
-from keystoneclient.v3 import client
-import socket
-from contextlib import closing
-import urllib
-import os
-import time
+import base64
 import datetime
 import logging
-import yaml
-import base64
-from oslo_utils import encodeutils
-import redis
+import os
 import parser
+import socket
+import time
+import urllib
+from contextlib import closing
+
+import redis
+import yaml
+from deprecated import deprecated
+from keystoneauth1 import session
+from keystoneauth1.identity import v3
+from keystoneclient.v3 import client
+from openstack import connection
+from oslo_utils import encodeutils
 
 active_playbooks = dict()
 
@@ -835,9 +836,9 @@ class VirtualMachineHandler(Iface):
                         )
 
                         if attached is False:
-                            self.delete_server(openstack_id=openstack_id)
-                            server.status = "DESTROYED"
-                            return server
+                            self.logger.exception(
+                                "Could not attach volume {} to instance {}".format(volume_id,
+                                                                                   openstack_id))
 
                     if self.redis.exists(openstack_id) == 1:
                         global active_playbooks
