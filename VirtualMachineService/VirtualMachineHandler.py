@@ -640,7 +640,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
-                                     volumename):
+                                     volumename, http, https):
 
         """
         Start a new Server.
@@ -661,6 +661,12 @@ class VirtualMachineHandler(Iface):
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
+            sec_groups = self.DEFAULT_SECURITY_GROUPS
+
+            if http or https:
+                http_secgroup = self.create_security_group(self, servername, None, False, http, https, False)
+                sec_groups.append(http_secgroup)
+
             try:
                 private_key = key_creation["private_key"]
             except Exception:
@@ -681,7 +687,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=sec_groups
 
                 )
             else:
@@ -693,7 +699,7 @@ class VirtualMachineHandler(Iface):
                     key_name=servername,
                     meta=metadata,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=sec_groups
 
                 )
 

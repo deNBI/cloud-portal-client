@@ -166,7 +166,7 @@ class Iface(object):
         """
         pass
 
-    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
+    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename, http, https):
         """
         Start a new server with custom key for ansible.
 
@@ -177,6 +177,8 @@ class Iface(object):
          - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
+         - http: Boolean for http security rule
+         - https: Boolean for https security rule
 
         """
         pass
@@ -906,7 +908,7 @@ class Client(Iface):
             raise result.o
         raise TApplicationException(TApplicationException.MISSING_RESULT, "start_server failed: unknown result")
 
-    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
+    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename, http, https):
         """
         Start a new server with custom key for ansible.
 
@@ -917,12 +919,14 @@ class Client(Iface):
          - metadata: Metadata for the new instance
          - diskspace: Diskspace in GB for additional volume.
          - volumename: Name of additional Volume
+         - http: Boolean for http security rule
+         - https: Boolean for https security rule
 
         """
-        self.send_start_server_with_custom_key(flavor, image, servername, metadata, diskspace, volumename)
+        self.send_start_server_with_custom_key(flavor, image, servername, metadata, diskspace, volumename, http, https)
         return self.recv_start_server_with_custom_key()
 
-    def send_start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename):
+    def send_start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace, volumename, http, https):
         self._oprot.writeMessageBegin('start_server_with_custom_key', TMessageType.CALL, self._seqid)
         args = start_server_with_custom_key_args()
         args.flavor = flavor
@@ -931,6 +935,8 @@ class Client(Iface):
         args.metadata = metadata
         args.diskspace = diskspace
         args.volumename = volumename
+        args.http = http
+        args.https = https
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -2086,7 +2092,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = start_server_with_custom_key_result()
         try:
-            result.success = self._handler.start_server_with_custom_key(args.flavor, args.image, args.servername, args.metadata, args.diskspace, args.volumename)
+            result.success = self._handler.start_server_with_custom_key(args.flavor, args.image, args.servername, args.metadata, args.diskspace, args.volumename, args.http, args.https)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4607,17 +4613,21 @@ class start_server_with_custom_key_args(object):
      - metadata: Metadata for the new instance
      - diskspace: Diskspace in GB for additional volume.
      - volumename: Name of additional Volume
+     - http: Boolean for http security rule
+     - https: Boolean for https security rule
 
     """
 
 
-    def __init__(self, flavor=None, image=None, servername=None, metadata=None, diskspace=None, volumename=None,):
+    def __init__(self, flavor=None, image=None, servername=None, metadata=None, diskspace=None, volumename=None, http=None, https=None,):
         self.flavor = flavor
         self.image = image
         self.servername = servername
         self.metadata = metadata
         self.diskspace = diskspace
         self.volumename = volumename
+        self.http = http
+        self.https = https
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -4664,6 +4674,16 @@ class start_server_with_custom_key_args(object):
                     self.volumename = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.BOOL:
+                    self.http = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.BOOL:
+                    self.https = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -4702,6 +4722,14 @@ class start_server_with_custom_key_args(object):
             oprot.writeFieldBegin('volumename', TType.STRING, 6)
             oprot.writeString(self.volumename.encode('utf-8') if sys.version_info[0] == 2 else self.volumename)
             oprot.writeFieldEnd()
+        if self.http is not None:
+            oprot.writeFieldBegin('http', TType.BOOL, 7)
+            oprot.writeBool(self.http)
+            oprot.writeFieldEnd()
+        if self.https is not None:
+            oprot.writeFieldBegin('https', TType.BOOL, 8)
+            oprot.writeBool(self.https)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -4727,6 +4755,8 @@ start_server_with_custom_key_args.thrift_spec = (
     (4, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
     (5, TType.STRING, 'diskspace', 'UTF8', None, ),  # 5
     (6, TType.STRING, 'volumename', 'UTF8', None, ),  # 6
+    (7, TType.BOOL, 'http', None, None, ),  # 7
+    (8, TType.BOOL, 'https', None, None, ),  # 8
 )
 
 
