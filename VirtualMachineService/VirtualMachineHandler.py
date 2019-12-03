@@ -560,6 +560,7 @@ class VirtualMachineHandler(Iface):
 
             raise ressourceException(Reason=str(e))
 
+
     def start_server(
             self,
             flavor,
@@ -568,7 +569,9 @@ class VirtualMachineHandler(Iface):
             servername,
             metadata,
             diskspace,
-            volumename,https,http
+            volumename,
+            https,
+            http
     ):
         """
         Start a new Server.
@@ -580,6 +583,8 @@ class VirtualMachineHandler(Iface):
         :param elixir_id: Elixir_id of the user who started a new server
         :param diskspace: Diskspace in GB for volume which should be created
         :param volumename: Name of the volume
+        :param http: bool for http rule in security group
+        :param https: bool for https rule in security group
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         volume_id = ''
@@ -591,6 +596,11 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
+            sec_groups = self.DEFAULT_SECURITY_GROUPS
+
+            if http or https:
+                http_secgroup = self.create_security_group(self, servername, None, False, http, https, False)
+                sec_groups.append(http_secgroup)
 
             if diskspace > "0":
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
@@ -607,7 +617,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=sec_groups
 
                 )
             else:
@@ -619,7 +629,7 @@ class VirtualMachineHandler(Iface):
                     key_name=key_pair.name,
                     meta=metadata,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=sec_groups
                 )
 
             openstack_id = server['id']
