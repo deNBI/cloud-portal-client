@@ -96,11 +96,12 @@ class Playbook(object):
                         data[playbook_name + "_tools"][k] = p_dict
             if playbook_name == THEIA:
                 for k, v in playbook_vars.items():
-                    if k == "version":
+                    if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
             if playbook_name == RSTUDIO:
                 for k, v in playbook_vars.items():
-                    pass
+                    if k == "template_version":
+                        data[playbook_name + "_vars"][k] = v
 
         playbook_yml = "/{0}.yml".format(playbook_name)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)

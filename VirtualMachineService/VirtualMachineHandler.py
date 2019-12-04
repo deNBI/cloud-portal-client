@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from constants import VERSION
     from ancon.Playbook import Playbook
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from .constants import VERSION
     from .ancon.Playbook import Playbook
 
@@ -48,6 +48,10 @@ from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
 from oslo_utils import encodeutils
+import redis
+import parser
+import requests as req
+from requests.exceptions import Timeout
 
 active_playbooks = dict()
 
@@ -145,6 +149,11 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
+            if cfg["urls"]["forc_url"]:
+                self.RE_BACKEND_URL = cfg["urls"]["forc_url"]
+                self.logger.info(msg="BACKEND URL LOADED {0}".format(self.RE_BACKEND_URL))
+            else:
+                self.RE_BACKEND_URL = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -674,7 +683,6 @@ class VirtualMachineHandler(Iface):
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
-
                 )
             else:
                 server = self.conn.create_server(
@@ -684,9 +692,9 @@ class VirtualMachineHandler(Iface):
                     network=[network.id],
                     key_name=servername,
                     meta=metadata,
+
                     availability_zone=self.AVAIALABILITY_ZONE,
                     security_groups=self.DEFAULT_SECURITY_GROUPS
-
                 )
 
             openstack_id = server['id']
@@ -717,11 +725,167 @@ class VirtualMachineHandler(Iface):
         active_playbooks[openstack_id] = playbook
         return 0
 
+    def has_forc(self):
+        return self.RE_BACKEND_URL is not None
+
+    def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
+        try:
+            post_url = "{0}backends/".format(self.RE_BACKEND_URL)
+            backend_info = {
+                "owner": elixir_id,
+                "user_key_url": user_key_url,
+                "template": template,
+                "template_version": template_version,
+                "upstream_url": upstream_url
+            }
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+        try:
+            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return {}
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+
+    def get_backends(self):
+        get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_owner(self, elixir_id):
+        get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_template(self, template):
+        get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backend_by_id(self, id):
+        get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def delete_backend(self, id):
+        delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        try:
+            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code != 200:
+                return str(response.json())
+            elif response.status_code == 200:
+                return str(True)
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return str(-1)
+        except Exception as e:
+            self.logger.exception(e)
+            return str(-1)
+
     def exist_server(self, name):
         if self.conn.compute.find_server(name) is not None:
             return True
         else:
             return False
+
+    def get_templates(self):
+        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
+        self.logger.info(get_url)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            self.logger.info(response.json())
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_templates_by_template(self, template_name):
+        get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def check_template(self, template_name, template_version):
+        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks

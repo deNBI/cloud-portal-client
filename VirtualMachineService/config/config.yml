@@ -22,3 +22,6 @@ openstack_connection:
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
   ssh_port_calc_formular: 30000 + x
   udp_port_calc_formular: x * 10 +  30000
+
+urls:
+  forc_url: https://proxy-dev.bi.denbi.de:5000/
