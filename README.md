@@ -31,7 +31,7 @@ The client expects a security group with the name "defaultSimpleVM" to exist whi
 
 The client can use a Gateway for starting and stopping machines which allows to use just one floating IP instead of one floating IP per Machine.
 You can read [here](ProjectGateway.md) how to setup a gateway on an OpenStack instance.
-You can also find complete scripts in the [scripts](VirtualMachineService/scripts) folder.
+You can also find complete scripts in the [gateway](gateway) folder.
 The client will provide all images with at least one tag, which will be filtered for in the cloud-api. 
 Also the client provides all flavors, which will also be filtered in the cloud-api.
 
@@ -129,7 +129,8 @@ make thrift_py
 This command will generate python code from the thrift file.
 
 In order for the cloud-api to use the new/changed methods, [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py), [ttypes.py](VirtualMachineService/ttypes.py) and [constants.py](VirtualMachineService/constants.py) must be copied over.
-Because docker can't use relative imports, you also need to change the import  [ttypes.py](VirtualMachineService/ttypes.py)  in [constants.py](VirtualMachineService/constants.py) and [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py): 
+
+Because docker can't use relative imports, you also need to change the import  of [ttypes.py](VirtualMachineService/ttypes.py) in [constants.py](VirtualMachineService/constants.py) and [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py): 
 
 ```python
 from .ttypes import *
