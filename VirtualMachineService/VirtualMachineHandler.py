@@ -30,23 +30,24 @@ except Exception:
     from .constants import VERSION
     from .ancon.Playbook import Playbook
 
-from openstack import connection
-from deprecated import deprecated
-from keystoneauth1.identity import v3
-from keystoneauth1 import session
-from keystoneclient.v3 import client
-import socket
-from contextlib import closing
-import urllib
-import os
-import time
+import base64
 import datetime
 import logging
-import yaml
-import base64
-from oslo_utils import encodeutils
-import redis
+import os
 import parser
+import socket
+import time
+import urllib
+from contextlib import closing
+
+import redis
+import yaml
+from deprecated import deprecated
+from keystoneauth1 import session
+from keystoneauth1.identity import v3
+from keystoneclient.v3 import client
+from openstack import connection
+from oslo_utils import encodeutils
 
 active_playbooks = dict()
 
@@ -60,7 +61,8 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
-    DEFAULT_SECURITY_GROUPS = ['defaultSimpleVM']
+    DEFAULT_SECURITY_GROUP = 'defaultSimpleVM'
+    DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
@@ -143,7 +145,6 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
-            self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -589,6 +590,7 @@ class VirtualMachineHandler(Iface):
         """
         volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
+        custom_security_groups = []
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -596,11 +598,15 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
-            sec_groups = self.DEFAULT_SECURITY_GROUPS
+
+            custom_security_groups.append(
+                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
 
             if http or https:
-                http_secgroup = self.create_security_group(self, servername, None, False, http, https, False)
-                sec_groups.append(http_secgroup)
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + '_https',
+                    http=http, https=https,
+                    description="Http/Https").name)
 
             if diskspace > "0":
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
@@ -617,7 +623,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=sec_groups
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
 
                 )
             else:
@@ -629,13 +635,15 @@ class VirtualMachineHandler(Iface):
                     key_name=key_pair.name,
                     meta=metadata,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=sec_groups
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
                 )
 
             openstack_id = server['id']
 
             return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -656,16 +664,22 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Start Server {} with custom key".format(servername))
         volume_id = ''
+        custom_security_groups = []
+
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
-            sec_groups = self.DEFAULT_SECURITY_GROUPS
+
+            custom_security_groups.append(
+                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
 
             if http or https:
-                http_secgroup = self.create_security_group(self, servername, None, False, http, https, False)
-                sec_groups.append(http_secgroup)
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + '_https',
+                    http=http, https=https,
+                    description="Http/Https").name)
 
             try:
                 private_key = key_creation["private_key"]
@@ -678,6 +692,7 @@ class VirtualMachineHandler(Iface):
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
+
                 server = self.conn.create_server(
                     name=servername,
                     image=image.id,
@@ -687,7 +702,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=sec_groups
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
 
                 )
             else:
@@ -699,7 +714,7 @@ class VirtualMachineHandler(Iface):
                     key_name=servername,
                     meta=metadata,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=sec_groups
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
 
                 )
 
@@ -710,6 +725,8 @@ class VirtualMachineHandler(Iface):
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -962,11 +979,10 @@ class VirtualMachineHandler(Iface):
         :return:
         """
         self.logger.info("Setting up security groups for {0}".format(server_id))
-        if self.conn.network.find_security_group(server_id) is not None:
-            self.logger.info(
-                "Security group with name {0} already exists. Returning from function.".format(
-                    server_id))
-            return True
+        server = self.conn.get_server(name_or_id=server_id)
+        if server is None:
+            self.logger.exception("Instance {0} not found".format(server_id))
+            raise serverNotFoundException
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
@@ -974,22 +990,16 @@ class VirtualMachineHandler(Iface):
         x = int(ip_base)
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
 
-        security_group = self.conn.network.find_security_group(name_or_id=server_id)
-        if security_group:
-            self.conn.compute.remove_security_group_from_server(server=server_id,
-                                                                security_group=security_group)
-            self.conn.network.delete_security_group(security_group)
-
         security_group = self.create_security_group(
-            name=server_id,
+            name=server.name + "_udp",
             udp_port_start=udp_port_start,
             udp=udp,
-            ssh=True,
+            ssh=False,
             https=https,
-            http=http,
+            http=http, description="UDP"
         )
-        self.conn.compute.add_security_group_to_server(
-            server=server_id, security_group=security_group
+        self.conn.add_server_security_groups(
+            server=server, security_groups=[security_group]
         )
 
         return True
@@ -1180,19 +1190,17 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Delete Server {0}".format(openstack_id))
         try:
-            server = self.conn.compute.get_server(openstack_id)
+            server = self.conn.get_server(openstack_id)
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
-            self.logger.info(server)
-            self.logger.info(server.name)
-            try:
-                security_groups = self.conn.network.security_groups(name=openstack_id)
-            except Exception as e:
-                self.logger.exception(e)
+            security_groups = self.conn.list_server_security_groups(server=server)
+            self.logger.info(security_groups)
+            security_groups = [sec for sec in security_groups if
+                               sec.name != self.DEFAULT_SECURITY_GROUP]
             if security_groups is not None:
                 for sg in security_groups:
-                    self.logger.info("Delete security group {0}".format(openstack_id))
+                    self.logger.info("Delete security group {0}".format(sg.name))
                     self.conn.compute.remove_security_group_from_server(server=server,
                                                                         security_group=sg)
                     self.conn.network.delete_security_group(sg)
@@ -1335,10 +1343,11 @@ class VirtualMachineHandler(Iface):
             return False
 
     def create_security_group(
-            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
+            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False,
+            description=None
     ):
         self.logger.info("Create new security group {}".format(name))
-        new_security_group = self.conn.create_security_group(name=name)
+        new_security_group = self.conn.create_security_group(name=name, description=description)
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
             self.conn.network.create_security_group_rule(

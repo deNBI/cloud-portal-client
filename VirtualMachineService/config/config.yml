@@ -7,9 +7,6 @@ openstack_connection:
   # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
   use_gateway: True
 
-  # Id of the default simple vm security group
-  default_security_group: ec824d8f-0e45-4eb1-8f49-089867fef366
-
   set_password: False
   # network where the project is located
   network: portalexternalnetwork
