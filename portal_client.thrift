@@ -310,7 +310,7 @@ service VirtualMachineService {
     6:string diskspace,
 
     /** Name of additional Volume*/
-    7:string volumename)
+    7:string volumename, 8:bool https,9:bool http)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
@@ -336,7 +336,13 @@ service VirtualMachineService {
     5:string diskspace,
 
     /** Name of additional Volume*/
-    6:string volumename)
+    6:string volumename,
+
+    /** Boolean for http security rule*/
+    7:bool http,
+
+    /** Boolean for https security rule*/
+    8:bool https)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
