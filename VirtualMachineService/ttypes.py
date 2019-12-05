@@ -16,6 +16,107 @@ from thrift.transport import TTransport
 all_structs = []
 
 
+class Backend(object):
+    """
+    Attributes:
+     - id
+     - owner
+     - location_url
+     - template
+     - template_version
+
+    """
+
+
+    def __init__(self, id=None, owner=None, location_url=None, template=None, template_version=None,):
+        self.id = id
+        self.owner = owner
+        self.location_url = location_url
+        self.template = template
+        self.template_version = template_version
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I64:
+                    self.id = iprot.readI64()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.owner = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.location_url = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.template = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.template_version = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('Backend')
+        if self.id is not None:
+            oprot.writeFieldBegin('id', TType.I64, 1)
+            oprot.writeI64(self.id)
+            oprot.writeFieldEnd()
+        if self.owner is not None:
+            oprot.writeFieldBegin('owner', TType.STRING, 2)
+            oprot.writeString(self.owner.encode('utf-8') if sys.version_info[0] == 2 else self.owner)
+            oprot.writeFieldEnd()
+        if self.location_url is not None:
+            oprot.writeFieldBegin('location_url', TType.STRING, 3)
+            oprot.writeString(self.location_url.encode('utf-8') if sys.version_info[0] == 2 else self.location_url)
+            oprot.writeFieldEnd()
+        if self.template is not None:
+            oprot.writeFieldBegin('template', TType.STRING, 4)
+            oprot.writeString(self.template.encode('utf-8') if sys.version_info[0] == 2 else self.template)
+            oprot.writeFieldEnd()
+        if self.template_version is not None:
+            oprot.writeFieldBegin('template_version', TType.STRING, 5)
+            oprot.writeString(self.template_version.encode('utf-8') if sys.version_info[0] == 2 else self.template_version)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class Flavor(object):
     """
     This Struct defines a Flavor.
@@ -645,77 +746,6 @@ class PlaybookResult(object):
         return not (self == other)
 
 
-class PlaybookVars(object):
-    """
-    This struct contains a mapping of variable keys to their content. This struct should be mapped by a playbook name.
-
-    Attributes:
-     - needed_variables: The mapping of variable key to variable content
-
-    """
-
-
-    def __init__(self, needed_variables=None,):
-        self.needed_variables = needed_variables
-
-    def read(self, iprot):
-        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
-            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
-            return
-        iprot.readStructBegin()
-        while True:
-            (fname, ftype, fid) = iprot.readFieldBegin()
-            if ftype == TType.STOP:
-                break
-            if fid == 1:
-                if ftype == TType.MAP:
-                    self.needed_variables = {}
-                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
-                    for _i27 in range(_size23):
-                        _key28 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val29 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.needed_variables[_key28] = _val29
-                    iprot.readMapEnd()
-                else:
-                    iprot.skip(ftype)
-            else:
-                iprot.skip(ftype)
-            iprot.readFieldEnd()
-        iprot.readStructEnd()
-
-    def write(self, oprot):
-        if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
-            return
-        oprot.writeStructBegin('PlaybookVars')
-        if self.needed_variables is not None:
-            oprot.writeFieldBegin('needed_variables', TType.MAP, 1)
-            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.needed_variables))
-            for kiter30, viter31 in self.needed_variables.items():
-                oprot.writeString(kiter30.encode('utf-8') if sys.version_info[0] == 2 else kiter30)
-                oprot.writeString(viter31.encode('utf-8') if sys.version_info[0] == 2 else viter31)
-            oprot.writeMapEnd()
-            oprot.writeFieldEnd()
-        oprot.writeFieldStop()
-        oprot.writeStructEnd()
-
-    def validate(self):
-        if self.needed_variables is None:
-            raise TProtocolException(message='Required field needed_variables is unset!')
-        return
-
-    def __repr__(self):
-        L = ['%s=%r' % (key, value)
-             for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not (self == other)
-
-
 class otherException(TException):
     """
     Attributes:
@@ -1196,6 +1226,15 @@ class authenticationException(TException):
 
     def __ne__(self, other):
         return not (self == other)
+all_structs.append(Backend)
+Backend.thrift_spec = (
+    None,  # 0
+    (1, TType.I64, 'id', None, None, ),  # 1
+    (2, TType.STRING, 'owner', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'location_url', 'UTF8', None, ),  # 3
+    (4, TType.STRING, 'template', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'template_version', 'UTF8', None, ),  # 5
+)
 all_structs.append(Flavor)
 Flavor.thrift_spec = (
     None,  # 0
@@ -1244,11 +1283,6 @@ PlaybookResult.thrift_spec = (
     (1, TType.I32, 'status', None, None, ),  # 1
     (2, TType.STRING, 'stdout', 'UTF8', None, ),  # 2
     (3, TType.STRING, 'stderr', 'UTF8', None, ),  # 3
-)
-all_structs.append(PlaybookVars)
-PlaybookVars.thrift_spec = (
-    None,  # 0
-    (1, TType.MAP, 'needed_variables', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 1
 )
 all_structs.append(otherException)
 otherException.thrift_spec = (
