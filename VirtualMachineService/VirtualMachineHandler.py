@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from constants import VERSION
     from ancon.Playbook import Playbook
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from .constants import VERSION
     from .ancon.Playbook import Playbook
 
@@ -48,6 +48,8 @@ from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
 from oslo_utils import encodeutils
+import requests as req
+from requests.exceptions import Timeout
 
 active_playbooks = dict()
 
@@ -61,7 +63,8 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
-    DEFAULT_SECURITY_GROUPS = ['defaultSimpleVM']
+    DEFAULT_SECURITY_GROUP = 'defaultSimpleVM'
+    DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
@@ -144,7 +147,12 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
-            self.DEFAULT_SECURITY_GROUP = cfg['openstack_connection']['default_security_group']
+
+            if cfg["urls"]["forc_url"]:
+                self.RE_BACKEND_URL = cfg["urls"]["forc_url"]
+                self.logger.info(msg="BACKEND URL LOADED {0}".format(self.RE_BACKEND_URL))
+            else:
+                self.RE_BACKEND_URL = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -562,6 +570,7 @@ class VirtualMachineHandler(Iface):
 
             raise ressourceException(Reason=str(e))
 
+
     def start_server(
             self,
             flavor,
@@ -571,6 +580,8 @@ class VirtualMachineHandler(Iface):
             metadata,
             diskspace,
             volumename,
+            https,
+            http
     ):
         """
         Start a new Server.
@@ -582,10 +593,13 @@ class VirtualMachineHandler(Iface):
         :param elixir_id: Elixir_id of the user who started a new server
         :param diskspace: Diskspace in GB for volume which should be created
         :param volumename: Name of the volume
+        :param http: bool for http rule in security group
+        :param https: bool for https rule in security group
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
+        custom_security_groups = []
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -593,6 +607,15 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
+
+            custom_security_groups.append(
+                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
+
+            if http or https:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + '_https',
+                    http=http, https=https,
+                    description="Http/Https").name)
 
             if diskspace > "0":
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
@@ -609,7 +632,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
 
                 )
             else:
@@ -621,18 +644,20 @@ class VirtualMachineHandler(Iface):
                     key_name=key_pair.name,
                     meta=metadata,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
                 )
 
             openstack_id = server['id']
 
             return {"openstackid": openstack_id, "volumeId": volume_id}
         except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
     def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
-                                     volumename):
+                                     volumename, http, https):
 
         """
         Start a new Server.
@@ -648,11 +673,23 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Start Server {} with custom key".format(servername))
         volume_id = ''
+        custom_security_groups = []
+
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
+
+            custom_security_groups.append(
+                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
+
+            if http or https:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + '_https',
+                    http=http, https=https,
+                    description="Http/Https").name)
+
             try:
                 private_key = key_creation["private_key"]
             except Exception:
@@ -664,6 +701,7 @@ class VirtualMachineHandler(Iface):
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
 
+
                 server = self.conn.create_server(
                     name=servername,
                     image=image.id,
@@ -673,8 +711,7 @@ class VirtualMachineHandler(Iface):
                     meta=metadata,
                     userdata=init_script,
                     availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
-
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
                 )
             else:
                 server = self.conn.create_server(
@@ -684,9 +721,9 @@ class VirtualMachineHandler(Iface):
                     network=[network.id],
                     key_name=servername,
                     meta=metadata,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
 
+                    availability_zone=self.AVAIALABILITY_ZONE,
+                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
                 )
 
             openstack_id = server['id']
@@ -696,6 +733,8 @@ class VirtualMachineHandler(Iface):
             return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -717,11 +756,167 @@ class VirtualMachineHandler(Iface):
         active_playbooks[openstack_id] = playbook
         return 0
 
+    def has_forc(self):
+        return self.RE_BACKEND_URL is not None
+
+    def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
+        try:
+            post_url = "{0}backends/".format(self.RE_BACKEND_URL)
+            backend_info = {
+                "owner": elixir_id,
+                "user_key_url": user_key_url,
+                "template": template,
+                "template_version": template_version,
+                "upstream_url": upstream_url
+            }
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+        try:
+            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return {}
+        except Exception as e:
+            self.logger.exception(e)
+            return {}
+
+    def get_backends(self):
+        get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_owner(self, elixir_id):
+        get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backends_by_template(self, template):
+        get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(Backend(id=data["id"],
+                                            owner=data["owner"],
+                                            location_url=data["location_url"],
+                                            template=data["template"],
+                                            template_version=data["template_version"]))
+                return backends
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_backend_by_id(self, id):
+        get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {}
+            return Backend(id=data["id"],
+                           owner=data["owner"],
+                           location_url=data["location_url"],
+                           template=data["template"],
+                           template_version=data["template_version"])
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def delete_backend(self, id):
+        delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
+        try:
+            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code != 200:
+                return str(response.json())
+            elif response.status_code == 200:
+                return str(True)
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return str(-1)
+        except Exception as e:
+            self.logger.exception(e)
+            return str(-1)
+
     def exist_server(self, name):
         if self.conn.compute.find_server(name) is not None:
             return True
         else:
             return False
+
+    def get_templates(self):
+        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
+        self.logger.info(get_url)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            self.logger.info(response.json())
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def get_templates_by_template(self, template_name):
+        get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+
+    def check_template(self, template_name, template_version):
+        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
@@ -948,11 +1143,10 @@ class VirtualMachineHandler(Iface):
         :return:
         """
         self.logger.info("Setting up security groups for {0}".format(server_id))
-        if self.conn.network.find_security_group(server_id) is not None:
-            self.logger.info(
-                "Security group with name {0} already exists. Returning from function.".format(
-                    server_id))
-            return True
+        server = self.conn.get_server(name_or_id=server_id)
+        if server is None:
+            self.logger.exception("Instance {0} not found".format(server_id))
+            raise serverNotFoundException
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
@@ -960,22 +1154,16 @@ class VirtualMachineHandler(Iface):
         x = int(ip_base)
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
 
-        security_group = self.conn.network.find_security_group(name_or_id=server_id)
-        if security_group:
-            self.conn.compute.remove_security_group_from_server(server=server_id,
-                                                                security_group=security_group)
-            self.conn.network.delete_security_group(security_group)
-
         security_group = self.create_security_group(
-            name=server_id,
+            name=server.name + "_udp",
             udp_port_start=udp_port_start,
             udp=udp,
-            ssh=True,
+            ssh=False,
             https=https,
-            http=http,
+            http=http, description="UDP"
         )
-        self.conn.compute.add_security_group_to_server(
-            server=server_id, security_group=security_group
+        self.conn.add_server_security_groups(
+            server=server, security_groups=[security_group]
         )
 
         return True
@@ -1166,19 +1354,17 @@ class VirtualMachineHandler(Iface):
         """
         self.logger.info("Delete Server {0}".format(openstack_id))
         try:
-            server = self.conn.compute.get_server(openstack_id)
+            server = self.conn.get_server(openstack_id)
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
-            self.logger.info(server)
-            self.logger.info(server.name)
-            try:
-                security_groups = self.conn.network.security_groups(name=openstack_id)
-            except Exception as e:
-                self.logger.exception(e)
+            security_groups = self.conn.list_server_security_groups(server=server)
+            self.logger.info(security_groups)
+            security_groups = [sec for sec in security_groups if
+                               sec.name != self.DEFAULT_SECURITY_GROUP]
             if security_groups is not None:
                 for sg in security_groups:
-                    self.logger.info("Delete security group {0}".format(openstack_id))
+                    self.logger.info("Delete security group {0}".format(sg.name))
                     self.conn.compute.remove_security_group_from_server(server=server,
                                                                         security_group=sg)
                     self.conn.network.delete_security_group(sg)
@@ -1321,10 +1507,11 @@ class VirtualMachineHandler(Iface):
             return False
 
     def create_security_group(
-            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False
+            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False,
+            description=None
     ):
         self.logger.info("Create new security group {}".format(name))
-        new_security_group = self.conn.network.create_security_group(name=name)
+        new_security_group = self.conn.create_security_group(name=name, description=description)
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
             self.conn.network.create_security_group_rule(

@@ -36,11 +36,21 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string openstack_id, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
-    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename)')
-    print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, string diskspace, string volumename)')
+    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename, bool https, bool http)')
+    print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, string diskspace, string volumename, bool http, bool https)')
     print('  bool exist_server(string name)')
     print('  int create_and_deploy_playbook(string public_key,  playbooks_information, string openstack_id)')
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
+    print('  bool has_forc()')
+    print('  Backend create_backend(string elixir_id, string user_key_url, string template, string template_version, string upstream_url)')
+    print('   get_backends()')
+    print('   get_backends_by_owner(string elixir_id)')
+    print('   get_backends_by_template(string template)')
+    print('  Backend get_backend_by_id(i64 id)')
+    print('  string delete_backend(i64 id)')
+    print('   get_templates()')
+    print('   get_templates_by_template(string template_name)')
+    print('   check_template(string template_name, string template_version)')
     print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
     print('   get_servers()')
     print('   get_servers_by_ids( server_ids)')
@@ -209,16 +219,16 @@ elif cmd == 'create_connection':
     pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4],))
 
 elif cmd == 'start_server':
-    if len(args) != 7:
-        print('start_server requires 7 args')
+    if len(args) != 9:
+        print('start_server requires 9 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6],))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6], eval(args[7]), eval(args[8]),))
 
 elif cmd == 'start_server_with_custom_key':
-    if len(args) != 6:
-        print('start_server_with_custom_key requires 6 args')
+    if len(args) != 8:
+        print('start_server_with_custom_key requires 8 args')
         sys.exit(1)
-    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), args[4], args[5],))
+    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), args[4], args[5], eval(args[6]), eval(args[7]),))
 
 elif cmd == 'exist_server':
     if len(args) != 1:
@@ -237,6 +247,66 @@ elif cmd == 'get_playbook_logs':
         print('get_playbook_logs requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_playbook_logs(args[0],))
+
+elif cmd == 'has_forc':
+    if len(args) != 0:
+        print('has_forc requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.has_forc())
+
+elif cmd == 'create_backend':
+    if len(args) != 5:
+        print('create_backend requires 5 args')
+        sys.exit(1)
+    pp.pprint(client.create_backend(args[0], args[1], args[2], args[3], args[4],))
+
+elif cmd == 'get_backends':
+    if len(args) != 0:
+        print('get_backends requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_backends())
+
+elif cmd == 'get_backends_by_owner':
+    if len(args) != 1:
+        print('get_backends_by_owner requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_backends_by_owner(args[0],))
+
+elif cmd == 'get_backends_by_template':
+    if len(args) != 1:
+        print('get_backends_by_template requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_backends_by_template(args[0],))
+
+elif cmd == 'get_backend_by_id':
+    if len(args) != 1:
+        print('get_backend_by_id requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_backend_by_id(eval(args[0]),))
+
+elif cmd == 'delete_backend':
+    if len(args) != 1:
+        print('delete_backend requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.delete_backend(eval(args[0]),))
+
+elif cmd == 'get_templates':
+    if len(args) != 0:
+        print('get_templates requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_templates())
+
+elif cmd == 'get_templates_by_template':
+    if len(args) != 1:
+        print('get_templates_by_template requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_templates_by_template(args[0],))
+
+elif cmd == 'check_template':
+    if len(args) != 2:
+        print('check_template requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.check_template(args[0], args[1],))
 
 elif cmd == 'add_security_group_to_server':
     if len(args) != 4:

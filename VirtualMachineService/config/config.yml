@@ -7,9 +7,6 @@ openstack_connection:
   # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
   use_gateway: True
 
-  # Id of the default simple vm security group
-  default_security_group: ec824d8f-0e45-4eb1-8f49-089867fef366
-
   set_password: False
   # network where the project is located
   network: portalexternalnetwork
@@ -22,3 +19,6 @@ openstack_connection:
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
   ssh_port_calc_formular: 30000 + x
   udp_port_calc_formular: x * 10 +  30000
+
+urls:
+  forc_url: https://proxy-dev.bi.denbi.de:5000/
