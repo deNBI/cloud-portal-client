@@ -1,3 +1,10 @@
+##  (2019-12-06)
+
+
+#### Features
+
+* **client:**  multiple security groups for single vms ([52990be6](52990be6))
+
 
 ##  (2019-11-19)
 
