@@ -41,6 +41,7 @@ import urllib
 from contextlib import closing
 
 import redis
+import requests as req
 import yaml
 from deprecated import deprecated
 from keystoneauth1 import session
@@ -48,7 +49,6 @@ from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
 from oslo_utils import encodeutils
-import requests as req
 from requests.exceptions import Timeout
 
 active_playbooks = dict()
@@ -1511,6 +1511,10 @@ class VirtualMachineHandler(Iface):
             description=None
     ):
         self.logger.info("Create new security group {}".format(name))
+        sec = self.conn.get_security_group(name_or_id=name)
+        if sec:
+            self.logger.info("Security group with name {} already exists.".format(name))
+            return sec
         new_security_group = self.conn.create_security_group(name=name, description=description)
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
