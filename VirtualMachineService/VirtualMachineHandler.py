@@ -147,13 +147,14 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
+            # try to initialize forc connection
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
                 self.logger.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
             except Exception as e:
                 self.logger.exception(e)
-                self.logger.info("Forc-Backend url not loaded.")
+                self.logger.info("Forc-Backend not loaded.")
                 self.RE_BACKEND_URL = None
                 self.FORC_API_KEY = None
             if self.USE_GATEWAY:
