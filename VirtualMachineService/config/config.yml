@@ -20,5 +20,5 @@ openstack_connection:
   ssh_port_calc_formular: 30000 + x
   udp_port_calc_formular: x * 10 +  30000
 
-urls:
+forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/

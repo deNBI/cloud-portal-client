@@ -21,8 +21,12 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
+You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).  
 Also you need to provide the path to your config file as the first param when starting a server.
+
+Furthermore there are some parameters you can set in the [.env.in](.env.in) file, which are read only when starting with docker.  
+Important: You need to rename .env.in to .env in order for it to be read by docker.  
+When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
 The client expects a security group with the name "defaultSimpleVM" to exist which will be assigned to each machine at startup. Also, each machine will have its own security group when it starts.
@@ -70,7 +74,7 @@ portal_client_start_server path/to/config.yml
 ~~~
 
 ### Using Docker
-Specify in the [.env](.env) file which release should be used by the client.
+Specify in the .env file which release should be used by the client.
 Then you can start the client with:
 ```
 $ docker-compose up

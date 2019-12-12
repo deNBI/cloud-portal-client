@@ -16,13 +16,13 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(self, ip, port, playbooks_information, osi_private_key, public_key, logger, pool):
-        self.redis = redis.Redis(connection_pool=pool)
-        self.yaml_exec = ruamel.yaml.YAML()
-        self.vars_files = []
-        self.tasks = []
+        self.redis = redis.Redis(connection_pool=pool)  # redis connection
+        self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
+        self.vars_files = []  # _vars_file.yml to read
+        self.tasks = []  # task list
         self.always_tasks = []
         self.logger = logger
-        self.process = None
+        self.process = None  # init process, returncode, standard output, standard error output
         self.returncode = -1
         self.stdout = ""
         self.stderr = ""

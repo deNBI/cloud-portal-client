@@ -147,12 +147,16 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
-
-            if cfg["urls"]["forc_url"]:
-                self.RE_BACKEND_URL = cfg["urls"]["forc_url"]
-                self.logger.info(msg="BACKEND URL LOADED {0}".format(self.RE_BACKEND_URL))
-            else:
+            # try to initialize forc connection
+            try:
+                self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
+                self.FORC_API_KEY = os.environ["FORC_API_KEY"]
+                self.logger.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
+            except Exception as e:
+                self.logger.exception(e)
+                self.logger.info("Forc-Backend not loaded.")
                 self.RE_BACKEND_URL = None
+                self.FORC_API_KEY = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -773,7 +777,7 @@ class VirtualMachineHandler(Iface):
             self.logger.exception(e)
             return {}
         try:
-            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             try:
                 data = response.json()
             except Exception as e:
@@ -794,7 +798,7 @@ class VirtualMachineHandler(Iface):
     def get_backends(self):
         get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -812,7 +816,7 @@ class VirtualMachineHandler(Iface):
     def get_backends_by_owner(self, elixir_id):
         get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -830,7 +834,7 @@ class VirtualMachineHandler(Iface):
     def get_backends_by_template(self, template):
         get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -848,7 +852,7 @@ class VirtualMachineHandler(Iface):
     def get_backend_by_id(self, id):
         get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             try:
                 data = response.json()
             except Exception as e:
@@ -865,7 +869,7 @@ class VirtualMachineHandler(Iface):
     def delete_backend(self, id):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code != 200:
                 return str(response.json())
             elif response.status_code == 200:
@@ -887,7 +891,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         self.logger.info(get_url)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             self.logger.info(response.json())
             if response.status_code == 401:
                 return [response.json()]
@@ -899,7 +903,7 @@ class VirtualMachineHandler(Iface):
     def get_templates_by_template(self, template_name):
         get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -910,7 +914,7 @@ class VirtualMachineHandler(Iface):
     def check_template(self, template_name, template_version):
         get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": "fn438hf37ffbn8"})
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
                 return [response.json()]
             else:
