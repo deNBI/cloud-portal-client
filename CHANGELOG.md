@@ -1,3 +1,12 @@
+##  (2019-12-12)
+
+
+#### Bug Fixes
+
+* **forc-key:**  load forc_api_key from os.environment ([33ce6328](33ce6328))
+
+
+
 ##  (2019-12-06)
 
 
