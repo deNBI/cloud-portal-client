@@ -1166,8 +1166,10 @@ class VirtualMachineHandler(Iface):
             https=https,
             http=http, description="UDP"
         )
-        self.conn.add_server_security_groups(
-            server=server, security_groups=[security_group]
+        self.logger.info(security_group)
+        self.logger.info("Add security group {} to server {} ".format(security_group.id, server_id))
+        self.conn.compute.add_security_group_to_server(
+            server=server_id, security_group=security_group
         )
 
         return True
