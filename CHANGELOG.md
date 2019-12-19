@@ -1,3 +1,9 @@
+##  (2019-12-19)
+
+
+#### Features
+
+* **resenv:**  theiaide, guacamole working ([0f390ce8](0f390ce8))
 ##  (2019-12-17)
 
 
