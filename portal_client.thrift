@@ -342,7 +342,9 @@ service VirtualMachineService {
     7:bool http,
 
     /** Boolean for https security rule*/
-    8:bool https)
+    8:bool https,
+
+    9:list<string> resenv)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
@@ -366,6 +368,8 @@ service VirtualMachineService {
 
     /** Get boolean if client has backend url configured*/
     bool has_forc()
+
+    string get_forc_url()
 
     /** Create a backend*/
     Backend create_backend(

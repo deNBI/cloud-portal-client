@@ -6,8 +6,9 @@ import subprocess
 import redis
 
 BIOCONDA = "bioconda"
-THEIA = "theia"
+THEIA = "theiaide"
 RSTUDIO = "rstudio"
+GUACAMOLE = "guacamole"
 
 
 class Playbook(object):
@@ -99,6 +100,10 @@ class Playbook(object):
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
             if playbook_name == RSTUDIO:
+                for k, v in playbook_vars.items():
+                    if k == "template_version":
+                        data[playbook_name + "_vars"][k] = v
+            if playbook_name == GUACAMOLE:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v

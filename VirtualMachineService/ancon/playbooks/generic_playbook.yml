@@ -1,5 +1,6 @@
 - name: Setting up your virtual machine
   hosts: all
+  become: yes
   connection: paramiko_ssh
   gather_facts: yes
   vars_files:

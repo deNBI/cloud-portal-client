@@ -1,0 +1,113 @@
+
+
+- name: Install needed libraries and tools
+  apt:
+    name:
+      - make
+      - libssh2-1-dev
+      - libtelnet-dev
+      - libpango1.0-dev
+      - libossp-uuid-dev
+      - libcairo2-dev
+      - libpng-dev
+      - freerdp-x11
+      - libssh2-1
+      - libvncserver-dev
+      - libfreerdp-dev
+      - libvorbis-dev
+      - libssl1.0.0
+      - gcc
+      - libssh-dev
+      - libpulse-dev
+      - tomcat8
+      - tomcat8-admin
+      - tomcat8-docs
+      - ghostscript
+      - libwebp-dev
+      - libavcodec-dev
+      - libavutil-dev
+      - libswscale-dev
+    state: latest
+
+- name: Download guacamole src
+  get_url:
+    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/source/guacamole-server-1.0.0.tar.gz
+    dest: /usr/share/guacamole.tar.gz
+
+- name: Download guacamole war file
+  get_url:
+    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/binary/guacamole-1.0.0.war
+    dest: /usr/share/guacamole.war
+
+- name: Prepare build directory
+  file:
+    state: directory
+    path: /usr/share/guacamole/
+
+- name: Unarchive source files
+  unarchive:
+    remote_src: yes
+    src: /usr/share/guacamole.tar.gz
+    dest: /usr/share/guacamole
+
+- name: Configure systemd unit
+  shell: "./configure --with-systemd-dir=/etc/systemd/system"
+  args:
+    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+    creates: /usr/share/guacamole/guacamole-server-1.0.0/Makefile
+
+- name: Compile guacamole
+  make:
+    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+
+- name: Make install
+  make:
+    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+    target: install
+
+- name: Link libraries
+  shell: ldconfig
+  args:
+    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+
+- name: Enable guacamole daemon
+  systemd:
+    name: guacd
+    enabled: yes
+
+- name: Create guacamole config folder
+  file:
+    state: directory
+    path: /etc/guacamole
+
+- name: Create guacamole.properties
+  copy:
+    src: guacamole.properties
+    dest: /etc/guacamole/guacamole.properties
+  notify: Restart guacd
+
+- name: Generate guacamole mapping
+  template:
+    src: user-mapping.xml.j2
+    dest: /etc/guacamole/user-mapping.xml
+  notify: Restart guacd
+
+- name: Register path in env
+  lineinfile:
+    path: /etc/environment
+    line: 'GUACAMOLE_HOME="/etc/guacamole"'
+    state: present
+
+- name: Copy tomcat guacamole client
+  copy:
+    remote_src: yes
+    src: /usr/share/guacamole.war
+    dest: /var/lib/tomcat8/webapps/guacamole.war
+  notify: Restart Tomcat
+
+- name: Link configuration directory to tomcat
+  file:
+    state: link
+    src: /etc/guacamole
+    dest: /usr/share/tomcat8/.guacamole
+  notify: Reload systemd

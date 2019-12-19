@@ -1,0 +1,15 @@
+- debug:
+    msg: "{{ theiaide_vars.template_version }}"
+
+- name: Wait for automatic system updates 1
+  shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+- name: Wait for automatic system updates 2
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+
+- name: Install theia_ide role
+  include_role:
+    name: jkrue.theia_ide
+  vars:
+    theia_ide_bind_address: 0.0.0.0
+    theia_ide_bind_port: 8080

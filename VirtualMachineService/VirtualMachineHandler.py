@@ -15,7 +15,7 @@ try:
     from ttypes import ressourceException
     from ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from constants import VERSION
-    from ancon.Playbook import Playbook
+    from ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
 except Exception:
     from .VirtualMachineService import Iface
@@ -28,7 +28,7 @@ except Exception:
     from .ttypes import ressourceException
     from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
     from .constants import VERSION
-    from .ancon.Playbook import Playbook
+    from .ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
 import base64
 import datetime
@@ -661,7 +661,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
-                                     volumename, http, https):
+                                     volumename, http, https, resenv):
 
         """
         Start a new Server.
@@ -693,6 +693,15 @@ class VirtualMachineHandler(Iface):
                     name=servername + '_https',
                     http=http, https=https,
                     description="Http/Https").name)
+
+            if THEIA in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_theiaide", resenv=resenv, description="Theiaide", ssh=False
+                ).name)
+            if GUACAMOLE in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_guacamole", resenv=resenv, description="Guacamole", ssh=False
+                ).name)
 
             try:
                 private_key = key_creation["private_key"]
@@ -762,6 +771,10 @@ class VirtualMachineHandler(Iface):
 
     def has_forc(self):
         return self.RE_BACKEND_URL is not None
+
+    def get_forc_url(self):
+        url = self.RE_BACKEND_URL.split(':5000', 1)[0]
+        return "{0}/".format(url)
 
     def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
         try:
@@ -1514,7 +1527,7 @@ class VirtualMachineHandler(Iface):
 
     def create_security_group(
             self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False,
-            description=None
+            description=None, resenv=[]
     ):
         self.logger.info("Create new security group {}".format(name))
         sec = self.conn.get_security_group(name_or_id=name)
@@ -1598,7 +1611,28 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
+        if THEIA in resenv:
+            self.logger.info("Add theia rule to security group {}".format(name))
 
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=8080,
+                port_range_min=8080,
+                remote_group_id="e75f0abb-bd9d-4bda-afc7-cef1ad459eee",
+                security_group_id=new_security_group["id"],
+            )
+        if GUACAMOLE in resenv:
+            self.logger.info("Add guacamole rule to security group {}".format(name))
+
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=8080,
+                port_range_min=8080,
+                remote_group_id="e75f0abb-bd9d-4bda-afc7-cef1ad459eee",
+                security_group_id=new_security_group["id"],
+            )
         return new_security_group
 
     def get_limits(self):
