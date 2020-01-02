@@ -1,3 +1,62 @@
+##  (2019-12-19)
+
+
+#### Features
+
+* **resenv:**  theiaide, guacamole working ([0f390ce8](0f390ce8))
+##  (2019-12-17)
+
+
+#### Bug Fixes
+
+* **UDP:** fixed the UDP group ([a51d025c](a51d025c))
+
+##  (2019-12-12)
+
+
+#### Bug Fixes
+
+* **forc-key:**  load forc_api_key from os.environment ([33ce6328](33ce6328))
+
+
+
+##  (2019-12-06)
+
+
+#### Features
+
+* **client:**  multiple security groups for single vms ([52990be6](52990be6))
+
+
+##  (2019-11-19)
+
+
+#### Bug Fixes
+
+* **Bioconda:** also fixed bioconda ([6b9e74db](6b9e74db))
+* **Flavor:** also for giessen ([49312ce8](49312ce8))
+
+#### Features
+
+* **Client:** added docker with image tag in env ([adacf7bc](adacf7bc))
+
+##  (2019-11-14)
+
+
+#### Features
+
+* **Client:**
+  * updated readme ([6704108f](6704108f))
+  * updated readme ([de9c6fc5](de9c6fc5))
+* **Instance:** starts with defualtSimpleVm security group ([ed9d9e31](ed9d9e31))
+
+##  (2019-11-13)
+
+
+#### Bug Fixes
+
+* **security-group:**  return from function when sec-g already exists ([5ebed609](5ebed609))
+
 ##  (2019-11-07)
 
 ### Refactors

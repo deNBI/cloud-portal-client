@@ -21,14 +21,21 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can view all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
+You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).  
 Also you need to provide the path to your config file as the first param when starting a server.
 
+Furthermore there are some parameters you can set in the [.env.in](.env.in) file, which are read only when starting with docker.  
+Important: You need to rename .env.in to .env in order for it to be read by docker.  
+When starting with commandline you will need to export some of them manually.
+
+#### Security Groups
+The client expects a security group with the name "defaultSimpleVM" to exist which will be assigned to each machine at startup. Also, each machine will have its own security group when it starts.
 
 ##### Gateway
 
 The client can use a Gateway for starting and stopping machines which allows to use just one floating IP instead of one floating IP per Machine.
 You can read [here](ProjectGateway.md) how to setup a gateway on an OpenStack instance.
+You can also find complete scripts in the [gateway](gateway) folder.
 The client will provide all images with at least one tag, which will be filtered for in the cloud-api. 
 Also the client provides all flavors, which will also be filtered in the cloud-api.
 
@@ -67,8 +74,16 @@ portal_client_start_server path/to/config.yml
 ~~~
 
 ### Using Docker
-
-You can use the Docker image `denbicloud/cloud-portal-client` with the configuration parameters provided in [docker-compose.yml](docker-compose.yml)
+Specify in the .env file which release should be used by the client.
+Then you can start the client with:
+```
+$ docker-compose up
+```
+or
+```
+$ make production
+```
+_**Attention**_: If you change the port in the [yaml file](VirtualMachineService/config/config.yml) you also need to change the port mapping in the [docker-compose.yml](docker-compose.yml)!
 
 ## Development
 
@@ -97,16 +112,13 @@ Run the following command in order to start the container setup:
 Make sure, that your OpenStack RC File is sourced.
 
 ```
-docker-compose up
+docker-compose -f docker-compose.dev.yml up --build
+```
+ or
+ ```
+make dev
 ```
 
-***NOTE:*** If you update any script you have to rebuild the image.
-Therefore use:
-
-```
-docker-compose down
-docker-compose build --no-cache
-```
 
 
 ### Thrift Development
@@ -119,6 +131,22 @@ make thrift_py
 ~~~
 
 This command will generate python code from the thrift file.
+
+In order for the cloud-api to use the new/changed methods, [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py), [ttypes.py](VirtualMachineService/ttypes.py) and [constants.py](VirtualMachineService/constants.py) must be copied over.
+
+Because docker can't use relative imports, you also need to change the import  of [ttypes.py](VirtualMachineService/ttypes.py) in [constants.py](VirtualMachineService/constants.py) and [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py): 
+
+```python
+from .ttypes import *
+
+```
+```python
+from ttypes import *
+
+```
+_**Attention**_: The cloud-api needs the files with the relative imports (from .ttypes)!
+
+
 A detailed instruction, how to write a thrift file can be found on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
 
 To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService. 

@@ -6,8 +6,9 @@ import subprocess
 import redis
 
 BIOCONDA = "bioconda"
-THEIA = "theia"
+THEIA = "theiaide"
 RSTUDIO = "rstudio"
+GUACAMOLE = "guacamole"
 
 
 class Playbook(object):
@@ -16,13 +17,13 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(self, ip, port, playbooks_information, osi_private_key, public_key, logger, pool):
-        self.redis = redis.Redis(connection_pool=pool)
-        self.yaml_exec = ruamel.yaml.YAML()
-        self.vars_files = []
-        self.tasks = []
+        self.redis = redis.Redis(connection_pool=pool)  # redis connection
+        self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
+        self.vars_files = []  # _vars_file.yml to read
+        self.tasks = []  # task list
         self.always_tasks = []
         self.logger = logger
-        self.process = None
+        self.process = None  # init process, returncode, standard output, standard error output
         self.returncode = -1
         self.stdout = ""
         self.stderr = ""
@@ -96,11 +97,16 @@ class Playbook(object):
                         data[playbook_name + "_tools"][k] = p_dict
             if playbook_name == THEIA:
                 for k, v in playbook_vars.items():
-                    if k == "version":
+                    if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
             if playbook_name == RSTUDIO:
                 for k, v in playbook_vars.items():
-                    pass
+                    if k == "template_version":
+                        data[playbook_name + "_vars"][k] = v
+            if playbook_name == GUACAMOLE:
+                for k, v in playbook_vars.items():
+                    if k == "template_version":
+                        data[playbook_name + "_vars"][k] = v
 
         playbook_yml = "/{0}.yml".format(playbook_name)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)

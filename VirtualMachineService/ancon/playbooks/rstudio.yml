@@ -1,0 +1,2 @@
+- debug:
+    msg: "{{ rstudio_vars.template_version }}"
