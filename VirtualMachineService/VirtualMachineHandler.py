@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult, Backend
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from constants import VERSION
     from ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from .constants import VERSION
     from .ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
@@ -1200,6 +1200,14 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+    def get_servers_by_bibigrid_id(self, bibigrid_id):
+        filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
+        servers = self.conn.list_servers(filters=filters)
+        thrift_servers = []
+        for server in servers:
+            thrift_servers.append(self.openstack_server_to_thrift_server(server))
+        return thrift_servers
+
     def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of the sever.
@@ -1228,6 +1236,37 @@ class VirtualMachineHandler(Iface):
                 "Get IP and PORT for server {0} error:".format(openstack_id, e)
             )
             return {}
+
+    def get_cluster_info(self, cluster_id):
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        request_url = self.BIBIGRID_URL + 'list'
+        self.logger.info(request_url)
+
+        response = req.get(url=request_url, json=body, headers=headers,
+                           verify=False)
+        self.logger.info(response.json())
+        infos = response.json()["info"]
+        for info in infos:
+            self.logger.info(cluster_id)
+            self.logger.info(info)
+            self.logger.info(info["cluster-id"])
+            self.logger.info(cluster_id == info["cluster-id"])
+            if info["cluster-id"] == cluster_id:
+                cluster_info = ClusterInfo(launch_date=info["launch date"],
+                                           group_id=info["group-id"],
+                                           network_id=info["network-id"],
+                                           public_ip=info["public-ip"],
+                                           subnet_id=info["subnet-id"],
+                                           user=info["user"],
+                                           inst_counter=info["# inst"],
+                                           cluster_id=info["cluster-id"],
+                                           key_name=info["key name"])
+                self.logger.info("CLuster info : {}".format(cluster_info))
+                return cluster_info
+
+        return None
+
 
     def start_cluster(self, public_key, master_instance, worker_instances, user):
         master_instance = master_instance.__dict__
