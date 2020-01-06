@@ -1,3 +1,16 @@
+##  (2020-01-06)
+
+
+#### Bug Fixes
+
+* **conda:**  change user variable ([bbd486b9](bbd486b9))
+
+#### Features
+
+* **images:**
+  *  cross check imagetags with forc (#196) ([b32190c4](b32190c4))
+  *  cross check imagetags with forc ([d39c3f5e](d39c3f5e))
+
 ##  (2019-12-19)
 
 
