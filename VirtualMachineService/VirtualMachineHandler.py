@@ -151,12 +151,15 @@ class VirtualMachineHandler(Iface):
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
+                self.FORC_ALLOWED = cfg["forc"]["forc_allowed"]
                 self.logger.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
+                self.logger.info("Client allows following research environments and respective versions: {0}".format(self.FORC_ALLOWED))
             except Exception as e:
                 self.logger.exception(e)
                 self.logger.info("Forc-Backend not loaded.")
                 self.RE_BACKEND_URL = None
                 self.FORC_API_KEY = None
+                self.FORC_ALLOWED = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
@@ -337,6 +340,52 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception("Get Image {0} with Tag Error: {1}".format(id, e))
             return None
+
+    def get_Images_by_filter(self, filter_list):
+        """
+        Get filtered Images.
+
+        :return: List of image instances.
+        """
+        self.logger.info("Get filtered Images: {0}".format(filter_list))
+        images = list()
+        try:
+            for img in filter(
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active",
+                    self.conn.list_images(),
+            ):
+                tags = img.get("tags")
+                if "resenv" in filter_list:
+                    if "resenv" in tags and not self.cross_check_forc_image(tags):
+                        continue
+                metadata = img["metadata"]
+                description = metadata.get("description")
+                image_type = img.get("image_type", "image")
+                if description is None:
+                    self.logger.warning("No Description for {0}".format(img["name"]))
+
+                image = Image(
+                    name=img["name"],
+                    min_disk=img["min_disk"],
+                    min_ram=img["min_ram"],
+                    status=img["status"],
+                    created_at=img["created_at"],
+                    updated_at=img["updated_at"],
+                    openstack_id=img["id"],
+                    description=description,
+                    tag=tags,
+                    is_snapshot=image_type == "snapshot"
+                )
+                self.logger.info(image)
+
+                images.append(image)
+
+            return images
+        except Exception as e:
+            self.logger.exception("Get Images Error: {0}".format(e))
+            return ()
 
     def delete_keypair(self, key_name):
         key_pair = self.conn.compute.find_keypair(key_name)
@@ -775,6 +824,22 @@ class VirtualMachineHandler(Iface):
     def get_forc_url(self):
         url = self.RE_BACKEND_URL.split(':5000', 1)[0]
         return "{0}/".format(url)
+
+    def cross_check_forc_image(self, tags):
+        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            if response.status_code != 200:
+                return ()
+            else:
+                templates = response.json()
+        except Exception as e:
+            self.logger.error("Could not get templates from FORC.\n {0}".format(e))
+        for template_dict in templates:
+            if template_dict["name"] in self.FORC_ALLOWED and template_dict["name"] in tags:
+                if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
+                    return True
+        return False
 
     def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
         try:
