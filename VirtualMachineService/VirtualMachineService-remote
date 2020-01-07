@@ -31,6 +31,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_Flavors()')
     print('   get_Images()')
     print('  Image get_Image_with_Tag(string openstack_id)')
+    print('   get_Images_by_filter( filter_list)')
     print('  bool delete_server(string openstack_id)')
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
@@ -192,6 +193,12 @@ elif cmd == 'get_Image_with_Tag':
         print('get_Image_with_Tag requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_Image_with_Tag(args[0],))
+
+elif cmd == 'get_Images_by_filter':
+    if len(args) != 1:
+        print('get_Images_by_filter requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_Images_by_filter(eval(args[0]),))
 
 elif cmd == 'delete_server':
     if len(args) != 1:

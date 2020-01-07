@@ -32,3 +32,8 @@ bibigrid:
   sub_network: portalexternalsubnetwork
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
+  forc_allowed:
+    theiaide:
+      - v01
+    guacamole:
+      - v01

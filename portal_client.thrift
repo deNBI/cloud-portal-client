@@ -246,6 +246,12 @@ service VirtualMachineService {
 	 */
 	Image get_Image_with_Tag(1:string openstack_id)
 
+	/**
+    * Get Images and filter by list of strings.
+    * Returns: List of Image instances.
+    */
+	list<Image> get_Images_by_filter(1: list<string> filter_list)
+
 
 	 /**
 	  * Delete server.
