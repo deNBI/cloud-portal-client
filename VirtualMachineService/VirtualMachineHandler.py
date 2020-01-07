@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult, Backend
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from constants import VERSION
     from ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from .constants import VERSION
     from .ancon.Playbook import Playbook, THEIA, GUACAMOLE
 
@@ -148,6 +148,16 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             # try to initialize forc connection
+            try:
+                self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
+                self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
+                self.logger.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
+            except Exception as e:
+                self.logger.exception(e)
+                self.logger.info("Bibigrid not loaded.")
+                self.BIBIGRID_URL = None
+                self.SUB_NETWORK = None
+
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
@@ -749,7 +759,8 @@ class VirtualMachineHandler(Iface):
                 ).name)
             if GUACAMOLE in resenv:
                 custom_security_groups.append(self.create_security_group(
-                    name=servername + "_guacamole", resenv=resenv, description="Guacamole", ssh=False
+                    name=servername + "_guacamole", resenv=resenv, description="Guacamole",
+                    ssh=False
                 ).name)
 
             try:
@@ -762,7 +773,6 @@ class VirtualMachineHandler(Iface):
                                                         volume_name=volumename,
                                                         server_name=servername, metadata=metadata)
                 init_script = self.create_mount_init_script(volume_id=volume_id)
-
 
                 server = self.conn.create_server(
                     name=servername,
@@ -855,7 +865,8 @@ class VirtualMachineHandler(Iface):
             self.logger.exception(e)
             return {}
         try:
-            response = req.post(post_url, json=backend_info, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.post(post_url, json=backend_info, timeout=(30, 30),
+                                headers={"X-API-KEY": self.FORC_API_KEY})
             try:
                 data = response.json()
             except Exception as e:
@@ -947,7 +958,8 @@ class VirtualMachineHandler(Iface):
     def delete_backend(self, id):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.delete(delete_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.delete(delete_url, timeout=(30, 30),
+                                  headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code != 200:
                 return str(response.json())
             elif response.status_code == 200:
@@ -990,7 +1002,8 @@ class VirtualMachineHandler(Iface):
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def check_template(self, template_name, template_version):
-        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name, template_version)
+        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name,
+                                                 template_version)
         try:
             response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
@@ -1252,6 +1265,14 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+    def get_servers_by_bibigrid_id(self, bibigrid_id):
+        filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
+        servers = self.conn.list_servers(filters=filters)
+        thrift_servers = []
+        for server in servers:
+            thrift_servers.append(self.openstack_server_to_thrift_server(server))
+        return thrift_servers
+
     def get_ip_ports(self, openstack_id):
         """
         Get Ip and Port of the sever.
@@ -1280,6 +1301,60 @@ class VirtualMachineHandler(Iface):
                 "Get IP and PORT for server {0} error:".format(openstack_id, e)
             )
             return {}
+
+    def get_cluster_info(self, cluster_id):
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        request_url = self.BIBIGRID_URL + 'list'
+        self.logger.info(request_url)
+
+        response = req.get(url=request_url, json=body, headers=headers,
+                           verify=False)
+        self.logger.info(response.json())
+        infos = response.json()["info"]
+        for info in infos:
+            self.logger.info(cluster_id)
+            self.logger.info(info)
+            self.logger.info(info["cluster-id"])
+            self.logger.info(cluster_id == info["cluster-id"])
+            if info["cluster-id"] == cluster_id:
+                cluster_info = ClusterInfo(launch_date=info["launch date"],
+                                           group_id=info["group-id"],
+                                           network_id=info["network-id"],
+                                           public_ip=info["public-ip"],
+                                           subnet_id=info["subnet-id"],
+                                           user=info["user"],
+                                           inst_counter=info["# inst"],
+                                           cluster_id=info["cluster-id"],
+                                           key_name=info["key name"])
+                self.logger.info("CLuster info : {}".format(cluster_info))
+                return cluster_info
+
+        return None
+
+
+    def start_cluster(self, public_key, master_instance, worker_instances, user):
+        master_instance = master_instance.__dict__
+        del master_instance['count']
+        wI = []
+        for wk in worker_instances:
+            self.logger.info(wk)
+            wI.append(wk.__dict__)
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack", "subnet": self.SUB_NETWORK, "user": user, "sshUser": "ubuntu",
+                "availabilityZone": self.AVAIALABILITY_ZONE, "masterInstance": master_instance,
+                "workerInstances": wI}
+        request_url = self.BIBIGRID_URL + 'create'
+        response = req.post(url=request_url, json=body, headers=headers,
+                                verify=False)
+        self.logger.info(response.json())
+        return response.json()
+
+
+    def terminate_cluster(self, cluster_id):
+        response = req.delete(url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id))
+        self.logger.info(response.json())
+        return response.json()
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
         """

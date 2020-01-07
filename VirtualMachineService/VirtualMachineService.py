@@ -341,11 +341,30 @@ class Iface(object):
 
     def get_servers_by_ids(self, server_ids):
         """
-        	* Get list of servers by ids
-        *
+        * Get list of servers by ids
+           *
 
         Parameters:
          - server_ids
+
+        """
+        pass
+
+    def get_servers_by_bibigrid_id(self, bibigrid_id):
+        """
+        * Get servers by bibigrid cluster id.
+           *
+
+        Parameters:
+         - bibigrid_id
+
+        """
+        pass
+
+    def get_cluster_info(self, cluster_id):
+        """
+        Parameters:
+         - cluster_id
 
         """
         pass
@@ -394,6 +413,25 @@ class Iface(object):
         Returns: {'maxTotalVolumes': maxTotalVolumes, 'maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
                   'maxTotalInstances': maxTotalInstances, 'totalRamUsed': totalRamUsed,
                  'totalInstancesUsed': totalInstancesUsed}
+
+        """
+        pass
+
+    def start_cluster(self, public_key, master_instance, worker_instance, user):
+        """
+        Parameters:
+         - public_key
+         - master_instance
+         - worker_instance
+         - user
+
+        """
+        pass
+
+    def terminate_cluster(self, cluster_id):
+        """
+        Parameters:
+         - cluster_id
 
         """
         pass
@@ -1649,8 +1687,8 @@ class Client(Iface):
 
     def get_servers_by_ids(self, server_ids):
         """
-        	* Get list of servers by ids
-        *
+        * Get list of servers by ids
+           *
 
         Parameters:
          - server_ids
@@ -1681,6 +1719,73 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers_by_ids failed: unknown result")
+
+    def get_servers_by_bibigrid_id(self, bibigrid_id):
+        """
+        * Get servers by bibigrid cluster id.
+           *
+
+        Parameters:
+         - bibigrid_id
+
+        """
+        self.send_get_servers_by_bibigrid_id(bibigrid_id)
+        return self.recv_get_servers_by_bibigrid_id()
+
+    def send_get_servers_by_bibigrid_id(self, bibigrid_id):
+        self._oprot.writeMessageBegin('get_servers_by_bibigrid_id', TMessageType.CALL, self._seqid)
+        args = get_servers_by_bibigrid_id_args()
+        args.bibigrid_id = bibigrid_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_get_servers_by_bibigrid_id(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = get_servers_by_bibigrid_id_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_servers_by_bibigrid_id failed: unknown result")
+
+    def get_cluster_info(self, cluster_id):
+        """
+        Parameters:
+         - cluster_id
+
+        """
+        self.send_get_cluster_info(cluster_id)
+        return self.recv_get_cluster_info()
+
+    def send_get_cluster_info(self, cluster_id):
+        self._oprot.writeMessageBegin('get_cluster_info', TMessageType.CALL, self._seqid)
+        args = get_cluster_info_args()
+        args.cluster_id = cluster_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_get_cluster_info(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = get_cluster_info_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "get_cluster_info failed: unknown result")
 
     def get_server(self, openstack_id):
         """
@@ -1834,6 +1939,76 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "get_limits failed: unknown result")
+
+    def start_cluster(self, public_key, master_instance, worker_instance, user):
+        """
+        Parameters:
+         - public_key
+         - master_instance
+         - worker_instance
+         - user
+
+        """
+        self.send_start_cluster(public_key, master_instance, worker_instance, user)
+        return self.recv_start_cluster()
+
+    def send_start_cluster(self, public_key, master_instance, worker_instance, user):
+        self._oprot.writeMessageBegin('start_cluster', TMessageType.CALL, self._seqid)
+        args = start_cluster_args()
+        args.public_key = public_key
+        args.master_instance = master_instance
+        args.worker_instance = worker_instance
+        args.user = user
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_start_cluster(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = start_cluster_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "start_cluster failed: unknown result")
+
+    def terminate_cluster(self, cluster_id):
+        """
+        Parameters:
+         - cluster_id
+
+        """
+        self.send_terminate_cluster(cluster_id)
+        return self.recv_terminate_cluster()
+
+    def send_terminate_cluster(self, cluster_id):
+        self._oprot.writeMessageBegin('terminate_cluster', TMessageType.CALL, self._seqid)
+        args = terminate_cluster_args()
+        args.cluster_id = cluster_id
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_terminate_cluster(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = terminate_cluster_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "terminate_cluster failed: unknown result")
 
     def delete_image(self, image_id):
         """
@@ -2221,10 +2396,14 @@ class Processor(Iface, TProcessor):
         self._processMap["add_security_group_to_server"] = Processor.process_add_security_group_to_server
         self._processMap["get_servers"] = Processor.process_get_servers
         self._processMap["get_servers_by_ids"] = Processor.process_get_servers_by_ids
+        self._processMap["get_servers_by_bibigrid_id"] = Processor.process_get_servers_by_bibigrid_id
+        self._processMap["get_cluster_info"] = Processor.process_get_cluster_info
         self._processMap["get_server"] = Processor.process_get_server
         self._processMap["stop_server"] = Processor.process_stop_server
         self._processMap["create_snapshot"] = Processor.process_create_snapshot
         self._processMap["get_limits"] = Processor.process_get_limits
+        self._processMap["start_cluster"] = Processor.process_start_cluster
+        self._processMap["terminate_cluster"] = Processor.process_terminate_cluster
         self._processMap["delete_image"] = Processor.process_delete_image
         self._processMap["delete_volume_attachment"] = Processor.process_delete_volume_attachment
         self._processMap["delete_volume"] = Processor.process_delete_volume
@@ -3052,6 +3231,52 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
+    def process_get_servers_by_bibigrid_id(self, seqid, iprot, oprot):
+        args = get_servers_by_bibigrid_id_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = get_servers_by_bibigrid_id_result()
+        try:
+            result.success = self._handler.get_servers_by_bibigrid_id(args.bibigrid_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("get_servers_by_bibigrid_id", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_get_cluster_info(self, seqid, iprot, oprot):
+        args = get_cluster_info_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = get_cluster_info_result()
+        try:
+            result.success = self._handler.get_cluster_info(args.cluster_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("get_cluster_info", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
     def process_get_server(self, seqid, iprot, oprot):
         args = get_server_args()
         args.read(iprot)
@@ -3149,6 +3374,52 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("get_limits", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_start_cluster(self, seqid, iprot, oprot):
+        args = start_cluster_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = start_cluster_result()
+        try:
+            result.success = self._handler.start_cluster(args.public_key, args.master_instance, args.worker_instance, args.user)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("start_cluster", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_terminate_cluster(self, seqid, iprot, oprot):
+        args = terminate_cluster_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = terminate_cluster_result()
+        try:
+            result.success = self._handler.terminate_cluster(args.cluster_id)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("terminate_cluster", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -8124,6 +8395,262 @@ get_servers_by_ids_result.thrift_spec = (
 )
 
 
+class get_servers_by_bibigrid_id_args(object):
+    """
+    Attributes:
+     - bibigrid_id
+
+    """
+
+
+    def __init__(self, bibigrid_id=None,):
+        self.bibigrid_id = bibigrid_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.bibigrid_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_servers_by_bibigrid_id_args')
+        if self.bibigrid_id is not None:
+            oprot.writeFieldBegin('bibigrid_id', TType.STRING, 1)
+            oprot.writeString(self.bibigrid_id.encode('utf-8') if sys.version_info[0] == 2 else self.bibigrid_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_servers_by_bibigrid_id_args)
+get_servers_by_bibigrid_id_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'bibigrid_id', 'UTF8', None, ),  # 1
+)
+
+
+class get_servers_by_bibigrid_id_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.LIST:
+                    self.success = []
+                    (_etype239, _size236) = iprot.readListBegin()
+                    for _i240 in range(_size236):
+                        _elem241 = VM()
+                        _elem241.read(iprot)
+                        self.success.append(_elem241)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_servers_by_bibigrid_id_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.LIST, 0)
+            oprot.writeListBegin(TType.STRUCT, len(self.success))
+            for iter242 in self.success:
+                iter242.write(oprot)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_servers_by_bibigrid_id_result)
+get_servers_by_bibigrid_id_result.thrift_spec = (
+    (0, TType.LIST, 'success', (TType.STRUCT, [VM, None], False), None, ),  # 0
+)
+
+
+class get_cluster_info_args(object):
+    """
+    Attributes:
+     - cluster_id
+
+    """
+
+
+    def __init__(self, cluster_id=None,):
+        self.cluster_id = cluster_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.cluster_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_cluster_info_args')
+        if self.cluster_id is not None:
+            oprot.writeFieldBegin('cluster_id', TType.STRING, 1)
+            oprot.writeString(self.cluster_id.encode('utf-8') if sys.version_info[0] == 2 else self.cluster_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_cluster_info_args)
+get_cluster_info_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'cluster_id', 'UTF8', None, ),  # 1
+)
+
+
+class get_cluster_info_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.STRUCT:
+                    self.success = ClusterInfo()
+                    self.success.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('get_cluster_info_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.STRUCT, 0)
+            self.success.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(get_cluster_info_result)
+get_cluster_info_result.thrift_spec = (
+    (0, TType.STRUCT, 'success', [ClusterInfo, None], None, ),  # 0
+)
+
+
 class get_server_args(object):
     """
     Attributes:
@@ -8647,11 +9174,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype237, _vtype238, _size236) = iprot.readMapBegin()
-                    for _i240 in range(_size236):
-                        _key241 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val242 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key241] = _val242
+                    (_ktype244, _vtype245, _size243) = iprot.readMapBegin()
+                    for _i247 in range(_size243):
+                        _key248 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val249 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key248] = _val249
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -8668,9 +9195,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter243, viter244 in self.success.items():
-                oprot.writeString(kiter243.encode('utf-8') if sys.version_info[0] == 2 else kiter243)
-                oprot.writeString(viter244.encode('utf-8') if sys.version_info[0] == 2 else viter244)
+            for kiter250, viter251 in self.success.items():
+                oprot.writeString(kiter250.encode('utf-8') if sys.version_info[0] == 2 else kiter250)
+                oprot.writeString(viter251.encode('utf-8') if sys.version_info[0] == 2 else viter251)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8691,6 +9218,318 @@ class get_limits_result(object):
         return not (self == other)
 all_structs.append(get_limits_result)
 get_limits_result.thrift_spec = (
+    (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
+)
+
+
+class start_cluster_args(object):
+    """
+    Attributes:
+     - public_key
+     - master_instance
+     - worker_instance
+     - user
+
+    """
+
+
+    def __init__(self, public_key=None, master_instance=None, worker_instance=None, user=None,):
+        self.public_key = public_key
+        self.master_instance = master_instance
+        self.worker_instance = worker_instance
+        self.user = user
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.public_key = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.master_instance = ClusterInstance()
+                    self.master_instance.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.LIST:
+                    self.worker_instance = []
+                    (_etype255, _size252) = iprot.readListBegin()
+                    for _i256 in range(_size252):
+                        _elem257 = ClusterInstance()
+                        _elem257.read(iprot)
+                        self.worker_instance.append(_elem257)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.user = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('start_cluster_args')
+        if self.public_key is not None:
+            oprot.writeFieldBegin('public_key', TType.STRING, 1)
+            oprot.writeString(self.public_key.encode('utf-8') if sys.version_info[0] == 2 else self.public_key)
+            oprot.writeFieldEnd()
+        if self.master_instance is not None:
+            oprot.writeFieldBegin('master_instance', TType.STRUCT, 2)
+            self.master_instance.write(oprot)
+            oprot.writeFieldEnd()
+        if self.worker_instance is not None:
+            oprot.writeFieldBegin('worker_instance', TType.LIST, 3)
+            oprot.writeListBegin(TType.STRUCT, len(self.worker_instance))
+            for iter258 in self.worker_instance:
+                iter258.write(oprot)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.user is not None:
+            oprot.writeFieldBegin('user', TType.STRING, 4)
+            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(start_cluster_args)
+start_cluster_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'public_key', 'UTF8', None, ),  # 1
+    (2, TType.STRUCT, 'master_instance', [ClusterInstance, None], None, ),  # 2
+    (3, TType.LIST, 'worker_instance', (TType.STRUCT, [ClusterInstance, None], False), None, ),  # 3
+    (4, TType.STRING, 'user', 'UTF8', None, ),  # 4
+)
+
+
+class start_cluster_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype260, _vtype261, _size259) = iprot.readMapBegin()
+                    for _i263 in range(_size259):
+                        _key264 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val265 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key264] = _val265
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('start_cluster_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter266, viter267 in self.success.items():
+                oprot.writeString(kiter266.encode('utf-8') if sys.version_info[0] == 2 else kiter266)
+                oprot.writeString(viter267.encode('utf-8') if sys.version_info[0] == 2 else viter267)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(start_cluster_result)
+start_cluster_result.thrift_spec = (
+    (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
+)
+
+
+class terminate_cluster_args(object):
+    """
+    Attributes:
+     - cluster_id
+
+    """
+
+
+    def __init__(self, cluster_id=None,):
+        self.cluster_id = cluster_id
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.cluster_id = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('terminate_cluster_args')
+        if self.cluster_id is not None:
+            oprot.writeFieldBegin('cluster_id', TType.STRING, 1)
+            oprot.writeString(self.cluster_id.encode('utf-8') if sys.version_info[0] == 2 else self.cluster_id)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(terminate_cluster_args)
+terminate_cluster_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, 'cluster_id', 'UTF8', None, ),  # 1
+)
+
+
+class terminate_cluster_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype269, _vtype270, _size268) = iprot.readMapBegin()
+                    for _i272 in range(_size268):
+                        _key273 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val274 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key273] = _val274
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('terminate_cluster_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter275, viter276 in self.success.items():
+                oprot.writeString(kiter275.encode('utf-8') if sys.version_info[0] == 2 else kiter275)
+                oprot.writeString(viter276.encode('utf-8') if sys.version_info[0] == 2 else viter276)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(terminate_cluster_result)
+terminate_cluster_result.thrift_spec = (
     (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
 )
 
@@ -9745,11 +10584,11 @@ class create_volume_args(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype246, _vtype247, _size245) = iprot.readMapBegin()
-                    for _i249 in range(_size245):
-                        _key250 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val251 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key250] = _val251
+                    (_ktype278, _vtype279, _size277) = iprot.readMapBegin()
+                    for _i281 in range(_size277):
+                        _key282 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val283 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key282] = _val283
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9774,9 +10613,9 @@ class create_volume_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 3)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter252, viter253 in self.metadata.items():
-                oprot.writeString(kiter252.encode('utf-8') if sys.version_info[0] == 2 else kiter252)
-                oprot.writeString(viter253.encode('utf-8') if sys.version_info[0] == 2 else viter253)
+            for kiter284, viter285 in self.metadata.items():
+                oprot.writeString(kiter284.encode('utf-8') if sys.version_info[0] == 2 else kiter284)
+                oprot.writeString(viter285.encode('utf-8') if sys.version_info[0] == 2 else viter285)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
