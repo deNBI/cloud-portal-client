@@ -1,3 +1,13 @@
+
+##  (2020-01-09)
+
+
+#### Features
+
+* **Cluster:**
+  * cluster model ([6e1d45b3](6e1d45b3))
+  * terminate and create ([738e2b65](738e2b65))
+
 ##  (2020-01-06)
 
 

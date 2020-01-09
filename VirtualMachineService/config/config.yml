@@ -10,6 +10,12 @@ openstack_connection:
   set_password: False
   # network where the project is located
   network: portalexternalnetwork
+
+  # subnetwork for starting Clusters
+  sub_network: portalexternalsubnetwork
+
+
+
   floating_ip_network: external
   # The name of the availability zone the server should be placed.
   availability_zone: default
@@ -20,6 +26,10 @@ openstack_connection:
   ssh_port_calc_formular: 30000 + x
   udp_port_calc_formular: x * 10 +  30000
 
+bibigrid:
+  # Url for Bibigrid API
+  bibigrid_url: https://172.21.0.1:8443/bibigrid/
+  sub_network: portalexternalsubnetwork
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
   forc_allowed:

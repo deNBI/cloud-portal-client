@@ -6,13 +6,24 @@ typedef i32 int
 /** The Version of the Portal-Client*/
 const string VERSION= '1.0.0'
 
-
 struct Backend {
     1: i64 id,
     2: string owner,
     3: string location_url,
     4: string template,
     5: string template_version
+}
+
+struct ClusterInfo {
+1:optional string launch_date
+2:  optional string group_id
+3: optional string network_id
+4: optional string public_ip
+5: optional string subnet_id
+6:optional string user
+7:optional int inst_counter
+8:optional string cluster_id
+9:optional string key_name
 }
 
 /**
@@ -118,6 +129,13 @@ struct VM {
 
     /** Id of additional volume */
 	13:optional string volume_id
+}
+
+struct ClusterInstance{
+
+1: required string type
+2: required string image
+3: optional int count
 }
 
 /**
@@ -450,8 +468,17 @@ service VirtualMachineService {
 
 	/**
 	* Get list of servers by ids
-**/
+    **/
 	list<VM> get_servers_by_ids(1:list<string> server_ids)
+
+	/**
+	* Get servers by bibigrid cluster id.
+    **/
+	list<VM> get_servers_by_bibigrid_id(1:string bibigrid_id)
+
+	ClusterInfo get_cluster_info(1:string cluster_id)
+
+
 
 
 	/**
@@ -508,6 +535,10 @@ service VirtualMachineService {
      *          'totalInstancesUsed': totalInstancesUsed}
      */
     map<string,string> get_limits()
+
+     map<string,string> start_cluster(1:string public_key,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instance,4:string user)
+
+     map<string,string> terminate_cluster(1:string cluster_id)
 
     /**
      * Delete Image.

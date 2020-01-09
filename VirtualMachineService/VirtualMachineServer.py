@@ -8,7 +8,8 @@ except Exception:
 
 try:
     from VirtualMachineService.VirtualMachineHandler import VirtualMachineHandler
-except Exception:
+except Exception as e:
+    print(e)
     from VirtualMachineHandler import VirtualMachineHandler
 
 from thrift.transport import TSSLSocket
