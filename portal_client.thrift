@@ -205,6 +205,13 @@ service VirtualMachineService {
      */
     string get_client_version()
 
+    	/**
+	 * Gets the gateway ip.
+	 */
+    map<string,string> get_gateway_ip()
+
+    map<string,string>  get_calculation_formulars()
+
     /**
      * Import Key to openstack.
      * Returns : keypair
@@ -221,7 +228,7 @@ service VirtualMachineService {
      * Get Ip and Port of server
      * Returns:  {'IP': ip, 'PORT': port,'UDP':udp}
      */
-    map<string,string> get_ip_ports(
+    map<string,string> get_vm_ports(
 
     /** Id of server */
     1: string openstack_id)
@@ -288,6 +295,7 @@ service VirtualMachineService {
 	 * Connection instance
 	 */
 	bool create_connection(
+
 
 	/** Name of the OpenStack user. */
 	1:string username,
@@ -442,18 +450,9 @@ service VirtualMachineService {
     /**
     * Adds a security group to a server
     */
-    bool add_security_group_to_server(
-    /** If http ports are open*/
-    1:bool http,
-
-    /** If https ports are open*/
-    2:bool https,
-
-    /** If udp ports are open*/
-    3:bool udp,
-
+    bool add_udp_security_group(
     /** OpenStack id of the server*/
-    4:string server_id)
+    1:string server_id)
 
     throws (1:ressourceException r,2:serverNotFoundException s
 
