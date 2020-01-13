@@ -519,8 +519,8 @@ service VirtualMachineService {
      /** Elixir-Id of the user who requested creation of Snapshot */
      3: string elixir_id,
 
-     /** Tag with which the servers image is also tagged ( for connection information at the webapp) */
-     4:string base_tag,
+     /** Tags with which the servers image is also tagged ( for connection information at the webapp) */
+     4: list<string> base_tags,
      /** Description of the new snapshot*/
      5:string description)
 

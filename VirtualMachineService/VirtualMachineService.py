@@ -398,7 +398,7 @@ class Iface(object):
         """
         pass
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -408,7 +408,7 @@ class Iface(object):
          - openstack_id: Id of the server
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-         - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+         - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
          - description: Description of the new snapshot
 
         """
@@ -1918,7 +1918,7 @@ class Client(Iface):
             raise result.e
         raise TApplicationException(TApplicationException.MISSING_RESULT, "stop_server failed: unknown result")
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -1928,20 +1928,20 @@ class Client(Iface):
          - openstack_id: Id of the server
          - name: Name of new Snapshot
          - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-         - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+         - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
          - description: Description of the new snapshot
 
         """
-        self.send_create_snapshot(openstack_id, name, elixir_id, base_tag, description)
+        self.send_create_snapshot(openstack_id, name, elixir_id, base_tags, description)
         return self.recv_create_snapshot()
 
-    def send_create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
+    def send_create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         self._oprot.writeMessageBegin('create_snapshot', TMessageType.CALL, self._seqid)
         args = create_snapshot_args()
         args.openstack_id = openstack_id
         args.name = name
         args.elixir_id = elixir_id
-        args.base_tag = base_tag
+        args.base_tags = base_tags
         args.description = description
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
@@ -3440,7 +3440,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = create_snapshot_result()
         try:
-            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id, args.base_tag, args.description)
+            result.success = self._handler.create_snapshot(args.openstack_id, args.name, args.elixir_id, args.base_tags, args.description)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -9227,17 +9227,17 @@ class create_snapshot_args(object):
      - openstack_id: Id of the server
      - name: Name of new Snapshot
      - elixir_id: Elixir-Id of the user who requested creation of Snapshot
-     - base_tag: Tag with which the servers image is also tagged ( for connection information at the webapp)
+     - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
      - description: Description of the new snapshot
 
     """
 
 
-    def __init__(self, openstack_id=None, name=None, elixir_id=None, base_tag=None, description=None,):
+    def __init__(self, openstack_id=None, name=None, elixir_id=None, base_tags=None, description=None,):
         self.openstack_id = openstack_id
         self.name = name
         self.elixir_id = elixir_id
-        self.base_tag = base_tag
+        self.base_tags = base_tags
         self.description = description
 
     def read(self, iprot):
@@ -9265,8 +9265,13 @@ class create_snapshot_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
-                if ftype == TType.STRING:
-                    self.base_tag = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                if ftype == TType.LIST:
+                    self.base_tags = []
+                    (_etype264, _size261) = iprot.readListBegin()
+                    for _i265 in range(_size261):
+                        _elem266 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.base_tags.append(_elem266)
+                    iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
@@ -9296,9 +9301,12 @@ class create_snapshot_args(object):
             oprot.writeFieldBegin('elixir_id', TType.STRING, 3)
             oprot.writeString(self.elixir_id.encode('utf-8') if sys.version_info[0] == 2 else self.elixir_id)
             oprot.writeFieldEnd()
-        if self.base_tag is not None:
-            oprot.writeFieldBegin('base_tag', TType.STRING, 4)
-            oprot.writeString(self.base_tag.encode('utf-8') if sys.version_info[0] == 2 else self.base_tag)
+        if self.base_tags is not None:
+            oprot.writeFieldBegin('base_tags', TType.LIST, 4)
+            oprot.writeListBegin(TType.STRING, len(self.base_tags))
+            for iter267 in self.base_tags:
+                oprot.writeString(iter267.encode('utf-8') if sys.version_info[0] == 2 else iter267)
+            oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.description is not None:
             oprot.writeFieldBegin('description', TType.STRING, 5)
@@ -9326,7 +9334,7 @@ create_snapshot_args.thrift_spec = (
     (1, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 1
     (2, TType.STRING, 'name', 'UTF8', None, ),  # 2
     (3, TType.STRING, 'elixir_id', 'UTF8', None, ),  # 3
-    (4, TType.STRING, 'base_tag', 'UTF8', None, ),  # 4
+    (4, TType.LIST, 'base_tags', (TType.STRING, 'UTF8', False), None, ),  # 4
     (5, TType.STRING, 'description', 'UTF8', None, ),  # 5
 )
 
@@ -9471,11 +9479,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype262, _vtype263, _size261) = iprot.readMapBegin()
-                    for _i265 in range(_size261):
-                        _key266 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val267 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key266] = _val267
+                    (_ktype269, _vtype270, _size268) = iprot.readMapBegin()
+                    for _i272 in range(_size268):
+                        _key273 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val274 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key273] = _val274
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9492,9 +9500,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter268, viter269 in self.success.items():
-                oprot.writeString(kiter268.encode('utf-8') if sys.version_info[0] == 2 else kiter268)
-                oprot.writeString(viter269.encode('utf-8') if sys.version_info[0] == 2 else viter269)
+            for kiter275, viter276 in self.success.items():
+                oprot.writeString(kiter275.encode('utf-8') if sys.version_info[0] == 2 else kiter275)
+                oprot.writeString(viter276.encode('utf-8') if sys.version_info[0] == 2 else viter276)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9559,11 +9567,11 @@ class start_cluster_args(object):
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.worker_instance = []
-                    (_etype273, _size270) = iprot.readListBegin()
-                    for _i274 in range(_size270):
-                        _elem275 = ClusterInstance()
-                        _elem275.read(iprot)
-                        self.worker_instance.append(_elem275)
+                    (_etype280, _size277) = iprot.readListBegin()
+                    for _i281 in range(_size277):
+                        _elem282 = ClusterInstance()
+                        _elem282.read(iprot)
+                        self.worker_instance.append(_elem282)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -9593,8 +9601,8 @@ class start_cluster_args(object):
         if self.worker_instance is not None:
             oprot.writeFieldBegin('worker_instance', TType.LIST, 3)
             oprot.writeListBegin(TType.STRUCT, len(self.worker_instance))
-            for iter276 in self.worker_instance:
-                iter276.write(oprot)
+            for iter283 in self.worker_instance:
+                iter283.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.user is not None:
@@ -9650,11 +9658,11 @@ class start_cluster_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype278, _vtype279, _size277) = iprot.readMapBegin()
-                    for _i281 in range(_size277):
-                        _key282 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val283 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key282] = _val283
+                    (_ktype285, _vtype286, _size284) = iprot.readMapBegin()
+                    for _i288 in range(_size284):
+                        _key289 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val290 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key289] = _val290
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9671,9 +9679,9 @@ class start_cluster_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter284, viter285 in self.success.items():
-                oprot.writeString(kiter284.encode('utf-8') if sys.version_info[0] == 2 else kiter284)
-                oprot.writeString(viter285.encode('utf-8') if sys.version_info[0] == 2 else viter285)
+            for kiter291, viter292 in self.success.items():
+                oprot.writeString(kiter291.encode('utf-8') if sys.version_info[0] == 2 else kiter291)
+                oprot.writeString(viter292.encode('utf-8') if sys.version_info[0] == 2 else viter292)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9783,11 +9791,11 @@ class terminate_cluster_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype287, _vtype288, _size286) = iprot.readMapBegin()
-                    for _i290 in range(_size286):
-                        _key291 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val292 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key291] = _val292
+                    (_ktype294, _vtype295, _size293) = iprot.readMapBegin()
+                    for _i297 in range(_size293):
+                        _key298 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val299 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key298] = _val299
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9804,9 +9812,9 @@ class terminate_cluster_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter293, viter294 in self.success.items():
-                oprot.writeString(kiter293.encode('utf-8') if sys.version_info[0] == 2 else kiter293)
-                oprot.writeString(viter294.encode('utf-8') if sys.version_info[0] == 2 else viter294)
+            for kiter300, viter301 in self.success.items():
+                oprot.writeString(kiter300.encode('utf-8') if sys.version_info[0] == 2 else kiter300)
+                oprot.writeString(viter301.encode('utf-8') if sys.version_info[0] == 2 else viter301)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -10881,11 +10889,11 @@ class create_volume_args(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype296, _vtype297, _size295) = iprot.readMapBegin()
-                    for _i299 in range(_size295):
-                        _key300 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val301 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key300] = _val301
+                    (_ktype303, _vtype304, _size302) = iprot.readMapBegin()
+                    for _i306 in range(_size302):
+                        _key307 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val308 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key307] = _val308
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -10910,9 +10918,9 @@ class create_volume_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 3)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter302, viter303 in self.metadata.items():
-                oprot.writeString(kiter302.encode('utf-8') if sys.version_info[0] == 2 else kiter302)
-                oprot.writeString(viter303.encode('utf-8') if sys.version_info[0] == 2 else viter303)
+            for kiter309, viter310 in self.metadata.items():
+                oprot.writeString(kiter309.encode('utf-8') if sys.version_info[0] == 2 else kiter309)
+                oprot.writeString(viter310.encode('utf-8') if sys.version_info[0] == 2 else viter310)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()

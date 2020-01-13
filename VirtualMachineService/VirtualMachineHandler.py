@@ -1358,7 +1358,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info(response.json())
         return response.json()
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
         Create an Snapshot from an server.
 
@@ -1391,10 +1391,11 @@ class VirtualMachineHandler(Iface):
                     self.conn.update_image_properties(
                         image=image,
                         meta={'description': description})
-
-                self.conn.image.add_tag(
-                    image=snapshot_id, tag=base_tag
-                )
+                    
+                for tag in base_tags:
+                    self.conn.image.add_tag(
+                        image=snapshot_id, tag=tag
+                    )
             except Exception:
                 self.logger.exception("Tag error catched")
                 pass
