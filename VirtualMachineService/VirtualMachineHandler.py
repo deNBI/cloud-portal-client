@@ -15,7 +15,7 @@ try:
     from ttypes import ressourceException
     from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from constants import VERSION
-    from ancon.Playbook import Playbook, THEIA, GUACAMOLE
+    from ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES
 
 except Exception:
     from .VirtualMachineService import Iface
@@ -297,6 +297,10 @@ class VirtualMachineHandler(Iface):
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
+                self.logger.info(set(ALL_TEMPLATES).intersection(tags))
+                if len(set(ALL_TEMPLATES).intersection(tags)) > 0 and not self.cross_check_forc_image(tags):
+                    self.logger.info("Resenv check: Skipping {0}.".format(img["name"]))
+                    continue
                 image_type = img.get("image_type", "image")
                 if description is None:
                     self.logger.warning("No Description and  for " + img["name"])
@@ -368,6 +372,8 @@ class VirtualMachineHandler(Iface):
             ):
                 tags = img.get("tags")
                 if "resenv" in filter_list:
+                    modes = filter_list["resenv"].split(",")
+                    self.logger.info(modes)
                     if "resenv" in tags and not self.cross_check_forc_image(tags):
                         continue
                 metadata = img["metadata"]
@@ -845,8 +851,9 @@ class VirtualMachineHandler(Iface):
                 templates = response.json()
         except Exception as e:
             self.logger.error("Could not get templates from FORC.\n {0}".format(e))
+        cross_tags = list(set(ALL_TEMPLATES).intersection(tags))
         for template_dict in templates:
-            if template_dict["name"] in self.FORC_ALLOWED and template_dict["name"] in tags:
+            if template_dict["name"] in self.FORC_ALLOWED and template_dict["name"] in cross_tags:
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
         return False
@@ -977,16 +984,37 @@ class VirtualMachineHandler(Iface):
         else:
             return False
 
+    def cross_check_templates(self, templates):
+        return_templates = []
+        for template_dict in templates:
+            if template_dict["name"] in self.FORC_ALLOWED:
+                if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
+                    return_templates.append(template_dict)
+        return return_templates
+
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         self.logger.info(get_url)
         try:
             response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
-            self.logger.info(response.json())
             if response.status_code == 401:
                 return [response.json()]
             else:
                 return response.json()
+        except Timeout as e:
+            self.logger.info(msg="get_templates timed out. {0}".format(e))
+
+    def get_allowed_templates(self):
+        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
+        self.logger.info(get_url)
+        try:
+            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            if response.status_code == 401:
+                return [response.json()]
+            elif response.status_code == 200:
+                templates = self.cross_check_templates(response.json())
+                self.logger.info(templates)
+                return templates
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
@@ -999,7 +1027,7 @@ class VirtualMachineHandler(Iface):
             else:
                 return response.json()
         except Timeout as e:
-            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            self.logger.info(msg="get_templates_by_template timed out. {0}".format(e))
 
     def check_template(self, template_name, template_version):
         get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name,
@@ -1011,7 +1039,7 @@ class VirtualMachineHandler(Iface):
             else:
                 return response.json()
         except Timeout as e:
-            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            self.logger.info(msg="check_template timed out. {0}".format(e))
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
@@ -1391,7 +1419,7 @@ class VirtualMachineHandler(Iface):
                     self.conn.update_image_properties(
                         image=image,
                         meta={'description': description})
-                    
+
                 for tag in base_tags:
                     self.conn.image.add_tag(
                         image=snapshot_id, tag=tag

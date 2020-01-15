@@ -33,7 +33,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_Flavors()')
     print('   get_Images()')
     print('  Image get_Image_with_Tag(string openstack_id)')
-    print('   get_Images_by_filter( filter_list)')
+    print('   get_Images_by_filter( filter_json)')
     print('  bool delete_server(string openstack_id)')
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
@@ -53,6 +53,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  Backend get_backend_by_id(i64 id)')
     print('  string delete_backend(i64 id)')
     print('   get_templates()')
+    print('   get_allowed_templates()')
     print('   get_templates_by_template(string template_name)')
     print('   check_template(string template_name, string template_version)')
     print('  bool add_udp_security_group(string server_id)')
@@ -327,6 +328,12 @@ elif cmd == 'get_templates':
         print('get_templates requires 0 args')
         sys.exit(1)
     pp.pprint(client.get_templates())
+
+elif cmd == 'get_allowed_templates':
+    if len(args) != 0:
+        print('get_allowed_templates requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_allowed_templates())
 
 elif cmd == 'get_templates_by_template':
     if len(args) != 1:

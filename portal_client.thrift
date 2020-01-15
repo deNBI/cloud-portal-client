@@ -257,7 +257,7 @@ service VirtualMachineService {
     * Get Images and filter by list of strings.
     * Returns: List of Image instances.
     */
-	list<Image> get_Images_by_filter(1: list<string> filter_list)
+	list<Image> get_Images_by_filter(1: map<string, string> filter_json)
 
 
 	 /**
@@ -436,6 +436,8 @@ service VirtualMachineService {
     )
 
     list<map<string, string>> get_templates()
+
+    list<map<string, string>> get_allowed_templates()
 
     list<map<string, string>> get_templates_by_template(
     1:string template_name

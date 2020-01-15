@@ -10,6 +10,8 @@ THEIA = "theiaide"
 RSTUDIO = "rstudio"
 GUACAMOLE = "guacamole"
 
+ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE]
+
 
 class Playbook(object):
 
