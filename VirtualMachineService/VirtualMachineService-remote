@@ -26,8 +26,10 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Functions:')
     print('  bool check_Version(double version)')
     print('  string get_client_version()')
+    print('   get_gateway_ip()')
+    print('   get_calculation_formulars()')
     print('  string import_keypair(string keyname, string public_key)')
-    print('   get_ip_ports(string openstack_id)')
+    print('   get_vm_ports(string openstack_id)')
     print('   get_Flavors()')
     print('   get_Images()')
     print('  Image get_Image_with_Tag(string openstack_id)')
@@ -53,14 +55,14 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_templates()')
     print('   get_templates_by_template(string template_name)')
     print('   check_template(string template_name, string template_version)')
-    print('  bool add_security_group_to_server(bool http, bool https, bool udp, string server_id)')
+    print('  bool add_udp_security_group(string server_id)')
     print('   get_servers()')
     print('   get_servers_by_ids( server_ids)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
-    print('  string create_snapshot(string openstack_id, string name, string elixir_id, string base_tag, string description)')
+    print('  string create_snapshot(string openstack_id, string name, string elixir_id,  base_tags, string description)')
     print('   get_limits()')
     print('   start_cluster(string public_key, ClusterInstance master_instance,  worker_instance, string user)')
     print('   terminate_cluster(string cluster_id)')
@@ -164,17 +166,29 @@ elif cmd == 'get_client_version':
         sys.exit(1)
     pp.pprint(client.get_client_version())
 
+elif cmd == 'get_gateway_ip':
+    if len(args) != 0:
+        print('get_gateway_ip requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_gateway_ip())
+
+elif cmd == 'get_calculation_formulars':
+    if len(args) != 0:
+        print('get_calculation_formulars requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.get_calculation_formulars())
+
 elif cmd == 'import_keypair':
     if len(args) != 2:
         print('import_keypair requires 2 args')
         sys.exit(1)
     pp.pprint(client.import_keypair(args[0], args[1],))
 
-elif cmd == 'get_ip_ports':
+elif cmd == 'get_vm_ports':
     if len(args) != 1:
-        print('get_ip_ports requires 1 args')
+        print('get_vm_ports requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_ip_ports(args[0],))
+    pp.pprint(client.get_vm_ports(args[0],))
 
 elif cmd == 'get_Flavors':
     if len(args) != 0:
@@ -326,11 +340,11 @@ elif cmd == 'check_template':
         sys.exit(1)
     pp.pprint(client.check_template(args[0], args[1],))
 
-elif cmd == 'add_security_group_to_server':
-    if len(args) != 4:
-        print('add_security_group_to_server requires 4 args')
+elif cmd == 'add_udp_security_group':
+    if len(args) != 1:
+        print('add_udp_security_group requires 1 args')
         sys.exit(1)
-    pp.pprint(client.add_security_group_to_server(eval(args[0]), eval(args[1]), eval(args[2]), args[3],))
+    pp.pprint(client.add_udp_security_group(args[0],))
 
 elif cmd == 'get_servers':
     if len(args) != 0:
@@ -372,7 +386,7 @@ elif cmd == 'create_snapshot':
     if len(args) != 5:
         print('create_snapshot requires 5 args')
         sys.exit(1)
-    pp.pprint(client.create_snapshot(args[0], args[1], args[2], args[3], args[4],))
+    pp.pprint(client.create_snapshot(args[0], args[1], args[2], eval(args[3]), args[4],))
 
 elif cmd == 'get_limits':
     if len(args) != 0:

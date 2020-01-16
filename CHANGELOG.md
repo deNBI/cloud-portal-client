@@ -1,3 +1,10 @@
+##  (2020-01-15)
+
+
+#### Features
+
+* **Modi:** added more Methods ([f1f357b5](f1f357b5))
+
 
 ##  (2020-01-09)
 

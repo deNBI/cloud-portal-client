@@ -1227,7 +1227,7 @@ class VirtualMachineHandler(Iface):
         # self.logger.info(server_list)
         return server_list
 
-    def add_security_group_to_server(self, http, https, udp, server_id):
+    def add_udp_security_group(self, server_id):
         """
         Adds the default simple vm security group to the vm.
         Also adds a security group which can open http,https and udp ports.
@@ -1242,6 +1242,15 @@ class VirtualMachineHandler(Iface):
         if server is None:
             self.logger.exception("Instance {0} not found".format(server_id))
             raise serverNotFoundException
+        sec = self.conn.get_security_group(name_or_id=server.name + "_udp")
+        if sec:
+            self.logger.info(
+                "Security group with name {} already exists.".format(server.name + "_udp"))
+            self.conn.compute.add_security_group_to_server(
+                server=server_id, security_group=sec
+            )
+
+            return True
 
         ip_base = \
             list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
@@ -1252,10 +1261,10 @@ class VirtualMachineHandler(Iface):
         security_group = self.create_security_group(
             name=server.name + "_udp",
             udp_port_start=udp_port_start,
-            udp=udp,
+            udp=True,
             ssh=False,
-            https=https,
-            http=http, description="UDP"
+            https=False,
+            http=False, description="UDP"
         )
         self.logger.info(security_group)
         self.logger.info("Add security group {} to server {} ".format(security_group.id, server_id))
@@ -1273,34 +1282,21 @@ class VirtualMachineHandler(Iface):
             thrift_servers.append(self.openstack_server_to_thrift_server(server))
         return thrift_servers
 
-    def get_ip_ports(self, openstack_id):
+    def get_vm_ports(self, openstack_id):
         """
-        Get Ip and Port of the sever.
+               Get Ports of the sever.
 
-        :param openstack_id: Id of the server
-        :return: {'IP': ip, 'PORT': port, 'UDP':start_port}
-        """
+               :param openstack_id: Id of the server
+               :return: {'PORT': port, 'UDP':start_port}
+               """
         self.logger.info("Get IP and PORT for server {0}".format(openstack_id))
+        server = self.get_server(openstack_id)
+        server_base = server.fixed_ip.split(".")[-1]
+        x = int(server_base)
+        port = eval(self.SSH_PORT_CALCULATION)
+        udp_port_start = eval(self.UDP_PORT_CALCULATION)
+        return {"port": str(port), "udp": str(udp_port_start)}
 
-        # check if gateway is active
-        try:
-            if self.USE_GATEWAY:
-                server = self.get_server(openstack_id)
-                server_base = server.fixed_ip.split(".")[-1]
-                x = int(server_base)
-                port = eval(self.SSH_PORT_CALCULATION)
-                udp_port_start = eval(self.UDP_PORT_CALCULATION)
-                return {"IP": str(self.GATEWAY_IP), "PORT": str(port), "UDP": str(udp_port_start)}
-
-            else:
-                # todo security groups floating ips
-                floating_ip = self.get_server(openstack_id)
-                return {"IP": str(floating_ip)}
-        except Exception as e:
-            self.logger.exception(
-                "Get IP and PORT for server {0} error:".format(openstack_id, e)
-            )
-            return {}
 
     def get_cluster_info(self, cluster_id):
         headers = {"content-Type": "application/json"}
@@ -1332,6 +1328,12 @@ class VirtualMachineHandler(Iface):
 
         return None
 
+    def get_calculation_formulars(self):
+        return {"ssh_port_calculation": self.SSH_FORMULAR,
+                "udp_port_calculation": self.UDP_FORMULAR}
+
+    def get_gateway_ip(self):
+        return {"gateway_ip": self.GATEWAY_IP}
 
     def start_cluster(self, public_key, master_instance, worker_instances, user):
         master_instance = master_instance.__dict__
@@ -1356,7 +1358,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info(response.json())
         return response.json()
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tag, description):
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
         Create an Snapshot from an server.
 
@@ -1389,10 +1391,11 @@ class VirtualMachineHandler(Iface):
                     self.conn.update_image_properties(
                         image=image,
                         meta={'description': description})
-
-                self.conn.image.add_tag(
-                    image=snapshot_id, tag="snapshot_image:{0}".format(base_tag)
-                )
+                    
+                for tag in base_tags:
+                    self.conn.image.add_tag(
+                        image=snapshot_id, tag=tag
+                    )
             except Exception:
                 self.logger.exception("Tag error catched")
                 pass
