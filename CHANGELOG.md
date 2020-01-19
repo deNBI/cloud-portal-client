@@ -1,3 +1,10 @@
+##  (2020-01-19)
+
+
+#### Bug Fixes
+
+* **bioconda:**  creates and deploys playbook again ([76f61694](76f61694))
+
 ##  (2020-01-15)
 
 
