@@ -1,3 +1,17 @@
+##  (2020-01-19)
+
+
+#### Bug Fixes
+
+* **bioconda:**  creates and deploys playbook again ([76f61694](76f61694))
+
+##  (2020-01-15)
+
+
+#### Features
+
+* **Modi:** added more Methods ([f1f357b5](f1f357b5))
+
 
 ##  (2020-01-09)
 

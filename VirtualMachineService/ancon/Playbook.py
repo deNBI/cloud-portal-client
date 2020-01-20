@@ -46,6 +46,7 @@ class Playbook(object):
 
         # create inventory
         self.inventory = NamedTemporaryFile(mode="w+", dir=self.directory.name, delete=False)
+
         inventory_string = "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu " \
                                                         "ansible_ssh_private_key_file=" + self.private_key.name \
                                                         + " ansible_python_interpreter=/usr/bin/python3"

@@ -820,10 +820,10 @@ class VirtualMachineHandler(Iface):
         global active_playbooks
         self.logger.info(msg="Starting Playbook for (openstack_id): {0}"
                          .format(openstack_id))
-        fields = self.get_ip_ports(openstack_id=openstack_id)
+        port = self.get_vm_ports(openstack_id=openstack_id)
         key = self.redis.hget(openstack_id, "key").decode('utf-8')
-        playbook = Playbook(fields["IP"],
-                            fields["PORT"],
+        playbook = Playbook(self.GATEWAY_IP,
+                            port["port"],
                             playbooks_information,
                             key,
                             public_key,
