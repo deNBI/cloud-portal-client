@@ -15,7 +15,7 @@ try:
     from ttypes import ressourceException
     from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from constants import VERSION
-    from ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES
+    from ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
 
 except Exception:
     from .VirtualMachineService import Iface
@@ -28,7 +28,7 @@ except Exception:
     from .ttypes import ressourceException
     from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
     from .constants import VERSION
-    from .ancon.Playbook import Playbook, THEIA, GUACAMOLE
+    from .ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
 
 import base64
 import datetime
@@ -650,7 +650,8 @@ class VirtualMachineHandler(Iface):
             diskspace,
             volumename,
             https,
-            http
+            http,
+            resenv
     ):
         """
         Start a new Server.
@@ -664,6 +665,7 @@ class VirtualMachineHandler(Iface):
         :param volumename: Name of the volume
         :param http: bool for http rule in security group
         :param https: bool for https rule in security group
+        :param resenv: array with names of requested resenvs
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         volume_id = ''
@@ -685,6 +687,26 @@ class VirtualMachineHandler(Iface):
                     name=servername + '_https',
                     http=http, https=https,
                     description="Http/Https").name)
+
+            if THEIA in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_theiaide", resenv=resenv, description="Theiaide", ssh=False
+                ).name)
+            if GUACAMOLE in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_guacamole", resenv=resenv, description="Guacamole",
+                    ssh=False
+                ).name)
+            if RSTUDIO in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_rstudio", resenv=resenv, description="Rstudio",
+                    ssh=False
+                ).name)
+            if JUPYTERNOTEBOOK in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_jupyternotebook", resenv=resenv, description="Jupyter Notebook",
+                    ssh=False
+                ).name)
 
             if diskspace > "0":
                 volume_id = self.create_volume_by_start(volume_storage=diskspace,
@@ -766,6 +788,16 @@ class VirtualMachineHandler(Iface):
             if GUACAMOLE in resenv:
                 custom_security_groups.append(self.create_security_group(
                     name=servername + "_guacamole", resenv=resenv, description="Guacamole",
+                    ssh=False
+                ).name)
+            if RSTUDIO in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_rstudio", resenv=resenv, description="Rstudio",
+                    ssh=False
+                ).name)
+            if JUPYTERNOTEBOOK in resenv:
+                custom_security_groups.append(self.create_security_group(
+                    name=servername + "_jupyternotebook", resenv=resenv, description="Jupyter Notebook",
                     ssh=False
                 ).name)
 
@@ -858,7 +890,12 @@ class VirtualMachineHandler(Iface):
                     return True
         return False
 
-    def create_backend(self, elixir_id, user_key_url, template, template_version, upstream_url):
+    def create_backend(self, elixir_id, user_key_url, template, upstream_url):
+        template_version = self.get_template_version_for(template)
+        if template_version is None:
+            self.logger.warning("No suitable template version found for {0}. Aborting backend creation!"
+                                .format(template))
+            return {}
         try:
             post_url = "{0}backends/".format(self.RE_BACKEND_URL)
             backend_info = {
@@ -984,6 +1021,15 @@ class VirtualMachineHandler(Iface):
         else:
             return False
 
+    def get_template_version_for(self, template):
+        allowed_templates = self.get_allowed_templates()
+        for template_version in self.FORC_ALLOWED[template]:
+            for template_dict in allowed_templates:
+                if template_dict["name"] == template:
+                    if template_version == template_dict["version"]:
+                        return template_version
+        return None
+
     def cross_check_templates(self, templates):
         return_templates = []
         for template_dict in templates:
@@ -1013,7 +1059,6 @@ class VirtualMachineHandler(Iface):
                 return [response.json()]
             elif response.status_code == 200:
                 templates = self.cross_check_templates(response.json())
-                self.logger.info(templates)
                 return templates
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
@@ -1782,6 +1827,7 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
+
         if THEIA in resenv:
             self.logger.info("Add theia rule to security group {}".format(name))
 
@@ -1790,7 +1836,6 @@ class VirtualMachineHandler(Iface):
                 protocol="tcp",
                 port_range_max=8080,
                 port_range_min=8080,
-                remote_group_id="e75f0abb-bd9d-4bda-afc7-cef1ad459eee",
                 security_group_id=new_security_group["id"],
             )
         if GUACAMOLE in resenv:
@@ -1801,7 +1846,26 @@ class VirtualMachineHandler(Iface):
                 protocol="tcp",
                 port_range_max=8080,
                 port_range_min=8080,
-                remote_group_id="e75f0abb-bd9d-4bda-afc7-cef1ad459eee",
+                security_group_id=new_security_group["id"],
+            )
+        if RSTUDIO in resenv:
+            self.logger.info("Add rstudio rule to security group {}".format(name))
+
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=8080,
+                port_range_min=8080,
+                security_group_id=new_security_group["id"],
+            )
+        if JUPYTERNOTEBOOK in resenv:
+            self.logger.info("Add jupyternotebook rule to security group {}".format(name))
+
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=8080,
+                port_range_min=8080,
                 security_group_id=new_security_group["id"],
             )
         return new_security_group

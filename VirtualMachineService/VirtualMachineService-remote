@@ -39,14 +39,14 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   delete_metadata_from_server(string servername,  keys)')
     print('  string add_floating_ip_to_server(string openstack_id, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
-    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename, bool https, bool http)')
+    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename, bool https, bool http,  resenv)')
     print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, string diskspace, string volumename, bool http, bool https,  resenv)')
     print('  bool exist_server(string name)')
     print('  int create_and_deploy_playbook(string public_key,  playbooks_information, string openstack_id)')
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
     print('  bool has_forc()')
     print('  string get_forc_url()')
-    print('  Backend create_backend(string elixir_id, string user_key_url, string template, string template_version, string upstream_url)')
+    print('  Backend create_backend(string elixir_id, string user_key_url, string template, string upstream_url)')
     print('   get_backends()')
     print('   get_backends_by_owner(string elixir_id)')
     print('   get_backends_by_template(string template)')
@@ -246,10 +246,10 @@ elif cmd == 'create_connection':
     pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4],))
 
 elif cmd == 'start_server':
-    if len(args) != 9:
-        print('start_server requires 9 args')
+    if len(args) != 10:
+        print('start_server requires 10 args')
         sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6], eval(args[7]), eval(args[8]),))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6], eval(args[7]), eval(args[8]), eval(args[9]),))
 
 elif cmd == 'start_server_with_custom_key':
     if len(args) != 9:
@@ -288,10 +288,10 @@ elif cmd == 'get_forc_url':
     pp.pprint(client.get_forc_url())
 
 elif cmd == 'create_backend':
-    if len(args) != 5:
-        print('create_backend requires 5 args')
+    if len(args) != 4:
+        print('create_backend requires 4 args')
         sys.exit(1)
-    pp.pprint(client.create_backend(args[0], args[1], args[2], args[3], args[4],))
+    pp.pprint(client.create_backend(args[0], args[1], args[2], args[3],))
 
 elif cmd == 'get_backends':
     if len(args) != 0:
