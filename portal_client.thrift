@@ -257,7 +257,7 @@ service VirtualMachineService {
     * Get Images and filter by list of strings.
     * Returns: List of Image instances.
     */
-	list<Image> get_Images_by_filter(1: list<string> filter_list)
+	list<Image> get_Images_by_filter(1: map<string, string> filter_json)
 
 
 	 /**
@@ -342,7 +342,11 @@ service VirtualMachineService {
     6:string diskspace,
 
     /** Name of additional Volume*/
-    7:string volumename, 8:bool https,9:bool http)
+    7:string volumename,
+    8:bool https,
+    9:bool http,
+    10:list<string> resenv)
+
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
@@ -408,8 +412,7 @@ service VirtualMachineService {
     1:string elixir_id,
     2:string user_key_url,
     3:string template,
-    4:string template_version,
-    5:string upstream_url
+    4:string upstream_url
     )
 
     /** Get all backends*/
@@ -436,6 +439,8 @@ service VirtualMachineService {
     )
 
     list<map<string, string>> get_templates()
+
+    list<map<string, string>> get_allowed_templates()
 
     list<map<string, string>> get_templates_by_template(
     1:string template_name

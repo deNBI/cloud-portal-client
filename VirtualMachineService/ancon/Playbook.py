@@ -9,6 +9,9 @@ BIOCONDA = "bioconda"
 THEIA = "theiaide"
 RSTUDIO = "rstudio"
 GUACAMOLE = "guacamole"
+JUPYTERNOTEBOOK = "jupyternotebook"
+
+ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
 
 
 class Playbook(object):
