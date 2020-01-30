@@ -60,6 +60,7 @@ class VirtualMachineHandler(Iface):
     global active_playbooks
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
+    ERROR = "ERROR"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -1225,6 +1226,10 @@ class VirtualMachineHandler(Iface):
                     server = self.get_server(openstack_id)
                     server.status = "PORT_CLOSED"
                     return server
+            elif serv["status"] == self.ERROR:
+                server = self.get_server(openstack_id)
+                server.status = self.ERROR
+                return server
             else:
                 server = self.get_server(openstack_id)
                 server.status = self.BUILD
