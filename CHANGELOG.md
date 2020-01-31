@@ -1,3 +1,9 @@
+##  (2020-01-31)
+
+#### Bug Fixes
+
+* **vm:**  also check and set error state ([f1373adf](f1373adf))
+
 ##  (2020-01-24)
 
 #### Features
