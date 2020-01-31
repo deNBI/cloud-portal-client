@@ -4,11 +4,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: cloud-portal-client/checkout@master
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@dev
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: deNBI/cloud-portal-client
+        name: cloud-portal-client
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         dockerfile: Dockerfile
