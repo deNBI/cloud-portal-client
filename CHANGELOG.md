@@ -1,13 +1,14 @@
 ##  (2020-01-31)
 
-#### Features
-
-* **resenv:** resenvs as modes working
-
-
 #### Bug Fixes
 
 * **vm:**  also check and set error state ([f1373adf](f1373adf))
+
+##  (2020-01-24)
+
+#### Features
+
+* **resenv:** resenvs as modes working ([7a12746](7a12746))
 
 
 ##  (2020-01-19)
