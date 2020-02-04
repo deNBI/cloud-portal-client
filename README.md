@@ -73,6 +73,7 @@ If you set your configuration you can start the portal-client:
 portal_client_start_server path/to/config.yml
 ~~~
 
+
 ### Using Docker
 Specify in the .env file which release should be used by the client.
 Then you can start the client with:
