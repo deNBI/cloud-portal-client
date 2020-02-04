@@ -34,6 +34,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_Images()')
     print('  Image get_Image_with_Tag(string openstack_id)')
     print('   get_Images_by_filter( filter_json)')
+    print('  Volume get_volume(string volume_id)')
+    print('   get_volumes_by_ids( volume_ids)')
     print('  bool delete_server(string openstack_id)')
     print('   add_metadata_to_server(string servername,  metadata)')
     print('   delete_metadata_from_server(string servername,  keys)')
@@ -214,6 +216,18 @@ elif cmd == 'get_Images_by_filter':
         print('get_Images_by_filter requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_Images_by_filter(eval(args[0]),))
+
+elif cmd == 'get_volume':
+    if len(args) != 1:
+        print('get_volume requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_volume(args[0],))
+
+elif cmd == 'get_volumes_by_ids':
+    if len(args) != 1:
+        print('get_volumes_by_ids requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_volumes_by_ids(eval(args[0]),))
 
 elif cmd == 'delete_server':
     if len(args) != 1:
