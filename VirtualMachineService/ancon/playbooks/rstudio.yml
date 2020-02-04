@@ -1,2 +1,23 @@
-- debug:
-    msg: "{{ rstudio_vars.template_version }}"
+- name: Wait for automatic system updates 1
+  shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+- name: Wait for automatic system updates 2
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+
+- name: Setup password for default user
+  user:
+    name: "{{ rstudio_vars.DEFAULT_USER }}"
+    password: "{{ rstudio_vars.DEFAULT_PASSWORD_HASHED }}"
+
+- name: Install R role
+  include_role:
+    name: oefenweb.r
+
+- name: Install rstudio-server role
+  include_role:
+    name: oefenweb.rstudio_server
+  vars:
+    rstudio_install: [r-base]
+
+- name: Flush rstudio handlers
+  meta: flush_handlers

@@ -8135,13 +8135,7 @@ class get_allowed_templates_result(object):
                     self.success = []
                     (_etype220, _size217) = iprot.readListBegin()
                     for _i221 in range(_size217):
-                        _elem222 = {}
-                        (_ktype224, _vtype225, _size223) = iprot.readMapBegin()
-                        for _i227 in range(_size223):
-                            _key228 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _val229 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _elem222[_key228] = _val229
-                        iprot.readMapEnd()
+                        _elem222 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
                         self.success.append(_elem222)
                     iprot.readListEnd()
                 else:
@@ -8158,13 +8152,9 @@ class get_allowed_templates_result(object):
         oprot.writeStructBegin('get_allowed_templates_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
-            oprot.writeListBegin(TType.MAP, len(self.success))
-            for iter230 in self.success:
-                oprot.writeMapBegin(TType.STRING, TType.STRING, len(iter230))
-                for kiter231, viter232 in iter230.items():
-                    oprot.writeString(kiter231.encode('utf-8') if sys.version_info[0] == 2 else kiter231)
-                    oprot.writeString(viter232.encode('utf-8') if sys.version_info[0] == 2 else viter232)
-                oprot.writeMapEnd()
+            oprot.writeListBegin(TType.STRING, len(self.success))
+            for iter223 in self.success:
+                oprot.writeString(iter223.encode('utf-8') if sys.version_info[0] == 2 else iter223)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8185,7 +8175,7 @@ class get_allowed_templates_result(object):
         return not (self == other)
 all_structs.append(get_allowed_templates_result)
 get_allowed_templates_result.thrift_spec = (
-    (0, TType.LIST, 'success', (TType.MAP, (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), False), None, ),  # 0
+    (0, TType.LIST, 'success', (TType.STRING, 'UTF8', False), None, ),  # 0
 )
 
 
@@ -8274,16 +8264,16 @@ class get_templates_by_template_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype236, _size233) = iprot.readListBegin()
-                    for _i237 in range(_size233):
-                        _elem238 = {}
-                        (_ktype240, _vtype241, _size239) = iprot.readMapBegin()
-                        for _i243 in range(_size239):
-                            _key244 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _val245 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                            _elem238[_key244] = _val245
+                    (_etype227, _size224) = iprot.readListBegin()
+                    for _i228 in range(_size224):
+                        _elem229 = {}
+                        (_ktype231, _vtype232, _size230) = iprot.readMapBegin()
+                        for _i234 in range(_size230):
+                            _key235 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _val236 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                            _elem229[_key235] = _val236
                         iprot.readMapEnd()
-                        self.success.append(_elem238)
+                        self.success.append(_elem229)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -8300,11 +8290,11 @@ class get_templates_by_template_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.MAP, len(self.success))
-            for iter246 in self.success:
-                oprot.writeMapBegin(TType.STRING, TType.STRING, len(iter246))
-                for kiter247, viter248 in iter246.items():
-                    oprot.writeString(kiter247.encode('utf-8') if sys.version_info[0] == 2 else kiter247)
-                    oprot.writeString(viter248.encode('utf-8') if sys.version_info[0] == 2 else viter248)
+            for iter237 in self.success:
+                oprot.writeMapBegin(TType.STRING, TType.STRING, len(iter237))
+                for kiter238, viter239 in iter237.items():
+                    oprot.writeString(kiter238.encode('utf-8') if sys.version_info[0] == 2 else kiter238)
+                    oprot.writeString(viter239.encode('utf-8') if sys.version_info[0] == 2 else viter239)
                 oprot.writeMapEnd()
             oprot.writeListEnd()
             oprot.writeFieldEnd()
@@ -8427,11 +8417,11 @@ class check_template_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype250, _vtype251, _size249) = iprot.readMapBegin()
-                    for _i253 in range(_size249):
-                        _key254 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val255 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key254] = _val255
+                    (_ktype241, _vtype242, _size240) = iprot.readMapBegin()
+                    for _i244 in range(_size240):
+                        _key245 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val246 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key245] = _val246
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -8448,9 +8438,9 @@ class check_template_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter256, viter257 in self.success.items():
-                oprot.writeString(kiter256.encode('utf-8') if sys.version_info[0] == 2 else kiter256)
-                oprot.writeString(viter257.encode('utf-8') if sys.version_info[0] == 2 else viter257)
+            for kiter247, viter248 in self.success.items():
+                oprot.writeString(kiter247.encode('utf-8') if sys.version_info[0] == 2 else kiter247)
+                oprot.writeString(viter248.encode('utf-8') if sys.version_info[0] == 2 else viter248)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8690,11 +8680,11 @@ class get_servers_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype261, _size258) = iprot.readListBegin()
-                    for _i262 in range(_size258):
-                        _elem263 = VM()
-                        _elem263.read(iprot)
-                        self.success.append(_elem263)
+                    (_etype252, _size249) = iprot.readListBegin()
+                    for _i253 in range(_size249):
+                        _elem254 = VM()
+                        _elem254.read(iprot)
+                        self.success.append(_elem254)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -8711,8 +8701,8 @@ class get_servers_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter264 in self.success:
-                iter264.write(oprot)
+            for iter255 in self.success:
+                iter255.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8760,10 +8750,10 @@ class get_servers_by_ids_args(object):
             if fid == 1:
                 if ftype == TType.LIST:
                     self.server_ids = []
-                    (_etype268, _size265) = iprot.readListBegin()
-                    for _i269 in range(_size265):
-                        _elem270 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.server_ids.append(_elem270)
+                    (_etype259, _size256) = iprot.readListBegin()
+                    for _i260 in range(_size256):
+                        _elem261 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.server_ids.append(_elem261)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -8780,8 +8770,8 @@ class get_servers_by_ids_args(object):
         if self.server_ids is not None:
             oprot.writeFieldBegin('server_ids', TType.LIST, 1)
             oprot.writeListBegin(TType.STRING, len(self.server_ids))
-            for iter271 in self.server_ids:
-                oprot.writeString(iter271.encode('utf-8') if sys.version_info[0] == 2 else iter271)
+            for iter262 in self.server_ids:
+                oprot.writeString(iter262.encode('utf-8') if sys.version_info[0] == 2 else iter262)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8830,11 +8820,11 @@ class get_servers_by_ids_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype275, _size272) = iprot.readListBegin()
-                    for _i276 in range(_size272):
-                        _elem277 = VM()
-                        _elem277.read(iprot)
-                        self.success.append(_elem277)
+                    (_etype266, _size263) = iprot.readListBegin()
+                    for _i267 in range(_size263):
+                        _elem268 = VM()
+                        _elem268.read(iprot)
+                        self.success.append(_elem268)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -8851,8 +8841,8 @@ class get_servers_by_ids_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter278 in self.success:
-                iter278.write(oprot)
+            for iter269 in self.success:
+                iter269.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -8962,11 +8952,11 @@ class get_servers_by_bibigrid_id_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype282, _size279) = iprot.readListBegin()
-                    for _i283 in range(_size279):
-                        _elem284 = VM()
-                        _elem284.read(iprot)
-                        self.success.append(_elem284)
+                    (_etype273, _size270) = iprot.readListBegin()
+                    for _i274 in range(_size270):
+                        _elem275 = VM()
+                        _elem275.read(iprot)
+                        self.success.append(_elem275)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -8983,8 +8973,8 @@ class get_servers_by_bibigrid_id_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter285 in self.success:
-                iter285.write(oprot)
+            for iter276 in self.success:
+                iter276.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9452,10 +9442,10 @@ class create_snapshot_args(object):
             elif fid == 4:
                 if ftype == TType.LIST:
                     self.base_tags = []
-                    (_etype289, _size286) = iprot.readListBegin()
-                    for _i290 in range(_size286):
-                        _elem291 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.base_tags.append(_elem291)
+                    (_etype280, _size277) = iprot.readListBegin()
+                    for _i281 in range(_size277):
+                        _elem282 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.base_tags.append(_elem282)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -9489,8 +9479,8 @@ class create_snapshot_args(object):
         if self.base_tags is not None:
             oprot.writeFieldBegin('base_tags', TType.LIST, 4)
             oprot.writeListBegin(TType.STRING, len(self.base_tags))
-            for iter292 in self.base_tags:
-                oprot.writeString(iter292.encode('utf-8') if sys.version_info[0] == 2 else iter292)
+            for iter283 in self.base_tags:
+                oprot.writeString(iter283.encode('utf-8') if sys.version_info[0] == 2 else iter283)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.description is not None:
@@ -9664,11 +9654,11 @@ class get_limits_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype294, _vtype295, _size293) = iprot.readMapBegin()
-                    for _i297 in range(_size293):
-                        _key298 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val299 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key298] = _val299
+                    (_ktype285, _vtype286, _size284) = iprot.readMapBegin()
+                    for _i288 in range(_size284):
+                        _key289 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val290 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key289] = _val290
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9685,9 +9675,9 @@ class get_limits_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter300, viter301 in self.success.items():
-                oprot.writeString(kiter300.encode('utf-8') if sys.version_info[0] == 2 else kiter300)
-                oprot.writeString(viter301.encode('utf-8') if sys.version_info[0] == 2 else viter301)
+            for kiter291, viter292 in self.success.items():
+                oprot.writeString(kiter291.encode('utf-8') if sys.version_info[0] == 2 else kiter291)
+                oprot.writeString(viter292.encode('utf-8') if sys.version_info[0] == 2 else viter292)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9752,11 +9742,11 @@ class start_cluster_args(object):
             elif fid == 3:
                 if ftype == TType.LIST:
                     self.worker_instance = []
-                    (_etype305, _size302) = iprot.readListBegin()
-                    for _i306 in range(_size302):
-                        _elem307 = ClusterInstance()
-                        _elem307.read(iprot)
-                        self.worker_instance.append(_elem307)
+                    (_etype296, _size293) = iprot.readListBegin()
+                    for _i297 in range(_size293):
+                        _elem298 = ClusterInstance()
+                        _elem298.read(iprot)
+                        self.worker_instance.append(_elem298)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -9786,8 +9776,8 @@ class start_cluster_args(object):
         if self.worker_instance is not None:
             oprot.writeFieldBegin('worker_instance', TType.LIST, 3)
             oprot.writeListBegin(TType.STRUCT, len(self.worker_instance))
-            for iter308 in self.worker_instance:
-                iter308.write(oprot)
+            for iter299 in self.worker_instance:
+                iter299.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.user is not None:
@@ -9843,11 +9833,11 @@ class start_cluster_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype310, _vtype311, _size309) = iprot.readMapBegin()
-                    for _i313 in range(_size309):
-                        _key314 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val315 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key314] = _val315
+                    (_ktype301, _vtype302, _size300) = iprot.readMapBegin()
+                    for _i304 in range(_size300):
+                        _key305 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val306 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key305] = _val306
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9864,9 +9854,9 @@ class start_cluster_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter316, viter317 in self.success.items():
-                oprot.writeString(kiter316.encode('utf-8') if sys.version_info[0] == 2 else kiter316)
-                oprot.writeString(viter317.encode('utf-8') if sys.version_info[0] == 2 else viter317)
+            for kiter307, viter308 in self.success.items():
+                oprot.writeString(kiter307.encode('utf-8') if sys.version_info[0] == 2 else kiter307)
+                oprot.writeString(viter308.encode('utf-8') if sys.version_info[0] == 2 else viter308)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9976,11 +9966,11 @@ class terminate_cluster_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype319, _vtype320, _size318) = iprot.readMapBegin()
-                    for _i322 in range(_size318):
-                        _key323 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val324 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key323] = _val324
+                    (_ktype310, _vtype311, _size309) = iprot.readMapBegin()
+                    for _i313 in range(_size309):
+                        _key314 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val315 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key314] = _val315
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -9997,9 +9987,9 @@ class terminate_cluster_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter325, viter326 in self.success.items():
-                oprot.writeString(kiter325.encode('utf-8') if sys.version_info[0] == 2 else kiter325)
-                oprot.writeString(viter326.encode('utf-8') if sys.version_info[0] == 2 else viter326)
+            for kiter316, viter317 in self.success.items():
+                oprot.writeString(kiter316.encode('utf-8') if sys.version_info[0] == 2 else kiter316)
+                oprot.writeString(viter317.encode('utf-8') if sys.version_info[0] == 2 else viter317)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -11074,11 +11064,11 @@ class create_volume_args(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype328, _vtype329, _size327) = iprot.readMapBegin()
-                    for _i331 in range(_size327):
-                        _key332 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val333 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key332] = _val333
+                    (_ktype319, _vtype320, _size318) = iprot.readMapBegin()
+                    for _i322 in range(_size318):
+                        _key323 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val324 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key323] = _val324
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -11103,9 +11093,9 @@ class create_volume_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 3)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter334, viter335 in self.metadata.items():
-                oprot.writeString(kiter334.encode('utf-8') if sys.version_info[0] == 2 else kiter334)
-                oprot.writeString(viter335.encode('utf-8') if sys.version_info[0] == 2 else viter335)
+            for kiter325, viter326 in self.metadata.items():
+                oprot.writeString(kiter325.encode('utf-8') if sys.version_info[0] == 2 else kiter325)
+                oprot.writeString(viter326.encode('utf-8') if sys.version_info[0] == 2 else viter326)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
