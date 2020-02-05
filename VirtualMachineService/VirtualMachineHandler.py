@@ -1120,10 +1120,16 @@ class VirtualMachineHandler(Iface):
 
     def get_volume(self, volume_id):
         self.logger.info("Get Volume {}".format(volume_id))
-        os_volume = self.conn.get_volume_by_id(id=volume_id)
-        thrift_volume = Volume(status=os_volume.status, id=os_volume.id, name=os_volume.name,
-                               description=os_volume.description, created_at=os_volume.created_at)
-        return thrift_volume
+        try:
+
+            os_volume = self.conn.get_volume_by_id(id=volume_id)
+
+            thrift_volume = Volume(status=os_volume.status, id=os_volume.id, name=os_volume.name,
+                                   description=os_volume.description, created_at=os_volume.created_at)
+            return thrift_volume
+        except Exception:
+            self.logger.exception("Could not find volume {}".format(id))
+            return  Volume(status="NOT FOUND")
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
