@@ -12,6 +12,7 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 ## Preparation
 
+
 #### Download and source rc file
 
 Download and source OpenStack RC FILE v3 with the following command:
@@ -72,6 +73,7 @@ If you set your configuration you can start the portal-client:
  ~~~BASH
 portal_client_start_server path/to/config.yml
 ~~~
+
 
 ### Using Docker
 Specify in the .env file which release should be used by the client.

@@ -15,15 +15,23 @@ struct Backend {
 }
 
 struct ClusterInfo {
-1:optional string launch_date
-2:  optional string group_id
-3: optional string network_id
-4: optional string public_ip
-5: optional string subnet_id
-6:optional string user
-7:optional int inst_counter
-8:optional string cluster_id
-9:optional string key_name
+1:optional string launch_date,
+2:optional string group_id,
+3:optional string network_id,
+4:optional string public_ip,
+5:optional string subnet_id,
+6:optional string user,
+7:optional int inst_counter,
+8:optional string cluster_id,
+9:optional string key_name,
+}
+
+struct Volume{
+1:optional string id,
+2:optional string name,
+3:optional string description,
+4:optional string status,
+5:optional string created_at,
 }
 
 /**
@@ -210,6 +218,8 @@ service VirtualMachineService {
 	 */
     map<string,string> get_gateway_ip()
 
+
+
     map<string,string>  get_calculation_formulars()
 
     /**
@@ -258,6 +268,16 @@ service VirtualMachineService {
     * Returns: List of Image instances.
     */
 	list<Image> get_Images_by_filter(1: map<string, string> filter_json)
+
+
+	Volume get_volume(
+	1:string volume_id
+	)
+
+		list<Volume> get_volumes_by_ids(
+	1:list<string> volume_ids
+	)
+
 
 
 	 /**
