@@ -1629,7 +1629,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(openstack_id)
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
-                raise serverNotFoundException
+                return True
             security_groups = self.conn.list_server_security_groups(server=server)
             self.logger.info(security_groups)
             security_groups = [sec for sec in security_groups if
