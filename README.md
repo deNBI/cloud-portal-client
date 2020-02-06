@@ -12,6 +12,7 @@ The *Cloud Portal Client* is a client written in Python which provides functions
 
 ## Preparation
 
+
 #### Download and source rc file
 
 Download and source OpenStack RC FILE v3 with the following command:
