@@ -12,3 +12,10 @@ jobs:
             - name: Check for modified files
               id: git-check
               run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+            - name: Push changes
+              if: steps.git-check.outputs.modified == 'true'
+              run: |
+                  git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+                  git checkout -b `fix(Linting)_$GITHUB_REF`
+                  git commit -am "Automated changes"
+                  git push --set-upstream origin `fix(Linting)_$GITHUB_REF`
