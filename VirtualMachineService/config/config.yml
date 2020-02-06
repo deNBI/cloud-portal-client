@@ -37,3 +37,6 @@ forc:
       - v01
     guacamole:
       - v01
+    rstudio:
+      - v02
+      - v01

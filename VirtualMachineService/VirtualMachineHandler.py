@@ -1023,25 +1023,24 @@ class VirtualMachineHandler(Iface):
             return False
 
     def get_template_version_for(self, template):
-        allowed_templates = self.get_allowed_templates()
+        all_templates = self.get_templates()
         for template_version in self.FORC_ALLOWED[template]:
-            for template_dict in allowed_templates:
+            for template_dict in all_templates:
                 if template_dict["name"] == template:
                     if template_version == template_dict["version"]:
                         return template_version
         return None
 
     def cross_check_templates(self, templates):
-        return_templates = []
+        return_templates = set()
         for template_dict in templates:
             if template_dict["name"] in self.FORC_ALLOWED:
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
-                    return_templates.append(template_dict)
+                    return_templates.add(template_dict["name"])
         return return_templates
 
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
-        self.logger.info(get_url)
         try:
             response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
@@ -1053,7 +1052,6 @@ class VirtualMachineHandler(Iface):
 
     def get_allowed_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
-        self.logger.info(get_url)
         try:
             response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
             if response.status_code == 401:
@@ -1891,8 +1889,8 @@ class VirtualMachineHandler(Iface):
             self.conn.network.create_security_group_rule(
                 direction="ingress",
                 protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
+                port_range_max=8787,
+                port_range_min=8787,
                 security_group_id=new_security_group["id"],
             )
         if JUPYTERNOTEBOOK in resenv:

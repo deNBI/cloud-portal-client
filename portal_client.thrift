@@ -460,7 +460,7 @@ service VirtualMachineService {
 
     list<map<string, string>> get_templates()
 
-    list<map<string, string>> get_allowed_templates()
+    list<string> get_allowed_templates()
 
     list<map<string, string>> get_templates_by_template(
     1:string template_name
