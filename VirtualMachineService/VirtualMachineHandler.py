@@ -13,7 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo,Volume
     from constants import VERSION
     from ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
 
@@ -26,7 +26,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo,Volume
     from .constants import VERSION
     from .ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
 
@@ -1099,6 +1099,38 @@ class VirtualMachineHandler(Iface):
         else:
             return PlaybookResult(status=-2, stdout='', stderr='')
 
+    def get_volumes_by_ids(self, volume_ids):
+        self.logger.info("Get Volumes {}".format(volume_ids))
+
+        volumes = []
+        for id in volume_ids:
+            try:
+                os_volume = self.conn.get_volume_by_id(id=id)
+                thrift_volume = Volume(status=os_volume.status, id=os_volume.id,
+                                       name=os_volume.name,
+                                       description=os_volume.description,
+                                       created_at=os_volume.created_at)
+                volumes.append(thrift_volume)
+
+            except Exception:
+                self.logger.exception("Could not find volume {}".format(id))
+
+
+        return volumes
+
+    def get_volume(self, volume_id):
+        self.logger.info("Get Volume {}".format(volume_id))
+        try:
+
+            os_volume = self.conn.get_volume_by_id(id=volume_id)
+
+            thrift_volume = Volume(status=os_volume.status, id=os_volume.id, name=os_volume.name,
+                                   description=os_volume.description, created_at=os_volume.created_at)
+            return thrift_volume
+        except Exception:
+            self.logger.exception("Could not find volume {}".format(id))
+            return  Volume(status="NOT FOUND")
+
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
         Attach volume to server.
@@ -1597,7 +1629,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(openstack_id)
             if server is None:
                 self.logger.exception("Instance {0} not found".format(openstack_id))
-                raise serverNotFoundException
+                return True
             security_groups = self.conn.list_server_security_groups(server=server)
             self.logger.info(security_groups)
             security_groups = [sec for sec in security_groups if
