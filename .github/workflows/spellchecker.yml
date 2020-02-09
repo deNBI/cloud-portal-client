@@ -13,7 +13,7 @@ jobs:
           curl -L -o ./install-misspell.sh https://git.io/misspell
           sh ./install-misspell.sh
           rm install-misspell.sh
-          ./bin/misspell -w 
+          ./bin/misspell -w .
       - name: Check for modified files
         id: git-check
         run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
