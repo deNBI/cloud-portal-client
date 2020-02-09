@@ -13,10 +13,7 @@ jobs:
           curl -L -o ./install-misspell.sh https://git.io/misspell
           sh ./install-misspell.sh
           rm install-misspell.sh
-          find . -type f -name '*.html' | grep -v node_modules/ | xargs ./bin/misspell -w 
-          find . -type f -name '*.md' | grep -v node_modules/ | xargs ./bin/misspell -w 
-          find . -type f -name '*.ts' | grep -v node_modules/ | xargs ./bin/misspell -w 
-          find . -type f -name '*.py' | grep -v node_modules/ | xargs ./bin/misspell -w 
+          ./bin/misspell -w 
       - name: Check for modified files
         id: git-check
         run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
