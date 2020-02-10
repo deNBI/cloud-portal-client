@@ -74,7 +74,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool delete_image(string image_id)')
     print('  bool delete_volume_attachment(string volume_id, string server_id)')
     print('  bool delete_volume(string volume_id)')
-    print('  bool attach_volume_to_server(string openstack_id, string volume_id)')
+    print('   attach_volume_to_server(string openstack_id, string volume_id)')
     print('  VM check_server_status(string openstack_id)')
     print('  string setUserPassword(string user, string password)')
     print('  bool resume_server(string openstack_id)')

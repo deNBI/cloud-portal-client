@@ -1162,6 +1162,7 @@ class VirtualMachineHandler(Iface):
         for id in volume_ids:
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
+                self.logger.info(os_volume)
                 thrift_volume = Volume(status=os_volume.status, id=os_volume.id,
                                        name=os_volume.name,
                                        description=os_volume.description,
@@ -1196,7 +1197,7 @@ class VirtualMachineHandler(Iface):
         :return: True if attached, False if not
         """
 
-        def checkStatusVolume(volume, conn):
+        def waitTillVolumeIsAvailable(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
             while not done:
@@ -1218,7 +1219,7 @@ class VirtualMachineHandler(Iface):
         if server is None:
             self.logger.exception("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
-        if checkStatusVolume(volume_id, self.conn):
+        if waitTillVolumeIsAvailable(volume_id, self.conn):
 
             self.logger.info(
                 "Attaching volume {0} to virtualmachine {1}".format(
@@ -1226,9 +1227,11 @@ class VirtualMachineHandler(Iface):
                 )
             )
             try:
-                self.conn.compute.create_volume_attachment(
+                attachment = self.conn.compute.create_volume_attachment(
                     server=server, volumeId=volume_id
                 )
+                return {"device": attachment['device']}
+
             except Exception as e:
                 self.logger.exception(
                     "Trying to attache volume {0} to vm {1} error : {2}".format(
@@ -1236,10 +1239,9 @@ class VirtualMachineHandler(Iface):
                     ),
                     exc_info=True,
                 )
-                return False
+                return {"error": e}
 
-            return True
-        return True
+        return {"error": "failed"}
 
     def check_server_status(self, openstack_id):
         """

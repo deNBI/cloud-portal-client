@@ -655,7 +655,7 @@ service VirtualMachineService {
      * Attach volume to server.
      * Returns:  True if attached, False if not
      */
-    bool attach_volume_to_server(
+    map<string,string> attach_volume_to_server(
     /** Id of server*/
     1:string openstack_id,
 

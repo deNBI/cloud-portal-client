@@ -11826,8 +11826,14 @@ class attach_volume_to_server_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype383, _vtype384, _size382) = iprot.readMapBegin()
+                    for _i386 in range(_size382):
+                        _key387 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val388 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key387] = _val388
+                    iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 1:
@@ -11847,8 +11853,12 @@ class attach_volume_to_server_result(object):
             return
         oprot.writeStructBegin('attach_volume_to_server_result')
         if self.success is not None:
-            oprot.writeFieldBegin('success', TType.BOOL, 0)
-            oprot.writeBool(self.success)
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
+            for kiter389, viter390 in self.success.items():
+                oprot.writeString(kiter389.encode('utf-8') if sys.version_info[0] == 2 else kiter389)
+                oprot.writeString(viter390.encode('utf-8') if sys.version_info[0] == 2 else viter390)
+            oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin('e', TType.STRUCT, 1)
@@ -11872,7 +11882,7 @@ class attach_volume_to_server_result(object):
         return not (self == other)
 all_structs.append(attach_volume_to_server_result)
 attach_volume_to_server_result.thrift_spec = (
-    (0, TType.BOOL, 'success', None, None, ),  # 0
+    (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 0
     (1, TType.STRUCT, 'e', [serverNotFoundException, None], None, ),  # 1
 )
 
@@ -12348,11 +12358,11 @@ class create_volume_args(object):
             elif fid == 3:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype383, _vtype384, _size382) = iprot.readMapBegin()
-                    for _i386 in range(_size382):
-                        _key387 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val388 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.metadata[_key387] = _val388
+                    (_ktype392, _vtype393, _size391) = iprot.readMapBegin()
+                    for _i395 in range(_size391):
+                        _key396 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val397 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.metadata[_key396] = _val397
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -12377,9 +12387,9 @@ class create_volume_args(object):
         if self.metadata is not None:
             oprot.writeFieldBegin('metadata', TType.MAP, 3)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter389, viter390 in self.metadata.items():
-                oprot.writeString(kiter389.encode('utf-8') if sys.version_info[0] == 2 else kiter389)
-                oprot.writeString(viter390.encode('utf-8') if sys.version_info[0] == 2 else viter390)
+            for kiter398, viter399 in self.metadata.items():
+                oprot.writeString(kiter398.encode('utf-8') if sys.version_info[0] == 2 else kiter398)
+                oprot.writeString(viter399.encode('utf-8') if sys.version_info[0] == 2 else viter399)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -12432,11 +12442,11 @@ class create_volume_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype392, _vtype393, _size391) = iprot.readMapBegin()
-                    for _i395 in range(_size391):
-                        _key396 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val397 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.success[_key396] = _val397
+                    (_ktype401, _vtype402, _size400) = iprot.readMapBegin()
+                    for _i404 in range(_size400):
+                        _key405 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val406 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key405] = _val406
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -12459,9 +12469,9 @@ class create_volume_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.success))
-            for kiter398, viter399 in self.success.items():
-                oprot.writeString(kiter398.encode('utf-8') if sys.version_info[0] == 2 else kiter398)
-                oprot.writeString(viter399.encode('utf-8') if sys.version_info[0] == 2 else viter399)
+            for kiter407, viter408 in self.success.items():
+                oprot.writeString(kiter407.encode('utf-8') if sys.version_info[0] == 2 else kiter407)
+                oprot.writeString(viter408.encode('utf-8') if sys.version_info[0] == 2 else viter408)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.r is not None:
