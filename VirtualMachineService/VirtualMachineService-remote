@@ -63,6 +63,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_servers_by_ids( server_ids)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
+    print('   get_cluster_status(string cluster_id)')
     print('  VM get_server(string openstack_id)')
     print('  bool stop_server(string openstack_id)')
     print('  string create_snapshot(string openstack_id, string name, string elixir_id,  base_tags, string description)')
@@ -390,6 +391,12 @@ elif cmd == 'get_cluster_info':
         print('get_cluster_info requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_cluster_info(args[0],))
+
+elif cmd == 'get_cluster_status':
+    if len(args) != 1:
+        print('get_cluster_status requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_cluster_status(args[0],))
 
 elif cmd == 'get_server':
     if len(args) != 1:

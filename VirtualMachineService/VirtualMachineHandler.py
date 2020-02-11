@@ -1406,6 +1406,14 @@ class VirtualMachineHandler(Iface):
         return {"port": str(port), "udp": str(udp_port_start)}
 
 
+    def get_cluster_status(self,cluster_id):
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        request_url = self.BIBIGRID_URL + 'info/' + cluster_id
+        response = req.get(url=request_url, json=body, headers=headers,
+                           verify=False)
+        return response.json()
+
     def get_cluster_info(self, cluster_id):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
