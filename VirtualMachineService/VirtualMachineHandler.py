@@ -834,8 +834,8 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
-    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
-                                     volumename, http, https, resenv):
+    def start_server_with_custom_key(self, flavor, image, servername, metadata,
+                                     http, https, resenv):
 
         """
         Start a new Server.
@@ -850,7 +850,6 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         self.logger.info("Start Server {} with custom key".format(servername))
-        volume_id = ''
         custom_security_groups = self.prepare_security_groups_new_server(resenv=resenv,
                                                                          servername=servername,
                                                                          http=http, https=https)
@@ -865,41 +864,23 @@ class VirtualMachineHandler(Iface):
             except Exception:
                 private_key = key_creation.__dict__["private_key"]
 
-            if int(diskspace) > 0:
-                volume_id = self.create_volume(volume_storage=diskspace,
-                                               volume_name=volumename,
-                                               server_name=servername, metadata=metadata)
-                init_script = self.create_mount_init_script(volume_id=volume_id)
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=servername,
+                meta=metadata,
 
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
-                    userdata=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-                )
-            else:
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
-
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-                )
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
+            )
 
             openstack_id = server['id']
 
             self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
                                                 status=self.PREPARE_PLAYBOOK_BUILD))
-            return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
+            return {"openstackid": openstack_id, 'private_key': private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
             for security_group in custom_security_groups:
