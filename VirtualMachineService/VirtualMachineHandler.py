@@ -1566,8 +1566,10 @@ class VirtualMachineHandler(Iface):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         response = req.delete(
-            url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id), json=body, headers=headers,
-            verify=False
+            url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id),
+            json=body,
+            headers=headers,
+            verify=False,
         )
         self.logger.info(response.json())
         return response.json()
@@ -1578,7 +1580,7 @@ class VirtualMachineHandler(Iface):
         body = {"mode": "openstack"}
         request_url = self.BIBIGRID_URL + "info/" + cluster_id
         response = req.get(url=request_url, json=body, headers=headers, verify=False)
-        self.logger.info("Cluster {} status: ".format(cluster_id,response.content))
+        self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
         return response.json()
 
     def get_cluster_info(self, cluster_id):
@@ -1632,7 +1634,7 @@ class VirtualMachineHandler(Iface):
         body = {
             "mode": "openstack",
             "subnet": self.SUB_NETWORK,
-            "sshPublicKeys":[public_key],
+            "sshPublicKeys": [public_key],
             "user": user,
             "sshUser": "ubuntu",
             "availabilityZone": self.AVAIALABILITY_ZONE,
