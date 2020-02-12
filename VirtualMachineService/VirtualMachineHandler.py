@@ -615,23 +615,6 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_volume_by_start(
-        self, volume_storage, volume_name, server_name, metadata
-    ):
-        self.logger.info("Creating volume with {0} GB diskspace".format(volume_storage))
-        try:
-            volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(volume_storage), metadata=metadata
-            ).to_dict()
-        except Exception as e:
-            self.logger.exception(
-                "Trying to create volume with {0}"
-                " GB for vm {1} error : {2}".format(volume_storage, server_name, e),
-                exc_info=True,
-            )
-            raise ressourceException(Reason=str(e))
-        return volume["id"]
-
     def create_mount_init_script(self, volume_id):
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
@@ -642,27 +625,199 @@ class VirtualMachineHandler(Iface):
         init_script = base64.b64encode(text).decode("utf-8")
         return init_script
 
-    def create_volume(self, volume_name, diskspace, metadata):
+    def create_volume(self, volume_name, volume_storage, metadata):
         """
         Create volume.
         :param volume_name: Name of volume
-        :param diskspace: Diskspace in GB for new volume
+        :param volume_storage: volume_storage in GB for new volume
         :return: Id of new volume
         """
-        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
+        self.logger.info("Creating volume with {0} GB diskspace".format(volume_storage))
+
         try:
             volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace), metadata=metadata
-            ).to_dict()
-            volumeId = volume["id"]
-            return volumeId
+                name=volume_name, size=volume_storage, metadata=metadata
+            )
+            self.logger.info(volume)
+            return {"volume_id": volume["id"]}
         except Exception as e:
             self.logger.exception(
-                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
+                "Trying to create volume with {0} GB  error : {1}".format(
+                    volume_storage, e
+                ),
                 exc_info=True,
             )
 
             raise ressourceException(Reason=str(e))
+
+    def start_server_with_mounted_volume(
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_id,
+    ):
+        image = self.get_image(image=image)
+        flavor = self.get_flavor(flavor=flavor)
+        network = self.get_network()
+        key_name = metadata.get("elixir_id")[:-18]
+        public_key = urllib.parse.unquote(public_key)
+        key_pair = self.import_keypair(key_name, public_key)
+        init_script = self.create_mount_init_script(volume_id=volume_id)
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+        try:
+
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                userdata=init_script,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
+            openstack_id = server["id"]
+
+            return {"openstack_id": openstack_id, "volume_id": volume_id}
+
+        except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
+            self.delete_volume(volume_id=volume_id)
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
+            return {}
+
+    def prepare_security_groups_new_server(self, resenv, servername, http, https):
+        custom_security_groups = []
+
+        custom_security_groups.append(
+            self.create_security_group(
+                name=servername + "_ssh", description="Only SSH"
+            ).name
+        )
+
+        if http or https:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_https",
+                    http=http,
+                    https=https,
+                    description="Http/Https",
+                ).name
+            )
+
+        if THEIA in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_theiaide",
+                    resenv=resenv,
+                    description="Theiaide",
+                    ssh=False,
+                ).name
+            )
+        if GUACAMOLE in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_guacamole",
+                    resenv=resenv,
+                    description="Guacamole",
+                    ssh=False,
+                ).name
+            )
+        if RSTUDIO in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_rstudio",
+                    resenv=resenv,
+                    description="Rstudio",
+                    ssh=False,
+                ).name
+            )
+        if JUPYTERNOTEBOOK in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_jupyternotebook",
+                    resenv=resenv,
+                    description="Jupyter Notebook",
+                    ssh=False,
+                ).name
+            )
+
+        return custom_security_groups
+
+    def start_server_without_playbook(
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_id=None,
+    ):
+        """
+        Start a new Server.
+
+        :param flavor: Name of flavor which should be used.
+        :param image: Name of image which should be used
+        :param public_key: Publickey which should be used
+        :param servername: Name of the new server
+        :param elixir_id: Elixir_id of the user who started a new server
+        :param diskspace: Diskspace in GB for volume which should be created
+        :param volumename: Name of the volume
+        :param http: bool for http rule in security group
+        :param https: bool for https rule in security group
+        :param resenv: array with names of requested resenvs
+        :return: {'openstackid': serverId, 'volumeId': volumeId}
+        """
+        self.logger.info("Start Server {0}".format(servername))
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+
+        try:
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            key_name = metadata.get("elixir_id")[:-18]
+            public_key = urllib.parse.unquote(public_key)
+            key_pair = self.import_keypair(key_name, public_key)
+            if volume_id:
+                init_script = self.create_mount_init_script(volume_id=volume_id)
+            else:
+                init_script = None
+
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                userdata=init_script,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
+
+            openstack_id = server["id"]
+
+            return {"openstack_id": openstack_id}
+        except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
+            return {}
 
     def start_server(
         self,
@@ -692,9 +847,11 @@ class VirtualMachineHandler(Iface):
         :param resenv: array with names of requested resenvs
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volume_id = ""
         self.logger.info("Start Server {0}".format(servername))
-        custom_security_groups = []
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -703,96 +860,20 @@ class VirtualMachineHandler(Iface):
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
 
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_ssh", description="Only SSH"
-                ).name
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
-
-            if http or https:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_https",
-                        http=http,
-                        https=https,
-                        description="Http/Https",
-                    ).name
-                )
-
-            if THEIA in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_theiaide",
-                        resenv=resenv,
-                        description="Theiaide",
-                        ssh=False,
-                    ).name
-                )
-            if GUACAMOLE in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_guacamole",
-                        resenv=resenv,
-                        description="Guacamole",
-                        ssh=False,
-                    ).name
-                )
-            if RSTUDIO in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_rstudio",
-                        resenv=resenv,
-                        description="Rstudio",
-                        ssh=False,
-                    ).name
-                )
-            if JUPYTERNOTEBOOK in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_jupyternotebook",
-                        resenv=resenv,
-                        description="Jupyter Notebook",
-                        ssh=False,
-                    ).name
-                )
-
-            if diskspace > "0":
-                volume_id = self.create_volume_by_start(
-                    volume_storage=diskspace,
-                    volume_name=volumename,
-                    server_name=servername,
-                    metadata=metadata,
-                )
-                init_script = self.create_mount_init_script(volume_id=volume_id)
-
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=key_pair.name,
-                    meta=metadata,
-                    userdata=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
-                    + custom_security_groups,
-                )
-            else:
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=key_pair.name,
-                    meta=metadata,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
-                    + custom_security_groups,
-                )
 
             openstack_id = server["id"]
 
-            return {"openstackid": openstack_id, "volumeId": volume_id}
+            return {"openstack_id": openstack_id}
         except Exception as e:
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
@@ -800,16 +881,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-        self,
-        flavor,
-        image,
-        servername,
-        metadata,
-        diskspace,
-        volumename,
-        http,
-        https,
-        resenv,
+        self, flavor, image, servername, metadata, http, https, resenv
     ):
 
         """
@@ -825,106 +897,30 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         self.logger.info("Start Server {} with custom key".format(servername))
-        volume_id = ""
-        custom_security_groups = []
-
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
 
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_ssh", description="Only SSH"
-                ).name
-            )
-
-            if http or https:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_https",
-                        http=http,
-                        https=https,
-                        description="Http/Https",
-                    ).name
-                )
-
-            if THEIA in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_theiaide",
-                        resenv=resenv,
-                        description="Theiaide",
-                        ssh=False,
-                    ).name
-                )
-            if GUACAMOLE in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_guacamole",
-                        resenv=resenv,
-                        description="Guacamole",
-                        ssh=False,
-                    ).name
-                )
-            if RSTUDIO in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_rstudio",
-                        resenv=resenv,
-                        description="Rstudio",
-                        ssh=False,
-                    ).name
-                )
-            if JUPYTERNOTEBOOK in resenv:
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + "_jupyternotebook",
-                        resenv=resenv,
-                        description="Jupyter Notebook",
-                        ssh=False,
-                    ).name
-                )
-
             try:
                 private_key = key_creation["private_key"]
             except Exception:
                 private_key = key_creation.__dict__["private_key"]
 
-            if int(diskspace) > 0:
-                volume_id = self.create_volume_by_start(
-                    volume_storage=diskspace,
-                    volume_name=volumename,
-                    server_name=servername,
-                    metadata=metadata,
-                )
-                init_script = self.create_mount_init_script(volume_id=volume_id)
-
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
-                    userdata=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
-                    + custom_security_groups,
-                )
-            else:
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS
-                    + custom_security_groups,
-                )
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=servername,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
 
             openstack_id = server["id"]
 
@@ -934,11 +930,7 @@ class VirtualMachineHandler(Iface):
                     key=private_key, name=servername, status=self.PREPARE_PLAYBOOK_BUILD
                 ),
             )
-            return {
-                "openstackid": openstack_id,
-                "volumeId": volume_id,
-                "private_key": private_key,
-            }
+            return {"openstackid": openstack_id, "private_key": private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
             for security_group in custom_security_groups:
@@ -1252,6 +1244,7 @@ class VirtualMachineHandler(Iface):
         for id in volume_ids:
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
+                self.logger.info(os_volume)
                 thrift_volume = Volume(
                     status=os_volume.status,
                     id=os_volume.id,
@@ -1293,7 +1286,7 @@ class VirtualMachineHandler(Iface):
         :return: True if attached, False if not
         """
 
-        def checkStatusVolume(volume, conn):
+        def waitTillVolumeIsAvailable(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
             while not done:
@@ -1315,7 +1308,7 @@ class VirtualMachineHandler(Iface):
         if server is None:
             self.logger.exception("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
-        if checkStatusVolume(volume_id, self.conn):
+        if waitTillVolumeIsAvailable(volume_id, self.conn):
 
             self.logger.info(
                 "Attaching volume {0} to virtualmachine {1}".format(
@@ -1323,9 +1316,11 @@ class VirtualMachineHandler(Iface):
                 )
             )
             try:
-                self.conn.compute.create_volume_attachment(
+                attachment = self.conn.compute.create_volume_attachment(
                     server=server, volumeId=volume_id
                 )
+                return {"device": attachment["device"]}
+
             except Exception as e:
                 self.logger.exception(
                     "Trying to attache volume {0} to vm {1} error : {2}".format(
@@ -1333,12 +1328,11 @@ class VirtualMachineHandler(Iface):
                     ),
                     exc_info=True,
                 )
-                return False
+                return {"error": e}
 
-            return True
-        return True
+        return {"error": "failed"}
 
-    def check_server_status(self, openstack_id, diskspace, volume_id):
+    def check_server_status(self, openstack_id):
         """
         Check status of server.
 
@@ -1378,18 +1372,6 @@ class VirtualMachineHandler(Iface):
                     )
                 if self.netcat(host, port):
                     server = self.get_server(openstack_id)
-
-                    if diskspace > 0:
-                        attached = self.attach_volume_to_server(
-                            openstack_id=openstack_id, volume_id=volume_id
-                        )
-
-                        if attached is False:
-                            self.logger.exception(
-                                "Could not attach volume {} to instance {}".format(
-                                    volume_id, openstack_id
-                                )
-                            )
 
                     if self.redis.exists(openstack_id) == 1:
                         global active_playbooks
