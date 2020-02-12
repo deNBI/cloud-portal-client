@@ -1562,6 +1562,16 @@ class VirtualMachineHandler(Iface):
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
         return {"port": str(port), "udp": str(udp_port_start)}
 
+    def terminate_cluster(self, cluster_id):
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        response = req.delete(
+            url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id), json=body, headers=headers,
+            verify=False
+        )
+        self.logger.info(response.json())
+        return response.json()
+
     def get_cluster_status(self, cluster_id):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -1628,13 +1638,6 @@ class VirtualMachineHandler(Iface):
         }
         request_url = self.BIBIGRID_URL + "create"
         response = req.post(url=request_url, json=body, headers=headers, verify=False)
-        self.logger.info(response.json())
-        return response.json()
-
-    def terminate_cluster(self, cluster_id):
-        response = req.delete(
-            url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id)
-        )
         self.logger.info(response.json())
         return response.json()
 
