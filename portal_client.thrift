@@ -552,6 +552,8 @@ service VirtualMachineService {
 
 	ClusterInfo get_cluster_info(1:string cluster_id)
 
+	map<string,string>get_cluster_status(1:string cluster_id)
+
 
 
 
