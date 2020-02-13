@@ -337,6 +337,62 @@ service VirtualMachineService {
 
 	throws (1:authenticationException e),
 
+	map<string,string> start_server_without_playbook(
+	/** Name of the  Flavor to use.*/
+    1:string flavor,
+
+    /** Name of the image to use. */
+    2:string image,
+
+    /** Public Key to use*/
+    3:string public_key,
+
+    /** Name for the new server */
+    4:string servername,
+
+    /** Metadata for the new instance*/
+    5:map<string,string> metadata,
+
+
+    6:bool https,
+    7:bool http,
+    8:list<string> resenv,
+    9:string volume_id
+)
+
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+
+
+
+	map<string,string> start_server_with_mounted_volume(
+	/** Name of the  Flavor to use.*/
+    1:string flavor,
+
+    /** Name of the image to use. */
+    2:string image,
+
+    /** Public Key to use*/
+    3:string public_key,
+
+    /** Name for the new server */
+    4:string servername,
+
+    /** Metadata for the new instance*/
+    5:map<string,string> metadata,
+
+
+    6:bool https,
+    7:bool http,
+    8:list<string> resenv,
+        9:string volume_id,
+)
+
+
+    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+
+
+
+
 
 	/**
 	 * Start a new server.
@@ -388,19 +444,13 @@ service VirtualMachineService {
     /** Metadata for the new instance*/
     4:map<string,string> metadata,
 
-    /** Diskspace in GB for additional volume.*/
-    5:string diskspace,
-
-    /** Name of additional Volume*/
-    6:string volumename,
-
     /** Boolean for http security rule*/
-    7:bool http,
+    5:bool http,
 
     /** Boolean for https security rule*/
-    8:bool https,
+    6:bool https,
 
-    9:list<string> resenv)
+    7:list<string> resenv)
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
@@ -502,6 +552,8 @@ service VirtualMachineService {
 
 	ClusterInfo get_cluster_info(1:string cluster_id)
 
+	map<string,string>get_cluster_status(1:string cluster_id)
+
 
 
 
@@ -599,7 +651,7 @@ service VirtualMachineService {
      * Attach volume to server.
      * Returns:  True if attached, False if not
      */
-    bool attach_volume_to_server(
+    map<string,string> attach_volume_to_server(
     /** Id of server*/
     1:string openstack_id,
 
@@ -615,13 +667,7 @@ service VirtualMachineService {
      */
     VM check_server_status(
     /** Id of the server */
-    1:string openstack_id,
-
-    /** diskspace of server(volume will be attached if server is active and diskpace >0) */
-    2:int diskspace,
-
-    /** Id of the volume */
-    3:string volume_id)
+    1:string openstack_id)
 
     throws (1:serverNotFoundException e,2:ressourceException r),
 
@@ -655,13 +701,13 @@ service VirtualMachineService {
      * Create volume.
      * Returns: Id of new volume
      */
-    string create_volume(
+    map<string,string> create_volume(
 
     /**  Name of volume*/
     1:string volume_name,
 
     /** Diskspace in GB for new volume */
-    2:int diskspace,
+    2:int volume_storage,
 
      /** Metadata for the new volume*/
     3:map<string,string> metadata)

@@ -13,9 +13,16 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
-    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo,Volume
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
     from constants import VERSION
-    from ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
+    from ancon.Playbook import (
+        Playbook,
+        THEIA,
+        GUACAMOLE,
+        ALL_TEMPLATES,
+        RSTUDIO,
+        JUPYTERNOTEBOOK,
+    )
 
 except Exception:
     from .VirtualMachineService import Iface
@@ -26,9 +33,16 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
-    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo,Volume
+    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
     from .constants import VERSION
-    from .ancon.Playbook import Playbook, THEIA, GUACAMOLE, ALL_TEMPLATES, RSTUDIO, JUPYTERNOTEBOOK
+    from .ancon.Playbook import (
+        Playbook,
+        THEIA,
+        GUACAMOLE,
+        ALL_TEMPLATES,
+        RSTUDIO,
+        JUPYTERNOTEBOOK,
+    )
 
 import base64
 import datetime
@@ -64,13 +78,15 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
-    DEFAULT_SECURITY_GROUP = 'defaultSimpleVM'
+    DEFAULT_SECURITY_GROUP = "defaultSimpleVM"
     DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
         for k, v in active_playbooks.items():
-            self.logger.info("Clearing traces of Playbook-VM for (openstack_id): {0}".format(k))
+            self.logger.info(
+                "Clearing traces of Playbook-VM for (openstack_id): {0}".format(k)
+            )
             self.delete_keypair(key_name=self.redis.hget(k, "name").decode("utf-8"))
             v.stop(k)
             self.delete_server(openstack_id=k)
@@ -90,7 +106,7 @@ class VirtualMachineHandler(Iface):
                 auth_url=self.AUTH_URL,
                 project_name=self.PROJECT_NAME,
                 user_domain_name=self.USER_DOMAIN_NAME,
-                project_domain_id=self.PROJECT_DOMAIN_ID
+                project_domain_id=self.PROJECT_DOMAIN_ID,
             )
             conn.authorize()
         except Exception as e:
@@ -128,8 +144,8 @@ class VirtualMachineHandler(Iface):
         self.logger.addHandler(self.ch)
 
         # connection to redis. Uses a pool with 10 connections.
-        self.pool = redis.ConnectionPool(host='redis', port=6379)
-        self.redis = redis.Redis(connection_pool=self.pool, charset='utf-8')
+        self.pool = redis.ConnectionPool(host="redis", port=6379)
+        self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
 
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
@@ -152,7 +168,9 @@ class VirtualMachineHandler(Iface):
             try:
                 self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
-                self.logger.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
+                self.logger.info(
+                    msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
+                )
             except Exception as e:
                 self.logger.exception(e)
                 self.logger.info("Bibigrid not loaded.")
@@ -163,8 +181,14 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
                 self.FORC_ALLOWED = cfg["forc"]["forc_allowed"]
-                self.logger.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
-                self.logger.info("Client allows following research environments and respective versions: {0}".format(self.FORC_ALLOWED))
+                self.logger.info(
+                    msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL)
+                )
+                self.logger.info(
+                    "Client allows following research environments and respective versions: {0}".format(
+                        self.FORC_ALLOWED
+                    )
+                )
             except Exception as e:
                 self.logger.exception(e)
                 self.logger.info("Forc-Backend not loaded.")
@@ -173,8 +197,12 @@ class VirtualMachineHandler(Iface):
                 self.FORC_ALLOWED = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
-                self.SSH_FORMULAR = cfg["openstack_connection"]["ssh_port_calc_formular"]
-                self.UDP_FORMULAR = cfg["openstack_connection"]["udp_port_calc_formular"]
+                self.SSH_FORMULAR = cfg["openstack_connection"][
+                    "ssh_port_calc_formular"
+                ]
+                self.UDP_FORMULAR = cfg["openstack_connection"][
+                    "udp_port_calc_formular"
+                ]
                 self.SSH_PORT_CALCULATION = parser.expr(self.SSH_FORMULAR).compile()
                 self.UDP_PORT_CALCULATION = parser.expr(self.UDP_FORMULAR).compile()
                 self.logger.info("Gateway IP is {}".format(self.GATEWAY_IP))
@@ -289,17 +317,19 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                    lambda x: "tags" in x
-                              and len(x["tags"]) > 0
-                              and x["status"] == "active",
-                    self.conn.list_images(),
+                lambda x: "tags" in x
+                and len(x["tags"]) > 0
+                and x["status"] == "active",
+                self.conn.list_images(),
             ):
 
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
                 self.logger.info(set(ALL_TEMPLATES).intersection(tags))
-                if len(set(ALL_TEMPLATES).intersection(tags)) > 0 and not self.cross_check_forc_image(tags):
+                if len(
+                    set(ALL_TEMPLATES).intersection(tags)
+                ) > 0 and not self.cross_check_forc_image(tags):
                     self.logger.info("Resenv check: Skipping {0}.".format(img["name"]))
                     continue
                 image_type = img.get("image_type", "image")
@@ -316,7 +346,7 @@ class VirtualMachineHandler(Iface):
                     openstack_id=img["id"],
                     description=description,
                     tag=tags,
-                    is_snapshot=image_type == "snapshot"
+                    is_snapshot=image_type == "snapshot",
                 )
                 self.logger.info(image)
 
@@ -366,10 +396,10 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                    lambda x: "tags" in x
-                              and len(x["tags"]) > 0
-                              and x["status"] == "active",
-                    self.conn.list_images(),
+                lambda x: "tags" in x
+                and len(x["tags"]) > 0
+                and x["status"] == "active",
+                self.conn.list_images(),
             ):
                 tags = img.get("tags")
                 if "resenv" in filter_list:
@@ -393,7 +423,7 @@ class VirtualMachineHandler(Iface):
                     openstack_id=img["id"],
                     description=description,
                     tag=tags,
-                    is_snapshot=image_type == "snapshot"
+                    is_snapshot=image_type == "snapshot",
                 )
                 self.logger.info(image)
 
@@ -460,11 +490,7 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception(e)
             flav = Flavor(
-                vcpus=None,
-                ram=None,
-                disk=None,
-                name=None,
-                openstack_id=None,
+                vcpus=None, ram=None, disk=None, name=None, openstack_id=None,
             )
             return flav
 
@@ -481,7 +507,9 @@ class VirtualMachineHandler(Iface):
         try:
             server = self.conn.compute.get_server(openstack_id)
         except Exception as e:
-            self.logger.exception("No Server found {0} | Error {1}".format(openstack_id, e))
+            self.logger.exception(
+                "No Server found {0} | Error {1}".format(openstack_id, e)
+            )
             return VM(status="DELETED")
         if server is None:
             self.logger.exception("No Server  {0}".format(openstack_id))
@@ -568,18 +596,14 @@ class VirtualMachineHandler(Iface):
         image = self.conn.compute.find_image(image)
         if image is None:
             self.logger.exception("Image {0} not found!".format(image))
-            raise imageNotFoundException(
-                Reason=("Image {0} not found".format(image))
-            )
+            raise imageNotFoundException(Reason=("Image {0} not found".format(image)))
         return image
 
     def get_flavor(self, flavor):
         flavor = self.conn.compute.find_flavor(flavor)
         if flavor is None:
             self.logger.exception("Flavor {0} not found!".format(flavor))
-            raise flavorNotFoundException(
-                Reason="Flavor {0} not found!".format(flavor)
-            )
+            raise flavorNotFoundException(Reason="Flavor {0} not found!".format(flavor))
         return flavor
 
     def get_network(self):
@@ -591,23 +615,6 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_volume_by_start(self, volume_storage, volume_name, server_name, metadata):
-        self.logger.info(
-            "Creating volume with {0} GB diskspace".format(volume_storage)
-        )
-        try:
-            volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(volume_storage), metadata=metadata
-            ).to_dict()
-        except Exception as e:
-            self.logger.exception(
-                "Trying to create volume with {0}"
-                " GB for vm {1} error : {2}".format(volume_storage, server_name, e),
-                exc_info=True,
-            )
-            raise ressourceException(Reason=str(e))
-        return volume["id"]
-
     def create_mount_init_script(self, volume_id):
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
@@ -618,41 +625,146 @@ class VirtualMachineHandler(Iface):
         init_script = base64.b64encode(text).decode("utf-8")
         return init_script
 
-    def create_volume(self, volume_name, diskspace, metadata):
+    def create_volume(self, volume_name, volume_storage, metadata):
         """
         Create volume.
         :param volume_name: Name of volume
-        :param diskspace: Diskspace in GB for new volume
+        :param volume_storage: volume_storage in GB for new volume
         :return: Id of new volume
         """
-        self.logger.info("Creating volume with {0} GB diskspace".format(diskspace))
+        self.logger.info("Creating volume with {0} GB diskspace".format(volume_storage))
+
         try:
             volume = self.conn.block_storage.create_volume(
-                name=volume_name, size=int(diskspace), metadata=metadata
-            ).to_dict()
-            volumeId = volume["id"]
-            return volumeId
+                name=volume_name, size=volume_storage, metadata=metadata
+            )
+            self.logger.info(volume)
+            return {"volume_id": volume["id"]}
         except Exception as e:
             self.logger.exception(
-                "Trying to create volume with {0} GB  error : {1}".format(diskspace, e),
+                "Trying to create volume with {0} GB  error : {1}".format(
+                    volume_storage, e
+                ),
                 exc_info=True,
             )
 
             raise ressourceException(Reason=str(e))
 
+    def start_server_with_mounted_volume(
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_id,
+    ):
+        image = self.get_image(image=image)
+        flavor = self.get_flavor(flavor=flavor)
+        network = self.get_network()
+        key_name = metadata.get("elixir_id")[:-18]
+        public_key = urllib.parse.unquote(public_key)
+        key_pair = self.import_keypair(key_name, public_key)
+        init_script = self.create_mount_init_script(volume_id=volume_id)
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+        try:
 
-    def start_server(
-            self,
-            flavor,
-            image,
-            public_key,
-            servername,
-            metadata,
-            diskspace,
-            volumename,
-            https,
-            http,
-            resenv
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                userdata=init_script,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
+            openstack_id = server["id"]
+
+            return {"openstack_id": openstack_id, "volume_id": volume_id}
+
+        except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
+            self.delete_volume(volume_id=volume_id)
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
+            return {}
+
+    def prepare_security_groups_new_server(self, resenv, servername, http, https):
+        custom_security_groups = []
+
+        custom_security_groups.append(
+            self.create_security_group(
+                name=servername + "_ssh", description="Only SSH"
+            ).name
+        )
+
+        if http or https:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_https",
+                    http=http,
+                    https=https,
+                    description="Http/Https",
+                ).name
+            )
+
+        if THEIA in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_theiaide",
+                    resenv=resenv,
+                    description="Theiaide",
+                    ssh=False,
+                ).name
+            )
+        if GUACAMOLE in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_guacamole",
+                    resenv=resenv,
+                    description="Guacamole",
+                    ssh=False,
+                ).name
+            )
+        if RSTUDIO in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_rstudio",
+                    resenv=resenv,
+                    description="Rstudio",
+                    ssh=False,
+                ).name
+            )
+        if JUPYTERNOTEBOOK in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_jupyternotebook",
+                    resenv=resenv,
+                    description="Jupyter Notebook",
+                    ssh=False,
+                ).name
+            )
+
+        return custom_security_groups
+
+    def start_server_without_playbook(
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_id=None,
     ):
         """
         Start a new Server.
@@ -669,9 +781,77 @@ class VirtualMachineHandler(Iface):
         :param resenv: array with names of requested resenvs
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
-        volume_id = ''
         self.logger.info("Start Server {0}".format(servername))
-        custom_security_groups = []
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+
+        try:
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            key_name = metadata.get("elixir_id")[:-18]
+            public_key = urllib.parse.unquote(public_key)
+            key_pair = self.import_keypair(key_name, public_key)
+            if volume_id:
+                init_script = self.create_mount_init_script(volume_id=volume_id)
+            else:
+                init_script = None
+
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                userdata=init_script,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
+
+            openstack_id = server["id"]
+
+            return {"openstack_id": openstack_id}
+        except Exception as e:
+            for security_group in custom_security_groups:
+                self.conn.network.delete_security_group(security_group)
+            self.logger.exception("Start Server {1} error:{0}".format(e, servername))
+            return {}
+
+    def start_server(
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        diskspace,
+        volumename,
+        https,
+        http,
+        resenv,
+    ):
+        """
+        Start a new Server.
+
+        :param flavor: Name of flavor which should be used.
+        :param image: Name of image which should be used
+        :param public_key: Publickey which should be used
+        :param servername: Name of the new server
+        :param elixir_id: Elixir_id of the user who started a new server
+        :param diskspace: Diskspace in GB for volume which should be created
+        :param volumename: Name of the volume
+        :param http: bool for http rule in security group
+        :param https: bool for https rule in security group
+        :param resenv: array with names of requested resenvs
+        :return: {'openstackid': serverId, 'volumeId': volumeId}
+        """
+        self.logger.info("Start Server {0}".format(servername))
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
+
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -680,76 +860,29 @@ class VirtualMachineHandler(Iface):
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
 
-            custom_security_groups.append(
-                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=key_pair.name,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
 
-            if http or https:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + '_https',
-                    http=http, https=https,
-                    description="Http/Https").name)
+            openstack_id = server["id"]
 
-            if THEIA in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_theiaide", resenv=resenv, description="Theiaide", ssh=False
-                ).name)
-            if GUACAMOLE in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_guacamole", resenv=resenv, description="Guacamole",
-                    ssh=False
-                ).name)
-            if RSTUDIO in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_rstudio", resenv=resenv, description="Rstudio",
-                    ssh=False
-                ).name)
-            if JUPYTERNOTEBOOK in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_jupyternotebook", resenv=resenv, description="Jupyter Notebook",
-                    ssh=False
-                ).name)
-
-            if diskspace > "0":
-                volume_id = self.create_volume_by_start(volume_storage=diskspace,
-                                                        volume_name=volumename,
-                                                        server_name=servername, metadata=metadata)
-                init_script = self.create_mount_init_script(volume_id=volume_id)
-
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=key_pair.name,
-                    meta=metadata,
-                    userdata=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-
-                )
-            else:
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=key_pair.name,
-                    meta=metadata,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-                )
-
-            openstack_id = server['id']
-
-            return {"openstackid": openstack_id, "volumeId": volume_id}
+            return {"openstack_id": openstack_id}
         except Exception as e:
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
-    def start_server_with_custom_key(self, flavor, image, servername, metadata, diskspace,
-                                     volumename, http, https, resenv):
+    def start_server_with_custom_key(
+        self, flavor, image, servername, metadata, http, https, resenv
+    ):
 
         """
         Start a new Server.
@@ -764,84 +897,40 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         self.logger.info("Start Server {} with custom key".format(servername))
-        volume_id = ''
-        custom_security_groups = []
-
+        custom_security_groups = self.prepare_security_groups_new_server(
+            resenv=resenv, servername=servername, http=http, https=https
+        )
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
 
-            custom_security_groups.append(
-                self.create_security_group(name=servername + "_ssh", description="Only SSH").name)
-
-            if http or https:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + '_https',
-                    http=http, https=https,
-                    description="Http/Https").name)
-
-            if THEIA in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_theiaide", resenv=resenv, description="Theiaide", ssh=False
-                ).name)
-            if GUACAMOLE in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_guacamole", resenv=resenv, description="Guacamole",
-                    ssh=False
-                ).name)
-            if RSTUDIO in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_rstudio", resenv=resenv, description="Rstudio",
-                    ssh=False
-                ).name)
-            if JUPYTERNOTEBOOK in resenv:
-                custom_security_groups.append(self.create_security_group(
-                    name=servername + "_jupyternotebook", resenv=resenv, description="Jupyter Notebook",
-                    ssh=False
-                ).name)
-
             try:
                 private_key = key_creation["private_key"]
             except Exception:
                 private_key = key_creation.__dict__["private_key"]
 
-            if int(diskspace) > 0:
-                volume_id = self.create_volume_by_start(volume_storage=diskspace,
-                                                        volume_name=volumename,
-                                                        server_name=servername, metadata=metadata)
-                init_script = self.create_mount_init_script(volume_id=volume_id)
+            server = self.conn.create_server(
+                name=servername,
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                key_name=servername,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
+            )
 
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
-                    userdata=init_script,
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-                )
-            else:
-                server = self.conn.create_server(
-                    name=servername,
-                    image=image.id,
-                    flavor=flavor.id,
-                    network=[network.id],
-                    key_name=servername,
-                    meta=metadata,
+            openstack_id = server["id"]
 
-                    availability_zone=self.AVAIALABILITY_ZONE,
-                    security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups
-                )
-
-            openstack_id = server['id']
-
-            self.redis.hmset(openstack_id, dict(key=private_key, name=servername,
-                                                status=self.PREPARE_PLAYBOOK_BUILD))
-            return {"openstackid": openstack_id, "volumeId": volume_id, 'private_key': private_key}
+            self.redis.hmset(
+                openstack_id,
+                dict(
+                    key=private_key, name=servername, status=self.PREPARE_PLAYBOOK_BUILD
+                ),
+            )
+            return {"openstackid": openstack_id, "private_key": private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
             for security_group in custom_security_groups:
@@ -849,19 +938,24 @@ class VirtualMachineHandler(Iface):
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
-    def create_and_deploy_playbook(self, public_key, playbooks_information, openstack_id):
+    def create_and_deploy_playbook(
+        self, public_key, playbooks_information, openstack_id
+    ):
         global active_playbooks
-        self.logger.info(msg="Starting Playbook for (openstack_id): {0}"
-                         .format(openstack_id))
+        self.logger.info(
+            msg="Starting Playbook for (openstack_id): {0}".format(openstack_id)
+        )
         port = self.get_vm_ports(openstack_id=openstack_id)
-        key = self.redis.hget(openstack_id, "key").decode('utf-8')
-        playbook = Playbook(self.GATEWAY_IP,
-                            port["port"],
-                            playbooks_information,
-                            key,
-                            public_key,
-                            self.logger,
-                            self.pool)
+        key = self.redis.hget(openstack_id, "key").decode("utf-8")
+        playbook = Playbook(
+            self.GATEWAY_IP,
+            port["port"],
+            playbooks_information,
+            key,
+            public_key,
+            self.logger,
+            self.pool,
+        )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
         active_playbooks[openstack_id] = playbook
@@ -871,13 +965,15 @@ class VirtualMachineHandler(Iface):
         return self.RE_BACKEND_URL is not None
 
     def get_forc_url(self):
-        url = self.RE_BACKEND_URL.split(':5000', 1)[0]
+        url = self.RE_BACKEND_URL.split(":5000", 1)[0]
         return "{0}/".format(url)
 
     def cross_check_forc_image(self, tags):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code != 200:
                 return ()
             else:
@@ -886,7 +982,10 @@ class VirtualMachineHandler(Iface):
             self.logger.error("Could not get templates from FORC.\n {0}".format(e))
         cross_tags = list(set(ALL_TEMPLATES).intersection(tags))
         for template_dict in templates:
-            if template_dict["name"] in self.FORC_ALLOWED and template_dict["name"] in cross_tags:
+            if (
+                template_dict["name"] in self.FORC_ALLOWED
+                and template_dict["name"] in cross_tags
+            ):
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
         return False
@@ -894,8 +993,11 @@ class VirtualMachineHandler(Iface):
     def create_backend(self, elixir_id, user_key_url, template, upstream_url):
         template_version = self.get_template_version_for(template)
         if template_version is None:
-            self.logger.warning("No suitable template version found for {0}. Aborting backend creation!"
-                                .format(template))
+            self.logger.warning(
+                "No suitable template version found for {0}. Aborting backend creation!".format(
+                    template
+                )
+            )
             return {}
         try:
             post_url = "{0}backends/".format(self.RE_BACKEND_URL)
@@ -904,24 +1006,30 @@ class VirtualMachineHandler(Iface):
                 "user_key_url": user_key_url,
                 "template": template,
                 "template_version": template_version,
-                "upstream_url": upstream_url
+                "upstream_url": upstream_url,
             }
         except Exception as e:
             self.logger.exception(e)
             return {}
         try:
-            response = req.post(post_url, json=backend_info, timeout=(30, 30),
-                                headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.post(
+                post_url,
+                json=backend_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+            )
             try:
                 data = response.json()
             except Exception as e:
                 self.logger.exception(e)
                 return {}
-            return Backend(id=data["id"],
-                           owner=data["owner"],
-                           location_url=data["location_url"],
-                           template=data["template"],
-                           template_version=data["template_version"])
+            return Backend(
+                id=data["id"],
+                owner=data["owner"],
+                location_url=data["location_url"],
+                template=data["template"],
+                template_version=data["template_version"],
+            )
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
             return {}
@@ -932,17 +1040,23 @@ class VirtualMachineHandler(Iface):
     def get_backends(self):
         get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
                 backends = []
                 for data in response.json():
-                    backends.append(Backend(id=data["id"],
-                                            owner=data["owner"],
-                                            location_url=data["location_url"],
-                                            template=data["template"],
-                                            template_version=data["template_version"]))
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
                 return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
@@ -950,17 +1064,23 @@ class VirtualMachineHandler(Iface):
     def get_backends_by_owner(self, elixir_id):
         get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
                 backends = []
                 for data in response.json():
-                    backends.append(Backend(id=data["id"],
-                                            owner=data["owner"],
-                                            location_url=data["location_url"],
-                                            template=data["template"],
-                                            template_version=data["template_version"]))
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
                 return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
@@ -968,17 +1088,23 @@ class VirtualMachineHandler(Iface):
     def get_backends_by_template(self, template):
         get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
                 backends = []
                 for data in response.json():
-                    backends.append(Backend(id=data["id"],
-                                            owner=data["owner"],
-                                            location_url=data["location_url"],
-                                            template=data["template"],
-                                            template_version=data["template_version"]))
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
                 return backends
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
@@ -986,25 +1112,30 @@ class VirtualMachineHandler(Iface):
     def get_backend_by_id(self, id):
         get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             try:
                 data = response.json()
             except Exception as e:
                 self.logger.exception(e)
                 return {}
-            return Backend(id=data["id"],
-                           owner=data["owner"],
-                           location_url=data["location_url"],
-                           template=data["template"],
-                           template_version=data["template_version"])
+            return Backend(
+                id=data["id"],
+                owner=data["owner"],
+                location_url=data["location_url"],
+                template=data["template"],
+                template_version=data["template_version"],
+            )
         except Timeout as e:
             self.logger.info(msg="create_backend timed out. {0}".format(e))
 
     def delete_backend(self, id):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
-            response = req.delete(delete_url, timeout=(30, 30),
-                                  headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.delete(
+                delete_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code != 200:
                 return str(response.json())
             elif response.status_code == 200:
@@ -1042,7 +1173,9 @@ class VirtualMachineHandler(Iface):
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -1053,7 +1186,9 @@ class VirtualMachineHandler(Iface):
     def get_allowed_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             elif response.status_code == 200:
@@ -1065,7 +1200,9 @@ class VirtualMachineHandler(Iface):
     def get_templates_by_template(self, template_name):
         get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -1074,10 +1211,13 @@ class VirtualMachineHandler(Iface):
             self.logger.info(msg="get_templates_by_template timed out. {0}".format(e))
 
     def check_template(self, template_name, template_version):
-        get_url = "{0}/templates/{1}/{2}".format(self.RE_BACKEND_URL, template_name,
-                                                 template_version)
+        get_url = "{0}/templates/{1}/{2}".format(
+            self.RE_BACKEND_URL, template_name, template_version
+        )
         try:
-            response = req.get(get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY})
+            response = req.get(
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+            )
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -1088,14 +1228,14 @@ class VirtualMachineHandler(Iface):
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
         if self.redis.exists(openstack_id) == 1 and openstack_id in active_playbooks:
-            key_name = self.redis.hget(openstack_id, 'name').decode('utf-8')
+            key_name = self.redis.hget(openstack_id, "name").decode("utf-8")
             playbook = active_playbooks.pop(openstack_id)
             status, stdout, stderr = playbook.get_logs()
             playbook.cleanup(openstack_id)
             self.delete_keypair(key_name=key_name)
             return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
         else:
-            return PlaybookResult(status=-2, stdout='', stderr='')
+            return PlaybookResult(status=-2, stdout="", stderr="")
 
     def get_volumes_by_ids(self, volume_ids):
         self.logger.info("Get Volumes {}".format(volume_ids))
@@ -1104,15 +1244,18 @@ class VirtualMachineHandler(Iface):
         for id in volume_ids:
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
-                thrift_volume = Volume(status=os_volume.status, id=os_volume.id,
-                                       name=os_volume.name,
-                                       description=os_volume.description,
-                                       created_at=os_volume.created_at)
+                self.logger.info(os_volume)
+                thrift_volume = Volume(
+                    status=os_volume.status,
+                    id=os_volume.id,
+                    name=os_volume.name,
+                    description=os_volume.description,
+                    created_at=os_volume.created_at,
+                )
                 volumes.append(thrift_volume)
 
             except Exception:
                 self.logger.exception("Could not find volume {}".format(id))
-
 
         return volumes
 
@@ -1122,12 +1265,17 @@ class VirtualMachineHandler(Iface):
 
             os_volume = self.conn.get_volume_by_id(id=volume_id)
 
-            thrift_volume = Volume(status=os_volume.status, id=os_volume.id, name=os_volume.name,
-                                   description=os_volume.description, created_at=os_volume.created_at)
+            thrift_volume = Volume(
+                status=os_volume.status,
+                id=os_volume.id,
+                name=os_volume.name,
+                description=os_volume.description,
+                created_at=os_volume.created_at,
+            )
             return thrift_volume
         except Exception:
             self.logger.exception("Could not find volume {}".format(id))
-            return  Volume(status="NOT FOUND")
+            return Volume(status="NOT FOUND")
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -1138,7 +1286,7 @@ class VirtualMachineHandler(Iface):
         :return: True if attached, False if not
         """
 
-        def checkStatusVolume(volume, conn):
+        def waitTillVolumeIsAvailable(volume, conn):
             self.logger.info("Checking Status Volume {0}".format(volume_id))
             done = False
             while not done:
@@ -1160,7 +1308,7 @@ class VirtualMachineHandler(Iface):
         if server is None:
             self.logger.exception("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
-        if checkStatusVolume(volume_id, self.conn):
+        if waitTillVolumeIsAvailable(volume_id, self.conn):
 
             self.logger.info(
                 "Attaching volume {0} to virtualmachine {1}".format(
@@ -1168,9 +1316,11 @@ class VirtualMachineHandler(Iface):
                 )
             )
             try:
-                self.conn.compute.create_volume_attachment(
+                attachment = self.conn.compute.create_volume_attachment(
                     server=server, volumeId=volume_id
                 )
+                return {"device": attachment["device"]}
+
             except Exception as e:
                 self.logger.exception(
                     "Trying to attache volume {0} to vm {1} error : {2}".format(
@@ -1178,12 +1328,11 @@ class VirtualMachineHandler(Iface):
                     ),
                     exc_info=True,
                 )
-                return False
+                return {"error": e}
 
-            return True
-        return True
+        return {"error": "failed"}
 
-    def check_server_status(self, openstack_id, diskspace, volume_id):
+    def check_server_status(self, openstack_id):
         """
         Check status of server.
 
@@ -1224,22 +1373,12 @@ class VirtualMachineHandler(Iface):
                 if self.netcat(host, port):
                     server = self.get_server(openstack_id)
 
-                    if diskspace > 0:
-                        attached = self.attach_volume_to_server(
-                            openstack_id=openstack_id, volume_id=volume_id
-                        )
-
-                        if attached is False:
-                            self.logger.exception(
-                                "Could not attach volume {} to instance {}".format(volume_id,
-                                                                                   openstack_id))
-
                     if self.redis.exists(openstack_id) == 1:
                         global active_playbooks
                         if openstack_id in active_playbooks:
                             playbook = active_playbooks[openstack_id]
                             playbook.check_status(openstack_id)
-                        status = self.redis.hget(openstack_id, "status").decode('utf-8')
+                        status = self.redis.hget(openstack_id, "status").decode("utf-8")
                         if status == self.PREPARE_PLAYBOOK_BUILD:
                             server.status = self.PREPARE_PLAYBOOK_BUILD
                             return server
@@ -1265,7 +1404,9 @@ class VirtualMachineHandler(Iface):
                 server.status = self.BUILD
                 return server
         except Exception as e:
-            self.logger.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
+            self.logger.exception(
+                "Check Status VM {0} error: {1}".format(openstack_id, e)
+            )
             return None
 
     def openstack_server_to_thrift_server(self, server):
@@ -1277,9 +1418,13 @@ class VirtualMachineHandler(Iface):
         if server["os-extended-volumes:volumes_attached"]:
             volume_id = server["os-extended-volumes:volumes_attached"][0]["id"]
             try:
-                diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
+                diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()[
+                    "size"
+                ]
             except Exception as e:
-                self.logger.exception("Could not found volume {}: {}".format(volume_id, e))
+                self.logger.exception(
+                    "Could not found volume {}: {}".format(volume_id, e)
+                )
 
         if server["OS-SRV-USG:launched_at"]:
             dt = datetime.datetime.strptime(
@@ -1330,8 +1475,12 @@ class VirtualMachineHandler(Iface):
                 server_list.append(thrift_server)
 
             except Exception as e:
-                self.logger.exception("Could not transform to thrift_server: {}".format(e))
-        self.logger.info("Converted {} servers to thrift_server objects".format(len(server_list)))
+                self.logger.exception(
+                    "Could not transform to thrift_server: {}".format(e)
+                )
+        self.logger.info(
+            "Converted {} servers to thrift_server objects".format(len(server_list))
+        )
         # self.logger.info(server_list)
         return server_list
 
@@ -1353,16 +1502,21 @@ class VirtualMachineHandler(Iface):
         sec = self.conn.get_security_group(name_or_id=server.name + "_udp")
         if sec:
             self.logger.info(
-                "Security group with name {} already exists.".format(server.name + "_udp"))
+                "Security group with name {} already exists.".format(
+                    server.name + "_udp"
+                )
+            )
             self.conn.compute.add_security_group_to_server(
                 server=server_id, security_group=sec
             )
 
             return True
 
-        ip_base = \
-            list(self.conn.compute.server_ips(server=server_id))[0].to_dict()['address'].split(".")[
-                -1]
+        ip_base = (
+            list(self.conn.compute.server_ips(server=server_id))[0]
+            .to_dict()["address"]
+            .split(".")[-1]
+        )
         x = int(ip_base)
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
 
@@ -1372,10 +1526,13 @@ class VirtualMachineHandler(Iface):
             udp=True,
             ssh=False,
             https=False,
-            http=False, description="UDP"
+            http=False,
+            description="UDP",
         )
         self.logger.info(security_group)
-        self.logger.info("Add security group {} to server {} ".format(security_group.id, server_id))
+        self.logger.info(
+            "Add security group {} to server {} ".format(security_group.id, server_id)
+        )
         self.conn.compute.add_security_group_to_server(
             server=server_id, security_group=security_group
         )
@@ -1405,15 +1562,34 @@ class VirtualMachineHandler(Iface):
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
         return {"port": str(port), "udp": str(udp_port_start)}
 
+    def terminate_cluster(self, cluster_id):
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        response = req.delete(
+            url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id),
+            json=body,
+            headers=headers,
+            verify=False,
+        )
+        self.logger.info(response.json())
+        return response.json()
+
+    def get_cluster_status(self, cluster_id):
+        self.logger.info("Get Cluster {} status".format(cluster_id))
+        headers = {"content-Type": "application/json"}
+        body = {"mode": "openstack"}
+        request_url = self.BIBIGRID_URL + "info/" + cluster_id
+        response = req.get(url=request_url, json=body, headers=headers, verify=False)
+        self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
+        return response.json()
 
     def get_cluster_info(self, cluster_id):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
-        request_url = self.BIBIGRID_URL + 'list'
+        request_url = self.BIBIGRID_URL + "list"
         self.logger.info(request_url)
 
-        response = req.get(url=request_url, json=body, headers=headers,
-                           verify=False)
+        response = req.get(url=request_url, json=body, headers=headers, verify=False)
         self.logger.info(response.json())
         infos = response.json()["info"]
         for info in infos:
@@ -1422,47 +1598,51 @@ class VirtualMachineHandler(Iface):
             self.logger.info(info["cluster-id"])
             self.logger.info(cluster_id == info["cluster-id"])
             if info["cluster-id"] == cluster_id:
-                cluster_info = ClusterInfo(launch_date=info["launch date"],
-                                           group_id=info["group-id"],
-                                           network_id=info["network-id"],
-                                           public_ip=info["public-ip"],
-                                           subnet_id=info["subnet-id"],
-                                           user=info["user"],
-                                           inst_counter=info["# inst"],
-                                           cluster_id=info["cluster-id"],
-                                           key_name=info["key name"])
+                cluster_info = ClusterInfo(
+                    launch_date=info["launch date"],
+                    group_id=info["group-id"],
+                    network_id=info["network-id"],
+                    public_ip=info["public-ip"],
+                    subnet_id=info["subnet-id"],
+                    user=info["user"],
+                    inst_counter=info["# inst"],
+                    cluster_id=info["cluster-id"],
+                    key_name=info["key name"],
+                )
                 self.logger.info("CLuster info : {}".format(cluster_info))
                 return cluster_info
 
         return None
 
     def get_calculation_formulars(self):
-        return {"ssh_port_calculation": self.SSH_FORMULAR,
-                "udp_port_calculation": self.UDP_FORMULAR}
+        return {
+            "ssh_port_calculation": self.SSH_FORMULAR,
+            "udp_port_calculation": self.UDP_FORMULAR,
+        }
 
     def get_gateway_ip(self):
         return {"gateway_ip": self.GATEWAY_IP}
 
     def start_cluster(self, public_key, master_instance, worker_instances, user):
         master_instance = master_instance.__dict__
-        del master_instance['count']
+        del master_instance["count"]
         wI = []
         for wk in worker_instances:
             self.logger.info(wk)
             wI.append(wk.__dict__)
         headers = {"content-Type": "application/json"}
-        body = {"mode": "openstack", "subnet": self.SUB_NETWORK, "user": user, "sshUser": "ubuntu",
-                "availabilityZone": self.AVAIALABILITY_ZONE, "masterInstance": master_instance,
-                "workerInstances": wI}
-        request_url = self.BIBIGRID_URL + 'create'
-        response = req.post(url=request_url, json=body, headers=headers,
-                                verify=False)
-        self.logger.info(response.json())
-        return response.json()
-
-
-    def terminate_cluster(self, cluster_id):
-        response = req.delete(url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id))
+        body = {
+            "mode": "openstack",
+            "subnet": self.SUB_NETWORK,
+            "sshPublicKeys": [public_key],
+            "user": user,
+            "sshUser": "ubuntu",
+            "availabilityZone": self.AVAIALABILITY_ZONE,
+            "masterInstance": master_instance,
+            "workerInstances": wI,
+        }
+        request_url = self.BIBIGRID_URL + "create"
+        response = req.post(url=request_url, json=body, headers=headers, verify=False)
         self.logger.info(response.json())
         return response.json()
 
@@ -1497,13 +1677,11 @@ class VirtualMachineHandler(Iface):
                 image = self.conn.get_image(name_or_id=snapshot_id)
                 if description:
                     self.conn.update_image_properties(
-                        image=image,
-                        meta={'description': description})
+                        image=image, meta={"description": description}
+                    )
 
                 for tag in base_tags:
-                    self.conn.image.add_tag(
-                        image=snapshot_id, tag=tag
-                    )
+                    self.conn.image.add_tag(image=snapshot_id, tag=tag)
             except Exception:
                 self.logger.exception("Tag error catched")
                 pass
@@ -1630,13 +1808,17 @@ class VirtualMachineHandler(Iface):
                 return True
             security_groups = self.conn.list_server_security_groups(server=server)
             self.logger.info(security_groups)
-            security_groups = [sec for sec in security_groups if
-                               sec.name != self.DEFAULT_SECURITY_GROUP]
+            security_groups = [
+                sec
+                for sec in security_groups
+                if sec.name != self.DEFAULT_SECURITY_GROUP
+            ]
             if security_groups is not None:
                 for sg in security_groups:
                     self.logger.info("Delete security group {0}".format(sg.name))
-                    self.conn.compute.remove_security_group_from_server(server=server,
-                                                                        security_group=sg)
+                    self.conn.compute.remove_security_group_from_server(
+                        server=server, security_group=sg
+                    )
                     self.conn.network.delete_security_group(sg)
                 self.conn.compute.delete_server(server)
             else:
@@ -1644,7 +1826,9 @@ class VirtualMachineHandler(Iface):
 
             return True
         except Exception as e:
-            self.logger.exception("Delete Server {0} error: {1}".format(openstack_id, e))
+            self.logger.exception(
+                "Delete Server {0} error: {1}".format(openstack_id, e)
+            )
             return False
 
     def delete_volume_attachment(self, volume_id, server_id):
@@ -1777,15 +1961,24 @@ class VirtualMachineHandler(Iface):
             return False
 
     def create_security_group(
-            self, name, udp_port_start=None, ssh=True, http=False, https=False, udp=False,
-            description=None, resenv=[]
+        self,
+        name,
+        udp_port_start=None,
+        ssh=True,
+        http=False,
+        https=False,
+        udp=False,
+        description=None,
+        resenv=[],
     ):
         self.logger.info("Create new security group {}".format(name))
         sec = self.conn.get_security_group(name_or_id=name)
         if sec:
             self.logger.info("Security group with name {} already exists.".format(name))
             return sec
-        new_security_group = self.conn.create_security_group(name=name, description=description)
+        new_security_group = self.conn.create_security_group(
+            name=name, description=description
+        )
         if http:
             self.logger.info("Add http rule to security group {}".format(name))
             self.conn.network.create_security_group_rule(
@@ -1894,7 +2087,9 @@ class VirtualMachineHandler(Iface):
                 security_group_id=new_security_group["id"],
             )
         if JUPYTERNOTEBOOK in resenv:
-            self.logger.info("Add jupyternotebook rule to security group {}".format(name))
+            self.logger.info(
+                "Add jupyternotebook rule to security group {}".format(name)
+            )
 
             self.conn.network.create_security_group_rule(
                 direction="ingress",
