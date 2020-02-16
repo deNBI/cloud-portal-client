@@ -965,8 +965,11 @@ class VirtualMachineHandler(Iface):
         return self.RE_BACKEND_URL is not None
 
     def get_forc_url(self):
-        url = self.RE_BACKEND_URL.split(":5000", 1)[0]
-        return "{0}/".format(url)
+        if self.RE_BACKEND_URL is None:
+            return ""
+        else:
+            url = self.RE_BACKEND_URL.split(":5000", 1)[0]
+            return "{0}/".format(url)
 
     def cross_check_forc_image(self, tags):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
