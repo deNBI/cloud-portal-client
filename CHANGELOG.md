@@ -1,3 +1,9 @@
+##  (2020-02-18)
+
+#### Features
+
+* **troubleshooting:**  add troubleshooting page for client ([c7ffe62e](c7ffe62e))
+
 ##  (2020-01-31)
 
 #### Bug Fixes
