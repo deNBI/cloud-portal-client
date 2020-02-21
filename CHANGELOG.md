@@ -1,3 +1,9 @@
+##  (2020-02-21)
+
+#### Refactor
+
+* **Research Environments:** forc get-url method refactor
+
 ##  (2020-02-18)
 
 #### Features
