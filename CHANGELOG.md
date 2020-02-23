@@ -8,6 +8,17 @@
 #### Bug Fixes
 
 * **forc:**  ssl verification ([f6b717a0](f6b717a0))
+##  (2020-02-21)
+
+#### Refactor
+
+* **Research Environments:** forc get-url method refactor
+
+##  (2020-02-18)
+
+#### Features
+
+* **troubleshooting:**  add troubleshooting page for client ([c7ffe62e](c7ffe62e))
 
 ##  (2020-01-31)
 
