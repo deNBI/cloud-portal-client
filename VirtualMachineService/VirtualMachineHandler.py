@@ -975,7 +975,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code != 200:
                 return ()
@@ -1020,6 +1020,7 @@ class VirtualMachineHandler(Iface):
                 json=backend_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=False
             )
             try:
                 data = response.json()
@@ -1044,7 +1045,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}/backends/".format(self.RE_BACKEND_URL)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1068,7 +1069,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1092,7 +1093,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1116,7 +1117,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             try:
                 data = response.json()
@@ -1137,7 +1138,7 @@ class VirtualMachineHandler(Iface):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
         try:
             response = req.delete(
-                delete_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                delete_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code != 200:
                 return str(response.json())
@@ -1177,7 +1178,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1190,7 +1191,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1204,7 +1205,7 @@ class VirtualMachineHandler(Iface):
         get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1219,7 +1220,7 @@ class VirtualMachineHandler(Iface):
         )
         try:
             response = req.get(
-                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}
+                get_url, timeout=(30, 30), headers={"X-API-KEY": self.FORC_API_KEY}, verify=False
             )
             if response.status_code == 401:
                 return [response.json()]
