@@ -1,3 +1,14 @@
+##  (2020-02-23)
+
+
+#### Features
+
+* **Make:** added make dev without build ([efa5d67f](efa5d67f))
+
+#### Bug Fixes
+
+* **forc:**  ssl verification ([f6b717a0](f6b717a0))
+
 ##  (2020-01-31)
 
 #### Bug Fixes
