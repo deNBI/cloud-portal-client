@@ -20,8 +20,11 @@ thrift_py: ## Builds python code from thrift file
 	rm -rf gen-py
 	@echo Remember to fix the imports: for pip relative imports are needed, for others absolute imports
 	
-dev: ## Build and Start the docker-compose.dev.yml
+dev-build: ## Build and Start the docker-compose.dev.yml
 	docker-compose -f docker-compose.dev.yml up --build
+	
+dev: ## Build and Start the docker-compose.dev.yml
+	docker-compose -f docker-compose.dev.yml up 
 	
 production: ## Build Release from .env
 	docker-compose -f docker-compose.yml up --build -d
