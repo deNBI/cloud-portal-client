@@ -1,6 +1,6 @@
 output.elasticsearch:
     hosts:
-      - https://portal-dev.denbi.de:443
+      - "${ELASTIC_URL}"
     path: /elasticsearch/
     username: "${ELASTIC_USER}"
     password: "${ELASTIC_PASSWORD}"
