@@ -1,3 +1,15 @@
+##  (2020-02-27)
+
+
+#### Bug Fixes
+
+* **filebeat:**  elastic output url as variable ([423dbfc0](423dbfc0))
+
+#### Features
+
+* **filebeat:**  container harvesting client logs ([87d46a57](87d46a57))
+
+
 ##  (2020-02-23)
 
 
