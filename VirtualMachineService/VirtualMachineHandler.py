@@ -615,14 +615,24 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_mount_init_script(self, volume_id):
+    def create_mount_init_script(self, volume_ids):
+        if len(volume_ids) == 0:
+            return None
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+        bash_volume_id_array_string = '('
+        for volume_id in volume_ids:
+            bash_volume_id_array_string += "virtio-" + volume_id[0:20] + ' '
+        bash_volume_id_array_string += ')'
+        self.logger.error(bash_volume_id_array_string)
         with open(mount_script, "r") as file:
             text = file.read()
-            text = text.replace("VOLUMEID", "virtio-" + volume_id[0:20])
+            text = text.replace("VOLUME_IDS", bash_volume_id_array_string)
+            self.logger.error(text)
             text = encodeutils.safe_encode(text.encode("utf-8"))
         init_script = base64.b64encode(text).decode("utf-8")
+        self.logger.warning(init_script)
+
         return init_script
 
     def create_volume(self, volume_name, volume_storage, metadata):
@@ -650,17 +660,17 @@ class VirtualMachineHandler(Iface):
 
             raise ressourceException(Reason=str(e))
 
-    def start_server_with_mounted_volume(
-        self,
-        flavor,
-        image,
-        public_key,
-        servername,
-        metadata,
-        https,
-        http,
-        resenv,
-        volume_id,
+    def volume_ids(
+            self,
+            flavor,
+            image,
+            public_key,
+            servername,
+            metadata,
+            https,
+            http,
+            resenv,
+            volume_ids,
     ):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -668,7 +678,7 @@ class VirtualMachineHandler(Iface):
         key_name = metadata.get("elixir_id")[:-18]
         public_key = urllib.parse.unquote(public_key)
         key_pair = self.import_keypair(key_name, public_key)
-        init_script = self.create_mount_init_script(volume_id=volume_id)
+        init_script = self.create_mount_init_script(volume_ids=volume_ids)
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
@@ -687,12 +697,11 @@ class VirtualMachineHandler(Iface):
             )
             openstack_id = server["id"]
 
-            return {"openstack_id": openstack_id, "volume_id": volume_id}
+            return {"openstack_id": openstack_id}
 
         except Exception as e:
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
-            self.delete_volume(volume_id=volume_id)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -755,16 +764,16 @@ class VirtualMachineHandler(Iface):
         return custom_security_groups
 
     def start_server_without_playbook(
-        self,
-        flavor,
-        image,
-        public_key,
-        servername,
-        metadata,
-        https,
-        http,
-        resenv,
-        volume_id=None,
+            self,
+            flavor,
+            image,
+            public_key,
+            servername,
+            metadata,
+            https,
+            http,
+            resenv,
+            volume_ids=None,
     ):
         """
         Start a new Server.
@@ -793,10 +802,9 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
-            if volume_id:
-                init_script = self.create_mount_init_script(volume_id=volume_id)
-            else:
-                init_script = None
+            init_script = self.create_mount_init_script(volume_ids=volume_ids)
+            test ="eintest :  " + init_script
+            self.logger.info(test)
 
             server = self.conn.create_server(
                 name=servername,
@@ -881,7 +889,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-        self, flavor, image, servername, metadata, http, https, resenv
+            self, flavor, image, servername, metadata, http, https, resenv, volume_ids=None
     ):
 
         """
@@ -905,6 +913,7 @@ class VirtualMachineHandler(Iface):
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
+            init_script = self.create_mount_init_script(volume_ids=volume_ids)
 
             try:
                 private_key = key_creation["private_key"]
@@ -917,6 +926,7 @@ class VirtualMachineHandler(Iface):
                 flavor=flavor.id,
                 network=[network.id],
                 key_name=servername,
+                userdata=init_script,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
