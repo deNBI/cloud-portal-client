@@ -626,42 +626,34 @@ class VirtualMachineHandler(Iface):
         return init_script
 
     def get_api_token(self):
-        auth_url = self.conn.endpoint_for('identity')
+        auth_url = self.conn.endpoint_for("identity")
         auth = {
             "auth": {
                 "identity": {
-                    "methods": [
-                        "password"
-                    ],
+                    "methods": ["password"],
                     "password": {
                         "user": {
                             "name": self.USERNAME,
-                            "domain": {
-                                "name": self.USER_DOMAIN_NAME
-                            },
-                            "password": self.PASSWORD
+                            "domain": {"name": self.USER_DOMAIN_NAME},
+                            "password": self.PASSWORD,
                         }
-                    }
+                    },
                 }
             }
         }
-        header = 'Content-type: application/json'
+        header = "Content-type: application/json"
         res = req.post(url=auth_url, json=auth)
         self.logger.info(res.content)
         return res.headers
 
     def resize_volume(self, volume_id, size):
         self.get_api_token()
-        vol3 = self.conn.endpoint_for('volumev3')
+        vol3 = self.conn.endpoint_for("volumev3")
         self.logger.info(vol3)
 
-        body = {
-            "os-extend": {
-                "new_size": size
-            }
-        }
+        body = {"os-extend": {"new_size": size}}
 
-        url = vol3 + '/volumes/' + volume_id + '/action'
+        url = vol3 + "/volumes/" + volume_id + "/action"
         self.logger.info(url)
         res = req.post(url=url, json=body).json()
         self.logger.info(res)
