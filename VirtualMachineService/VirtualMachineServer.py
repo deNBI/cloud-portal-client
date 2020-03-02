@@ -64,6 +64,7 @@ def startServer(config):
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
+    processor.resize_volume('1e4d223a-b450-47f8-b7f1-52df40e4c39b',2)
     transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
