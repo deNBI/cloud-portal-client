@@ -278,7 +278,7 @@ service VirtualMachineService {
 	1:list<string> volume_ids
 	)
 
-	Volume resize_volume(1:string volume_id,2:int size)
+	int resize_volume(1:string volume_id,2:int size)
 
 
 
