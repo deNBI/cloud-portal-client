@@ -654,6 +654,7 @@ class VirtualMachineHandler(Iface):
         url = vol3 + "/volumes/" + volume_id + "/action"
         res = req.post(url=url, json=body,headers=header)
         self.logger.info(res.status_code)
+        self.logger.info(res.content)
         return int(res.status_code)
 
     def create_volume(self, volume_name, volume_storage, metadata):
