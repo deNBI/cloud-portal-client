@@ -274,9 +274,11 @@ service VirtualMachineService {
 	1:string volume_id
 	)
 
-		list<Volume> get_volumes_by_ids(
+	list<Volume> get_volumes_by_ids(
 	1:list<string> volume_ids
 	)
+
+	int resize_volume(1:string volume_id,2:int size)
 
 
 
@@ -503,6 +505,8 @@ service VirtualMachineService {
     Backend get_backend_by_id(
     1:i64 id
     )
+
+
 
     /** Delete a backend*/
     string delete_backend(
