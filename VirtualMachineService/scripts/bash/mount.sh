@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo mkdir -p david
-touch test
+sudo touch test
 declare -a  VOLUME_IDS
 for id in "${VOLUME_IDS[@]}"
 do
@@ -16,8 +16,8 @@ do
     fi;
   done
   cd /dev/disk/by-id || exit
-  mkfs.ext4 "$id"
-  mkdir -p /mnt/volume
-  chmod 777 /mnt/volume/
-  mount "$id" /mnt/volume
+ sudo mkfs.ext4 "$id"
+ sudo mkdir -p /mnt/volume
+ sudo chmod 777 /mnt/volume/
+ sudo  mount "$id" /mnt/volume
 done

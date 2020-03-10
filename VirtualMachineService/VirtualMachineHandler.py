@@ -44,7 +44,6 @@ except Exception:
         JUPYTERNOTEBOOK,
     )
 
-import base64
 import datetime
 import logging
 import os
@@ -628,11 +627,9 @@ class VirtualMachineHandler(Iface):
         with open(mount_script, "r") as file:
             text = file.read()
             text = text.replace("VOLUME_IDS", bash_volume_id_array_string)
-            self.logger.error(text)
             text = encodeutils.safe_encode(text.encode("utf-8"))
-        init_script = base64.b64encode(text).decode("utf-8")
-        self.logger.warning(init_script)
-
+        init_script = text
+        self.logger.info(init_script)
         return init_script
 
     def get_api_token(self):
@@ -662,6 +659,7 @@ class VirtualMachineHandler(Iface):
         header = {"X-Auth-Token": str(token)}
         body = {"os-extend": {"new_size": size}}
         url = vol3 + "/volumes/" + volume_id + "/action"
+        self.logger.info(url)
         res = req.post(url=url, json=body, headers=header)
         self.logger.info(res.status_code)
         self.logger.info(res.content)
@@ -835,8 +833,6 @@ class VirtualMachineHandler(Iface):
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
             init_script = self.create_mount_init_script(volume_ids=volume_ids)
-            test = "eintest :  " + init_script
-            self.logger.info(test)
 
             server = self.conn.create_server(
                 name=servername,
