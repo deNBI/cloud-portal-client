@@ -616,9 +616,9 @@ class VirtualMachineHandler(Iface):
 
     def create_mount_init_script(self, volume_ids_path):
         self.logger.info("create init script for volume ids:{}".format(volume_ids_path))
-        volume_ids=[vol["openstack_id"] for vol in volume_ids_path]
-        paths=[vol["path"] for vol in volume_ids_path]
-        if volume_ids_path  and len(volume_ids_path) == 0:
+        volume_ids = [vol["openstack_id"] for vol in volume_ids_path]
+        paths = [vol["path"] for vol in volume_ids_path]
+        if volume_ids_path and len(volume_ids_path) == 0:
             return None
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
@@ -925,7 +925,15 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-        self, flavor, image, servername, metadata, http, https, resenv, volume_ids_path=None
+        self,
+        flavor,
+        image,
+        servername,
+        metadata,
+        http,
+        https,
+        resenv,
+        volume_ids_path=None,
     ):
 
         """
