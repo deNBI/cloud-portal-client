@@ -614,11 +614,18 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_mount_init_script(self, volume_ids):
-        if len(volume_ids) == 0:
+    def create_mount_init_script(self, volume_ids_path):
+        self.logger.info("create init script for volume ids:{}".format(volume_ids_path))
+        volume_ids=[vol["openstack_id"] for vol in volume_ids_path]
+        paths=[vol["path"] for vol in volume_ids_path]
+        if volume_ids_path  and len(volume_ids_path) == 0:
             return None
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+        bash_volume_path_array_string = "("
+        for path in paths:
+            bash_volume_path_array_string += path + " "
+        bash_volume_path_array_string += ")"
         bash_volume_id_array_string = "("
         for volume_id in volume_ids:
             bash_volume_id_array_string += "virtio-" + volume_id[0:20] + " "
@@ -627,6 +634,7 @@ class VirtualMachineHandler(Iface):
         with open(mount_script, "r") as file:
             text = file.read()
             text = text.replace("VOLUME_IDS", bash_volume_id_array_string)
+            text = text.replace("VOLUME_PATHS", bash_volume_path_array_string)
             text = encodeutils.safe_encode(text.encode("utf-8"))
         init_script = text
         self.logger.info(init_script)
@@ -700,7 +708,7 @@ class VirtualMachineHandler(Iface):
         https,
         http,
         resenv,
-        volume_ids,
+        volume_ids_path,
     ):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -708,7 +716,7 @@ class VirtualMachineHandler(Iface):
         key_name = metadata.get("elixir_id")[:-18]
         public_key = urllib.parse.unquote(public_key)
         key_pair = self.import_keypair(key_name, public_key)
-        init_script = self.create_mount_init_script(volume_ids=volume_ids)
+        init_script = self.create_mount_init_script(volume_ids_path=volume_ids_path)
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
@@ -803,7 +811,7 @@ class VirtualMachineHandler(Iface):
         https,
         http,
         resenv,
-        volume_ids=None,
+        volume_ids_path=None,
     ):
         """
         Start a new Server.
@@ -832,7 +840,7 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
-            init_script = self.create_mount_init_script(volume_ids=volume_ids)
+            init_script = self.create_mount_init_script(volume_ids_path=volume_ids_path)
 
             server = self.conn.create_server(
                 name=servername,
@@ -917,7 +925,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-        self, flavor, image, servername, metadata, http, https, resenv, volume_ids=None
+        self, flavor, image, servername, metadata, http, https, resenv, volume_ids_path=None
     ):
 
         """
@@ -941,7 +949,7 @@ class VirtualMachineHandler(Iface):
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
-            init_script = self.create_mount_init_script(volume_ids=volume_ids)
+            init_script = self.create_mount_init_script(volume_ids_path=volume_ids_path)
 
             try:
                 private_key = key_creation["private_key"]
