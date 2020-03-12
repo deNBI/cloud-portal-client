@@ -134,6 +134,15 @@ class Iface(object):
         """
         pass
 
+    def resize_volume(self, volume_id, size):
+        """
+        Parameters:
+         - volume_id
+         - size
+
+        """
+        pass
+
     def delete_server(self, openstack_id):
         """
         Delete server.
@@ -1092,6 +1101,42 @@ class Client(Iface):
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_volumes_by_ids failed: unknown result",
+        )
+
+    def resize_volume(self, volume_id, size):
+        """
+        Parameters:
+         - volume_id
+         - size
+
+        """
+        self.send_resize_volume(volume_id, size)
+        return self.recv_resize_volume()
+
+    def send_resize_volume(self, volume_id, size):
+        self._oprot.writeMessageBegin("resize_volume", TMessageType.CALL, self._seqid)
+        args = resize_volume_args()
+        args.volume_id = volume_id
+        args.size = size
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_resize_volume(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = resize_volume_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(
+            TApplicationException.MISSING_RESULT, "resize_volume failed: unknown result"
         )
 
     def delete_server(self, openstack_id):
@@ -3103,6 +3148,7 @@ class Processor(Iface, TProcessor):
         ] = Processor.process_get_Images_by_filter
         self._processMap["get_volume"] = Processor.process_get_volume
         self._processMap["get_volumes_by_ids"] = Processor.process_get_volumes_by_ids
+        self._processMap["resize_volume"] = Processor.process_resize_volume
         self._processMap["delete_server"] = Processor.process_delete_server
         self._processMap[
             "add_metadata_to_server"
@@ -3492,6 +3538,31 @@ class Processor(Iface, TProcessor):
                 TApplicationException.INTERNAL_ERROR, "Internal error"
             )
         oprot.writeMessageBegin("get_volumes_by_ids", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_resize_volume(self, seqid, iprot, oprot):
+        args = resize_volume_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = resize_volume_result()
+        try:
+            result.success = self._handler.resize_volume(args.volume_id, args.size)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception("TApplication exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception("Unexpected exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(
+                TApplicationException.INTERNAL_ERROR, "Internal error"
+            )
+        oprot.writeMessageBegin("resize_volume", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -6621,6 +6692,163 @@ all_structs.append(get_volumes_by_ids_result)
 get_volumes_by_ids_result.thrift_spec = (
     (0, TType.LIST, "success", (TType.STRUCT, [Volume, None], False), None,),  # 0
 )
+
+
+class resize_volume_args(object):
+    """
+    Attributes:
+     - volume_id
+     - size
+
+    """
+
+    def __init__(
+        self, volume_id=None, size=None,
+    ):
+        self.volume_id = volume_id
+        self.size = size
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.volume_id = (
+                        iprot.readString().decode("utf-8")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.I32:
+                    self.size = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("resize_volume_args")
+        if self.volume_id is not None:
+            oprot.writeFieldBegin("volume_id", TType.STRING, 1)
+            oprot.writeString(
+                self.volume_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.volume_id
+            )
+            oprot.writeFieldEnd()
+        if self.size is not None:
+            oprot.writeFieldBegin("size", TType.I32, 2)
+            oprot.writeI32(self.size)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(resize_volume_args)
+resize_volume_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, "volume_id", "UTF8", None,),  # 1
+    (2, TType.I32, "size", None, None,),  # 2
+)
+
+
+class resize_volume_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+    def __init__(
+        self, success=None,
+    ):
+        self.success = success
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.I32:
+                    self.success = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("resize_volume_result")
+        if self.success is not None:
+            oprot.writeFieldBegin("success", TType.I32, 0)
+            oprot.writeI32(self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(resize_volume_result)
+resize_volume_result.thrift_spec = ((0, TType.I32, "success", None, None,),)  # 0
 
 
 class delete_server_args(object):
