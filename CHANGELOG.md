@@ -1,3 +1,12 @@
+
+##  (2020-03-13)
+
+
+#### Features
+
+* **Volume:** added resizing 
+* **mosh:**  playbook for installing mosh 
+
 ##  (2020-02-27)
 
 

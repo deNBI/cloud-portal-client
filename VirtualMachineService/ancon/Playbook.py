@@ -10,6 +10,8 @@ THEIA = "theiaide"
 RSTUDIO = "rstudio"
 GUACAMOLE = "guacamole"
 JUPYTERNOTEBOOK = "jupyternotebook"
+OPTIONAL = "optional"
+MOSH = "mosh"
 
 ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
 
@@ -130,6 +132,10 @@ class Playbook(object):
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
+            if playbook_name == OPTIONAL:
+                for k, v in playbook_vars.items():
+                    if k == MOSH:
+                        data[playbook_name + "_defined"][k] = v
 
         playbook_yml = "/{0}.yml".format(playbook_name)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)

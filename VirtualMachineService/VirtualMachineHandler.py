@@ -625,6 +625,38 @@ class VirtualMachineHandler(Iface):
         init_script = base64.b64encode(text).decode("utf-8")
         return init_script
 
+    def get_api_token(self):
+        auth_url = self.conn.endpoint_for("identity")
+        self.logger.info(auth_url)
+        auth = {
+            "auth": {
+                "identity": {
+                    "methods": ["password"],
+                    "password": {
+                        "user": {
+                            "name": self.USERNAME,
+                            "domain": {"name": self.USER_DOMAIN_NAME},
+                            "password": self.PASSWORD,
+                        }
+                    },
+                }
+            }
+        }
+        res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
+        self.logger.info(res.headers)
+        return res.headers["X-Subject-Token"]
+
+    def resize_volume(self, volume_id, size):
+        token = self.get_api_token()
+        vol3 = self.conn.endpoint_for("volumev3")
+        header = {"X-Auth-Token": str(token)}
+        body = {"os-extend": {"new_size": size}}
+        url = vol3 + "/volumes/" + volume_id + "/action"
+        res = req.post(url=url, json=body, headers=header)
+        self.logger.info(res.status_code)
+        self.logger.info(res.content)
+        return int(res.status_code)
+
     def create_volume(self, volume_name, volume_storage, metadata):
         """
         Create volume.
