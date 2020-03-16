@@ -14,6 +14,8 @@ openstack_connection:
   # subnetwork for starting Clusters
   sub_network: portalexternalsubnetwork
 
+  production: False
+
 
 
   floating_ip_network: external
