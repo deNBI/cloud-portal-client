@@ -1646,7 +1646,9 @@ class VirtualMachineHandler(Iface):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         request_url = self.BIBIGRID_URL + "info/" + cluster_id
-        response = req.get(url=request_url, json=body, headers=headers, verify=self.PRODUCTION)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
         return response.json()
 
@@ -1656,7 +1658,9 @@ class VirtualMachineHandler(Iface):
         request_url = self.BIBIGRID_URL + "list"
         self.logger.info(request_url)
 
-        response = req.get(url=request_url, json=body, headers=headers, verify=self.PRODUCTION)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         infos = response.json()["info"]
         for info in infos:
@@ -1709,7 +1713,9 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
         }
         request_url = self.BIBIGRID_URL + "create"
-        response = req.post(url=request_url, json=body, headers=headers, verify=self.PRODUCTION)
+        response = req.post(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         return response.json()
 
