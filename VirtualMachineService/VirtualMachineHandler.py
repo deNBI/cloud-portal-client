@@ -1378,6 +1378,10 @@ class VirtualMachineHandler(Iface):
         for id in volume_ids:
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
+                if os_volume.attachments:
+                    device=os_volume.attachments[0].device
+                else:
+                    device=None
                 self.logger.info(os_volume)
                 thrift_volume = Volume(
                     status=os_volume.status,
@@ -1385,7 +1389,7 @@ class VirtualMachineHandler(Iface):
                     name=os_volume.name,
                     description=os_volume.description,
                     created_at=os_volume.created_at,
-                    device=os_volume.attachments[0].device
+                    device=device
                 )
                 volumes.append(thrift_volume)
 
@@ -1400,6 +1404,10 @@ class VirtualMachineHandler(Iface):
 
             os_volume = self.conn.get_volume_by_id(id=volume_id)
             self.logger.info(os_volume)
+            if os_volume.attachments:
+                device = os_volume.attachments[0].device
+            else:
+                device = None
 
             thrift_volume = Volume(
                 status=os_volume.status,
@@ -1407,7 +1415,7 @@ class VirtualMachineHandler(Iface):
                 name=os_volume.name,
                 description=os_volume.description,
                 created_at=os_volume.created_at,
-                device=os_volume.attachments[0].device
+                device=device
             )
             return thrift_volume
         except Exception:
