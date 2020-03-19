@@ -661,7 +661,6 @@ class VirtualMachineHandler(Iface):
             bash_volume_id_attach_array_string += "virtio-" + volume_id[0:20] + " "
         bash_volume_id_attach_array_string += ")"
 
-        self.logger.error(bash_volume_id_new_array_string)
         with open(mount_script, "r") as file:
             text = file.read()
             text = text.replace("VOLUME_IDS_NEW", bash_volume_id_new_array_string)
