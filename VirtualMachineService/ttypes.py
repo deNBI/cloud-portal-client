@@ -395,17 +395,25 @@ class Volume(object):
      - description
      - status
      - created_at
+     - device
 
     """
 
     def __init__(
-        self, id=None, name=None, description=None, status=None, created_at=None,
+        self,
+        id=None,
+        name=None,
+        description=None,
+        status=None,
+        created_at=None,
+        device=None,
     ):
         self.id = id
         self.name = name
         self.description = description
         self.status = status
         self.created_at = created_at
+        self.device = device
 
     def read(self, iprot):
         if (
@@ -465,6 +473,15 @@ class Volume(object):
                     )
                 else:
                     iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.STRING:
+                    self.device = (
+                        iprot.readString().decode("utf-8")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -509,6 +526,12 @@ class Volume(object):
                 self.created_at.encode("utf-8")
                 if sys.version_info[0] == 2
                 else self.created_at
+            )
+            oprot.writeFieldEnd()
+        if self.device is not None:
+            oprot.writeFieldBegin("device", TType.STRING, 6)
+            oprot.writeString(
+                self.device.encode("utf-8") if sys.version_info[0] == 2 else self.device
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2090,6 +2113,7 @@ Volume.thrift_spec = (
     (3, TType.STRING, "description", "UTF8", None,),  # 3
     (4, TType.STRING, "status", "UTF8", None,),  # 4
     (5, TType.STRING, "created_at", "UTF8", None,),  # 5
+    (6, TType.STRING, "device", "UTF8", None,),  # 6
 )
 all_structs.append(Flavor)
 Flavor.thrift_spec = (

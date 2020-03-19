@@ -32,6 +32,9 @@ struct Volume{
 3:optional string description,
 4:optional string status,
 5:optional string created_at,
+6:optional string device,
+
+
 }
 
 /**
@@ -359,7 +362,8 @@ service VirtualMachineService {
     6:bool https,
     7:bool http,
     8:list<string> resenv,
-    9:string volume_id
+     9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach
 )
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
@@ -386,7 +390,8 @@ service VirtualMachineService {
     6:bool https,
     7:bool http,
     8:list<string> resenv,
-        9:string volume_id,
+     9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach
 )
 
 
@@ -452,7 +457,10 @@ service VirtualMachineService {
     /** Boolean for https security rule*/
     6:bool https,
 
-    7:list<string> resenv)
+    7:list<string> resenv,
+    9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach)
+
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
@@ -660,7 +668,8 @@ service VirtualMachineService {
     1:string openstack_id,
 
     /** Id of volume*/
-    2:string volume_id)
+    2:string volume_id,
+    )
 
     throws (1:serverNotFoundException e),
 
