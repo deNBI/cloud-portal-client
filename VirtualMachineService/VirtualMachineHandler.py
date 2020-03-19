@@ -163,6 +163,7 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
+            self.PRODUCTION = cfg["openstack_connection"]["production"]
             # try to initialize forc connection
             try:
                 self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
@@ -1032,7 +1033,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code != 200:
                 return ()
@@ -1077,7 +1078,7 @@ class VirtualMachineHandler(Iface):
                 json=backend_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             try:
                 data = response.json()
@@ -1105,7 +1106,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1132,7 +1133,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1159,7 +1160,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1186,7 +1187,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             try:
                 data = response.json()
@@ -1210,7 +1211,7 @@ class VirtualMachineHandler(Iface):
                 delete_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code != 200:
                 return str(response.json())
@@ -1253,7 +1254,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1269,7 +1270,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1286,7 +1287,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1304,7 +1305,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1657,7 +1658,7 @@ class VirtualMachineHandler(Iface):
             url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id),
             json=body,
             headers=headers,
-            verify=False,
+            verify=self.PRODUCTION,
         )
         self.logger.info(response.json())
         return response.json()
@@ -1667,7 +1668,9 @@ class VirtualMachineHandler(Iface):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         request_url = self.BIBIGRID_URL + "info/" + cluster_id
-        response = req.get(url=request_url, json=body, headers=headers, verify=False)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
         return response.json()
 
@@ -1677,7 +1680,9 @@ class VirtualMachineHandler(Iface):
         request_url = self.BIBIGRID_URL + "list"
         self.logger.info(request_url)
 
-        response = req.get(url=request_url, json=body, headers=headers, verify=False)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         infos = response.json()["info"]
         for info in infos:
@@ -1730,7 +1735,9 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
         }
         request_url = self.BIBIGRID_URL + "create"
-        response = req.post(url=request_url, json=body, headers=headers, verify=False)
+        response = req.post(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         return response.json()
 
