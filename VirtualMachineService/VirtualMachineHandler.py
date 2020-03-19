@@ -615,8 +615,12 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_mount_init_script(self, volume_ids_path_new=None, volume_ids_path_attach=None):
-        self.logger.info("create init script for volume ids:{}".format(volume_ids_path_new))
+    def create_mount_init_script(
+        self, volume_ids_path_new=None, volume_ids_path_attach=None
+    ):
+        self.logger.info(
+            "create init script for volume ids:{}".format(volume_ids_path_new)
+        )
         if not volume_ids_path_new and not volume_ids_path_attach:
             return None
 
@@ -663,7 +667,9 @@ class VirtualMachineHandler(Iface):
             text = text.replace("VOLUME_IDS_NEW", bash_volume_id_new_array_string)
             text = text.replace("VOLUME_PATHS_NEW", bash_volume_path_new_array_string)
             text = text.replace("VOLUME_IDS_ATTACH", bash_volume_id_attach_array_string)
-            text = text.replace("VOLUME_PATHS_ATTACH", bash_volume_path_attach_array_string)
+            text = text.replace(
+                "VOLUME_PATHS_ATTACH", bash_volume_path_attach_array_string
+            )
             text = encodeutils.safe_encode(text.encode("utf-8"))
         init_script = text
         self.logger.info(init_script)
@@ -728,25 +734,28 @@ class VirtualMachineHandler(Iface):
             raise ressourceException(Reason=str(e))
 
     def volume_ids(
-            self,
-            flavor,
-            image,
-            public_key,
-            servername,
-            metadata,
-            https,
-            http,
-            resenv,
-            volume_ids_path_new,
-            volume_ids_path_attach):
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_ids_path_new,
+        volume_ids_path_attach,
+    ):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
         network = self.get_network()
         key_name = metadata.get("elixir_id")[:-18]
         public_key = urllib.parse.unquote(public_key)
         key_pair = self.import_keypair(key_name, public_key)
-        init_script = self.create_mount_init_script(volume_ids_path_new=volume_ids_path_new,
-                                                    volume_ids_path_attach=volume_ids_path_attach)
+        init_script = self.create_mount_init_script(
+            volume_ids_path_new=volume_ids_path_new,
+            volume_ids_path_attach=volume_ids_path_attach,
+        )
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
@@ -832,17 +841,17 @@ class VirtualMachineHandler(Iface):
         return custom_security_groups
 
     def start_server_without_playbook(
-            self,
-            flavor,
-            image,
-            public_key,
-            servername,
-            metadata,
-            https,
-            http,
-            resenv,
-            volume_ids_path_new=None,
-            volume_ids_path_attach=None
+        self,
+        flavor,
+        image,
+        public_key,
+        servername,
+        metadata,
+        https,
+        http,
+        resenv,
+        volume_ids_path_new=None,
+        volume_ids_path_attach=None,
     ):
         """
         Start a new Server.
@@ -878,12 +887,15 @@ class VirtualMachineHandler(Iface):
                 volume_ids.extend([vol["openstack_id"] for vol in volume_ids_path_new])
             if volume_ids_path_attach:
                 volume_ids.extend(
-                    [vol["openstack_id"] for vol in volume_ids_path_attach])
+                    [vol["openstack_id"] for vol in volume_ids_path_attach]
+                )
             for id in volume_ids:
                 volumes.append(self.conn.get_volume_by_id(id=id))
             self.logger.info(volumes)
-            init_script = self.create_mount_init_script(volume_ids_path_new=volume_ids_path_new,
-                                                        volume_ids_path_attach=volume_ids_path_attach)
+            init_script = self.create_mount_init_script(
+                volume_ids_path_new=volume_ids_path_new,
+                volume_ids_path_attach=volume_ids_path_attach,
+            )
 
             server = self.conn.create_server(
                 name=servername,
@@ -969,16 +981,16 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-            self,
-            flavor,
-            image,
-            servername,
-            metadata,
-            http,
-            https,
-            resenv,
-            volume_ids_path_new=None,
-            volume_ids_path_attach=None
+        self,
+        flavor,
+        image,
+        servername,
+        metadata,
+        http,
+        https,
+        resenv,
+        volume_ids_path_new=None,
+        volume_ids_path_attach=None,
     ):
 
         """
@@ -1002,8 +1014,10 @@ class VirtualMachineHandler(Iface):
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
-            init_script = self.create_mount_init_script(volume_ids_path_new=volume_ids_path_new,
-                                                        volume_ids_path_attach=volume_ids_path_attach)
+            init_script = self.create_mount_init_script(
+                volume_ids_path_new=volume_ids_path_new,
+                volume_ids_path_attach=volume_ids_path_attach,
+            )
 
             try:
                 private_key = key_creation["private_key"]
@@ -1379,9 +1393,9 @@ class VirtualMachineHandler(Iface):
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
                 if os_volume.attachments:
-                    device=os_volume.attachments[0].device
+                    device = os_volume.attachments[0].device
                 else:
-                    device=None
+                    device = None
                 self.logger.info(os_volume)
                 thrift_volume = Volume(
                     status=os_volume.status,
@@ -1389,7 +1403,7 @@ class VirtualMachineHandler(Iface):
                     name=os_volume.name,
                     description=os_volume.description,
                     created_at=os_volume.created_at,
-                    device=device
+                    device=device,
                 )
                 volumes.append(thrift_volume)
 
@@ -1415,7 +1429,7 @@ class VirtualMachineHandler(Iface):
                 name=os_volume.name,
                 description=os_volume.description,
                 created_at=os_volume.created_at,
-                device=device
+                device=device,
             )
             return thrift_volume
         except Exception:
