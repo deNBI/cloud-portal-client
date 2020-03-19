@@ -44,7 +44,6 @@ except Exception:
         JUPYTERNOTEBOOK,
     )
 
-import base64
 import datetime
 import logging
 import os
@@ -164,6 +163,7 @@ class VirtualMachineHandler(Iface):
                 "floating_ip_network"
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
+            self.PRODUCTION = cfg["openstack_connection"]["production"]
             # try to initialize forc connection
             try:
                 self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
@@ -615,14 +615,63 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
-    def create_mount_init_script(self, volume_id):
+    def create_mount_init_script(
+        self, volume_ids_path_new=None, volume_ids_path_attach=None
+    ):
+        self.logger.info(
+            "create init script for volume ids:{}".format(volume_ids_path_new)
+        )
+        if not volume_ids_path_new and not volume_ids_path_attach:
+            return None
+
         fileDir = os.path.dirname(os.path.abspath(__file__))
         mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+
+        if volume_ids_path_new:
+            volume_ids_new = [vol["openstack_id"] for vol in volume_ids_path_new]
+            paths_new = [vol["path"] for vol in volume_ids_path_new]
+        else:
+            volume_ids_new = []
+            paths_new = []
+
+        if volume_ids_path_attach:
+            volume_ids_attach = [vol["openstack_id"] for vol in volume_ids_path_attach]
+            paths_attach = [vol["path"] for vol in volume_ids_path_attach]
+        else:
+            volume_ids_attach = []
+            paths_attach = []
+
+        bash_volume_path_new_array_string = "("
+        for path in paths_new:
+            bash_volume_path_new_array_string += path + " "
+        bash_volume_path_new_array_string += ")"
+
+        bash_volume_path_attach_array_string = "("
+        for path in paths_attach:
+            bash_volume_path_attach_array_string += path + " "
+        bash_volume_path_attach_array_string += ")"
+
+        bash_volume_id_new_array_string = "("
+        for volume_id in volume_ids_new:
+            bash_volume_id_new_array_string += "virtio-" + volume_id[0:20] + " "
+        bash_volume_id_new_array_string += ")"
+
+        bash_volume_id_attach_array_string = "("
+        for volume_id in volume_ids_attach:
+            bash_volume_id_attach_array_string += "virtio-" + volume_id[0:20] + " "
+        bash_volume_id_attach_array_string += ")"
+
         with open(mount_script, "r") as file:
             text = file.read()
-            text = text.replace("VOLUMEID", "virtio-" + volume_id[0:20])
+            text = text.replace("VOLUME_IDS_NEW", bash_volume_id_new_array_string)
+            text = text.replace("VOLUME_PATHS_NEW", bash_volume_path_new_array_string)
+            text = text.replace("VOLUME_IDS_ATTACH", bash_volume_id_attach_array_string)
+            text = text.replace(
+                "VOLUME_PATHS_ATTACH", bash_volume_path_attach_array_string
+            )
             text = encodeutils.safe_encode(text.encode("utf-8"))
-        init_script = base64.b64encode(text).decode("utf-8")
+        init_script = text
+        self.logger.info(init_script)
         return init_script
 
     def get_api_token(self):
@@ -652,6 +701,7 @@ class VirtualMachineHandler(Iface):
         header = {"X-Auth-Token": str(token)}
         body = {"os-extend": {"new_size": size}}
         url = vol3 + "/volumes/" + volume_id + "/action"
+        self.logger.info(url)
         res = req.post(url=url, json=body, headers=header)
         self.logger.info(res.status_code)
         self.logger.info(res.content)
@@ -682,7 +732,7 @@ class VirtualMachineHandler(Iface):
 
             raise ressourceException(Reason=str(e))
 
-    def start_server_with_mounted_volume(
+    def volume_ids(
         self,
         flavor,
         image,
@@ -692,7 +742,8 @@ class VirtualMachineHandler(Iface):
         https,
         http,
         resenv,
-        volume_id,
+        volume_ids_path_new,
+        volume_ids_path_attach,
     ):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -700,7 +751,10 @@ class VirtualMachineHandler(Iface):
         key_name = metadata.get("elixir_id")[:-18]
         public_key = urllib.parse.unquote(public_key)
         key_pair = self.import_keypair(key_name, public_key)
-        init_script = self.create_mount_init_script(volume_id=volume_id)
+        init_script = self.create_mount_init_script(
+            volume_ids_path_new=volume_ids_path_new,
+            volume_ids_path_attach=volume_ids_path_attach,
+        )
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
@@ -719,12 +773,11 @@ class VirtualMachineHandler(Iface):
             )
             openstack_id = server["id"]
 
-            return {"openstack_id": openstack_id, "volume_id": volume_id}
+            return {"openstack_id": openstack_id}
 
         except Exception as e:
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
-            self.delete_volume(volume_id=volume_id)
             self.logger.exception("Start Server {1} error:{0}".format(e, servername))
             return {}
 
@@ -796,7 +849,8 @@ class VirtualMachineHandler(Iface):
         https,
         http,
         resenv,
-        volume_id=None,
+        volume_ids_path_new=None,
+        volume_ids_path_attach=None,
     ):
         """
         Start a new Server.
@@ -825,10 +879,22 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
-            if volume_id:
-                init_script = self.create_mount_init_script(volume_id=volume_id)
-            else:
-                init_script = None
+            volume_ids = []
+            volumes = []
+
+            if volume_ids_path_new:
+                volume_ids.extend([vol["openstack_id"] for vol in volume_ids_path_new])
+            if volume_ids_path_attach:
+                volume_ids.extend(
+                    [vol["openstack_id"] for vol in volume_ids_path_attach]
+                )
+            for id in volume_ids:
+                volumes.append(self.conn.get_volume_by_id(id=id))
+            self.logger.info(volumes)
+            init_script = self.create_mount_init_script(
+                volume_ids_path_new=volume_ids_path_new,
+                volume_ids_path_attach=volume_ids_path_attach,
+            )
 
             server = self.conn.create_server(
                 name=servername,
@@ -837,6 +903,7 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
+                volumes=volumes,
                 userdata=init_script,
                 availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
@@ -913,7 +980,16 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server_with_custom_key(
-        self, flavor, image, servername, metadata, http, https, resenv
+        self,
+        flavor,
+        image,
+        servername,
+        metadata,
+        http,
+        https,
+        resenv,
+        volume_ids_path_new=None,
+        volume_ids_path_attach=None,
     ):
 
         """
@@ -937,6 +1013,10 @@ class VirtualMachineHandler(Iface):
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
             key_creation = self.conn.create_keypair(name=servername)
+            init_script = self.create_mount_init_script(
+                volume_ids_path_new=volume_ids_path_new,
+                volume_ids_path_attach=volume_ids_path_attach,
+            )
 
             try:
                 private_key = key_creation["private_key"]
@@ -949,6 +1029,7 @@ class VirtualMachineHandler(Iface):
                 flavor=flavor.id,
                 network=[network.id],
                 key_name=servername,
+                userdata=init_script,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
@@ -1010,7 +1091,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code != 200:
                 return ()
@@ -1055,7 +1136,7 @@ class VirtualMachineHandler(Iface):
                 json=backend_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             try:
                 data = response.json()
@@ -1083,7 +1164,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1110,7 +1191,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1137,7 +1218,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1164,7 +1245,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             try:
                 data = response.json()
@@ -1188,7 +1269,7 @@ class VirtualMachineHandler(Iface):
                 delete_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code != 200:
                 return str(response.json())
@@ -1231,7 +1312,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1247,7 +1328,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1264,7 +1345,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1282,7 +1363,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=False,
+                verify=self.PRODUCTION,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1310,6 +1391,10 @@ class VirtualMachineHandler(Iface):
         for id in volume_ids:
             try:
                 os_volume = self.conn.get_volume_by_id(id=id)
+                if os_volume.attachments:
+                    device = os_volume.attachments[0].device
+                else:
+                    device = None
                 self.logger.info(os_volume)
                 thrift_volume = Volume(
                     status=os_volume.status,
@@ -1317,6 +1402,7 @@ class VirtualMachineHandler(Iface):
                     name=os_volume.name,
                     description=os_volume.description,
                     created_at=os_volume.created_at,
+                    device=device,
                 )
                 volumes.append(thrift_volume)
 
@@ -1330,6 +1416,11 @@ class VirtualMachineHandler(Iface):
         try:
 
             os_volume = self.conn.get_volume_by_id(id=volume_id)
+            self.logger.info(os_volume)
+            if os_volume.attachments:
+                device = os_volume.attachments[0].device
+            else:
+                device = None
 
             thrift_volume = Volume(
                 status=os_volume.status,
@@ -1337,6 +1428,7 @@ class VirtualMachineHandler(Iface):
                 name=os_volume.name,
                 description=os_volume.description,
                 created_at=os_volume.created_at,
+                device=device,
             )
             return thrift_volume
         except Exception:
@@ -1635,7 +1727,7 @@ class VirtualMachineHandler(Iface):
             url="{}terminate/{}".format(self.BIBIGRID_URL, cluster_id),
             json=body,
             headers=headers,
-            verify=False,
+            verify=self.PRODUCTION,
         )
         self.logger.info(response.json())
         return response.json()
@@ -1645,7 +1737,9 @@ class VirtualMachineHandler(Iface):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         request_url = self.BIBIGRID_URL + "info/" + cluster_id
-        response = req.get(url=request_url, json=body, headers=headers, verify=False)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
         return response.json()
 
@@ -1655,7 +1749,9 @@ class VirtualMachineHandler(Iface):
         request_url = self.BIBIGRID_URL + "list"
         self.logger.info(request_url)
 
-        response = req.get(url=request_url, json=body, headers=headers, verify=False)
+        response = req.get(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         infos = response.json()["info"]
         for info in infos:
@@ -1708,7 +1804,9 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
         }
         request_url = self.BIBIGRID_URL + "create"
-        response = req.post(url=request_url, json=body, headers=headers, verify=False)
+        response = req.post(
+            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
+        )
         self.logger.info(response.json())
         return response.json()
 
