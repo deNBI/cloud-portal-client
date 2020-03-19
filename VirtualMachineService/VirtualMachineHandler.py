@@ -871,6 +871,17 @@ class VirtualMachineHandler(Iface):
             key_name = metadata.get("elixir_id")[:-18]
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
+            volume_ids = []
+            volumes = []
+
+            if volume_ids_path_new:
+                volume_ids.extend([vol["openstack_id"] for vol in volume_ids_path_new])
+            if volume_ids_path_attach:
+                volume_ids.extend(
+                    [vol["openstack_id"] for vol in volume_ids_path_attach])
+            for id in volume_ids:
+                volumes.append(self.conn.get_volume_by_id(id=id))
+            self.logger.info(volumes)
             init_script = self.create_mount_init_script(volume_ids_path_new=volume_ids_path_new,
                                                         volume_ids_path_attach=volume_ids_path_attach)
 
@@ -881,6 +892,7 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
+                volumes=volumes,
                 userdata=init_script,
                 availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
@@ -1373,6 +1385,7 @@ class VirtualMachineHandler(Iface):
                     name=os_volume.name,
                     description=os_volume.description,
                     created_at=os_volume.created_at,
+                    device=os_volume.attachments[0].device
                 )
                 volumes.append(thrift_volume)
 
@@ -1386,6 +1399,7 @@ class VirtualMachineHandler(Iface):
         try:
 
             os_volume = self.conn.get_volume_by_id(id=volume_id)
+            self.logger.info(os_volume)
 
             thrift_volume = Volume(
                 status=os_volume.status,
@@ -1393,6 +1407,7 @@ class VirtualMachineHandler(Iface):
                 name=os_volume.name,
                 description=os_volume.description,
                 created_at=os_volume.created_at,
+                device=os_volume.attachments[0].device
             )
             return thrift_volume
         except Exception:
