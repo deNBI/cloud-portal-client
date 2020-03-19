@@ -360,7 +360,8 @@ service VirtualMachineService {
     6:bool https,
     7:bool http,
     8:list<string> resenv,
-    9:list<map<string,string>> volume_ids_path
+     9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach
 )
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
@@ -387,7 +388,8 @@ service VirtualMachineService {
     6:bool https,
     7:bool http,
     8:list<string> resenv,
-    9:list<map<string,string>> volume_ids_path
+     9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach
 )
 
 
@@ -454,7 +456,9 @@ service VirtualMachineService {
     6:bool https,
 
     7:list<string> resenv,
-    9:list<map<string,string>> volume_ids_path)
+    9:list<map<string,string>> volume_ids_path_new,
+     10:list<map<string,string>> volume_ids_path_attach)
+
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
