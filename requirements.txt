@@ -6,7 +6,7 @@ deprecated == 1.2.7
 Click==7.0
 flake8==3.7.7
 ansible==2.9.6
-ruamel.yaml<0.16.00
+ruamel.yaml<0.17.0
 paramiko==2.6.0
 pyvim==2.0.24
 redis==3.3.6
