@@ -10,4 +10,4 @@ ruamel.yaml<0.16.00
 paramiko==2.6.0
 pyvim==2.0.24
 redis==3.3.6
-requests==2.22.0
+requests==2.23.0
