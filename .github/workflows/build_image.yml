@@ -1,0 +1,12 @@
+name: build-image
+on: pull_request
+jobs:   
+    build-test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Workflow run cleanup action
+              uses: rokroskar/workflow-run-cleanup-action@v0.2.2
+              env:
+                GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+            - uses: actions/checkout@v2
+            - run: docker build --no-cache --build-arg  -t client .  
