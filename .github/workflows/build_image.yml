@@ -9,4 +9,4 @@ jobs:
               env:
                 GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
             - uses: actions/checkout@v2
-            - run: docker build --no-cache -t client Dockerfile  
+            - run: docker build --no-cache .
