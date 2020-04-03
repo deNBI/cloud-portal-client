@@ -168,6 +168,7 @@ class VirtualMachineHandler(Iface):
             try:
                 self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
+                self.BIBIGRID_MODES = cfg["bibigrid"]["bibigrid_modes"]
                 self.logger.info(
                     msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
                 )
@@ -1803,6 +1804,8 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
         }
+        for mode in self.BIBIGRID_MODES:
+            body.update({mode: True})
         request_url = self.BIBIGRID_URL + "create"
         response = req.post(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
