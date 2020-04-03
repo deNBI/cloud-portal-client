@@ -1,4 +1,4 @@
-FROM python:3.7.7-slim
+FROM python:3.8.2-slim
 ADD . /code
 WORKDIR /code
 RUN  apt-get update -y 
