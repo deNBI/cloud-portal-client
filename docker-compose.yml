@@ -4,6 +4,9 @@ services:
     image: denbicloud/cloud-portal-client:${CLOUD_CLIENT_TAG}
     ports:
      - "9090:9090"
+     
+    env_file:
+        - .env
 
     environment:
       - OS_AUTH_URL
@@ -21,7 +24,7 @@ services:
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
-     - portal
+     - portal   
 
   redis:
     image: redis:5.0.5
