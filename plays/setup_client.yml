@@ -40,6 +40,8 @@
       with_items:
         - { src: "{{client_server_pem}}", dest: "{{ client.PERSISTENT_CERT_FILE_PATH }}/server.pem" }
         - { src:  "{{client_server_pem}}", dest: "{{ client.CERT_FILE_PATH }}/server.pem" }
+        - { src:  "{{client_server_pem}}", dest: "{{ client.CERT_FILE_PATH }}/localhost/server.pem" }
+
       when: client_server_pem is defined
      
     - name: Copy specified client pem file to remote machine persistent from default path

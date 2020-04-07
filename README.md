@@ -171,3 +171,84 @@ if __name__ == '__main__':
     server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     server.serve()
 ```
+
+### Deployment via ansible
+
+#### 1.Create your inventory file:
+
+Example:
+
+~~~BASH
+[test]
+REMOTE_IP ansible_user=ubuntu ansible_ssh_private_key_file=PATH_TO_SSH_FILE ansible_python_interpreter=/usr/bin/python3
+~~~
+
+where
+  
+  * REMOTE_IP is the IP of your staging machine
+  
+  * PATH_TO_SSH_FILE is the path to the ssh key of the virtual machine
+
+#### 2.Set SSH keyforwarding
+
+In order to checkout the GitHub project you will have to enable
+SSH Key forwarding in your `~/.ssh/config` file.
+
+~~~BASH
+Host IP 
+ ForwardAgent yes
+~~~
+
+where `IP` is the IP of the machine you want to start the portal.
+
+#### 3.Set SSH Key in Github
+
+The GitHub repository will cloned using an ssh key you set for the GitHub repository.
+You can read how to set an ssh key for the cloud-portal repository on [this website](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/).
+
+
+#### 4.Install needed libraries
+
+~~~BASH
+ansible-galaxy install -r ansible_requirements.yml
+~~~
+
+#### 5 Create your own  secrets file
+
+Copy the `.secrets.in` to `.secrets`.
+
+#### 6.Set all variables
+
+Set all variables that can be found in  `.env` and `.secrets` file.
+
+#### 8.Run the playbook
+
+You can run the playbook using the following command:
+
+~~~BASH
+ansible-playbook  -i inventory_openstack site.yml
+~~~
+
+where 
+
+  * inventory_openstack is your inventory file which you created in the first step.
+  
+  
+**Choose  different files**
+
+You can also specify different .env , .secrets and server.pem files.
+
+You can also specify branch, tag, commit that should be checked out with `--extra-vars`.
+
+For Example:
+
+~~~BASH
+ansible-playbook -i inventory_openstack --extra-vars "repo_version=master" site.yml
+~~~
+Optional Keys are:
++ repo_version
++ env_file
++ secrets_file
++ client_server_pem
+
+**Note:** Default repository is always master. Also by default, the files are taken from the folders as for local start.
