@@ -51,18 +51,17 @@
       when: client_server_pem is not defined and stat_client_pem.exists == False
      
      
-        
     - name: Copy env file default
       copy:
         src: "../.env"
-        dest: "{{ client.REPO_PATH }}.env"
+        dest: "{{ client.REPO_PATH }}/.env"
         backup: yes
       when: env_file is not defined
       
     - name: Copy env file
       copy:
         src: "{{env_file}}"
-        dest: "{{ client.REPO_PATH }}.env"
+        dest: "{{ client.REPO_PATH }}/.env"
         backup: yes
       when: env_file is defined
 
@@ -70,19 +69,35 @@
     - name: Copy secrets file default
       copy:
         src: "../.secrets"
-        dest: "{{ client.REPO_PATH }}.secrets"
+        dest: "{{ client.REPO_PATH }}/.secrets"
         backup: yes
       when: secrets_file is not defined
       
     - name: Copy secrets file
       copy:
         src: "{{secrets_file}}"
-        dest: "{{ client.REPO_PATH }}.secrets"
+        dest: "{{ client.REPO_PATH }}/.secrets"
         backup: yes
       when: secrets_file is defined
 
+  
+      
+    - name: Create variable files
+      copy: 
+        content: "{{ item.content | dict2items | map('to_json') | map('regex_replace', '\"key\":\\s\"(.*)\"', lookup('vars', 'regex_env')) | map('from_json') | list}}"
+        dest: "{{ client.REPO_PATH }}/.ansible_environment_{{ item.name }}.json"
+        backup: yes
+      vars:
+        regex_env: "\"key\": \"{{ item.name }}_\\1\""
+      with_items:
+        - { content: "{{ client }}", name: 'client' }
+
+    - name: Transform json to properties file
+      shell: rm -f "{{ client.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ client.REPO_PATH }}"/.ansible_environment_*.json >> "{{ client.REPO_PATH }}"/.ansible_environment
+
     - name: Append secrets to env file
-      shell: cat "{{ client.REPO_PATH }}"/.secrets  >> "{{ client.REPO_PATH }}"/.env
+      shell: cat "{{ client.REPO_PATH }}"/.secrets "{{ client.REPO_PATH }}"/.ansible_environment >> "{{ client.REPO_PATH }}"/.env
+
 
 
     
