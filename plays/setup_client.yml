@@ -1,0 +1,112 @@
+kate- name: Setup Client
+  hosts: all
+  become: yes
+  vars_files:
+    - general_variables.yml
+  tasks:
+
+    - name: Setup persistent client directory
+      file:
+        path: "{{ client.PERSISTENT_PATH }}"
+        state: directory
+    - name: Setup persistent client cert directory
+      file:
+        path: "{{ client.PERSISTENT_PATH }}"
+        state: directory
+
+    - name: Check if client config file exists already
+      stat:
+        path: "{{ client.PERSISTENT_PATH }}/config.yml"
+      register: stat_client_config
+      
+    - name: Check if server pem file exists already
+      stat:
+        path: "{{ client.PERSISTENT_PATH }}/server.pem"
+      register: stat_client_pem
+
+    - name: Copy client config file from config folder
+      copy: 
+        remote_src: True 
+        src: "{{ client.CONFIG_DIR_PATH }}/config.yml"  
+        dest: "{{ client.PERSISTENT_PATH }}/config.yml" 
+      when: client_config is not defined and stat_client_config.stat.exists == False
+
+    - name: Copy specified client config file to remote machine 
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: "{{client_config}}", dest:  "{{ client.PERSISTENT_PATH }}/config.yml" }
+      when: client_config is defined
+      
+        
+    - name: Copy specified server pem file to remote machine persistent
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: "{{client_server_pem}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
+      when: client_server_pem is defined
+     
+    - name: Copy specified server pem file to remote machine persistent from default path
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src:  "{{client.CERT_FILE_PATH}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
+      when: client_server_pem is not defined and stat_client_pem.exists == False
+     
+     
+    - name: Copy env file default
+      copy:
+        src: "../.env"
+        dest: "{{ client.REPO_PATH }}/.env"
+        backup: yes
+      when: env_file is not defined
+      
+    - name: Copy env file
+      copy:
+        src: "{{env_file}}"
+        dest: "{{ client.REPO_PATH }}/.env"
+        backup: yes
+      when: env_file is defined
+
+
+    - name: Copy secrets file default
+      copy:
+        src: "../.secrets"
+        dest: "{{ client.REPO_PATH }}/.secrets"
+        backup: yes
+      when: secrets_file is not defined
+      
+    - name: Copy secrets file
+      copy:
+        src: "{{secrets_file}}"
+        dest: "{{ client.REPO_PATH }}/.secrets"
+        backup: yes
+      when: secrets_file is defined
+
+  
+      
+    - name: Create variable files
+      copy: 
+        content: "{{ item.content | dict2items | map('to_json') | map('regex_replace', '\"key\":\\s\"(.*)\"', lookup('vars', 'regex_env')) | map('from_json') | list}}"
+        dest: "{{ client.REPO_PATH }}/.ansible_environment_{{ item.name }}.json"
+        backup: yes
+      vars:
+        regex_env: "\"key\": \"{{ item.name }}_\\1\""
+      with_items:
+        - { content: "{{ client }}", name: 'client' }
+
+    - name: Transform json to properties file
+      shell: rm -f "{{ client.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ client.REPO_PATH }}"/.ansible_environment_*.json >> "{{ client.REPO_PATH }}"/.ansible_environment
+
+    - name: Append secrets to env file
+      shell: cat "{{ client.REPO_PATH }}"/.secrets "{{ client.REPO_PATH }}"/.ansible_environment >> "{{ client.REPO_PATH }}"/.env
+
+
+
+    
+    - name: Start  docker container
+      docker_compose:
+        pull: yes
+        project_src: "{{ client.REPO_PATH }}"
+        files:
+          - docker-compose.yml
+      become: yes
+
+
