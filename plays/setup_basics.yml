@@ -48,3 +48,19 @@
     - name: Install docker-compose with pip
       pip:
         name: docker-compose
+        
+    - name: Create variable files
+      copy: 
+        content: "{{ item.content | dict2items | map('to_json') | map('regex_replace', '\"key\":\\s\"(.*)\"', lookup('vars', 'regex_env')) | map('from_json') | list}}"
+        dest: "{{ general.REPO_PATH }}/.ansible_environment_{{ item.name }}.json"
+        backup: yes
+      vars:
+        regex_env: "\"key\": \"{{ item.name }}_\\1\""
+      with_items:
+        - { content: "{{ client }}", name: 'client' }
+
+    - name: Transform json to properties file
+      shell: rm -f "{{ general.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ general.REPO_PATH }}"/.ansible_environment_*.json >> "{{ general.REPO_PATH }}"/.ansible_environment
+
+    - name: Append secrets to env file
+      shell: cat "{{ general.REPO_PATH }}"/.secrets "{{ general.REPO_PATH }}"/.ansible_environment >> "{{ general.REPO_PATH }}"/.env

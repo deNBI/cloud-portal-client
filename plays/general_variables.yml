@@ -1,7 +1,6 @@
 client:
-  PERSISTENT_CONFIG_DIR_PATH: /home/ubuntu/persistent/client_config
+  PERSISTENT_PATH: /home/ubuntu/persistent
   CONFIG_DIR_PATH: /home/ubuntu/client/VirtualMachineService/config
-  PERSISTENT_CERT_FILE_PATH: /home/ubuntu/persistent/client_cert
   CERT_FILE_PATH: /home/ubuntu/client/VirtualMachineService/keys
   REPO_PATH: /home/ubuntu/client/
   

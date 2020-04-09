@@ -1,4 +1,4 @@
-- name: Setup Client
+ka- name: Setup Client
   hosts: all
   become: yes
   vars_files:
@@ -7,30 +7,34 @@
 
     - name: Setup persistent client directory
       file:
-        path: "{{ client.PERSISTENT_CONFIG_DIR_PATH }}"
+        path: "{{ client.PERSISTENT_PATH }}"
         state: directory
     - name: Setup persistent client cert directory
       file:
-        path: "{{ client.PERSISTENT_CERT_FILE_PATH }}"
+        path: "{{ client.PERSISTENT_PATH }}"
         state: directory
 
     - name: Check if client config file exists already
       stat:
-        path: "{{ client.PERSISTENT_CONFIG_DIR_PATH }}/config.yml"
+        path: "{{ client.PERSISTENT_PATH }}/config.yml"
       register: stat_client_config
+      
+      - name: Check if server pem file exists already
+      stat:
+        path: "{{ client.PERSISTENT_PATH }}/server.pem"
+      register: stat_client_pem
 
     - name: Copy client config file from config folder
       copy: 
         remote_src: True 
         src: "{{ client.CONFIG_DIR_PATH }}/config.yml"  
-        dest: "{{ client.PERSISTENT_CONFIG_DIR_PATH }}/config.yml" 
+        dest: "{{ client.PERSISTENT_PATH }}/config.yml" 
       when: client_config is not defined and stat_client_config.stat.exists == False
 
     - name: Copy specified client config file to remote machine 
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: "{{client_config}}", dest:  "{{ client.PERSISTENT_CONFIG_DIR_PATH }}/config.yml" }
-        - { src:  "{{client_config}}", dest: "{{ client.CONFIG_DIR_PATH }}/config.yml"}
+        - { src: "{{client_config}}", dest:  "{{ client.PERSISTENT_PATH }}/config.yml" }
       when: client_config is defined
       
         
@@ -38,19 +42,14 @@
     - name: Copy specified client pem file to remote machine persistent
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: "{{client_server_pem}}", dest: "{{ client.PERSISTENT_CERT_FILE_PATH }}/server.pem" }
-        - { src:  "{{client_server_pem}}", dest: "{{ client.CERT_FILE_PATH }}/server.pem" }
-        - { src:  "{{client_server_pem}}", dest: "{{ client.CERT_FILE_PATH }}/localhost/server.pem" }
-
+        - { src: "{{client_server_pem}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
       when: client_server_pem is defined
      
     - name: Copy specified client pem file to remote machine persistent from default path
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.PERSISTENT_CERT_FILE_PATH }}/server.pem" }
-        - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.CERT_FILE_PATH }}/server.pem" }
-        - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.CERT_FILE_PATH }}/localhost/server.pem" }
-      when: client_server_pem is not defined
+        - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
+      when: client_server_pem is not defined anad stat_client_pem.exists == False
      
      
         
