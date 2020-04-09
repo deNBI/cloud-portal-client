@@ -1,4 +1,4 @@
-ka- name: Setup Client
+- name: Setup Client
   hosts: all
   become: yes
   vars_files:
@@ -19,7 +19,7 @@ ka- name: Setup Client
         path: "{{ client.PERSISTENT_PATH }}/config.yml"
       register: stat_client_config
       
-      - name: Check if server pem file exists already
+    - name: Check if server pem file exists already
       stat:
         path: "{{ client.PERSISTENT_PATH }}/server.pem"
       register: stat_client_pem
@@ -38,18 +38,17 @@ ka- name: Setup Client
       when: client_config is defined
       
         
-        
-    - name: Copy specified client pem file to remote machine persistent
+    - name: Copy specified server pem file to remote machine persistent
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src: "{{client_server_pem}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
       when: client_server_pem is defined
      
-    - name: Copy specified client pem file to remote machine persistent from default path
+    - name: Copy specified server pem file to remote machine persistent from default path
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
-      when: client_server_pem is not defined anad stat_client_pem.exists == False
+      when: client_server_pem is not defined and stat_client_pem.exists == False
      
      
         
