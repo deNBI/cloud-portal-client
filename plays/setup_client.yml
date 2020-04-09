@@ -1,4 +1,4 @@
-- name: Setup Client
+kate- name: Setup Client
   hosts: all
   become: yes
   vars_files:
@@ -47,7 +47,7 @@
     - name: Copy specified server pem file to remote machine persistent from default path
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src:  "../VirtualMachineService/keys/server.pem", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
+        - { src:  "{{client.CERT_FILE_PATH}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
       when: client_server_pem is not defined and stat_client_pem.exists == False
      
      
