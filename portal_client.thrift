@@ -368,7 +368,8 @@ service VirtualMachineService {
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
-
+    bool bibigrid_available()
+    bool detach_ip_from_server(1:string server_id,2:string floating_ip)
 
 	map<string,string> start_server_with_mounted_volume(
 	/** Name of the  Flavor to use.*/
