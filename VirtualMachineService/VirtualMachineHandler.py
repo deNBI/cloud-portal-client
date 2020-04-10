@@ -1623,8 +1623,6 @@ class VirtualMachineHandler(Iface):
         )
         return server
 
-
-
     def get_servers(self):
         self.logger.info("Get all servers")
         servers = self.conn.list_servers()
@@ -1701,13 +1699,20 @@ class VirtualMachineHandler(Iface):
         return True
 
     def detach_ip_from_server(self, server_id, floating_ip):
-        self.logger.info("Detaching floating ip {} from server {}".format(floating_ip, server_id))
+        self.logger.info(
+            "Detaching floating ip {} from server {}".format(floating_ip, server_id)
+        )
         try:
-            self.conn.compute.remove_floating_ip_from_server(server=server_id, address=floating_ip)
+            self.conn.compute.remove_floating_ip_from_server(
+                server=server_id, address=floating_ip
+            )
             return True
         except Exception:
             self.logger.exception(
-                "Could not detach floating ip {} from server {}".format(floating_ip, server_id))
+                "Could not detach floating ip {} from server {}".format(
+                    floating_ip, server_id
+                )
+            )
             return False
 
     def get_servers_by_bibigrid_id(self, bibigrid_id):
@@ -1758,7 +1763,7 @@ class VirtualMachineHandler(Iface):
 
     def bibigrid_available(self):
         if not self.BIBIGRID_URL:
-            return  False
+            return False
         try:
             self.get_clusters_info()
             return True
@@ -1777,9 +1782,8 @@ class VirtualMachineHandler(Iface):
         infos = response.json()["info"]
         return infos
 
-
     def get_cluster_info(self, cluster_id):
-        infos=self.get_clusters_info()
+        infos = self.get_clusters_info()
         for info in infos:
             self.logger.info(cluster_id)
             self.logger.info(info)
@@ -1828,7 +1832,7 @@ class VirtualMachineHandler(Iface):
             "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
-            #"useMasterWithPublicIp": False,
+            # "useMasterWithPublicIp": False,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
