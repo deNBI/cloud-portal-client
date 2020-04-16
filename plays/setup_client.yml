@@ -1,4 +1,4 @@
-kate- name: Setup Client
+- name: Setup Client
   hosts: all
   become: yes
   vars_files:
