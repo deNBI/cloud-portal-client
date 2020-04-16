@@ -43,6 +43,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  string add_floating_ip_to_server(string openstack_id, string network)')
     print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
     print('   start_server_without_playbook(string flavor, string image, string public_key, string servername,  metadata, bool https, bool http,  resenv,  volume_ids_path_new,  volume_ids_path_attach)')
+    print('  bool bibigrid_available()')
+    print('  bool detach_ip_from_server(string server_id, string floating_ip)')
     print('   start_server_with_mounted_volume(string flavor, string image, string public_key, string servername,  metadata, bool https, bool http,  resenv,  volume_ids_path_new,  volume_ids_path_attach)')
     print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename, bool https, bool http,  resenv)')
     print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, bool http, bool https,  resenv,  volume_ids_path_new,  volume_ids_path_attach)')
@@ -274,6 +276,18 @@ elif cmd == 'start_server_without_playbook':
         print('start_server_without_playbook requires 10 args')
         sys.exit(1)
     pp.pprint(client.start_server_without_playbook(args[0], args[1], args[2], args[3], eval(args[4]), eval(args[5]), eval(args[6]), eval(args[7]), eval(args[8]), eval(args[9]),))
+
+elif cmd == 'bibigrid_available':
+    if len(args) != 0:
+        print('bibigrid_available requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.bibigrid_available())
+
+elif cmd == 'detach_ip_from_server':
+    if len(args) != 2:
+        print('detach_ip_from_server requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.detach_ip_from_server(args[0], args[1],))
 
 elif cmd == 'start_server_with_mounted_volume':
     if len(args) != 10:

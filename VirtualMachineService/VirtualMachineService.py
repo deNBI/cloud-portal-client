@@ -233,6 +233,18 @@ class Iface(object):
         """
         pass
 
+    def bibigrid_available(self):
+        pass
+
+    def detach_ip_from_server(self, server_id, floating_ip):
+        """
+        Parameters:
+         - server_id
+         - floating_ip
+
+        """
+        pass
+
     def start_server_with_mounted_volume(
         self,
         flavor,
@@ -1482,6 +1494,76 @@ class Client(Iface):
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "start_server_without_playbook failed: unknown result",
+        )
+
+    def bibigrid_available(self):
+        self.send_bibigrid_available()
+        return self.recv_bibigrid_available()
+
+    def send_bibigrid_available(self):
+        self._oprot.writeMessageBegin(
+            "bibigrid_available", TMessageType.CALL, self._seqid
+        )
+        args = bibigrid_available_args()
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_bibigrid_available(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = bibigrid_available_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(
+            TApplicationException.MISSING_RESULT,
+            "bibigrid_available failed: unknown result",
+        )
+
+    def detach_ip_from_server(self, server_id, floating_ip):
+        """
+        Parameters:
+         - server_id
+         - floating_ip
+
+        """
+        self.send_detach_ip_from_server(server_id, floating_ip)
+        return self.recv_detach_ip_from_server()
+
+    def send_detach_ip_from_server(self, server_id, floating_ip):
+        self._oprot.writeMessageBegin(
+            "detach_ip_from_server", TMessageType.CALL, self._seqid
+        )
+        args = detach_ip_from_server_args()
+        args.server_id = server_id
+        args.floating_ip = floating_ip
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_detach_ip_from_server(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = detach_ip_from_server_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(
+            TApplicationException.MISSING_RESULT,
+            "detach_ip_from_server failed: unknown result",
         )
 
     def start_server_with_mounted_volume(
@@ -3218,6 +3300,10 @@ class Processor(Iface, TProcessor):
         self._processMap[
             "start_server_without_playbook"
         ] = Processor.process_start_server_without_playbook
+        self._processMap["bibigrid_available"] = Processor.process_bibigrid_available
+        self._processMap[
+            "detach_ip_from_server"
+        ] = Processor.process_detach_ip_from_server
         self._processMap[
             "start_server_with_mounted_volume"
         ] = Processor.process_start_server_with_mounted_volume
@@ -3830,6 +3916,58 @@ class Processor(Iface, TProcessor):
                 TApplicationException.INTERNAL_ERROR, "Internal error"
             )
         oprot.writeMessageBegin("start_server_without_playbook", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_bibigrid_available(self, seqid, iprot, oprot):
+        args = bibigrid_available_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = bibigrid_available_result()
+        try:
+            result.success = self._handler.bibigrid_available()
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception("TApplication exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception("Unexpected exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(
+                TApplicationException.INTERNAL_ERROR, "Internal error"
+            )
+        oprot.writeMessageBegin("bibigrid_available", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_detach_ip_from_server(self, seqid, iprot, oprot):
+        args = detach_ip_from_server_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = detach_ip_from_server_result()
+        try:
+            result.success = self._handler.detach_ip_from_server(
+                args.server_id, args.floating_ip
+            )
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception("TApplication exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception("Unexpected exception in handler")
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(
+                TApplicationException.INTERNAL_ERROR, "Internal error"
+            )
+        oprot.writeMessageBegin("detach_ip_from_server", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -8471,6 +8609,287 @@ start_server_without_playbook_result.thrift_spec = (
     (5, TType.STRUCT, "i", [imageNotFoundException, None], None,),  # 5
     (6, TType.STRUCT, "f", [flavorNotFoundException, None], None,),  # 6
     (7, TType.STRUCT, "o", [otherException, None], None,),  # 7
+)
+
+
+class bibigrid_available_args(object):
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("bibigrid_available_args")
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(bibigrid_available_args)
+bibigrid_available_args.thrift_spec = ()
+
+
+class bibigrid_available_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+    def __init__(
+        self, success=None,
+    ):
+        self.success = success
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("bibigrid_available_result")
+        if self.success is not None:
+            oprot.writeFieldBegin("success", TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(bibigrid_available_result)
+bibigrid_available_result.thrift_spec = ((0, TType.BOOL, "success", None, None,),)  # 0
+
+
+class detach_ip_from_server_args(object):
+    """
+    Attributes:
+     - server_id
+     - floating_ip
+
+    """
+
+    def __init__(
+        self, server_id=None, floating_ip=None,
+    ):
+        self.server_id = server_id
+        self.floating_ip = floating_ip
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.server_id = (
+                        iprot.readString().decode("utf-8")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.floating_ip = (
+                        iprot.readString().decode("utf-8")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("detach_ip_from_server_args")
+        if self.server_id is not None:
+            oprot.writeFieldBegin("server_id", TType.STRING, 1)
+            oprot.writeString(
+                self.server_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.server_id
+            )
+            oprot.writeFieldEnd()
+        if self.floating_ip is not None:
+            oprot.writeFieldBegin("floating_ip", TType.STRING, 2)
+            oprot.writeString(
+                self.floating_ip.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.floating_ip
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(detach_ip_from_server_args)
+detach_ip_from_server_args.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, "server_id", "UTF8", None,),  # 1
+    (2, TType.STRING, "floating_ip", "UTF8", None,),  # 2
+)
+
+
+class detach_ip_from_server_result(object):
+    """
+    Attributes:
+     - success
+
+    """
+
+    def __init__(
+        self, success=None,
+    ):
+        self.success = success
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("detach_ip_from_server_result")
+        if self.success is not None:
+            oprot.writeFieldBegin("success", TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+all_structs.append(detach_ip_from_server_result)
+detach_ip_from_server_result.thrift_spec = (
+    (0, TType.BOOL, "success", None, None,),  # 0
 )
 
 
