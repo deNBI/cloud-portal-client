@@ -1761,7 +1761,6 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Cluster {} status: {} ".format(cluster_id, response.content))
         return response.json()
 
-
     def bibigrid_available(self):
         if not self.BIBIGRID_URL:
             return False
@@ -1833,7 +1832,7 @@ class VirtualMachineHandler(Iface):
             "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
-            "useMasterWithPublicIp": False
+            "useMasterWithPublicIp": False,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
