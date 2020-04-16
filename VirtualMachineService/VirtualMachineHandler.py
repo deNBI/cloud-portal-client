@@ -1761,6 +1761,7 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Cluster {} status: {} ".format(cluster_id, response.content))
         return response.json()
 
+
     def bibigrid_available(self):
         if not self.BIBIGRID_URL:
             return False
