@@ -1832,7 +1832,7 @@ class VirtualMachineHandler(Iface):
             "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
-            # "useMasterWithPublicIp": False,
+            "useMasterWithPublicIp": False
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
