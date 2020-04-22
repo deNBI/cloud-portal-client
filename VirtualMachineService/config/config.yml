@@ -30,7 +30,7 @@ openstack_connection:
 
 bibigrid:
   # Url for Bibigrid API
-    bibigrid_url: https://129.70.51.216:8443/bibigrid/
+    bibigrid_url: https://172.21.0.1:8443/bibigrid/
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
       -   slurm
