@@ -168,6 +168,7 @@ class VirtualMachineHandler(Iface):
             try:
                 self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
+                self.BIBIGRID_MODES = cfg["bibigrid"]["bibigrid_modes"]
                 self.logger.info(
                     msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
                 )
@@ -1697,6 +1698,23 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+    def detach_ip_from_server(self, server_id, floating_ip):
+        self.logger.info(
+            "Detaching floating ip {} from server {}".format(floating_ip, server_id)
+        )
+        try:
+            self.conn.compute.remove_floating_ip_from_server(
+                server=server_id, address=floating_ip
+            )
+            return True
+        except Exception:
+            self.logger.exception(
+                "Could not detach floating ip {} from server {}".format(
+                    floating_ip, server_id
+                )
+            )
+            return False
+
     def get_servers_by_bibigrid_id(self, bibigrid_id):
         filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
         servers = self.conn.list_servers(filters=filters)
@@ -1740,20 +1758,33 @@ class VirtualMachineHandler(Iface):
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
-        self.logger.info("Cluster {} status: ".format(cluster_id, response.content))
+        self.logger.info("Cluster {} status: {} ".format(cluster_id, response.content))
         return response.json()
 
-    def get_cluster_info(self, cluster_id):
+
+    def bibigrid_available(self):
+        if not self.BIBIGRID_URL:
+            return False
+        try:
+            self.get_clusters_info()
+            return True
+        except Exception:
+            self.logger.exception("Bibigrid is offline")
+            return False
+
+    def get_clusters_info(self):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         request_url = self.BIBIGRID_URL + "list"
-        self.logger.info(request_url)
-
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
         self.logger.info(response.json())
         infos = response.json()["info"]
+        return infos
+
+    def get_cluster_info(self, cluster_id):
+        infos = self.get_clusters_info()
         for info in infos:
             self.logger.info(cluster_id)
             self.logger.info(info)
@@ -1802,7 +1833,10 @@ class VirtualMachineHandler(Iface):
             "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
+            "useMasterWithPublicIp": False
         }
+        for mode in self.BIBIGRID_MODES:
+            body.update({mode: True})
         request_url = self.BIBIGRID_URL + "create"
         response = req.post(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION

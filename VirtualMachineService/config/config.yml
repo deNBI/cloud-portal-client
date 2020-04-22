@@ -32,6 +32,9 @@ bibigrid:
   # Url for Bibigrid API
   bibigrid_url: https://172.21.0.1:8443/bibigrid/
   sub_network: portalexternalsubnetwork
+  bibigrid_modes:
+    -   slurm
+  
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
   forc_allowed:
