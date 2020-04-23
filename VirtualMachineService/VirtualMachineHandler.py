@@ -1018,6 +1018,19 @@ class VirtualMachineHandler(Iface):
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
             )
+            volume_ids = []
+            volumes = []
+
+            if volume_ids_path_new:
+                volume_ids.extend([vol["openstack_id"] for vol in volume_ids_path_new])
+            if volume_ids_path_attach:
+                volume_ids.extend(
+                    [vol["openstack_id"] for vol in volume_ids_path_attach]
+                )
+            for id in volume_ids:
+                volumes.append(self.conn.get_volume_by_id(id=id))
+            self.logger.info(volumes)
+
 
             try:
                 private_key = key_creation["private_key"]
@@ -1031,6 +1044,7 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=servername,
                 userdata=init_script,
+                volumes=volumes,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
@@ -1763,10 +1777,13 @@ class VirtualMachineHandler(Iface):
 
 
     def bibigrid_available(self):
+        self.logger.info("Checking if Bibigrid is available")
         if not self.BIBIGRID_URL:
+            self.logger.info("Bibigrid Url is not set")
             return False
         try:
             self.get_clusters_info()
+            self.logger.info("Bibigrid is available")
             return True
         except Exception:
             self.logger.exception("Bibigrid is offline")
