@@ -689,6 +689,14 @@ class VirtualMachineHandler(Iface):
                             "password": self.PASSWORD,
                         }
                     },
+                },
+                "scope": {
+                    "project": {
+                        "domain": {
+                            "id": "default"
+                        },
+                        "name": self.PROJECT_NAME
+                    }
                 }
             }
         }
