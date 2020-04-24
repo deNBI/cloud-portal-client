@@ -691,13 +691,8 @@ class VirtualMachineHandler(Iface):
                     },
                 },
                 "scope": {
-                    "project": {
-                        "domain": {
-                            "id": "default"
-                        },
-                        "name": self.PROJECT_NAME
-                    }
-                }
+                    "project": {"domain": {"id": "default"}, "name": self.PROJECT_NAME}
+                },
             }
         }
         res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
