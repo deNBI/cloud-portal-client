@@ -679,7 +679,7 @@ class VirtualMachineHandler(Iface):
 
     def get_api_token(self):
         self.get_or_refresh_token()
-        return self.API_TOKEN['token']
+        return str(self.API_TOKEN['token'])
 
     def get_or_refresh_token(self):
         self.logger.info("Get API Token")
@@ -734,7 +734,7 @@ class VirtualMachineHandler(Iface):
 
     def resize_volume(self, volume_id, size):
         vol3 = self.conn.endpoint_for("volumev3")
-        header = {"X-Auth-Token": str(self.get_api_token())}
+        header = {"X-Auth-Token": self.get_api_token()}
         body = {"os-extend": {"new_size": size}}
         url = vol3 + "/volumes/" + volume_id + "/action"
         self.logger.info(url)
