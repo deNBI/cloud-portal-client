@@ -6,7 +6,7 @@ services:
        dockerfile: Dockerfile
     ports:
      - "9090:9090"
-     
+
     env_file:
         - .env
 
@@ -34,29 +34,13 @@ services:
     networks:
       - portal
 
-  # filebeat
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:${FILEBEAT_TAG}
-    environment:
-      - ELASTIC_USER
-      - ELASTIC_PASSWORD
-    volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - ./logs:/usr/share/filebeat/log:ro
-      - ./filebeat/data:/usr/share/filebeat/data:rw
-    command: [sh, -c, "chmod go-w /usr/share/filebeat/filebeat.yml && filebeat run -e"]
-    networks:
-      - portal
-
- 
-
 networks:
   portal:
     name: portal_default
-    driver: bridge                       
-    driver_opts:                         
+    driver: bridge
+    driver_opts:
       com.docker.network.driver.mtu: 1440
-  default:                               
-    driver: bridge                       
-    driver_opts:                         
+  default:
+    driver: bridge
+    driver_opts:
       com.docker.network.driver.mtu: 1440
