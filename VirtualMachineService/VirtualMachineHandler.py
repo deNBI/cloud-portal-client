@@ -72,7 +72,7 @@ class VirtualMachineHandler(Iface):
 
     global active_playbooks
     API_TOKEN = None
-    API_TOKEN_BUFFER= 15
+    API_TOKEN_BUFFER = 15
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
@@ -679,7 +679,7 @@ class VirtualMachineHandler(Iface):
 
     def get_api_token(self):
         self.get_or_refresh_token()
-        return str(self.API_TOKEN['token'])
+        return str(self.API_TOKEN["token"])
 
     def get_or_refresh_token(self):
         self.logger.info("Get API Token")
@@ -701,36 +701,40 @@ class VirtualMachineHandler(Iface):
                     },
                     "scope": {
                         "project": {
-                            "domain": {
-                                "id": "default"
-                            },
-                            "name": self.PROJECT_NAME
+                            "domain": {"id": "default"},
+                            "name": self.PROJECT_NAME,
                         }
-                    }
+                    },
                 }
             }
             res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
 
-            expires_at = datetime.datetime.strptime(res.json()['token']['expires_at'],
-                                                    '%Y-%m-%dT%H:%M:%S.%fZ')
+            expires_at = datetime.datetime.strptime(
+                res.json()["token"]["expires_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
 
-            self.API_TOKEN = {"token": res.headers["X-Subject-Token"],
-                              "expires_at": expires_at}
+            self.API_TOKEN = {
+                "token": res.headers["X-Subject-Token"],
+                "expires_at": expires_at,
+            }
             self.logger.info("New Token: {}".format(self.API_TOKEN))
         else:
             self.logger.info("Check existing token")
             now = datetime.datetime.now()
             # some buffer
             now = now - datetime.timedelta(minutes=self.API_TOKEN_BUFFER)
-            api_token_expires_at = self.API_TOKEN['expires_at']
+            api_token_expires_at = self.API_TOKEN["expires_at"]
             if now.time() > api_token_expires_at.time():
                 expired_since = api_token_expires_at - now
-                self.logger.info("Old token is expired since {} minutes!".format(expired_since.seconds //60))
+                self.logger.info(
+                    "Old token is expired since {} minutes!".format(
+                        expired_since.seconds // 60
+                    )
+                )
                 self.API_TOKEN = None
                 self.get_api_token()
             else:
                 self.logger.info("Token still valid!")
-
 
     def resize_volume(self, volume_id, size):
         vol3 = self.conn.endpoint_for("volumev3")
