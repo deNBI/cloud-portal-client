@@ -691,13 +691,8 @@ class VirtualMachineHandler(Iface):
                     },
                 },
                 "scope": {
-                    "project": {
-                        "domain": {
-                            "id": "default"
-                        },
-                        "name": self.PROJECT_NAME
-                    }
-                }
+                    "project": {"domain": {"id": "default"}, "name": self.PROJECT_NAME}
+                },
             }
         }
         res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
@@ -1038,7 +1033,6 @@ class VirtualMachineHandler(Iface):
             for id in volume_ids:
                 volumes.append(self.conn.get_volume_by_id(id=id))
             self.logger.info(volumes)
-
 
             try:
                 private_key = key_creation["private_key"]
@@ -1783,7 +1777,6 @@ class VirtualMachineHandler(Iface):
         self.logger.info("Cluster {} status: {} ".format(cluster_id, response.content))
         return response.json()
 
-
     def bibigrid_available(self):
         self.logger.info("Checking if Bibigrid is available")
         if not self.BIBIGRID_URL:
@@ -1858,7 +1851,7 @@ class VirtualMachineHandler(Iface):
             "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
-            "useMasterWithPublicIp": False
+            "useMasterWithPublicIp": False,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
