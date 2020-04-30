@@ -1,0 +1,5 @@
+user=denbi
+project=cloud-portal-client
+base=CHANGELOG.md
+future-release=0.1.0-beta.0.9.6
+since-tag=0.1.0-beta.0.9.5

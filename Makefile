@@ -28,6 +28,9 @@ dev: ## Build and Start the docker-compose.dev.yml
 	
 production: ## Build Release from .env
 	docker-compose -f docker-compose.yml up --build -d
+	
+changelog: ## Generate Changelog
+	github_changelog_generator --token  $(t) --release-branch $(b)
 
 
 
