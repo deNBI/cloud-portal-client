@@ -250,5 +250,6 @@ Optional Keys are:
 + env_file
 + secrets_file
 + client_server_pem
++ client_config
 
 **Note:** Default repository is always master. Also by default, the files are taken from the folders as for local start.
