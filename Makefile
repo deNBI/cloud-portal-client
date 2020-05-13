@@ -23,11 +23,42 @@ thrift_py: ## Builds python code from thrift file
 dev-build: ## Build and Start the docker-compose.dev.yml
 	docker-compose -f docker-compose.dev.yml up --build
 	
+dev-d: ## Build and Start the docker-compose.dev.yml
+	docker-compose -f docker-compose.dev.yml up -d
+
+dev-build-d: ## Build and Start the docker-compose.dev.yml
+	docker-compose -f docker-compose.dev.yml up --build -d
+
 dev: ## Build and Start the docker-compose.dev.yml
-	docker-compose -f docker-compose.dev.yml up 
+	docker-compose -f docker-compose.dev.yml up
+
+dev-build-bibigrid: ## Build and Start the docker-compose.dev.yml with bibigrid
+	docker-compose -f docker-compose.dev.bibigrid.yml up --build
+
+dev-bibigrid: ## Build and Start the docker-compose.dev.yml with bibigrid
+	docker-compose -f docker-compose.dev.bibigrid.yml up
+
+dev-build-bibigrid-d: ## Build and Start the docker-compose.dev.yml with bibigrid
+	docker-compose -f docker-compose.dev.bibigrid.yml up --build -d
+
+dev-bibigrid-d: ## Build and Start the docker-compose.dev.yml with bibigrid
+	docker-compose -f docker-compose.dev.bibigrid.yml up -d
 	
 production: ## Build Release from .env
 	docker-compose -f docker-compose.yml up --build -d
+
+production-bibigrid: ## Build Release from .env and with bibigrid
+	docker-compose -f docker-compose.bibigrid.yml up --build -d
+	
+client_logs: ## Logs from Client
+	docker logs client_portal-client_1
+
+bibigrid_logs: ## Logs from Bibigrid
+	docker logs client_bibigrid_1
+
+enter_client_container: ## Enter Client container
+	docker exec -it client_portal-client_1 bash
+
 
 
 
