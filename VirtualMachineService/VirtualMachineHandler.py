@@ -735,15 +735,12 @@ class VirtualMachineHandler(Iface):
                 self.logger.info("Token still valid!")
 
     def resize_volume(self, volume_id, size):
-        vol3 = self.conn.endpoint_for("volumev3")
-        header = {"X-Auth-Token": self.get_api_token()}
-        body = {"os-extend": {"new_size": size}}
-        url = vol3 + "/volumes/" + volume_id + "/action"
-        self.logger.info(url)
-        res = req.post(url=url, json=body, headers=header)
-        self.logger.info(res.status_code)
-        self.logger.info(res.content)
-        return int(res.status_code)
+        try:
+            self.conn.block_storage.extend_volume(volume_id, size)
+        except Exception as e:
+            self.logger.exception(e)
+            return 1
+        return 0
 
     def create_volume(self, volume_name, volume_storage, metadata):
         """
