@@ -521,6 +521,25 @@ service VirtualMachineService {
     1:i64 id
     )
 
+    /** Add a user to a backend*/
+    map<string,string> add_user_to_backend(
+    1:i64 backend_id,
+    2:string owner_id,
+    3:string user_id
+    )
+
+    /** Get users from a backend*/
+    list<string> get_users_from_backend(
+    1:i64 backend_id
+    )
+
+    /** Delete user from a backend*/
+    map<string,string> delete_user_from_backend(
+    1:i64 backend_id,
+    2:string owner_id,
+    3:string user_id
+    )
+
     list<map<string, string>> get_templates()
 
     list<string> get_allowed_templates()
