@@ -513,10 +513,8 @@ class VirtualMachineHandler(Iface):
             self.logger.exception(
                 "No Server found {0} | Error {1}".format(openstack_id, e)
             )
-            return VM(status="DELETED")
-        if server is None:
-            self.logger.exception("No Server  {0}".format(openstack_id))
-            raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
+            return VM(status="NOT FOUND")
+
         serv = server.to_dict()
 
         if serv["attached_volumes"]:
