@@ -71,6 +71,8 @@ class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
     global active_playbooks
+    API_TOKEN = None
+    API_TOKEN_BUFFER = 15
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
@@ -511,10 +513,8 @@ class VirtualMachineHandler(Iface):
             self.logger.exception(
                 "No Server found {0} | Error {1}".format(openstack_id, e)
             )
-            return VM(status="DELETED")
-        if server is None:
-            self.logger.exception("No Server  {0}".format(openstack_id))
-            raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
+            return VM(status="NOT FOUND")
+
         serv = server.to_dict()
 
         if serv["attached_volumes"]:
@@ -676,37 +676,71 @@ class VirtualMachineHandler(Iface):
         return init_script
 
     def get_api_token(self):
-        auth_url = self.conn.endpoint_for("identity")
-        self.logger.info(auth_url)
-        auth = {
-            "auth": {
-                "identity": {
-                    "methods": ["password"],
-                    "password": {
-                        "user": {
-                            "name": self.USERNAME,
-                            "domain": {"name": self.USER_DOMAIN_NAME},
-                            "password": self.PASSWORD,
+        self.get_or_refresh_token()
+        return str(self.API_TOKEN["token"])
+
+    def get_or_refresh_token(self):
+        self.logger.info("Get API Token")
+        if not self.API_TOKEN:
+            self.logger.info("Create a new API Token")
+            auth_url = self.conn.endpoint_for("identity")
+            self.logger.info(auth_url)
+            auth = {
+                "auth": {
+                    "identity": {
+                        "methods": ["password"],
+                        "password": {
+                            "user": {
+                                "name": self.USERNAME,
+                                "domain": {"name": self.USER_DOMAIN_NAME},
+                                "password": self.PASSWORD,
+                            }
+                        },
+                    },
+                    "scope": {
+                        "project": {
+                            "domain": {"id": "default"},
+                            "name": self.PROJECT_NAME,
                         }
                     },
                 }
             }
-        }
-        res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
-        self.logger.info(res.headers)
-        return res.headers["X-Subject-Token"]
+            res = req.post(url=auth_url + "/auth/tokens?nocatalog", json=auth)
+
+            expires_at = datetime.datetime.strptime(
+                res.json()["token"]["expires_at"], "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+
+            self.API_TOKEN = {
+                "token": res.headers["X-Subject-Token"],
+                "expires_at": expires_at,
+            }
+            self.logger.info("New Token: {}".format(self.API_TOKEN))
+        else:
+            self.logger.info("Check existing token")
+            now = datetime.datetime.now()
+            # some buffer
+            now = now - datetime.timedelta(minutes=self.API_TOKEN_BUFFER)
+            api_token_expires_at = self.API_TOKEN["expires_at"]
+            if now.time() > api_token_expires_at.time():
+                expired_since = api_token_expires_at - now
+                self.logger.info(
+                    "Old token is expired since {} minutes!".format(
+                        expired_since.seconds // 60
+                    )
+                )
+                self.API_TOKEN = None
+                self.get_api_token()
+            else:
+                self.logger.info("Token still valid!")
 
     def resize_volume(self, volume_id, size):
-        token = self.get_api_token()
-        vol3 = self.conn.endpoint_for("volumev3")
-        header = {"X-Auth-Token": str(token)}
-        body = {"os-extend": {"new_size": size}}
-        url = vol3 + "/volumes/" + volume_id + "/action"
-        self.logger.info(url)
-        res = req.post(url=url, json=body, headers=header)
-        self.logger.info(res.status_code)
-        self.logger.info(res.content)
-        return int(res.status_code)
+        try:
+            self.conn.block_storage.extend_volume(volume_id, size)
+        except Exception as e:
+            self.logger.exception(e)
+            return 1
+        return 0
 
     def create_volume(self, volume_name, volume_storage, metadata):
         """
@@ -1295,6 +1329,76 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.logger.exception(e)
             return str(-1)
+
+    def add_user_to_backend(self, backend_id, owner_id, user_id):
+        try:
+            post_url = "{0}users/{1}".format(self.RE_BACKEND_URL, backend_id)
+            user_info = {
+                "owner": owner_id,
+                "user": user_id,
+            }
+        except Exception as e:
+            self.logger.exception(e)
+            return {"Error": "Could not create url or json body."}
+        try:
+            response = req.post(
+                post_url,
+                json=user_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=self.PRODUCTION,
+            )
+            try:
+                data = response.json()
+            except Exception as e:
+                self.logger.exception(e)
+                return {"Error": "Error in POST."}
+            return data
+        except Timeout as e:
+            self.logger.info(msg="create_backend timed out. {0}".format(e))
+            return {"Error": "Timeout."}
+        except Exception as e:
+            self.logger.exception(e)
+            return {"Error": "An error occured."}
+
+    def get_users_from_backend(self, backend_id):
+        get_url = "{0}/users/{1}".format(self.RE_BACKEND_URL, backend_id)
+        try:
+            response = req.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=self.PRODUCTION,
+            )
+            if response.status_code == 401:
+                return ["Error: 401"]
+            else:
+                return response.json()
+        except Timeout as e:
+            self.logger.info(msg="Get users for backend timed out. {0}".format(e))
+            return []
+
+    def delete_user_from_backend(self, backend_id, owner_id, user_id):
+        delete_url = "{0}/users/{1}".format(self.RE_BACKEND_URL, backend_id)
+        user_info = {
+            "owner": owner_id,
+            "user": user_id,
+        }
+        try:
+            response = req.delete(
+                delete_url,
+                json=user_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=self.PRODUCTION,
+            )
+            return response.json()
+        except Timeout as e:
+            self.logger.info(msg="Delete user from backend timed out. {0}".format(e))
+            return {"Error": "Timeout."}
+        except Exception as e:
+            self.logger.exception(e)
+            return {"Error": "An Exception occured."}
 
     def exist_server(self, name):
         if self.conn.compute.find_server(name) is not None:

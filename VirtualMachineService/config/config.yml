@@ -30,18 +30,21 @@ openstack_connection:
 
 bibigrid:
   # Url for Bibigrid API
-    bibigrid_url: https://172.21.0.1:8443/bibigrid/
+    bibigrid_url: http://bibigrid:8080/bibigrid/
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
       -   slurm
-  
+
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
   forc_allowed:
     theiaide:
+      - v02
       - v01
     guacamole:
+      - v02
       - v01
     rstudio:
+      - v03
       - v02
       - v01

@@ -59,6 +59,9 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_backends_by_template(string template)')
     print('  Backend get_backend_by_id(i64 id)')
     print('  string delete_backend(i64 id)')
+    print('   add_user_to_backend(i64 backend_id, string owner_id, string user_id)')
+    print('   get_users_from_backend(i64 backend_id)')
+    print('   delete_user_from_backend(i64 backend_id, string owner_id, string user_id)')
     print('   get_templates()')
     print('   get_allowed_templates()')
     print('   get_templates_by_template(string template_name)')
@@ -372,6 +375,24 @@ elif cmd == 'delete_backend':
         print('delete_backend requires 1 args')
         sys.exit(1)
     pp.pprint(client.delete_backend(eval(args[0]),))
+
+elif cmd == 'add_user_to_backend':
+    if len(args) != 3:
+        print('add_user_to_backend requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.add_user_to_backend(eval(args[0]), args[1], args[2],))
+
+elif cmd == 'get_users_from_backend':
+    if len(args) != 1:
+        print('get_users_from_backend requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.get_users_from_backend(eval(args[0]),))
+
+elif cmd == 'delete_user_from_backend':
+    if len(args) != 3:
+        print('delete_user_from_backend requires 3 args')
+        sys.exit(1)
+    pp.pprint(client.delete_user_from_backend(eval(args[0]), args[1], args[2],))
 
 elif cmd == 'get_templates':
     if len(args) != 0:

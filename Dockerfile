@@ -1,10 +1,11 @@
-FROM python:3.8.2-slim
-ADD . /code
-WORKDIR /code
+FROM python:3.8.2-buster
 RUN  apt-get update -y 
-RUN apt install -y build-essential
-RUN apt-get install -y python3-dev
+RUN apt-get install -y build-essential
+WORKDIR /code
+ADD requirements.txt /code
 RUN pip install -r requirements.txt
-COPY ansible.cfg /etc/ansible/
+ADD requirements.yml /code
+ADD ansible.cfg /etc/ansible/
 RUN ansible-galaxy install -r requirements.yml
+ADD . /code
 WORKDIR /code/VirtualMachineService

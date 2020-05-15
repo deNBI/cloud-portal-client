@@ -1,0 +1,58 @@
+- name: Setting up gateway
+  hosts: all
+  become: yes
+  vars_files:
+    - gateway-setup-variables.yml
+  tasks:
+
+    - name: Create persistent gateway script directorie
+      file:
+        path: "{{ general.SCRIPT_PERSISTENT_PATH }}"
+        state: directory
+
+    - name: Checkout cloud-portal-client repository
+      git:
+        repo: "git@github.com:deNBI/cloud-portal-client.git"
+        dest: "{{ general.REPO_PATH }}"
+        accept_hostkey: yes
+        force: yes
+        version: "{{ repo_version | default('master') }}"
+      become: no
+
+    - name: Copy TCP script from repository
+      copy:
+        src: "{{ general.REPO_PATH }}/scripts/gateway/{{ general.TCP_SCRIPT_PERSISTENT_NAME }}"
+        dest: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.TCP_SCRIPT_PERSISTENT_NAME }}"
+        mode: 0774
+        remote_src: yes
+      when: tcp_script_in is not defined
+
+    - name: Copy UDP script from repository
+      copy:
+        src: "{{ general.REPO_PATH }}/scripts/gateway/{{ general.UDP_SCRIPT_PERSISTENT_NAME }}"
+        dest: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.UDP_SCRIPT_PERSISTENT_NAME }}"
+        mode: 0774
+        remote_src: yes
+      when: udp_script_in is not defined
+
+    - name: Copy specified TCP script
+      copy:
+        src: "{{ tcp_script_in }}"
+        dest: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.TCP_SCRIPT_PERSISTENT_NAME }}"
+        mode: 0774
+      when: tcp_script_in is defined
+
+    - name: Copy specified UDP script
+      copy:
+        src: "{{ udp_script_in }}"
+        dest: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.UDP_SCRIPT_PERSISTENT_NAME }}"
+        mode: 0774
+      when: udp_script_in is defined
+
+    - name: Run TCP script
+      become: yes
+      command: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.TCP_SCRIPT_PERSISTENT_NAME }}"
+
+    - name: Run UDP script
+      become: yes
+      command: "{{ SCRIPT_PERSISTENT_PATH }}/{{ general.UDP_SCRIPT_PERSISTENT_NAME }}"

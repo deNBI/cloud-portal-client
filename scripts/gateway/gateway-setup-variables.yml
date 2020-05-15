@@ -1,0 +1,5 @@
+general:
+  REPO_PATH: /home/ubuntu/cloud-portal-client
+  SCRIPT_PERSISTENT_PATH: /home/ubuntu/gateway_persistent
+  TCP_SCRIPT_PERSISTENT_NAME: gateway_TCP.sh
+  UDP_SCRIPT_PERSISTENT_NAME: gateway_UDP.sh
