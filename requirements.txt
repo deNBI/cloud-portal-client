@@ -5,7 +5,7 @@ openstacksdk ==0.46.0
 deprecated == 1.2.9
 Click==7.1.2
 flake8==3.7.9
-ansible==2.9.7
+ansible==2.9.9
 ruamel.yaml<0.17.0
 paramiko==2.7.1
 pyvim==3.0.2
