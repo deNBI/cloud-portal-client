@@ -124,13 +124,19 @@ class Playbook(object):
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
+                    if k == "create_only_backend":
+                        data[playbook_name + "_vars"][k] = v
             if playbook_name == RSTUDIO:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
+                    if k == "create_only_backend":
+                        data[playbook_name + "_vars"][k] = v
             if playbook_name == GUACAMOLE:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
+                        data[playbook_name + "_vars"][k] = v
+                    if k == "create_only_backend":
                         data[playbook_name + "_vars"][k] = v
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
