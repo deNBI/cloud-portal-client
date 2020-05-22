@@ -1,8 +1,10 @@
 - name: Wait for automatic system updates 1
   shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+  when: theiaide_vars.create_only_backend == "false"
 
 - name: Wait for automatic system updates 2
   shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+  when: theiaide_vars.create_only_backend == "false"
 
 - name: Install theia_ide role
   include_role:
@@ -10,3 +12,4 @@
   vars:
     theia_ide_bind_address: 0.0.0.0
     theia_ide_bind_port: 8080
+  when: theiaide_vars.create_only_backend == "false"
