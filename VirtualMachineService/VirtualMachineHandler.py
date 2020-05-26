@@ -168,9 +168,13 @@ class VirtualMachineHandler(Iface):
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             # try to initialize forc connection
             try:
-                self.BIBIGRID_URL = cfg["bibigrid"]["bibigrid_url"]
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
                 self.BIBIGRID_MODES = cfg["bibigrid"]["bibigrid_modes"]
+                self.BIBIGRID_HOST = cfg["bibigrid"]["host"]
+                self.BIBIGRID_PORT = cfg["bibigrid"]["port"]
+                self.BIBIGRID_URL =  str(cfg["bibigrid"]["bibigrid_url"])
+                self.BIBIGRID_URL =  self.BIBIGRID_URL.format(host=self.BIBIGRID_HOST,
+                                             port=self.BIBIGRID_PORT)
                 self.logger.info(
                     msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
                 )
@@ -1876,7 +1880,7 @@ class VirtualMachineHandler(Iface):
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
         self.logger.info("Cluster {} status: {} ".format(cluster_id, response.content))
-        return response.json()
+        return response.json(strict=False)
 
     def bibigrid_available(self):
         self.logger.info("Checking if Bibigrid is available")
@@ -1884,9 +1888,21 @@ class VirtualMachineHandler(Iface):
             self.logger.info("Bibigrid Url is not set")
             return False
         try:
-            self.get_clusters_info()
-            self.logger.info("Bibigrid is available")
-            return True
+            location = (self.BIBIGRID_HOST, self.BIBIGRID_PORT)
+            a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result_of_check = a_socket.connect_ex(location)
+            a_socket.close()
+            if result_of_check == 0:
+                self.logger.info("Bibigrid Port is open")
+                self.logger.info("Bibigrid is available")
+                return True
+
+            else:
+
+                self.logger.info("Bibigrid Port is not open")
+                self.logger.exception("Bibigrid is offline")
+                return False
+
         except Exception:
             self.logger.exception("Bibigrid is offline")
             return False
