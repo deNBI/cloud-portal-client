@@ -1,4 +1,5 @@
 rstudio_vars:
   template_version:
+  create_only_backend:
   DEFAULT_USER: ubuntu
   DEFAULT_PASSWORD_HASHED: $6$rounds=656000$kDXfaoylNAAH4hiN$Se1C7um7OW7ETs.L19uy1xn9SJjtjHylbF.Xv/YhRWilSyzDcX7nSajMth8LgZNiRJmO3.wBxcYeJnsgW4CLL1
