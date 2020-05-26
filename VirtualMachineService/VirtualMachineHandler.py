@@ -172,9 +172,10 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_MODES = cfg["bibigrid"]["bibigrid_modes"]
                 self.BIBIGRID_HOST = cfg["bibigrid"]["host"]
                 self.BIBIGRID_PORT = cfg["bibigrid"]["port"]
-                self.BIBIGRID_URL =  str(cfg["bibigrid"]["bibigrid_url"])
-                self.BIBIGRID_URL =  self.BIBIGRID_URL.format(host=self.BIBIGRID_HOST,
-                                             port=self.BIBIGRID_PORT)
+                self.BIBIGRID_URL = str(cfg["bibigrid"]["bibigrid_url"])
+                self.BIBIGRID_URL = self.BIBIGRID_URL.format(
+                    host=self.BIBIGRID_HOST, port=self.BIBIGRID_PORT
+                )
                 self.logger.info(
                     msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
                 )
