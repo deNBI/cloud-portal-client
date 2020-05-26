@@ -13,6 +13,7 @@ try:
     from ttypes import otherException
     from ttypes import flavorNotFoundException
     from ttypes import ressourceException
+    from ttypes import conflictException
     from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
     from constants import VERSION
     from ancon.Playbook import (
@@ -33,6 +34,7 @@ except Exception:
     from .ttypes import otherException
     from .ttypes import flavorNotFoundException
     from .ttypes import ressourceException
+    from .ttypes import conflictException
     from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
     from .constants import VERSION
     from .ancon.Playbook import (
@@ -61,6 +63,7 @@ from keystoneauth1 import session
 from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
+from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
 from requests.exceptions import Timeout
 
@@ -1596,10 +1599,17 @@ class VirtualMachineHandler(Iface):
                     server=server, volumeId=volume_id
                 )
                 return {"device": attachment["device"]}
-
+            except ConflictException as e:
+                self.logger.exception(
+                    "Trying to attach volume {0} to vm {1} error : {2}".format(
+                        volume_id, openstack_id, e
+                    ),
+                    exc_info=True,
+                )
+                return {"error": e, "code": "409"}
             except Exception as e:
                 self.logger.exception(
-                    "Trying to attache volume {0} to vm {1} error : {2}".format(
+                    "Trying to attach volume {0} to vm {1} error : {2}".format(
                         volume_id, openstack_id, e
                     ),
                     exc_info=True,
@@ -2227,6 +2237,10 @@ class VirtualMachineHandler(Iface):
                 return True
             else:
                 return False
+        except ConflictException as e:
+            self.logger.exception("Stop Server {0} error: {1}".format(openstack_id, e))
+
+            return conflictException(Reason=e)
         except Exception as e:
             self.logger.exception("Stop Server {0} error:".format(openstack_id, e))
 

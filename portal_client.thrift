@@ -202,6 +202,11 @@ exception authenticationException {
     1: string Reason
 }
 
+/** Conflict with request (e.g. while vm is in create image task)*/
+exception conflictException {
+    1: string Reason
+}
+
 /**
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
