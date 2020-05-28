@@ -2001,7 +2001,9 @@ class VirtualMachineHandler(Iface):
                 server=openstack_id, name=name
             )
         except ConflictException as e:
-            self.logger.exception("Create snapshot {0} error: {1}".format(openstack_id, e))
+            self.logger.exception(
+                "Create snapshot {0} error: {1}".format(openstack_id, e)
+            )
 
             raise conflictException(Reason="409")
         except Exception:
@@ -2145,7 +2147,11 @@ class VirtualMachineHandler(Iface):
                 self.logger.exception("Instance {0} not found".format(openstack_id))
                 return True
             task_state = self.check_server_task_state(openstack_id)
-            if task_state == "image_snapshot" or task_state == "image_pending_upload" or task_state == "image_uploading":
+            if (
+                task_state == "image_snapshot"
+                or task_state == "image_pending_upload"
+                or task_state == "image_uploading"
+            ):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
             self.logger.info(security_groups)
@@ -2167,7 +2173,9 @@ class VirtualMachineHandler(Iface):
 
             return True
         except ConflictException as e:
-            self.logger.exception("Delete Server {0} error: {1}".format(openstack_id, e))
+            self.logger.exception(
+                "Delete Server {0} error: {1}".format(openstack_id, e)
+            )
 
             raise conflictException(Reason="409")
         except Exception as e:
@@ -2198,7 +2206,11 @@ class VirtualMachineHandler(Iface):
                     )
             return True
         except ConflictException as e:
-            self.logger.exception("Delete volume attachment (server: {0} volume: {1}) error: {2}".format(server_id, volume_id, e))
+            self.logger.exception(
+                "Delete volume attachment (server: {0} volume: {1}) error: {2}".format(
+                    server_id, volume_id, e
+                )
+            )
 
             raise conflictException(Reason="409")
         except Exception as e:
@@ -2318,7 +2330,9 @@ class VirtualMachineHandler(Iface):
             else:
                 return False
         except ConflictException as e:
-            self.logger.exception("Resume Server {0} error: {1}".format(openstack_id, e))
+            self.logger.exception(
+                "Resume Server {0} error: {1}".format(openstack_id, e)
+            )
 
             raise conflictException(Reason="409")
         except Exception as e:
