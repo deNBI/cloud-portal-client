@@ -299,7 +299,7 @@ service VirtualMachineService {
 	/** Id of the server. */
 	1:string openstack_id)
 
-	throws (1:serverNotFoundException e)
+	throws (1:serverNotFoundException e, 2: conflictException c)
 
 
 	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
@@ -582,6 +582,8 @@ service VirtualMachineService {
     **/
 	list<VM> get_servers_by_ids(1:list<string> server_ids)
 
+	string check_server_task_state(1: string openstack_id)
+
 	/**
 	* Get servers by bibigrid cluster id.
     **/
@@ -615,7 +617,7 @@ service VirtualMachineService {
     /** Id of the server.*/
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e , 2: conflictException c)
 
 
     /**
@@ -638,7 +640,7 @@ service VirtualMachineService {
      /** Description of the new snapshot*/
      5:string description)
 
-     throws (1:serverNotFoundException e),
+     throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
@@ -675,14 +677,14 @@ service VirtualMachineService {
     /** Id of the server where the volume is attached */
     2:string server_id)
 
-    throws (1:serverNotFoundException e),
+    throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
      * Delete volume.
      * Returns:  True if deleted, False if not
      */
-    bool delete_volume(1:string volume_id)
+    bool delete_volume(1:string volume_id) throws (1: conflictException c)
 
     /**
      * Attach volume to server.
@@ -696,7 +698,7 @@ service VirtualMachineService {
     2:string volume_id,
     )
 
-    throws (1:serverNotFoundException e),
+    throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
@@ -732,7 +734,7 @@ service VirtualMachineService {
     /** Id of the server */
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e, 2: conflictException c)
 
 
     /**
@@ -765,6 +767,6 @@ service VirtualMachineService {
     /** HARD or SOFT*/
     2:string reboot_type)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e, 2: conflictException c)
 
 }
