@@ -33,8 +33,7 @@ struct Volume{
 4:optional string status,
 5:optional string created_at,
 6:optional string device,
-
-
+7:optional int size,
 }
 
 /**
