@@ -10,5 +10,6 @@ jobs:
     steps:
       - uses: docker://chinthakagodawita/autoupdate-action:v1
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUBSECRET2 }}"
           MERGE_MSG: "Branch was auto-updated."
+          MERGE_CONFLICT_ACTION: "ignore"
