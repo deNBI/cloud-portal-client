@@ -61,6 +61,9 @@ struct Volume{
 
 	/** List of tags from flavor */
 	7: required list<string> tags
+
+	/** The ephemeral disk space of the flavor*/
+	8:optional i32 ephemeral_disk
 }
 /**
  * This Struct defines an Image.
