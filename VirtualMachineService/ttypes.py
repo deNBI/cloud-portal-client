@@ -563,6 +563,7 @@ class Flavor(object):
      - openstack_id: The openstack_id of the flavor
      - description: The description of the flavor
      - tags: List of tags from flavor
+     - ephemeral_disk: The ephemeral disk space of the flavor
 
     """
 
@@ -575,6 +576,7 @@ class Flavor(object):
         openstack_id=None,
         description=None,
         tags=None,
+        ephemeral_disk=None,
     ):
         self.vcpus = vcpus
         self.ram = ram
@@ -583,6 +585,7 @@ class Flavor(object):
         self.openstack_id = openstack_id
         self.description = description
         self.tags = tags
+        self.ephemeral_disk = ephemeral_disk
 
     def read(self, iprot):
         if (
@@ -653,6 +656,11 @@ class Flavor(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.ephemeral_disk = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -707,6 +715,10 @@ class Flavor(object):
                     iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
                 )
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.ephemeral_disk is not None:
+            oprot.writeFieldBegin("ephemeral_disk", TType.I32, 8)
+            oprot.writeI32(self.ephemeral_disk)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2125,6 +2137,7 @@ Flavor.thrift_spec = (
     (5, TType.STRING, "openstack_id", "UTF8", None,),  # 5
     (6, TType.STRING, "description", "UTF8", None,),  # 6
     (7, TType.LIST, "tags", (TType.STRING, "UTF8", False), None,),  # 7
+    (8, TType.I32, "ephemeral_disk", None, None,),  # 8
 )
 all_structs.append(Image)
 Image.thrift_spec = (
