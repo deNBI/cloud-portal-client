@@ -69,6 +69,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool add_udp_security_group(string server_id)')
     print('   get_servers()')
     print('   get_servers_by_ids( server_ids)')
+    print('  string check_server_task_state(string openstack_id)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
     print('   get_cluster_status(string cluster_id)')
@@ -435,6 +436,12 @@ elif cmd == 'get_servers_by_ids':
         print('get_servers_by_ids requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_servers_by_ids(eval(args[0]),))
+
+elif cmd == 'check_server_task_state':
+    if len(args) != 1:
+        print('check_server_task_state requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.check_server_task_state(args[0],))
 
 elif cmd == 'get_servers_by_bibigrid_id':
     if len(args) != 1:
