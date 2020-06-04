@@ -274,6 +274,7 @@ class VirtualMachineHandler(Iface):
                     name=flav["name"],
                     openstack_id=flav["id"],
                     tags=list(flav["extra_specs"].keys()),
+                    ephemeral_disk=flav["ephemeral"],
                 )
                 self.logger.info(flavor)
                 flavors.append(flavor)
