@@ -396,6 +396,7 @@ class Volume(object):
      - status
      - created_at
      - device
+     - size
 
     """
 
@@ -407,6 +408,7 @@ class Volume(object):
         status=None,
         created_at=None,
         device=None,
+        size=None,
     ):
         self.id = id
         self.name = name
@@ -414,6 +416,7 @@ class Volume(object):
         self.status = status
         self.created_at = created_at
         self.device = device
+        self.size = size
 
     def read(self, iprot):
         if (
@@ -482,6 +485,11 @@ class Volume(object):
                     )
                 else:
                     iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.I32:
+                    self.size = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -534,6 +542,10 @@ class Volume(object):
                 self.device.encode("utf-8") if sys.version_info[0] == 2 else self.device
             )
             oprot.writeFieldEnd()
+        if self.size is not None:
+            oprot.writeFieldBegin("size", TType.I32, 7)
+            oprot.writeI32(self.size)
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -563,6 +575,7 @@ class Flavor(object):
      - openstack_id: The openstack_id of the flavor
      - description: The description of the flavor
      - tags: List of tags from flavor
+     - ephemeral_disk: The ephemeral disk space of the flavor
 
     """
 
@@ -575,6 +588,7 @@ class Flavor(object):
         openstack_id=None,
         description=None,
         tags=None,
+        ephemeral_disk=None,
     ):
         self.vcpus = vcpus
         self.ram = ram
@@ -583,6 +597,7 @@ class Flavor(object):
         self.openstack_id = openstack_id
         self.description = description
         self.tags = tags
+        self.ephemeral_disk = ephemeral_disk
 
     def read(self, iprot):
         if (
@@ -653,6 +668,11 @@ class Flavor(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.I32:
+                    self.ephemeral_disk = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -707,6 +727,10 @@ class Flavor(object):
                     iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
                 )
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.ephemeral_disk is not None:
+            oprot.writeFieldBegin("ephemeral_disk", TType.I32, 8)
+            oprot.writeI32(self.ephemeral_disk)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2083,6 +2107,80 @@ class authenticationException(TException):
         return not (self == other)
 
 
+class conflictException(TException):
+    """
+    Conflict with request (e.g. while vm is in create image task)
+
+    Attributes:
+     - Reason
+
+    """
+
+    def __init__(
+        self, Reason=None,
+    ):
+        self.Reason = Reason
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.Reason = (
+                        iprot.readString().decode("utf-8")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("conflictException")
+        if self.Reason is not None:
+            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+            oprot.writeString(
+                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 all_structs.append(Backend)
 Backend.thrift_spec = (
     None,  # 0
@@ -2114,6 +2212,7 @@ Volume.thrift_spec = (
     (4, TType.STRING, "status", "UTF8", None,),  # 4
     (5, TType.STRING, "created_at", "UTF8", None,),  # 5
     (6, TType.STRING, "device", "UTF8", None,),  # 6
+    (7, TType.I32, "size", None, None,),  # 7
 )
 all_structs.append(Flavor)
 Flavor.thrift_spec = (
@@ -2125,6 +2224,7 @@ Flavor.thrift_spec = (
     (5, TType.STRING, "openstack_id", "UTF8", None,),  # 5
     (6, TType.STRING, "description", "UTF8", None,),  # 6
     (7, TType.LIST, "tags", (TType.STRING, "UTF8", False), None,),  # 7
+    (8, TType.I32, "ephemeral_disk", None, None,),  # 8
 )
 all_structs.append(Image)
 Image.thrift_spec = (
@@ -2214,6 +2314,11 @@ flavorNotFoundException.thrift_spec = (
 )
 all_structs.append(authenticationException)
 authenticationException.thrift_spec = (
+    None,  # 0
+    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+)
+all_structs.append(conflictException)
+conflictException.thrift_spec = (
     None,  # 0
     (1, TType.STRING, "Reason", "UTF8", None,),  # 1
 )

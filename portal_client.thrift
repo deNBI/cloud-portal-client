@@ -33,8 +33,7 @@ struct Volume{
 4:optional string status,
 5:optional string created_at,
 6:optional string device,
-
-
+7:optional int size,
 }
 
 /**
@@ -61,6 +60,9 @@ struct Volume{
 
 	/** List of tags from flavor */
 	7: required list<string> tags
+
+	/** The ephemeral disk space of the flavor*/
+	8:optional i32 ephemeral_disk
 }
 /**
  * This Struct defines an Image.
@@ -202,6 +204,11 @@ exception authenticationException {
     1: string Reason
 }
 
+/** Conflict with request (e.g. while vm is in create image task)*/
+exception conflictException {
+    1: string Reason
+}
+
 /**
  * This VirtualMachiine service deploys methods for creating,deleting,stopping etc. VirtualMachines in Openstack.
  */
@@ -294,7 +301,7 @@ service VirtualMachineService {
 	/** Id of the server. */
 	1:string openstack_id)
 
-	throws (1:serverNotFoundException e)
+	throws (1:serverNotFoundException e, 2: conflictException c)
 
 
 	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
@@ -577,6 +584,8 @@ service VirtualMachineService {
     **/
 	list<VM> get_servers_by_ids(1:list<string> server_ids)
 
+	string check_server_task_state(1: string openstack_id)
+
 	/**
 	* Get servers by bibigrid cluster id.
     **/
@@ -610,7 +619,7 @@ service VirtualMachineService {
     /** Id of the server.*/
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e , 2: conflictException c)
 
 
     /**
@@ -633,7 +642,7 @@ service VirtualMachineService {
      /** Description of the new snapshot*/
      5:string description)
 
-     throws (1:serverNotFoundException e),
+     throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
@@ -670,14 +679,14 @@ service VirtualMachineService {
     /** Id of the server where the volume is attached */
     2:string server_id)
 
-    throws (1:serverNotFoundException e),
+    throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
      * Delete volume.
      * Returns:  True if deleted, False if not
      */
-    bool delete_volume(1:string volume_id)
+    bool delete_volume(1:string volume_id) throws (1: conflictException c)
 
     /**
      * Attach volume to server.
@@ -691,7 +700,7 @@ service VirtualMachineService {
     2:string volume_id,
     )
 
-    throws (1:serverNotFoundException e),
+    throws (1:serverNotFoundException e, 2: conflictException c),
 
 
     /**
@@ -727,7 +736,7 @@ service VirtualMachineService {
     /** Id of the server */
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e, 2: conflictException c)
 
 
     /**
@@ -760,6 +769,6 @@ service VirtualMachineService {
     /** HARD or SOFT*/
     2:string reboot_type)
 
-    throws (1:serverNotFoundException e)
+    throws (1:serverNotFoundException e, 2: conflictException c)
 
 }
