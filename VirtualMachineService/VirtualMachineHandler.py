@@ -1537,6 +1537,7 @@ class VirtualMachineHandler(Iface):
                     description=os_volume.description,
                     created_at=os_volume.created_at,
                     device=device,
+                    size=os_volume.size,
                 )
                 volumes.append(thrift_volume)
 
@@ -1563,6 +1564,7 @@ class VirtualMachineHandler(Iface):
                 description=os_volume.description,
                 created_at=os_volume.created_at,
                 device=device,
+                size=os_volume.size,
             )
             return thrift_volume
         except Exception:
