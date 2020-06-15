@@ -226,14 +226,14 @@ Set all variables that can be found in  `.env` and `.secrets` file.
 You can run the playbook using the following command:
 
 ~~~BASH
-ansible-playbook  -i inventory_openstack site.yml
+ansible-playbook --tags "client_only" -i inventory_openstack site.yml
 ~~~
 
 where 
 
   * inventory_openstack is your inventory file which you created in the first step.
   
-  
+  * You can start only the client or with bibigrid with tags "bibigrid" or "client_only"
 **Choose  different files**
 
 You can also specify different .env , .secrets and server.pem files.
