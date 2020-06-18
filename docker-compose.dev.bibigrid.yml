@@ -5,7 +5,7 @@ services:
        context: .
        dockerfile: Dockerfile
     ports:
-     - "9090:9090"
+     - ${CLIENT_PORT}:9090
 
     env_file:
         - .env
