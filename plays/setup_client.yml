@@ -132,7 +132,8 @@
         files:
           - docker-compose.yml
       become: yes
-      tags: client_only
+      when: 'bibigrid' not in ansible_run_tags
+      tags: always
 
     - name: Start  docker container with bibigrid
       docker_compose:

@@ -3,7 +3,7 @@ services:
   portal-client:
     image: denbicloud/cloud-portal-client:${CLOUD_CLIENT_TAG}
     ports:
-     - "9090:9090"
+     - ${CLIENT_PORT}:9090
      
     env_file:
         - .env
