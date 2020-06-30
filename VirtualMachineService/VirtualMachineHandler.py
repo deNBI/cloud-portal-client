@@ -602,10 +602,17 @@ class VirtualMachineHandler(Iface):
                 server_list.append(self.openstack_server_to_thrift_server(server))
         return server_list
 
-    def check_server_task_state(self, openstackid):
+    def check_server_task_state(self, openstack_id):
+        self.logger.info("Checking Task State: {}".format(openstack_id))
         try:
-            server = self.conn.get_server_by_id(openstackid)
-            return server["task_state"]
+            server = self.conn.get_server_by_id(openstack_id)
+            self.logger.info(server)
+            task_state = server["task_state"]
+            self.logger.info("Task State: {}".format(task_state))
+            if task_state:
+                return task_state
+            else:
+                return "No active task"
         except:
             return "No server or task_state found"
 
