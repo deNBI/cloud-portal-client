@@ -132,7 +132,7 @@
         files:
           - docker-compose.yml
       become: yes
-      when: 'bibigrid' not in ansible_run_tags
+      when: "'bibigrid' not in ansible_run_tags"
       tags: always
 
     - name: Start  docker container with bibigrid
