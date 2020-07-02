@@ -11,11 +11,6 @@
     name: "{{ rstudio_vars.DEFAULT_USER }}"
     password: "{{ rstudio_vars.DEFAULT_PASSWORD_HASHED }}"
 
-- name: Check if profiles file already exists
-  stat:
-    path: "{{ rstudio_vars.PROFILES_FILE_PATH }}"
-  register: stat_profiles_file
-
 - name: Install R role
   include_role:
     name: oefenweb.r
@@ -28,14 +23,14 @@
     rstudio_install: [r-base]
   when: rstudio_vars.create_only_backend == "false"
 
-- name: Copy profiles file if not existing
+- name: Copy session file if also installing rstudio
   copy:
-    content: "[*]\nsession-timeout-minutes=180"
-    dest: "{{ rstudio_vars.PROFILES_FILE_PATH }}"
+    content: "session-timeout-minutes=180"
+    dest: "{{ rstudio_vars.RSESSION_FILE_PATH }}"
     mode: "0644"
     owner: "root"
     group: "root"
-  when: stat_profiles_file.stat.exists == False
+  when: rstudio_vars.create_only_backend == "false"
 
 - name: Flush rstudio handlers
   meta: flush_handlers
