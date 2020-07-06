@@ -44,6 +44,7 @@ services:
       - OS_PASSWORD
       - OS_USER_DOMAIN_NAME
       - OS_PROJECT_DOMAIN_ID
+      - OS_PROJECT_DOMAIN_NAME
     expose:
       - "8080"
     networks:
