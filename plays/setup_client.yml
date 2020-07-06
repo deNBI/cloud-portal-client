@@ -132,10 +132,9 @@
         files:
           - docker-compose.yml
       become: yes
-      when: 'bibigrid' not in ansible_run_tags
-      tags: always
+      when: "'bibigrid' not in ansible_run_tags"
 
-    - name: Start  docker container with bibigrid
+    - name: Start docker container with bibigrid
       docker_compose:
           recreate: always
           pull: yes
@@ -143,7 +142,7 @@
           files:
             - docker-compose.bibigrid.yml
       become: yes
-      tags: bibigrid
+      tags: ['never', 'bibigrid']
 
 
 
