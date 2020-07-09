@@ -35,7 +35,11 @@ services:
       - portal
 
   bibigrid:
-    image: bibiserv/bibigrid:bibigrid_rest_http_enabled_log
+    image: bibiserv/bibigrid:bibigrid_rest_http_fixed
+
+    env_file:
+      - .env
+
     environment:
       - OS_AUTH_URL
       - OS_PROJECT_ID
