@@ -35,7 +35,7 @@ services:
       - portal
 
   bibigrid:
-    image: bibiserv/bibigrid:bibigrid_rest_http_enabled_log
+    image: bibiserv/bibigrid:bibigrid_rest_http_fixed
     environment:
       - OS_AUTH_URL
       - OS_PROJECT_ID
@@ -44,6 +44,8 @@ services:
       - OS_PASSWORD
       - OS_USER_DOMAIN_NAME
       - OS_PROJECT_DOMAIN_ID
+      - OS_PROJECT_DOMAIN_NAME
+
     expose:
       - "8080"
     networks:
