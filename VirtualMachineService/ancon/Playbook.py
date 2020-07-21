@@ -1,9 +1,11 @@
+import logging
 import shlex
 import shutil
-from tempfile import NamedTemporaryFile, TemporaryDirectory
-import ruamel.yaml
 import subprocess
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+
 import redis
+import ruamel.yaml
 
 BIOCONDA = "bioconda"
 THEIA = "theiaide"
@@ -15,6 +17,7 @@ MOSH = "mosh"
 
 ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
 
+LOG = logging.getLogger(__name__)
 
 class Playbook(object):
 
@@ -22,14 +25,13 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self, ip, port, playbooks_information, osi_private_key, public_key, logger, pool
+            self, ip, port, playbooks_information, osi_private_key, public_key, pool
     ):
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
         self.vars_files = []  # _vars_file.yml to read
         self.tasks = []  # task list
         self.always_tasks = []
-        self.logger = logger
         self.process = (
             None  # init process, returncode, standard output, standard error output
         )
@@ -160,15 +162,15 @@ class Playbook(object):
                     self.yaml_exec.dump(data, variables)
                 self.add_to_playbook_lists(playbook_name)
             except shutil.Error as e:
-                self.logger.exception(e)
+                LOG.exception(e)
                 self.add_tasks_only(playbook_name)
             except IOError as e:
-                self.logger.exception(e)
+                LOG.exception(e)
                 self.add_tasks_only(playbook_name)
         except shutil.Error as e:
-            self.logger.exception(e)
+            LOG.exception(e)
         except IOError as e:
-            self.logger.exception(e)
+            LOG.exception(e)
 
     def add_to_playbook_lists(self, playbook_name):
         self.vars_files.append(playbook_name + "_vars_file.yml")
@@ -219,20 +221,20 @@ class Playbook(object):
     def check_status(self, openstack_id):
         done = self.process.poll()
         if done is None:
-            self.logger.info(
+            LOG.info(
                 "Playbook for (openstack_id) {0} still in progress.".format(
                     openstack_id
                 )
             )
         elif done != 0:
-            self.logger.info(
+            LOG.info(
                 "Playbook for (openstack_id) {0} has failed.".format(openstack_id)
             )
             self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
             self.returncode = self.process.returncode
             self.process.wait()
         else:
-            self.logger.info(
+            LOG.info(
                 "Playbook for (openstack_id) {0} is successful.".format(openstack_id)
             )
             self.redis.hset(openstack_id, "status", self.ACTIVE)
