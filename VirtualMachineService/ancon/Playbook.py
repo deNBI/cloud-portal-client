@@ -19,13 +19,14 @@ ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
 
 LOG = logging.getLogger(__name__)
 
+
 class Playbook(object):
 
     ACTIVE = "ACTIVE"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-            self, ip, port, playbooks_information, osi_private_key, public_key, pool
+        self, ip, port, playbooks_information, osi_private_key, public_key, pool
     ):
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
@@ -227,9 +228,7 @@ class Playbook(object):
                 )
             )
         elif done != 0:
-            LOG.info(
-                "Playbook for (openstack_id) {0} has failed.".format(openstack_id)
-            )
+            LOG.info("Playbook for (openstack_id) {0} has failed.".format(openstack_id))
             self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
             self.returncode = self.process.returncode
             self.process.wait()
