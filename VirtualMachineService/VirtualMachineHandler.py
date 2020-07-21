@@ -1116,13 +1116,12 @@ class VirtualMachineHandler(Iface):
         port = self.get_vm_ports(openstack_id=openstack_id)
         key = self.redis.hget(openstack_id, "key").decode("utf-8")
         playbook = Playbook(
-            self.GATEWAY_IP,
-            port["port"],
-            playbooks_information,
-            key,
-            public_key,
-            self.logger,
-            self.pool,
+            ip=self.GATEWAY_IP,
+            port=port["port"],
+            playbooks_information=playbooks_information,
+            osi_private_key=key,
+            public_key=public_key,
+            pool=self.pool,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
