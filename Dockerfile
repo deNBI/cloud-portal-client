@@ -1,4 +1,4 @@
-FROM python:3.8.4-buster
+FROM python:3.8.5-buster
 RUN  apt-get update -y 
 RUN apt-get install -y build-essential
 WORKDIR /code
