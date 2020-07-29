@@ -18,6 +18,19 @@ MOSH = "mosh"
 ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
 
 LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
+fh = logging.FileHandler("log/portal_client_debug.log")
+fh.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(funcName)s  - %(levelname)s - %(message)s"
+)
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+LOG.addHandler(fh)
+LOG.addHandler(ch)
+
 
 class Playbook(object):
 
