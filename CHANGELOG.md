@@ -1,3 +1,10 @@
+##  (2020-07-30)
+
+
+#### Bug Fixes
+
+* **Playbook:** logging ([bfa0a7d4](bfa0a7d4))
+
 ##  (2020-06-18)
 
 
