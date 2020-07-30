@@ -35,7 +35,7 @@ services:
       - portal
 
   bibigrid:
-    image: bibiserv/bibigrid:bibigrid_rest_http_fixed
+    image: bibiserv/bibigrid:bibigrid_rest_http_slurmfix
 
     env_file:
       - .env
