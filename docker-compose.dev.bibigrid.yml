@@ -35,7 +35,7 @@ services:
       - portal
 
   bibigrid:
-    image: bibiserv/bibigrid:bibigrid_rest_http_slurmfix
+    image: bibiserv/bibigrid:${BIBIGRID_TAG}
     environment:
       - OS_AUTH_URL
       - OS_PROJECT_ID
