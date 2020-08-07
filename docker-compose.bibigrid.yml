@@ -35,7 +35,7 @@ services:
       - portal
 
   bibigrid:
-    image: bibiserv/bibigrid:bibigrid_rest_http_slurmfix
+    image: bibiserv/bibigrid:${BIBIGRID_TAG}
 
     env_file:
       - .env
@@ -49,6 +49,8 @@ services:
       - OS_USER_DOMAIN_NAME
       - OS_PROJECT_DOMAIN_ID
       - OS_PROJECT_DOMAIN_NAME
+      - server.enableHttps=false
+      - server.enableHttp=true
     expose:
       - "8080"
     networks:
