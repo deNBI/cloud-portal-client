@@ -49,6 +49,8 @@ services:
       - OS_USER_DOMAIN_NAME
       - OS_PROJECT_DOMAIN_ID
       - OS_PROJECT_DOMAIN_NAME
+      - server.enableHttps=false
+      - server.enableHttp=true
     expose:
       - "8080"
     networks:
