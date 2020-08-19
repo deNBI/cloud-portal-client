@@ -32,7 +32,6 @@ LOG.addHandler(fh)
 LOG.addHandler(ch)
 
 
-
 class Playbook(object):
 
     ACTIVE = "ACTIVE"
