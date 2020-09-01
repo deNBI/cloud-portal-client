@@ -110,10 +110,10 @@ class VirtualMachineHandler(Iface):
 
     def create_connection(self):
         """
-            Create connection to OpenStack.
+        Create connection to OpenStack.
 
-            :return: OpenStack connection instance
-            """
+        :return: OpenStack connection instance
+        """
         try:
 
             conn = connection.Connection(
@@ -136,10 +136,10 @@ class VirtualMachineHandler(Iface):
 
     def __init__(self, config):
         """
-            Initialize the handler.
+        Initialize the handler.
 
-            Read all config variables and creates a connection to OpenStack.
-            """
+        Read all config variables and creates a connection to OpenStack.
+        """
 
         # connection to redis. Uses a pool with 10 connections.
         self.pool = redis.ConnectionPool(host="redis", port=6379)
@@ -213,12 +213,12 @@ class VirtualMachineHandler(Iface):
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
         """
-            Set the password of a user.
+        Set the password of a user.
 
-            :param user: Elixir-Id of the user which wants to set a password
-            :param password: The new password.
-            :return: The new password
-            """
+        :param user: Elixir-Id of the user which wants to set a password
+        :param password: The new password.
+        :return: The new password
+        """
         if str(self.SET_PASSWORD) == "True":
             try:
                 auth = v3.Password(
@@ -492,7 +492,11 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             LOG.exception(e)
             flav = Flavor(
-                vcpus=None, ram=None, disk=None, name=None, openstack_id=None,
+                vcpus=None,
+                ram=None,
+                disk=None,
+                name=None,
+                openstack_id=None,
             )
             return flav
 
@@ -1851,11 +1855,11 @@ class VirtualMachineHandler(Iface):
 
     def get_vm_ports(self, openstack_id):
         """
-               Get Ports of the sever.
+        Get Ports of the sever.
 
-               :param openstack_id: Id of the server
-               :return: {'PORT': port, 'UDP':start_port}
-               """
+        :param openstack_id: Id of the server
+        :return: {'PORT': port, 'UDP':start_port}
+        """
         LOG.info("Get IP and PORT for server {0}".format(openstack_id))
         server = self.get_server(openstack_id)
         server_base = server.fixed_ip.split(".")[-1]
