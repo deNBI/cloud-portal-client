@@ -5476,7 +5476,8 @@ class check_Version_args(object):
     """
 
     def __init__(
-        self, version=None,
+        self,
+        version=None,
     ):
         self.version = version
 
@@ -5534,7 +5535,13 @@ class check_Version_args(object):
 all_structs.append(check_Version_args)
 check_Version_args.thrift_spec = (
     None,  # 0
-    (1, TType.DOUBLE, "version", None, None,),  # 1
+    (
+        1,
+        TType.DOUBLE,
+        "version",
+        None,
+        None,
+    ),  # 1
 )
 
 
@@ -5546,7 +5553,8 @@ class check_Version_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -5602,7 +5610,15 @@ class check_Version_result(object):
 
 
 all_structs.append(check_Version_result)
-check_Version_result.thrift_spec = ((0, TType.BOOL, "success", None, None,),)  # 0
+check_Version_result.thrift_spec = (
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),
+)  # 0
 
 
 class get_client_version_args(object):
@@ -5660,7 +5676,8 @@ class get_client_version_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -5725,7 +5742,13 @@ class get_client_version_result(object):
 
 all_structs.append(get_client_version_result)
 get_client_version_result.thrift_spec = (
-    (0, TType.STRING, "success", "UTF8", None,),  # 0
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),  # 0
 )
 
 
@@ -5784,7 +5807,8 @@ class get_gateway_ip_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -5928,7 +5952,8 @@ class get_calculation_formulars_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6026,7 +6051,9 @@ class import_keypair_args(object):
     """
 
     def __init__(
-        self, keyname=None, public_key=None,
+        self,
+        keyname=None,
+        public_key=None,
     ):
         self.keyname = keyname
         self.public_key = public_key
@@ -6110,8 +6137,20 @@ class import_keypair_args(object):
 all_structs.append(import_keypair_args)
 import_keypair_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "keyname", "UTF8", None,),  # 1
-    (2, TType.STRING, "public_key", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "keyname",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -6123,7 +6162,8 @@ class import_keypair_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6187,7 +6227,15 @@ class import_keypair_result(object):
 
 
 all_structs.append(import_keypair_result)
-import_keypair_result.thrift_spec = ((0, TType.STRING, "success", "UTF8", None,),)  # 0
+import_keypair_result.thrift_spec = (
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),
+)  # 0
 
 
 class get_vm_ports_args(object):
@@ -6198,7 +6246,8 @@ class get_vm_ports_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -6264,7 +6313,13 @@ class get_vm_ports_args(object):
 all_structs.append(get_vm_ports_args)
 get_vm_ports_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -6276,7 +6331,8 @@ class get_vm_ports_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6420,7 +6476,8 @@ class get_Flavors_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6486,7 +6543,13 @@ class get_Flavors_result(object):
 
 all_structs.append(get_Flavors_result)
 get_Flavors_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Flavor, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Flavor, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -6545,7 +6608,8 @@ class get_Images_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6611,7 +6675,13 @@ class get_Images_result(object):
 
 all_structs.append(get_Images_result)
 get_Images_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Image, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Image, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -6623,7 +6693,8 @@ class get_Image_with_Tag_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -6689,7 +6760,13 @@ class get_Image_with_Tag_args(object):
 all_structs.append(get_Image_with_Tag_args)
 get_Image_with_Tag_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -6701,7 +6778,8 @@ class get_Image_with_Tag_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6759,7 +6837,13 @@ class get_Image_with_Tag_result(object):
 
 all_structs.append(get_Image_with_Tag_result)
 get_Image_with_Tag_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [Image, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [Image, None],
+        None,
+    ),  # 0
 )
 
 
@@ -6771,7 +6855,8 @@ class get_Images_by_filter_args(object):
     """
 
     def __init__(
-        self, filter_json=None,
+        self,
+        filter_json=None,
     ):
         self.filter_json = filter_json
 
@@ -6869,7 +6954,8 @@ class get_Images_by_filter_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -6935,7 +7021,13 @@ class get_Images_by_filter_result(object):
 
 all_structs.append(get_Images_by_filter_result)
 get_Images_by_filter_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Image, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Image, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -6947,7 +7039,8 @@ class get_volume_args(object):
     """
 
     def __init__(
-        self, volume_id=None,
+        self,
+        volume_id=None,
     ):
         self.volume_id = volume_id
 
@@ -7013,7 +7106,13 @@ class get_volume_args(object):
 all_structs.append(get_volume_args)
 get_volume_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "volume_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -7025,7 +7124,8 @@ class get_volume_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -7083,7 +7183,13 @@ class get_volume_result(object):
 
 all_structs.append(get_volume_result)
 get_volume_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [Volume, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [Volume, None],
+        None,
+    ),  # 0
 )
 
 
@@ -7095,7 +7201,8 @@ class get_volumes_by_ids_args(object):
     """
 
     def __init__(
-        self, volume_ids=None,
+        self,
+        volume_ids=None,
     ):
         self.volume_ids = volume_ids
 
@@ -7167,7 +7274,13 @@ class get_volumes_by_ids_args(object):
 all_structs.append(get_volumes_by_ids_args)
 get_volumes_by_ids_args.thrift_spec = (
     None,  # 0
-    (1, TType.LIST, "volume_ids", (TType.STRING, "UTF8", False), None,),  # 1
+    (
+        1,
+        TType.LIST,
+        "volume_ids",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 1
 )
 
 
@@ -7179,7 +7292,8 @@ class get_volumes_by_ids_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -7245,7 +7359,13 @@ class get_volumes_by_ids_result(object):
 
 all_structs.append(get_volumes_by_ids_result)
 get_volumes_by_ids_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Volume, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Volume, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -7258,7 +7378,9 @@ class resize_volume_args(object):
     """
 
     def __init__(
-        self, volume_id=None, size=None,
+        self,
+        volume_id=None,
+        size=None,
     ):
         self.volume_id = volume_id
         self.size = size
@@ -7334,8 +7456,20 @@ class resize_volume_args(object):
 all_structs.append(resize_volume_args)
 resize_volume_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "volume_id", "UTF8", None,),  # 1
-    (2, TType.I32, "size", None, None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.I32,
+        "size",
+        None,
+        None,
+    ),  # 2
 )
 
 
@@ -7347,7 +7481,8 @@ class resize_volume_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -7403,7 +7538,15 @@ class resize_volume_result(object):
 
 
 all_structs.append(resize_volume_result)
-resize_volume_result.thrift_spec = ((0, TType.I32, "success", None, None,),)  # 0
+resize_volume_result.thrift_spec = (
+    (
+        0,
+        TType.I32,
+        "success",
+        None,
+        None,
+    ),
+)  # 0
 
 
 class delete_server_args(object):
@@ -7414,7 +7557,8 @@ class delete_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -7480,7 +7624,13 @@ class delete_server_args(object):
 all_structs.append(delete_server_args)
 delete_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -7494,7 +7644,10 @@ class delete_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -7573,9 +7726,27 @@ class delete_server_result(object):
 
 all_structs.append(delete_server_result)
 delete_server_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -7588,7 +7759,9 @@ class add_metadata_to_server_args(object):
     """
 
     def __init__(
-        self, servername=None, metadata=None,
+        self,
+        servername=None,
+        metadata=None,
     ):
         self.servername = servername
         self.metadata = metadata
@@ -7686,7 +7859,13 @@ class add_metadata_to_server_args(object):
 all_structs.append(add_metadata_to_server_args)
 add_metadata_to_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "servername", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 1
     (
         2,
         TType.MAP,
@@ -7706,7 +7885,9 @@ class add_metadata_to_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -7803,7 +7984,13 @@ add_metadata_to_server_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -7816,7 +8003,9 @@ class delete_metadata_from_server_args(object):
     """
 
     def __init__(
-        self, servername=None, keys=None,
+        self,
+        servername=None,
+        keys=None,
     ):
         self.servername = servername
         self.keys = keys
@@ -7906,8 +8095,20 @@ class delete_metadata_from_server_args(object):
 all_structs.append(delete_metadata_from_server_args)
 delete_metadata_from_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "servername", "UTF8", None,),  # 1
-    (2, TType.SET, "keys", (TType.STRING, "UTF8", False), None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.SET,
+        "keys",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 2
 )
 
 
@@ -7920,7 +8121,9 @@ class delete_metadata_from_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -8002,8 +8205,20 @@ class delete_metadata_from_server_result(object):
 
 all_structs.append(delete_metadata_from_server_result)
 delete_metadata_from_server_result.thrift_spec = (
-    (0, TType.SET, "success", (TType.STRING, "UTF8", False), None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
+    (
+        0,
+        TType.SET,
+        "success",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -8016,7 +8231,9 @@ class add_floating_ip_to_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None, network=None,
+        self,
+        openstack_id=None,
+        network=None,
     ):
         self.openstack_id = openstack_id
         self.network = network
@@ -8100,8 +8317,20 @@ class add_floating_ip_to_server_args(object):
 all_structs.append(add_floating_ip_to_server_args)
 add_floating_ip_to_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "network", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "network",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -8115,7 +8344,10 @@ class add_floating_ip_to_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, f=None,
+        self,
+        success=None,
+        e=None,
+        f=None,
     ):
         self.success = success
         self.e = e
@@ -8202,9 +8434,27 @@ class add_floating_ip_to_server_result(object):
 
 all_structs.append(add_floating_ip_to_server_result)
 add_floating_ip_to_server_result.thrift_spec = (
-    (0, TType.STRING, "success", "UTF8", None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "f", [networkNotFoundException, None], None,),  # 2
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "f",
+        [networkNotFoundException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -8366,12 +8616,42 @@ class create_connection_args(object):
 all_structs.append(create_connection_args)
 create_connection_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "username", "UTF8", None,),  # 1
-    (2, TType.STRING, "password", "UTF8", None,),  # 2
-    (3, TType.STRING, "auth_url", "UTF8", None,),  # 3
+    (
+        1,
+        TType.STRING,
+        "username",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "password",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "auth_url",
+        "UTF8",
+        None,
+    ),  # 3
     None,  # 4
-    (5, TType.STRING, "user_domain_name", "UTF8", None,),  # 5
-    (6, TType.STRING, "project_domain_name", "UTF8", None,),  # 6
+    (
+        5,
+        TType.STRING,
+        "user_domain_name",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "project_domain_name",
+        "UTF8",
+        None,
+    ),  # 6
 )
 
 
@@ -8384,7 +8664,9 @@ class create_connection_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -8452,8 +8734,20 @@ class create_connection_result(object):
 
 all_structs.append(create_connection_result)
 create_connection_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [authenticationException, None], None,),  # 1
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [authenticationException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -8764,10 +9058,34 @@ class start_server_without_playbook_args(object):
 all_structs.append(start_server_without_playbook_args)
 start_server_without_playbook_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "flavor", "UTF8", None,),  # 1
-    (2, TType.STRING, "image", "UTF8", None,),  # 2
-    (3, TType.STRING, "public_key", "UTF8", None,),  # 3
-    (4, TType.STRING, "servername", "UTF8", None,),  # 4
+    (
+        1,
+        TType.STRING,
+        "flavor",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "image",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 4
     (
         5,
         TType.MAP,
@@ -8775,9 +9093,27 @@ start_server_without_playbook_args.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 5
-    (6, TType.BOOL, "https", None, None,),  # 6
-    (7, TType.BOOL, "http", None, None,),  # 7
-    (8, TType.LIST, "resenv", (TType.STRING, "UTF8", False), None,),  # 8
+    (
+        6,
+        TType.BOOL,
+        "https",
+        None,
+        None,
+    ),  # 6
+    (
+        7,
+        TType.BOOL,
+        "http",
+        None,
+        None,
+    ),  # 7
+    (
+        8,
+        TType.LIST,
+        "resenv",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 8
     (
         9,
         TType.LIST,
@@ -8810,7 +9146,15 @@ class start_server_without_playbook_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,
+        self,
+        success=None,
+        e=None,
+        r=None,
+        s=None,
+        n=None,
+        i=None,
+        f=None,
+        o=None,
     ):
         self.success = success
         self.e = e
@@ -8973,13 +9317,55 @@ start_server_without_playbook_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [nameException, None], None,),  # 1
-    (2, TType.STRUCT, "r", [ressourceException, None], None,),  # 2
-    (3, TType.STRUCT, "s", [serverNotFoundException, None], None,),  # 3
-    (4, TType.STRUCT, "n", [networkNotFoundException, None], None,),  # 4
-    (5, TType.STRUCT, "i", [imageNotFoundException, None], None,),  # 5
-    (6, TType.STRUCT, "f", [flavorNotFoundException, None], None,),  # 6
-    (7, TType.STRUCT, "o", [otherException, None], None,),  # 7
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [nameException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRUCT,
+        "s",
+        [serverNotFoundException, None],
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRUCT,
+        "n",
+        [networkNotFoundException, None],
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRUCT,
+        "i",
+        [imageNotFoundException, None],
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRUCT,
+        "f",
+        [flavorNotFoundException, None],
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRUCT,
+        "o",
+        [otherException, None],
+        None,
+    ),  # 7
 )
 
 
@@ -9038,7 +9424,8 @@ class bibigrid_available_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -9094,7 +9481,15 @@ class bibigrid_available_result(object):
 
 
 all_structs.append(bibigrid_available_result)
-bibigrid_available_result.thrift_spec = ((0, TType.BOOL, "success", None, None,),)  # 0
+bibigrid_available_result.thrift_spec = (
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),
+)  # 0
 
 
 class detach_ip_from_server_args(object):
@@ -9106,7 +9501,9 @@ class detach_ip_from_server_args(object):
     """
 
     def __init__(
-        self, server_id=None, floating_ip=None,
+        self,
+        server_id=None,
+        floating_ip=None,
     ):
         self.server_id = server_id
         self.floating_ip = floating_ip
@@ -9190,8 +9587,20 @@ class detach_ip_from_server_args(object):
 all_structs.append(detach_ip_from_server_args)
 detach_ip_from_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "server_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "floating_ip", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "server_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "floating_ip",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -9203,7 +9612,8 @@ class detach_ip_from_server_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -9260,7 +9670,13 @@ class detach_ip_from_server_result(object):
 
 all_structs.append(detach_ip_from_server_result)
 detach_ip_from_server_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
 )
 
 
@@ -9571,10 +9987,34 @@ class start_server_with_mounted_volume_args(object):
 all_structs.append(start_server_with_mounted_volume_args)
 start_server_with_mounted_volume_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "flavor", "UTF8", None,),  # 1
-    (2, TType.STRING, "image", "UTF8", None,),  # 2
-    (3, TType.STRING, "public_key", "UTF8", None,),  # 3
-    (4, TType.STRING, "servername", "UTF8", None,),  # 4
+    (
+        1,
+        TType.STRING,
+        "flavor",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "image",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 4
     (
         5,
         TType.MAP,
@@ -9582,9 +10022,27 @@ start_server_with_mounted_volume_args.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 5
-    (6, TType.BOOL, "https", None, None,),  # 6
-    (7, TType.BOOL, "http", None, None,),  # 7
-    (8, TType.LIST, "resenv", (TType.STRING, "UTF8", False), None,),  # 8
+    (
+        6,
+        TType.BOOL,
+        "https",
+        None,
+        None,
+    ),  # 6
+    (
+        7,
+        TType.BOOL,
+        "http",
+        None,
+        None,
+    ),  # 7
+    (
+        8,
+        TType.LIST,
+        "resenv",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 8
     (
         9,
         TType.LIST,
@@ -9617,7 +10075,15 @@ class start_server_with_mounted_volume_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,
+        self,
+        success=None,
+        e=None,
+        r=None,
+        s=None,
+        n=None,
+        i=None,
+        f=None,
+        o=None,
     ):
         self.success = success
         self.e = e
@@ -9780,13 +10246,55 @@ start_server_with_mounted_volume_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [nameException, None], None,),  # 1
-    (2, TType.STRUCT, "r", [ressourceException, None], None,),  # 2
-    (3, TType.STRUCT, "s", [serverNotFoundException, None], None,),  # 3
-    (4, TType.STRUCT, "n", [networkNotFoundException, None], None,),  # 4
-    (5, TType.STRUCT, "i", [imageNotFoundException, None], None,),  # 5
-    (6, TType.STRUCT, "f", [flavorNotFoundException, None], None,),  # 6
-    (7, TType.STRUCT, "o", [otherException, None], None,),  # 7
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [nameException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRUCT,
+        "s",
+        [serverNotFoundException, None],
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRUCT,
+        "n",
+        [networkNotFoundException, None],
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRUCT,
+        "i",
+        [imageNotFoundException, None],
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRUCT,
+        "f",
+        [flavorNotFoundException, None],
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRUCT,
+        "o",
+        [otherException, None],
+        None,
+    ),  # 7
 )
 
 
@@ -10045,10 +10553,34 @@ class start_server_args(object):
 all_structs.append(start_server_args)
 start_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "flavor", "UTF8", None,),  # 1
-    (2, TType.STRING, "image", "UTF8", None,),  # 2
-    (3, TType.STRING, "public_key", "UTF8", None,),  # 3
-    (4, TType.STRING, "servername", "UTF8", None,),  # 4
+    (
+        1,
+        TType.STRING,
+        "flavor",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "image",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 4
     (
         5,
         TType.MAP,
@@ -10056,11 +10588,41 @@ start_server_args.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 5
-    (6, TType.STRING, "diskspace", "UTF8", None,),  # 6
-    (7, TType.STRING, "volumename", "UTF8", None,),  # 7
-    (8, TType.BOOL, "https", None, None,),  # 8
-    (9, TType.BOOL, "http", None, None,),  # 9
-    (10, TType.LIST, "resenv", (TType.STRING, "UTF8", False), None,),  # 10
+    (
+        6,
+        TType.STRING,
+        "diskspace",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRING,
+        "volumename",
+        "UTF8",
+        None,
+    ),  # 7
+    (
+        8,
+        TType.BOOL,
+        "https",
+        None,
+        None,
+    ),  # 8
+    (
+        9,
+        TType.BOOL,
+        "http",
+        None,
+        None,
+    ),  # 9
+    (
+        10,
+        TType.LIST,
+        "resenv",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 10
 )
 
 
@@ -10079,7 +10641,15 @@ class start_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,
+        self,
+        success=None,
+        e=None,
+        r=None,
+        s=None,
+        n=None,
+        i=None,
+        f=None,
+        o=None,
     ):
         self.success = success
         self.e = e
@@ -10242,13 +10812,55 @@ start_server_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [nameException, None], None,),  # 1
-    (2, TType.STRUCT, "r", [ressourceException, None], None,),  # 2
-    (3, TType.STRUCT, "s", [serverNotFoundException, None], None,),  # 3
-    (4, TType.STRUCT, "n", [networkNotFoundException, None], None,),  # 4
-    (5, TType.STRUCT, "i", [imageNotFoundException, None], None,),  # 5
-    (6, TType.STRUCT, "f", [flavorNotFoundException, None], None,),  # 6
-    (7, TType.STRUCT, "o", [otherException, None], None,),  # 7
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [nameException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRUCT,
+        "s",
+        [serverNotFoundException, None],
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRUCT,
+        "n",
+        [networkNotFoundException, None],
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRUCT,
+        "i",
+        [imageNotFoundException, None],
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRUCT,
+        "f",
+        [flavorNotFoundException, None],
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRUCT,
+        "o",
+        [otherException, None],
+        None,
+    ),  # 7
 )
 
 
@@ -10539,9 +11151,27 @@ class start_server_with_custom_key_args(object):
 all_structs.append(start_server_with_custom_key_args)
 start_server_with_custom_key_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "flavor", "UTF8", None,),  # 1
-    (2, TType.STRING, "image", "UTF8", None,),  # 2
-    (3, TType.STRING, "servername", "UTF8", None,),  # 3
+    (
+        1,
+        TType.STRING,
+        "flavor",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "image",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "servername",
+        "UTF8",
+        None,
+    ),  # 3
     (
         4,
         TType.MAP,
@@ -10549,9 +11179,27 @@ start_server_with_custom_key_args.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 4
-    (5, TType.BOOL, "http", None, None,),  # 5
-    (6, TType.BOOL, "https", None, None,),  # 6
-    (7, TType.LIST, "resenv", (TType.STRING, "UTF8", False), None,),  # 7
+    (
+        5,
+        TType.BOOL,
+        "http",
+        None,
+        None,
+    ),  # 5
+    (
+        6,
+        TType.BOOL,
+        "https",
+        None,
+        None,
+    ),  # 6
+    (
+        7,
+        TType.LIST,
+        "resenv",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 7
     None,  # 8
     (
         9,
@@ -10585,7 +11233,15 @@ class start_server_with_custom_key_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, r=None, s=None, n=None, i=None, f=None, o=None,
+        self,
+        success=None,
+        e=None,
+        r=None,
+        s=None,
+        n=None,
+        i=None,
+        f=None,
+        o=None,
     ):
         self.success = success
         self.e = e
@@ -10748,13 +11404,55 @@ start_server_with_custom_key_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [nameException, None], None,),  # 1
-    (2, TType.STRUCT, "r", [ressourceException, None], None,),  # 2
-    (3, TType.STRUCT, "s", [serverNotFoundException, None], None,),  # 3
-    (4, TType.STRUCT, "n", [networkNotFoundException, None], None,),  # 4
-    (5, TType.STRUCT, "i", [imageNotFoundException, None], None,),  # 5
-    (6, TType.STRUCT, "f", [flavorNotFoundException, None], None,),  # 6
-    (7, TType.STRUCT, "o", [otherException, None], None,),  # 7
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [nameException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRUCT,
+        "s",
+        [serverNotFoundException, None],
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRUCT,
+        "n",
+        [networkNotFoundException, None],
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRUCT,
+        "i",
+        [imageNotFoundException, None],
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRUCT,
+        "f",
+        [flavorNotFoundException, None],
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRUCT,
+        "o",
+        [otherException, None],
+        None,
+    ),  # 7
 )
 
 
@@ -10766,7 +11464,8 @@ class exist_server_args(object):
     """
 
     def __init__(
-        self, name=None,
+        self,
+        name=None,
     ):
         self.name = name
 
@@ -10830,7 +11529,13 @@ class exist_server_args(object):
 all_structs.append(exist_server_args)
 exist_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "name", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -10842,7 +11547,8 @@ class exist_server_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -10898,7 +11604,15 @@ class exist_server_result(object):
 
 
 all_structs.append(exist_server_result)
-exist_server_result.thrift_spec = ((0, TType.BOOL, "success", None, None,),)  # 0
+exist_server_result.thrift_spec = (
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),
+)  # 0
 
 
 class create_and_deploy_playbook_args(object):
@@ -10911,7 +11625,10 @@ class create_and_deploy_playbook_args(object):
     """
 
     def __init__(
-        self, public_key=None, playbooks_information=None, openstack_id=None,
+        self,
+        public_key=None,
+        playbooks_information=None,
+        openstack_id=None,
     ):
         self.public_key = public_key
         self.playbooks_information = playbooks_information
@@ -11049,7 +11766,13 @@ class create_and_deploy_playbook_args(object):
 all_structs.append(create_and_deploy_playbook_args)
 create_and_deploy_playbook_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "public_key", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 1
     (
         2,
         TType.MAP,
@@ -11063,7 +11786,13 @@ create_and_deploy_playbook_args.thrift_spec = (
         ),
         None,
     ),  # 2
-    (3, TType.STRING, "openstack_id", "UTF8", None,),  # 3
+    (
+        3,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 3
 )
 
 
@@ -11075,7 +11804,8 @@ class create_and_deploy_playbook_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11132,7 +11862,13 @@ class create_and_deploy_playbook_result(object):
 
 all_structs.append(create_and_deploy_playbook_result)
 create_and_deploy_playbook_result.thrift_spec = (
-    (0, TType.I32, "success", None, None,),  # 0
+    (
+        0,
+        TType.I32,
+        "success",
+        None,
+        None,
+    ),  # 0
 )
 
 
@@ -11144,7 +11880,8 @@ class get_playbook_logs_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -11210,7 +11947,13 @@ class get_playbook_logs_args(object):
 all_structs.append(get_playbook_logs_args)
 get_playbook_logs_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -11222,7 +11965,8 @@ class get_playbook_logs_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11280,7 +12024,13 @@ class get_playbook_logs_result(object):
 
 all_structs.append(get_playbook_logs_result)
 get_playbook_logs_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [PlaybookResult, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [PlaybookResult, None],
+        None,
+    ),  # 0
 )
 
 
@@ -11339,7 +12089,8 @@ class has_forc_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11395,7 +12146,15 @@ class has_forc_result(object):
 
 
 all_structs.append(has_forc_result)
-has_forc_result.thrift_spec = ((0, TType.BOOL, "success", None, None,),)  # 0
+has_forc_result.thrift_spec = (
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),
+)  # 0
 
 
 class get_forc_url_args(object):
@@ -11453,7 +12212,8 @@ class get_forc_url_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11517,7 +12277,15 @@ class get_forc_url_result(object):
 
 
 all_structs.append(get_forc_url_result)
-get_forc_url_result.thrift_spec = ((0, TType.STRING, "success", "UTF8", None,),)  # 0
+get_forc_url_result.thrift_spec = (
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),
+)  # 0
 
 
 class create_backend_args(object):
@@ -11531,7 +12299,11 @@ class create_backend_args(object):
     """
 
     def __init__(
-        self, elixir_id=None, user_key_url=None, template=None, upstream_url=None,
+        self,
+        elixir_id=None,
+        user_key_url=None,
+        template=None,
+        upstream_url=None,
     ):
         self.elixir_id = elixir_id
         self.user_key_url = user_key_url
@@ -11651,10 +12423,34 @@ class create_backend_args(object):
 all_structs.append(create_backend_args)
 create_backend_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "elixir_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "user_key_url", "UTF8", None,),  # 2
-    (3, TType.STRING, "template", "UTF8", None,),  # 3
-    (4, TType.STRING, "upstream_url", "UTF8", None,),  # 4
+    (
+        1,
+        TType.STRING,
+        "elixir_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "user_key_url",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "template",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "upstream_url",
+        "UTF8",
+        None,
+    ),  # 4
 )
 
 
@@ -11666,7 +12462,8 @@ class create_backend_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11724,7 +12521,13 @@ class create_backend_result(object):
 
 all_structs.append(create_backend_result)
 create_backend_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [Backend, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [Backend, None],
+        None,
+    ),  # 0
 )
 
 
@@ -11783,7 +12586,8 @@ class get_backends_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -11849,7 +12653,13 @@ class get_backends_result(object):
 
 all_structs.append(get_backends_result)
 get_backends_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Backend, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Backend, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -11861,7 +12671,8 @@ class get_backends_by_owner_args(object):
     """
 
     def __init__(
-        self, elixir_id=None,
+        self,
+        elixir_id=None,
     ):
         self.elixir_id = elixir_id
 
@@ -11927,7 +12738,13 @@ class get_backends_by_owner_args(object):
 all_structs.append(get_backends_by_owner_args)
 get_backends_by_owner_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "elixir_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "elixir_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -11939,7 +12756,8 @@ class get_backends_by_owner_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12005,7 +12823,13 @@ class get_backends_by_owner_result(object):
 
 all_structs.append(get_backends_by_owner_result)
 get_backends_by_owner_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Backend, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Backend, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -12017,7 +12841,8 @@ class get_backends_by_template_args(object):
     """
 
     def __init__(
-        self, template=None,
+        self,
+        template=None,
     ):
         self.template = template
 
@@ -12083,7 +12908,13 @@ class get_backends_by_template_args(object):
 all_structs.append(get_backends_by_template_args)
 get_backends_by_template_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "template", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "template",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -12095,7 +12926,8 @@ class get_backends_by_template_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12161,7 +12993,13 @@ class get_backends_by_template_result(object):
 
 all_structs.append(get_backends_by_template_result)
 get_backends_by_template_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [Backend, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [Backend, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -12173,7 +13011,8 @@ class get_backend_by_id_args(object):
     """
 
     def __init__(
-        self, id=None,
+        self,
+        id=None,
     ):
         self.id = id
 
@@ -12231,7 +13070,13 @@ class get_backend_by_id_args(object):
 all_structs.append(get_backend_by_id_args)
 get_backend_by_id_args.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "id", None, None,),  # 1
+    (
+        1,
+        TType.I64,
+        "id",
+        None,
+        None,
+    ),  # 1
 )
 
 
@@ -12243,7 +13088,8 @@ class get_backend_by_id_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12301,7 +13147,13 @@ class get_backend_by_id_result(object):
 
 all_structs.append(get_backend_by_id_result)
 get_backend_by_id_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [Backend, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [Backend, None],
+        None,
+    ),  # 0
 )
 
 
@@ -12313,7 +13165,8 @@ class delete_backend_args(object):
     """
 
     def __init__(
-        self, id=None,
+        self,
+        id=None,
     ):
         self.id = id
 
@@ -12371,7 +13224,13 @@ class delete_backend_args(object):
 all_structs.append(delete_backend_args)
 delete_backend_args.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "id", None, None,),  # 1
+    (
+        1,
+        TType.I64,
+        "id",
+        None,
+        None,
+    ),  # 1
 )
 
 
@@ -12383,7 +13242,8 @@ class delete_backend_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12447,7 +13307,15 @@ class delete_backend_result(object):
 
 
 all_structs.append(delete_backend_result)
-delete_backend_result.thrift_spec = ((0, TType.STRING, "success", "UTF8", None,),)  # 0
+delete_backend_result.thrift_spec = (
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),
+)  # 0
 
 
 class add_user_to_backend_args(object):
@@ -12460,7 +13328,10 @@ class add_user_to_backend_args(object):
     """
 
     def __init__(
-        self, backend_id=None, owner_id=None, user_id=None,
+        self,
+        backend_id=None,
+        owner_id=None,
+        user_id=None,
     ):
         self.backend_id = backend_id
         self.owner_id = owner_id
@@ -12554,9 +13425,27 @@ class add_user_to_backend_args(object):
 all_structs.append(add_user_to_backend_args)
 add_user_to_backend_args.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "backend_id", None, None,),  # 1
-    (2, TType.STRING, "owner_id", "UTF8", None,),  # 2
-    (3, TType.STRING, "user_id", "UTF8", None,),  # 3
+    (
+        1,
+        TType.I64,
+        "backend_id",
+        None,
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "owner_id",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "user_id",
+        "UTF8",
+        None,
+    ),  # 3
 )
 
 
@@ -12568,7 +13457,8 @@ class add_user_to_backend_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12665,7 +13555,8 @@ class get_users_from_backend_args(object):
     """
 
     def __init__(
-        self, backend_id=None,
+        self,
+        backend_id=None,
     ):
         self.backend_id = backend_id
 
@@ -12723,7 +13614,13 @@ class get_users_from_backend_args(object):
 all_structs.append(get_users_from_backend_args)
 get_users_from_backend_args.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "backend_id", None, None,),  # 1
+    (
+        1,
+        TType.I64,
+        "backend_id",
+        None,
+        None,
+    ),  # 1
 )
 
 
@@ -12735,7 +13632,8 @@ class get_users_from_backend_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -12806,7 +13704,13 @@ class get_users_from_backend_result(object):
 
 all_structs.append(get_users_from_backend_result)
 get_users_from_backend_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRING, "UTF8", False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 0
 )
 
 
@@ -12820,7 +13724,10 @@ class delete_user_from_backend_args(object):
     """
 
     def __init__(
-        self, backend_id=None, owner_id=None, user_id=None,
+        self,
+        backend_id=None,
+        owner_id=None,
+        user_id=None,
     ):
         self.backend_id = backend_id
         self.owner_id = owner_id
@@ -12914,9 +13821,27 @@ class delete_user_from_backend_args(object):
 all_structs.append(delete_user_from_backend_args)
 delete_user_from_backend_args.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "backend_id", None, None,),  # 1
-    (2, TType.STRING, "owner_id", "UTF8", None,),  # 2
-    (3, TType.STRING, "user_id", "UTF8", None,),  # 3
+    (
+        1,
+        TType.I64,
+        "backend_id",
+        None,
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "owner_id",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "user_id",
+        "UTF8",
+        None,
+    ),  # 3
 )
 
 
@@ -12928,7 +13853,8 @@ class delete_user_from_backend_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13072,7 +13998,8 @@ class get_templates_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13228,7 +14155,8 @@ class get_allowed_templates_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13299,7 +14227,13 @@ class get_allowed_templates_result(object):
 
 all_structs.append(get_allowed_templates_result)
 get_allowed_templates_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRING, "UTF8", False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 0
 )
 
 
@@ -13311,7 +14245,8 @@ class get_templates_by_template_args(object):
     """
 
     def __init__(
-        self, template_name=None,
+        self,
+        template_name=None,
     ):
         self.template_name = template_name
 
@@ -13377,7 +14312,13 @@ class get_templates_by_template_args(object):
 all_structs.append(get_templates_by_template_args)
 get_templates_by_template_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "template_name", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "template_name",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -13389,7 +14330,8 @@ class get_templates_by_template_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13499,7 +14441,9 @@ class check_template_args(object):
     """
 
     def __init__(
-        self, template_name=None, template_version=None,
+        self,
+        template_name=None,
+        template_version=None,
     ):
         self.template_name = template_name
         self.template_version = template_version
@@ -13583,8 +14527,20 @@ class check_template_args(object):
 all_structs.append(check_template_args)
 check_template_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "template_name", "UTF8", None,),  # 1
-    (2, TType.STRING, "template_version", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "template_name",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "template_version",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -13596,7 +14552,8 @@ class check_template_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13693,7 +14650,8 @@ class add_udp_security_group_args(object):
     """
 
     def __init__(
-        self, server_id=None,
+        self,
+        server_id=None,
     ):
         self.server_id = server_id
 
@@ -13759,7 +14717,13 @@ class add_udp_security_group_args(object):
 all_structs.append(add_udp_security_group_args)
 add_udp_security_group_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "server_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "server_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -13773,7 +14737,10 @@ class add_udp_security_group_result(object):
     """
 
     def __init__(
-        self, success=None, r=None, s=None,
+        self,
+        success=None,
+        r=None,
+        s=None,
     ):
         self.success = success
         self.r = r
@@ -13852,9 +14819,27 @@ class add_udp_security_group_result(object):
 
 all_structs.append(add_udp_security_group_result)
 add_udp_security_group_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "r", [ressourceException, None], None,),  # 1
-    (2, TType.STRUCT, "s", [serverNotFoundException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "s",
+        [serverNotFoundException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -13913,7 +14898,8 @@ class get_servers_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -13979,7 +14965,13 @@ class get_servers_result(object):
 
 all_structs.append(get_servers_result)
 get_servers_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [VM, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [VM, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -13991,7 +14983,8 @@ class get_servers_by_ids_args(object):
     """
 
     def __init__(
-        self, server_ids=None,
+        self,
+        server_ids=None,
     ):
         self.server_ids = server_ids
 
@@ -14063,7 +15056,13 @@ class get_servers_by_ids_args(object):
 all_structs.append(get_servers_by_ids_args)
 get_servers_by_ids_args.thrift_spec = (
     None,  # 0
-    (1, TType.LIST, "server_ids", (TType.STRING, "UTF8", False), None,),  # 1
+    (
+        1,
+        TType.LIST,
+        "server_ids",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 1
 )
 
 
@@ -14075,7 +15074,8 @@ class get_servers_by_ids_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -14141,7 +15141,13 @@ class get_servers_by_ids_result(object):
 
 all_structs.append(get_servers_by_ids_result)
 get_servers_by_ids_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [VM, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [VM, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -14153,7 +15159,8 @@ class check_server_task_state_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -14219,7 +15226,13 @@ class check_server_task_state_args(object):
 all_structs.append(check_server_task_state_args)
 check_server_task_state_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -14231,7 +15244,8 @@ class check_server_task_state_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -14296,7 +15310,13 @@ class check_server_task_state_result(object):
 
 all_structs.append(check_server_task_state_result)
 check_server_task_state_result.thrift_spec = (
-    (0, TType.STRING, "success", "UTF8", None,),  # 0
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),  # 0
 )
 
 
@@ -14308,7 +15328,8 @@ class get_servers_by_bibigrid_id_args(object):
     """
 
     def __init__(
-        self, bibigrid_id=None,
+        self,
+        bibigrid_id=None,
     ):
         self.bibigrid_id = bibigrid_id
 
@@ -14374,7 +15395,13 @@ class get_servers_by_bibigrid_id_args(object):
 all_structs.append(get_servers_by_bibigrid_id_args)
 get_servers_by_bibigrid_id_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "bibigrid_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "bibigrid_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -14386,7 +15413,8 @@ class get_servers_by_bibigrid_id_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -14452,7 +15480,13 @@ class get_servers_by_bibigrid_id_result(object):
 
 all_structs.append(get_servers_by_bibigrid_id_result)
 get_servers_by_bibigrid_id_result.thrift_spec = (
-    (0, TType.LIST, "success", (TType.STRUCT, [VM, None], False), None,),  # 0
+    (
+        0,
+        TType.LIST,
+        "success",
+        (TType.STRUCT, [VM, None], False),
+        None,
+    ),  # 0
 )
 
 
@@ -14464,7 +15498,8 @@ class get_cluster_info_args(object):
     """
 
     def __init__(
-        self, cluster_id=None,
+        self,
+        cluster_id=None,
     ):
         self.cluster_id = cluster_id
 
@@ -14530,7 +15565,13 @@ class get_cluster_info_args(object):
 all_structs.append(get_cluster_info_args)
 get_cluster_info_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "cluster_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "cluster_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -14542,7 +15583,8 @@ class get_cluster_info_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -14600,7 +15642,13 @@ class get_cluster_info_result(object):
 
 all_structs.append(get_cluster_info_result)
 get_cluster_info_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [ClusterInfo, None], None,),  # 0
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [ClusterInfo, None],
+        None,
+    ),  # 0
 )
 
 
@@ -14612,7 +15660,8 @@ class get_cluster_status_args(object):
     """
 
     def __init__(
-        self, cluster_id=None,
+        self,
+        cluster_id=None,
     ):
         self.cluster_id = cluster_id
 
@@ -14678,7 +15727,13 @@ class get_cluster_status_args(object):
 all_structs.append(get_cluster_status_args)
 get_cluster_status_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "cluster_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "cluster_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -14690,7 +15745,8 @@ class get_cluster_status_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -14787,7 +15843,8 @@ class get_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -14853,7 +15910,13 @@ class get_server_args(object):
 all_structs.append(get_server_args)
 get_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -14866,7 +15929,9 @@ class get_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -14935,8 +16000,20 @@ class get_server_result(object):
 
 all_structs.append(get_server_result)
 get_server_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [VM, None], None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [VM, None],
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -14948,7 +16025,8 @@ class stop_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -15014,7 +16092,13 @@ class stop_server_args(object):
 all_structs.append(stop_server_args)
 stop_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -15028,7 +16112,10 @@ class stop_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -15107,9 +16194,27 @@ class stop_server_result(object):
 
 all_structs.append(stop_server_result)
 stop_server_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -15272,11 +16377,41 @@ class create_snapshot_args(object):
 all_structs.append(create_snapshot_args)
 create_snapshot_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "name", "UTF8", None,),  # 2
-    (3, TType.STRING, "elixir_id", "UTF8", None,),  # 3
-    (4, TType.LIST, "base_tags", (TType.STRING, "UTF8", False), None,),  # 4
-    (5, TType.STRING, "description", "UTF8", None,),  # 5
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "elixir_id",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.LIST,
+        "base_tags",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "description",
+        "UTF8",
+        None,
+    ),  # 5
 )
 
 
@@ -15290,7 +16425,10 @@ class create_snapshot_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -15377,9 +16515,27 @@ class create_snapshot_result(object):
 
 all_structs.append(create_snapshot_result)
 create_snapshot_result.thrift_spec = (
-    (0, TType.STRING, "success", "UTF8", None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -15438,7 +16594,8 @@ class get_limits_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -15538,7 +16695,11 @@ class start_cluster_args(object):
     """
 
     def __init__(
-        self, public_key=None, master_instance=None, worker_instance=None, user=None,
+        self,
+        public_key=None,
+        master_instance=None,
+        worker_instance=None,
+        user=None,
     ):
         self.public_key = public_key
         self.master_instance = master_instance
@@ -15650,8 +16811,20 @@ class start_cluster_args(object):
 all_structs.append(start_cluster_args)
 start_cluster_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "public_key", "UTF8", None,),  # 1
-    (2, TType.STRUCT, "master_instance", [ClusterInstance, None], None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "public_key",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "master_instance",
+        [ClusterInstance, None],
+        None,
+    ),  # 2
     (
         3,
         TType.LIST,
@@ -15659,7 +16832,13 @@ start_cluster_args.thrift_spec = (
         (TType.STRUCT, [ClusterInstance, None], False),
         None,
     ),  # 3
-    (4, TType.STRING, "user", "UTF8", None,),  # 4
+    (
+        4,
+        TType.STRING,
+        "user",
+        "UTF8",
+        None,
+    ),  # 4
 )
 
 
@@ -15671,7 +16850,8 @@ class start_cluster_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -15768,7 +16948,8 @@ class terminate_cluster_args(object):
     """
 
     def __init__(
-        self, cluster_id=None,
+        self,
+        cluster_id=None,
     ):
         self.cluster_id = cluster_id
 
@@ -15834,7 +17015,13 @@ class terminate_cluster_args(object):
 all_structs.append(terminate_cluster_args)
 terminate_cluster_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "cluster_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "cluster_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -15846,7 +17033,8 @@ class terminate_cluster_result(object):
     """
 
     def __init__(
-        self, success=None,
+        self,
+        success=None,
     ):
         self.success = success
 
@@ -15943,7 +17131,8 @@ class delete_image_args(object):
     """
 
     def __init__(
-        self, image_id=None,
+        self,
+        image_id=None,
     ):
         self.image_id = image_id
 
@@ -16009,7 +17198,13 @@ class delete_image_args(object):
 all_structs.append(delete_image_args)
 delete_image_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "image_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "image_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -16022,7 +17217,9 @@ class delete_image_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -16090,8 +17287,20 @@ class delete_image_result(object):
 
 all_structs.append(delete_image_result)
 delete_image_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [imageNotFoundException, None], None,),  # 1
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [imageNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -16104,7 +17313,9 @@ class delete_volume_attachment_args(object):
     """
 
     def __init__(
-        self, volume_id=None, server_id=None,
+        self,
+        volume_id=None,
+        server_id=None,
     ):
         self.volume_id = volume_id
         self.server_id = server_id
@@ -16188,8 +17399,20 @@ class delete_volume_attachment_args(object):
 all_structs.append(delete_volume_attachment_args)
 delete_volume_attachment_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "volume_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "server_id", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "server_id",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -16203,7 +17426,10 @@ class delete_volume_attachment_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -16282,9 +17508,27 @@ class delete_volume_attachment_result(object):
 
 all_structs.append(delete_volume_attachment_result)
 delete_volume_attachment_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -16296,7 +17540,8 @@ class delete_volume_args(object):
     """
 
     def __init__(
-        self, volume_id=None,
+        self,
+        volume_id=None,
     ):
         self.volume_id = volume_id
 
@@ -16362,7 +17607,13 @@ class delete_volume_args(object):
 all_structs.append(delete_volume_args)
 delete_volume_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "volume_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -16375,7 +17626,9 @@ class delete_volume_result(object):
     """
 
     def __init__(
-        self, success=None, c=None,
+        self,
+        success=None,
+        c=None,
     ):
         self.success = success
         self.c = c
@@ -16443,8 +17696,20 @@ class delete_volume_result(object):
 
 all_structs.append(delete_volume_result)
 delete_volume_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "c", [conflictException, None], None,),  # 1
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -16457,7 +17722,9 @@ class attach_volume_to_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None, volume_id=None,
+        self,
+        openstack_id=None,
+        volume_id=None,
     ):
         self.openstack_id = openstack_id
         self.volume_id = volume_id
@@ -16541,8 +17808,20 @@ class attach_volume_to_server_args(object):
 all_structs.append(attach_volume_to_server_args)
 attach_volume_to_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "volume_id", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -16556,7 +17835,10 @@ class attach_volume_to_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -16664,8 +17946,20 @@ attach_volume_to_server_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -16677,7 +17971,8 @@ class check_server_status_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -16743,7 +18038,13 @@ class check_server_status_args(object):
 all_structs.append(check_server_status_args)
 check_server_status_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -16757,7 +18058,10 @@ class check_server_status_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, r=None,
+        self,
+        success=None,
+        e=None,
+        r=None,
     ):
         self.success = success
         self.e = e
@@ -16837,9 +18141,27 @@ class check_server_status_result(object):
 
 all_structs.append(check_server_status_result)
 check_server_status_result.thrift_spec = (
-    (0, TType.STRUCT, "success", [VM, None], None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "r", [ressourceException, None], None,),  # 2
+    (
+        0,
+        TType.STRUCT,
+        "success",
+        [VM, None],
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -16852,7 +18174,9 @@ class setUserPassword_args(object):
     """
 
     def __init__(
-        self, user=None, password=None,
+        self,
+        user=None,
+        password=None,
     ):
         self.user = user
         self.password = password
@@ -16934,8 +18258,20 @@ class setUserPassword_args(object):
 all_structs.append(setUserPassword_args)
 setUserPassword_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "user", "UTF8", None,),  # 1
-    (2, TType.STRING, "password", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "user",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "password",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -16948,7 +18284,9 @@ class setUserPassword_result(object):
     """
 
     def __init__(
-        self, success=None, e=None,
+        self,
+        success=None,
+        e=None,
     ):
         self.success = success
         self.e = e
@@ -17024,8 +18362,20 @@ class setUserPassword_result(object):
 
 all_structs.append(setUserPassword_result)
 setUserPassword_result.thrift_spec = (
-    (0, TType.STRING, "success", "UTF8", None,),  # 0
-    (1, TType.STRUCT, "e", [otherException, None], None,),  # 1
+    (
+        0,
+        TType.STRING,
+        "success",
+        "UTF8",
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [otherException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -17037,7 +18387,8 @@ class resume_server_args(object):
     """
 
     def __init__(
-        self, openstack_id=None,
+        self,
+        openstack_id=None,
     ):
         self.openstack_id = openstack_id
 
@@ -17103,7 +18454,13 @@ class resume_server_args(object):
 all_structs.append(resume_server_args)
 resume_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "openstack_id", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 1
 )
 
 
@@ -17117,7 +18474,10 @@ class resume_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -17196,9 +18556,27 @@ class resume_server_result(object):
 
 all_structs.append(resume_server_result)
 resume_server_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -17212,7 +18590,10 @@ class create_volume_args(object):
     """
 
     def __init__(
-        self, volume_name=None, volume_storage=None, metadata=None,
+        self,
+        volume_name=None,
+        volume_storage=None,
+        metadata=None,
     ):
         self.volume_name = volume_name
         self.volume_storage = volume_storage
@@ -17320,8 +18701,20 @@ class create_volume_args(object):
 all_structs.append(create_volume_args)
 create_volume_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "volume_name", "UTF8", None,),  # 1
-    (2, TType.I32, "volume_storage", None, None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "volume_name",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.I32,
+        "volume_storage",
+        None,
+        None,
+    ),  # 2
     (
         3,
         TType.MAP,
@@ -17341,7 +18734,9 @@ class create_volume_result(object):
     """
 
     def __init__(
-        self, success=None, r=None,
+        self,
+        success=None,
+        r=None,
     ):
         self.success = success
         self.r = r
@@ -17438,7 +18833,13 @@ create_volume_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
-    (1, TType.STRUCT, "r", [ressourceException, None], None,),  # 1
+    (
+        1,
+        TType.STRUCT,
+        "r",
+        [ressourceException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -17451,7 +18852,9 @@ class reboot_server_args(object):
     """
 
     def __init__(
-        self, server_id=None, reboot_type=None,
+        self,
+        server_id=None,
+        reboot_type=None,
     ):
         self.server_id = server_id
         self.reboot_type = reboot_type
@@ -17535,8 +18938,20 @@ class reboot_server_args(object):
 all_structs.append(reboot_server_args)
 reboot_server_args.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "server_id", "UTF8", None,),  # 1
-    (2, TType.STRING, "reboot_type", "UTF8", None,),  # 2
+    (
+        1,
+        TType.STRING,
+        "server_id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "reboot_type",
+        "UTF8",
+        None,
+    ),  # 2
 )
 
 
@@ -17550,7 +18965,10 @@ class reboot_server_result(object):
     """
 
     def __init__(
-        self, success=None, e=None, c=None,
+        self,
+        success=None,
+        e=None,
+        c=None,
     ):
         self.success = success
         self.e = e
@@ -17629,9 +19047,27 @@ class reboot_server_result(object):
 
 all_structs.append(reboot_server_result)
 reboot_server_result.thrift_spec = (
-    (0, TType.BOOL, "success", None, None,),  # 0
-    (1, TType.STRUCT, "e", [serverNotFoundException, None], None,),  # 1
-    (2, TType.STRUCT, "c", [conflictException, None], None,),  # 2
+    (
+        0,
+        TType.BOOL,
+        "success",
+        None,
+        None,
+    ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [serverNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "c",
+        [conflictException, None],
+        None,
+    ),  # 2
 )
 fix_spec(all_structs)
 del all_structs
