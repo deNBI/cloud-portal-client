@@ -1333,7 +1333,10 @@ class ClusterInstance(object):
     """
 
     def __init__(
-        self, type=None, image=None, count=None,
+        self,
+        type=None,
+        image=None,
+        count=None,
     ):
         self.type = type
         self.image = image
@@ -1436,7 +1439,10 @@ class PlaybookResult(object):
     """
 
     def __init__(
-        self, status=None, stdout=None, stderr=None,
+        self,
+        status=None,
+        stdout=None,
+        stderr=None,
     ):
         self.status = status
         self.stdout = stdout
@@ -1537,7 +1543,8 @@ class otherException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1609,7 +1616,8 @@ class ressourceException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1681,7 +1689,8 @@ class nameException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1753,7 +1762,8 @@ class serverNotFoundException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1825,7 +1835,8 @@ class networkNotFoundException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1897,7 +1908,8 @@ class imageNotFoundException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -1969,7 +1981,8 @@ class flavorNotFoundException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -2043,7 +2056,8 @@ class authenticationException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -2117,7 +2131,8 @@ class conflictException(TException):
     """
 
     def __init__(
-        self, Reason=None,
+        self,
+        Reason=None,
     ):
         self.Reason = Reason
 
@@ -2184,68 +2199,320 @@ class conflictException(TException):
 all_structs.append(Backend)
 Backend.thrift_spec = (
     None,  # 0
-    (1, TType.I64, "id", None, None,),  # 1
-    (2, TType.STRING, "owner", "UTF8", None,),  # 2
-    (3, TType.STRING, "location_url", "UTF8", None,),  # 3
-    (4, TType.STRING, "template", "UTF8", None,),  # 4
-    (5, TType.STRING, "template_version", "UTF8", None,),  # 5
+    (
+        1,
+        TType.I64,
+        "id",
+        None,
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "owner",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "location_url",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "template",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "template_version",
+        "UTF8",
+        None,
+    ),  # 5
 )
 all_structs.append(ClusterInfo)
 ClusterInfo.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "launch_date", "UTF8", None,),  # 1
-    (2, TType.STRING, "group_id", "UTF8", None,),  # 2
-    (3, TType.STRING, "network_id", "UTF8", None,),  # 3
-    (4, TType.STRING, "public_ip", "UTF8", None,),  # 4
-    (5, TType.STRING, "subnet_id", "UTF8", None,),  # 5
-    (6, TType.STRING, "user", "UTF8", None,),  # 6
-    (7, TType.I32, "inst_counter", None, None,),  # 7
-    (8, TType.STRING, "cluster_id", "UTF8", None,),  # 8
-    (9, TType.STRING, "key_name", "UTF8", None,),  # 9
+    (
+        1,
+        TType.STRING,
+        "launch_date",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "group_id",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "network_id",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "public_ip",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "subnet_id",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "user",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.I32,
+        "inst_counter",
+        None,
+        None,
+    ),  # 7
+    (
+        8,
+        TType.STRING,
+        "cluster_id",
+        "UTF8",
+        None,
+    ),  # 8
+    (
+        9,
+        TType.STRING,
+        "key_name",
+        "UTF8",
+        None,
+    ),  # 9
 )
 all_structs.append(Volume)
 Volume.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "id", "UTF8", None,),  # 1
-    (2, TType.STRING, "name", "UTF8", None,),  # 2
-    (3, TType.STRING, "description", "UTF8", None,),  # 3
-    (4, TType.STRING, "status", "UTF8", None,),  # 4
-    (5, TType.STRING, "created_at", "UTF8", None,),  # 5
-    (6, TType.STRING, "device", "UTF8", None,),  # 6
-    (7, TType.I32, "size", None, None,),  # 7
+    (
+        1,
+        TType.STRING,
+        "id",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "description",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "status",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "created_at",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "device",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.I32,
+        "size",
+        None,
+        None,
+    ),  # 7
 )
 all_structs.append(Flavor)
 Flavor.thrift_spec = (
     None,  # 0
-    (1, TType.I32, "vcpus", None, None,),  # 1
-    (2, TType.I32, "ram", None, None,),  # 2
-    (3, TType.I32, "disk", None, None,),  # 3
-    (4, TType.STRING, "name", "UTF8", None,),  # 4
-    (5, TType.STRING, "openstack_id", "UTF8", None,),  # 5
-    (6, TType.STRING, "description", "UTF8", None,),  # 6
-    (7, TType.LIST, "tags", (TType.STRING, "UTF8", False), None,),  # 7
-    (8, TType.I32, "ephemeral_disk", None, None,),  # 8
+    (
+        1,
+        TType.I32,
+        "vcpus",
+        None,
+        None,
+    ),  # 1
+    (
+        2,
+        TType.I32,
+        "ram",
+        None,
+        None,
+    ),  # 2
+    (
+        3,
+        TType.I32,
+        "disk",
+        None,
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "description",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.LIST,
+        "tags",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 7
+    (
+        8,
+        TType.I32,
+        "ephemeral_disk",
+        None,
+        None,
+    ),  # 8
 )
 all_structs.append(Image)
 Image.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "name", "UTF8", None,),  # 1
-    (2, TType.I32, "min_disk", None, None,),  # 2
-    (3, TType.I32, "min_ram", None, None,),  # 3
-    (4, TType.STRING, "status", "UTF8", None,),  # 4
-    (5, TType.STRING, "created_at", "UTF8", None,),  # 5
-    (6, TType.STRING, "updated_at", "UTF8", None,),  # 6
-    (7, TType.STRING, "openstack_id", "UTF8", None,),  # 7
-    (8, TType.STRING, "description", "UTF8", None,),  # 8
-    (9, TType.LIST, "tag", (TType.STRING, "UTF8", False), None,),  # 9
-    (10, TType.BOOL, "is_snapshot", None, None,),  # 10
+    (
+        1,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.I32,
+        "min_disk",
+        None,
+        None,
+    ),  # 2
+    (
+        3,
+        TType.I32,
+        "min_ram",
+        None,
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "status",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "created_at",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "updated_at",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 7
+    (
+        8,
+        TType.STRING,
+        "description",
+        "UTF8",
+        None,
+    ),  # 8
+    (
+        9,
+        TType.LIST,
+        "tag",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 9
+    (
+        10,
+        TType.BOOL,
+        "is_snapshot",
+        None,
+        None,
+    ),  # 10
 )
 all_structs.append(VM)
 VM.thrift_spec = (
     None,  # 0
-    (1, TType.STRUCT, "flav", [Flavor, None], None,),  # 1
-    (2, TType.STRUCT, "img", [Image, None], None,),  # 2
-    (3, TType.STRING, "status", "UTF8", None,),  # 3
+    (
+        1,
+        TType.STRUCT,
+        "flav",
+        [Flavor, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "img",
+        [Image, None],
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "status",
+        "UTF8",
+        None,
+    ),  # 3
     (
         4,
         TType.MAP,
@@ -2253,74 +2520,218 @@ VM.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 4
-    (5, TType.STRING, "project_id", "UTF8", None,),  # 5
-    (6, TType.STRING, "keyname", "UTF8", None,),  # 6
-    (7, TType.STRING, "openstack_id", "UTF8", None,),  # 7
-    (8, TType.STRING, "name", "UTF8", None,),  # 8
-    (9, TType.STRING, "created_at", "UTF8", None,),  # 9
-    (10, TType.STRING, "floating_ip", "UTF8", None,),  # 10
-    (11, TType.STRING, "fixed_ip", "UTF8", None,),  # 11
-    (12, TType.I32, "diskspace", None, None,),  # 12
-    (13, TType.STRING, "volume_id", "UTF8", None,),  # 13
+    (
+        5,
+        TType.STRING,
+        "project_id",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.STRING,
+        "keyname",
+        "UTF8",
+        None,
+    ),  # 6
+    (
+        7,
+        TType.STRING,
+        "openstack_id",
+        "UTF8",
+        None,
+    ),  # 7
+    (
+        8,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 8
+    (
+        9,
+        TType.STRING,
+        "created_at",
+        "UTF8",
+        None,
+    ),  # 9
+    (
+        10,
+        TType.STRING,
+        "floating_ip",
+        "UTF8",
+        None,
+    ),  # 10
+    (
+        11,
+        TType.STRING,
+        "fixed_ip",
+        "UTF8",
+        None,
+    ),  # 11
+    (
+        12,
+        TType.I32,
+        "diskspace",
+        None,
+        None,
+    ),  # 12
+    (
+        13,
+        TType.STRING,
+        "volume_id",
+        "UTF8",
+        None,
+    ),  # 13
 )
 all_structs.append(ClusterInstance)
 ClusterInstance.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "type", "UTF8", None,),  # 1
-    (2, TType.STRING, "image", "UTF8", None,),  # 2
-    (3, TType.I32, "count", None, None,),  # 3
+    (
+        1,
+        TType.STRING,
+        "type",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "image",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.I32,
+        "count",
+        None,
+        None,
+    ),  # 3
 )
 all_structs.append(PlaybookResult)
 PlaybookResult.thrift_spec = (
     None,  # 0
-    (1, TType.I32, "status", None, None,),  # 1
-    (2, TType.STRING, "stdout", "UTF8", None,),  # 2
-    (3, TType.STRING, "stderr", "UTF8", None,),  # 3
+    (
+        1,
+        TType.I32,
+        "status",
+        None,
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "stdout",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "stderr",
+        "UTF8",
+        None,
+    ),  # 3
 )
 all_structs.append(otherException)
 otherException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(ressourceException)
 ressourceException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(nameException)
 nameException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(serverNotFoundException)
 serverNotFoundException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(networkNotFoundException)
 networkNotFoundException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(imageNotFoundException)
 imageNotFoundException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(flavorNotFoundException)
 flavorNotFoundException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(authenticationException)
 authenticationException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 all_structs.append(conflictException)
 conflictException.thrift_spec = (
     None,  # 0
-    (1, TType.STRING, "Reason", "UTF8", None,),  # 1
+    (
+        1,
+        TType.STRING,
+        "Reason",
+        "UTF8",
+        None,
+    ),  # 1
 )
 fix_spec(all_structs)
 del all_structs
