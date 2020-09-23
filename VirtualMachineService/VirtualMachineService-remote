@@ -71,6 +71,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_servers_by_ids( server_ids)')
     print('  string check_server_task_state(string openstack_id)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
+    print('   scale_up_cluster(string cluster_id, string image, string flavor, int count,  names, int start_idx)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
     print('   get_cluster_status(string cluster_id)')
     print('  VM get_server(string openstack_id)')
@@ -448,6 +449,12 @@ elif cmd == 'get_servers_by_bibigrid_id':
         print('get_servers_by_bibigrid_id requires 1 args')
         sys.exit(1)
     pp.pprint(client.get_servers_by_bibigrid_id(args[0],))
+
+elif cmd == 'scale_up_cluster':
+    if len(args) != 6:
+        print('scale_up_cluster requires 6 args')
+        sys.exit(1)
+    pp.pprint(client.scale_up_cluster(args[0], args[1], args[2], eval(args[3]), eval(args[4]), eval(args[5]),))
 
 elif cmd == 'get_cluster_info':
     if len(args) != 1:

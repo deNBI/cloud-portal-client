@@ -1868,6 +1868,7 @@ class VirtualMachineHandler(Iface):
         udp_port_start = eval(self.UDP_PORT_CALCULATION)
         return {"port": str(port), "udp": str(udp_port_start)}
 
+
     def terminate_cluster(self, cluster_id):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -1926,6 +1927,41 @@ class VirtualMachineHandler(Iface):
         LOG.info(response.json())
         infos = response.json()["info"]
         return infos
+
+
+    def scale_up_cluster(self, cluster_id, image, flavor, count,
+                          names, start_idx):
+            cluster_info=self.get_cluster_info(cluster_id=cluster_id)
+            image = self.get_image(image=image)
+            flavor = self.get_flavor(flavor=flavor)
+            network = self.get_network()
+            openstack_ids = []
+            for i in range(count):
+                metadata = {"bibigrid-id": cluster_info.cluster_id,
+                            "user": cluster_info.user,
+                            "worker-batch": str(1),
+                            "name": names[i],
+                            "worker-index": str(start_idx + i)}
+                LOG.info("Create cluster machine: {}".format(metadata))
+
+
+                server = self.conn.create_server(
+                    name=names[i],
+                    image=image.id,
+                    flavor=flavor.id,
+                    network=[network.id],
+                    key_name=cluster_info.key_name,
+                    meta=metadata,
+                    availability_zone=self.AVAIALABILITY_ZONE,
+                    security_groups=cluster_info.group_id,
+                )
+                LOG.info("Created cluster machine:{}".format(server["id"]))
+
+                openstack_ids.append(server["id"])
+                LOG.info(openstack_ids)
+
+            return {"openstack_ids": openstack_ids}
+
 
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
@@ -2164,7 +2200,7 @@ class VirtualMachineHandler(Iface):
             security_groups = [
                 sec
                 for sec in security_groups
-                if sec.name != self.DEFAULT_SECURITY_GROUP
+                if sec.name != self.DEFAULT_SECURITY_GROUP and not "bibigrid" in sec.name
             ]
             if security_groups is not None:
                 for sg in security_groups:
