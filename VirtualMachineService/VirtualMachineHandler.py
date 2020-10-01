@@ -366,7 +366,7 @@ class VirtualMachineHandler(Iface):
             tags = img.get("tags")
             LOG.info(set(ALL_TEMPLATES).intersection(tags))
             if len(
-                    set(ALL_TEMPLATES).intersection(tags)
+                set(ALL_TEMPLATES).intersection(tags)
             ) > 0 and not self.cross_check_forc_image(tags):
                 LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
                 return None
@@ -402,11 +402,11 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                    lambda x: "tags" in x
-                              and len(x["tags"]) > 0
-                              and x["status"] == "active"
-                              and x["visibility"] == "public",
-                    self.conn.list_images(),
+                lambda x: "tags" in x
+                and len(x["tags"]) > 0
+                and x["status"] == "active"
+                and x["visibility"] == "public",
+                self.conn.list_images(),
             ):
                 image = self.prepare_image(img)
                 if image is None:
@@ -428,11 +428,11 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                    lambda x: "tags" in x
-                              and len(x["tags"]) > 0
-                              and x["status"] == "active"
-                              and x["visibility"] == "private",
-                    self.conn.list_images(),
+                lambda x: "tags" in x
+                and len(x["tags"]) > 0
+                and x["status"] == "active"
+                and x["visibility"] == "private",
+                self.conn.list_images(),
             ):
                 image = self.prepare_image(img)
                 if image is None:
@@ -1973,12 +1973,11 @@ class VirtualMachineHandler(Iface):
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
-        #LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
-        json_resp=response.json(strict=False)
+        # LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
+        json_resp = response.json(strict=False)
         LOG.info(json_resp)
-        json_resp['log']=str(json_resp['log'])
-        json_resp['msg']=str(json_resp['msg'])
-
+        json_resp["log"] = str(json_resp["log"])
+        json_resp["msg"] = str(json_resp["msg"])
 
         return json_resp
 
