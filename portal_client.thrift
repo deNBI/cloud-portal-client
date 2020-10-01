@@ -267,6 +267,18 @@ service VirtualMachineService {
 	 */
 	list<Image> get_Images()
 
+    /**
+	 * Get Images.
+	 * Returns: List of public Image instances.
+	 */
+	list<Image> get_public_Images()
+
+    /**
+	 * Get Images.
+	 * Returns: List of private Image instances.
+	 */
+	list<Image> get_private_Images()
+
 	/**
 	 * Get an image with tag.
 	 * Returns: Image with tag.

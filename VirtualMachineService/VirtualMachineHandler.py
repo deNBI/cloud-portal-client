@@ -359,6 +359,91 @@ class VirtualMachineHandler(Iface):
             LOG.exception("Get Images Error: {0}".format(e))
             return ()
 
+    def prepare_image(self, img):
+        try:
+            metadata = img["metadata"]
+            description = metadata.get("description")
+            tags = img.get("tags")
+            LOG.info(set(ALL_TEMPLATES).intersection(tags))
+            if len(
+                    set(ALL_TEMPLATES).intersection(tags)
+            ) > 0 and not self.cross_check_forc_image(tags):
+                LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
+                return None
+            image_type = img.get("image_type", "image")
+            if description is None:
+                LOG.warning("No Description for " + img["name"])
+
+            image = Image(
+                name=img["name"],
+                min_disk=img["min_disk"],
+                min_ram=img["min_ram"],
+                status=img["status"],
+                created_at=img["created_at"],
+                updated_at=img["updated_at"],
+                openstack_id=img["id"],
+                description=description,
+                tag=tags,
+                is_snapshot=image_type == "snapshot",
+            )
+            LOG.info(image)
+            return image
+        except Exception as e:
+            LOG.exception("Prepare image Error: {0}".format(e))
+            return None
+
+    def get_public_Images(self):
+        """
+        Get Images.
+
+        :return: List of image instances.
+        """
+        LOG.info("Get public Images")
+        images = list()
+        try:
+            for img in filter(
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active"
+                              and x["visibility"] == "public",
+                    self.conn.list_images(),
+            ):
+                image = self.prepare_image(img)
+                if image is None:
+                    continue
+                else:
+                    images.append(image)
+            return images
+        except Exception as e:
+            LOG.exception("Get Images Error: {0}".format(e))
+            return ()
+
+    def get_private_Images(self):
+        """
+        Get Images.
+
+        :return: List of image instances.
+        """
+        LOG.info("Get private Images")
+        images = list()
+        try:
+            for img in filter(
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active"
+                              and x["visibility"] == "private",
+                    self.conn.list_images(),
+            ):
+                image = self.prepare_image(img)
+                if image is None:
+                    continue
+                else:
+                    images.append(image)
+            return images
+        except Exception as e:
+            LOG.exception("Get Images Error: {0}".format(e))
+            return ()
+
     def get_Image_with_Tag(self, id):
         """
         Get Image with Tags.
