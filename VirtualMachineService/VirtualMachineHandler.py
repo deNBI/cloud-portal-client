@@ -1889,8 +1889,14 @@ class VirtualMachineHandler(Iface):
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
-        LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
-        return response.json(strict=False)
+        #LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
+        json_resp=response.json(strict=False)
+        LOG.info(json_resp)
+        json_resp['log']=str(json_resp['log'])
+        json_resp['msg']=str(json_resp['msg'])
+
+
+        return json_resp
 
     def bibigrid_available(self):
         LOG.info("Checking if Bibigrid is available")
