@@ -1975,8 +1975,14 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
         json_resp = response.json(strict=False)
-        json_resp["log"] = str(json_resp["log"])
-        json_resp["msg"] = str(json_resp["msg"])
+        try:
+            json_resp["log"] = str(json_resp["log"])
+        except:
+            pass
+        try:
+            json_resp["msg"] = str(json_resp["msg"])
+        except:
+            pass
 
         return json_resp
 
