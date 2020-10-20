@@ -2022,7 +2022,7 @@ class VirtualMachineHandler(Iface):
         infos = response.json()["info"]
         return infos
 
-    def scale_up_cluster(self, cluster_id, image, flavor, count, names, start_idx):
+    def scale_up_cluster(self, cluster_id, image, flavor, count, names, start_idx,batch_index):
         cluster_info = self.get_cluster_info(cluster_id=cluster_id)
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -2032,7 +2032,7 @@ class VirtualMachineHandler(Iface):
             metadata = {
                 "bibigrid-id": cluster_info.cluster_id,
                 "user": cluster_info.user,
-                "worker-batch": str(1),
+                "worker-batch": str(batch_index),
                 "name": names[i],
                 "worker-index": str(start_idx + i),
             }
