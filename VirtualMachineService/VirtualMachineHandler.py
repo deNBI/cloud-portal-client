@@ -2241,7 +2241,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(openstack_id)
             if server is None:
                 LOG.exception("Instance {0} not found".format(openstack_id))
-                return True
+                return False
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
