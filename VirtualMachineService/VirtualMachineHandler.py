@@ -2036,6 +2036,12 @@ class VirtualMachineHandler(Iface):
                 "name": names[i],
                 "worker-index": str(start_idx + i),
             }
+            fileDir = os.path.dirname(os.path.abspath(__file__))
+            deactivate_update_script_file = os.path.join(fileDir, "scripts/bash/mount.sh")
+            with open(deactivate_update_script_file, "r") as file:
+                deactivate_update_script = file.read()
+                deactivate_update_script = encodeutils.safe_encode(deactivate_update_script.encode("utf-8"))
+
             LOG.info("Create cluster machine: {}".format(metadata))
 
             server = self.conn.create_server(
@@ -2043,6 +2049,7 @@ class VirtualMachineHandler(Iface):
                 image=image.id,
                 flavor=flavor.id,
                 network=[network.id],
+                deactivate_script=deactivate_update_script,
                 key_name=cluster_info.key_name,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
