@@ -2022,7 +2022,9 @@ class VirtualMachineHandler(Iface):
         infos = response.json()["info"]
         return infos
 
-    def scale_up_cluster(self, cluster_id, image, flavor, count, names, start_idx,batch_index):
+    def scale_up_cluster(
+        self, cluster_id, image, flavor, count, names, start_idx, batch_index
+    ):
         cluster_info = self.get_cluster_info(cluster_id=cluster_id)
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -2286,7 +2288,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(openstack_id)
             if server is None:
                 LOG.exception("Instance {0} not found".format(openstack_id))
-                return True
+                return False
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
