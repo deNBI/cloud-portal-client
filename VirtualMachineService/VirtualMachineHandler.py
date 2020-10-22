@@ -2051,7 +2051,7 @@ class VirtualMachineHandler(Iface):
                 image=image.id,
                 flavor=flavor.id,
                 network=[network.id],
-                deactivate_script=deactivate_update_script,
+                userdata=deactivate_update_script,
                 key_name=cluster_info.key_name,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
