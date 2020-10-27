@@ -2039,10 +2039,14 @@ class VirtualMachineHandler(Iface):
                 "worker-index": str(start_idx + i),
             }
             fileDir = os.path.dirname(os.path.abspath(__file__))
-            deactivate_update_script_file = os.path.join(fileDir, "scripts/bash/mount.sh")
+            deactivate_update_script_file = os.path.join(
+                fileDir, "scripts/bash/mount.sh"
+            )
             with open(deactivate_update_script_file, "r") as file:
                 deactivate_update_script = file.read()
-                deactivate_update_script = encodeutils.safe_encode(deactivate_update_script.encode("utf-8"))
+                deactivate_update_script = encodeutils.safe_encode(
+                    deactivate_update_script.encode("utf-8")
+                )
 
             LOG.info("Create cluster machine: {}".format(metadata))
 
