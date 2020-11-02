@@ -1973,11 +1973,16 @@ class VirtualMachineHandler(Iface):
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
-        # LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
+        LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
         json_resp = response.json(strict=False)
-        LOG.info(json_resp)
-        json_resp["log"] = str(json_resp["log"])
-        json_resp["msg"] = str(json_resp["msg"])
+        try:
+            json_resp["log"] = str(json_resp["log"])
+        except:
+            pass
+        try:
+            json_resp["msg"] = str(json_resp["msg"])
+        except:
+            pass
 
         return json_resp
 
@@ -2016,6 +2021,52 @@ class VirtualMachineHandler(Iface):
         LOG.info(response.json())
         infos = response.json()["info"]
         return infos
+
+    def scale_up_cluster(
+        self, cluster_id, image, flavor, count, names, start_idx, batch_index
+    ):
+        cluster_info = self.get_cluster_info(cluster_id=cluster_id)
+        image = self.get_image(image=image)
+        flavor = self.get_flavor(flavor=flavor)
+        network = self.get_network()
+        openstack_ids = []
+        for i in range(count):
+            metadata = {
+                "bibigrid-id": cluster_info.cluster_id,
+                "user": cluster_info.user,
+                "worker-batch": str(batch_index),
+                "name": names[i],
+                "worker-index": str(start_idx + i),
+            }
+            fileDir = os.path.dirname(os.path.abspath(__file__))
+            deactivate_update_script_file = os.path.join(
+                fileDir, "scripts/bash/mount.sh"
+            )
+            with open(deactivate_update_script_file, "r") as file:
+                deactivate_update_script = file.read()
+                deactivate_update_script = encodeutils.safe_encode(
+                    deactivate_update_script.encode("utf-8")
+                )
+
+            LOG.info("Create cluster machine: {}".format(metadata))
+
+            server = self.conn.create_server(
+                name=names[i],
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                userdata=deactivate_update_script,
+                key_name=cluster_info.key_name,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=cluster_info.group_id,
+            )
+            LOG.info("Created cluster machine:{}".format(server["id"]))
+
+            openstack_ids.append(server["id"])
+            LOG.info(openstack_ids)
+
+        return {"openstack_ids": openstack_ids}
 
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
@@ -2255,6 +2306,7 @@ class VirtualMachineHandler(Iface):
                 sec
                 for sec in security_groups
                 if sec.name != self.DEFAULT_SECURITY_GROUP
+                and not "bibigrid" in sec.name
             ]
             if security_groups is not None:
                 for sg in security_groups:

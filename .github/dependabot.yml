@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+    target-branch: "dev"
+    reviewers:
+      - "dweinholz"
+      - "eKatchko"
+      - "vktrrdk"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+    target-branch: "dev"
+    reviewers:
+      - "dweinholz"
+      - "eKatchko"
+      - "vktrrdk"
+

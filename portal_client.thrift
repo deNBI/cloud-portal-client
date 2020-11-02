@@ -603,6 +603,9 @@ service VirtualMachineService {
     **/
 	list<VM> get_servers_by_bibigrid_id(1:string bibigrid_id)
 
+	map<string,list<string>> scale_up_cluster(1: string cluster_id,2: string image,3:string flavor,4:int count,
+                          5:list<string>names,6:int start_idx,7:int batch_idx)
+
 	ClusterInfo get_cluster_info(1:string cluster_id)
 
 	map<string,string>get_cluster_status(1:string cluster_id)
