@@ -93,7 +93,7 @@ class VirtualMachineHandler(Iface):
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
-    NOT_FOUND="NOT FOUND"
+    NOT_FOUND = "NOT FOUND"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -1738,7 +1738,6 @@ class VirtualMachineHandler(Iface):
 
         serv = server.to_dict()
 
-
         try:
             if serv["status"] == self.ACTIVE:
                 host = self.get_server(openstack_id).floating_ip
@@ -1790,7 +1789,6 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
             return VM(status=self.ERROR)
-
 
     def openstack_server_to_thrift_server(self, server):
         LOG.info("Convert server {} to thrift server".format(server))
