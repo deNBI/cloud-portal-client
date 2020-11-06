@@ -93,6 +93,7 @@ class VirtualMachineHandler(Iface):
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
+    NOT_FOUND = "NOT FOUND"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -599,7 +600,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.compute.get_server(openstack_id)
         except Exception as e:
             LOG.exception("No Server found {0} | Error {1}".format(openstack_id, e))
-            return VM(status="NOT FOUND")
+            return VM(status=self.NOT_FOUND)
 
         serv = server.to_dict()
 
@@ -1729,10 +1730,12 @@ class VirtualMachineHandler(Iface):
             server = self.conn.compute.get_server(openstack_id)
         except Exception:
             LOG.exception("No Server with id  {0} ".format(openstack_id))
-            return None
+            return VM(status=self.NOT_FOUND)
+
         if server is None:
             LOG.exception("No Server with id {0} ".format(openstack_id))
-            return None
+            return VM(status=self.NOT_FOUND)
+
         serv = server.to_dict()
 
         try:
@@ -1785,7 +1788,7 @@ class VirtualMachineHandler(Iface):
                 return server
         except Exception as e:
             LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
-            return None
+            return VM(status=self.ERROR)
 
     def openstack_server_to_thrift_server(self, server):
         LOG.info("Convert server {} to thrift server".format(server))
