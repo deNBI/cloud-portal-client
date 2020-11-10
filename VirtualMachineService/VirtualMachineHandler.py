@@ -1714,6 +1714,7 @@ class VirtualMachineHandler(Iface):
         return {"error": "failed"}
 
     def check_server_status(self, openstack_id):
+
         """
         Check status of server.
 
@@ -1726,6 +1727,7 @@ class VirtualMachineHandler(Iface):
         # TODO: Remove diskspace param, if volume_id exist it can be attached
         # diskspace not need
         LOG.info("Check Status VM {0}".format(openstack_id))
+
         try:
             server = self.conn.compute.get_server(openstack_id)
         except Exception:
@@ -1739,6 +1741,8 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
+            LOG.info("Server Status VM: {0}".format(serv["status"]))
+
             if serv["status"] == self.ACTIVE:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
@@ -1784,7 +1788,6 @@ class VirtualMachineHandler(Iface):
                 return server
             else:
                 server = self.get_server(openstack_id)
-                server.status = self.BUILD
                 return server
         except Exception as e:
             LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
