@@ -90,6 +90,7 @@ class VirtualMachineHandler(Iface):
     global active_playbooks
     API_TOKEN = None
     API_TOKEN_BUFFER = 15
+    NO_ACTIVE_TASKS="No active task"
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
@@ -690,7 +691,7 @@ class VirtualMachineHandler(Iface):
             if task_state:
                 return task_state
             else:
-                return "No active task"
+                return self.NO_ACTIVE_TASKS
         except:
             return "No server or task_state found"
 
@@ -1744,6 +1745,13 @@ class VirtualMachineHandler(Iface):
             LOG.info("Server Status VM: {0}".format(serv["status"]))
 
             if serv["status"] == self.ACTIVE:
+                task_state = self.check_server_task_state(openstack_id)
+                if task_state != self.NO_ACTIVE_TASKS:
+                    server = self.get_server(openstack_id)
+                    server.status = self.ERROR
+                    return server
+
+
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
