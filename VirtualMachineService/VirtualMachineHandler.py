@@ -90,7 +90,7 @@ class VirtualMachineHandler(Iface):
     global active_playbooks
     API_TOKEN = None
     API_TOKEN_BUFFER = 15
-    NO_ACTIVE_TASKS="No active task"
+    NO_ACTIVE_TASKS = "No active task"
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
@@ -1750,7 +1750,6 @@ class VirtualMachineHandler(Iface):
                     server = self.get_server(openstack_id)
                     server.status = self.ERROR
                     return server
-
 
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
