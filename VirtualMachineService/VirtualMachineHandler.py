@@ -102,9 +102,7 @@ class VirtualMachineHandler(Iface):
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
         for k, v in active_playbooks.items():
-            LOG.info(
-                "Clearing traces of Playbook-VM for (openstack_id): {0}".format(k)
-            )
+            LOG.info("Clearing traces of Playbook-VM for (openstack_id): {0}".format(k))
             self.delete_keypair(key_name=self.redis.hget(k, "name").decode("utf-8"))
             v.stop(k)
             self.delete_server(openstack_id=k)
@@ -112,10 +110,10 @@ class VirtualMachineHandler(Iface):
 
     def create_connection(self):
         """
-            Create connection to OpenStack.
+        Create connection to OpenStack.
 
-            :return: OpenStack connection instance
-            """
+        :return: OpenStack connection instance
+        """
         try:
 
             conn = connection.Connection(
@@ -138,10 +136,10 @@ class VirtualMachineHandler(Iface):
 
     def __init__(self, config):
         """
-            Initialize the handler.
+        Initialize the handler.
 
-            Read all config variables and creates a connection to OpenStack.
-            """
+        Read all config variables and creates a connection to OpenStack.
+        """
 
         # connection to redis. Uses a pool with 10 connections.
         self.pool = redis.ConnectionPool(host="redis", port=6379)
@@ -175,9 +173,7 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_URL = self.BIBIGRID_URL.format(
                     host=self.BIBIGRID_HOST, port=self.BIBIGRID_PORT
                 )
-                LOG.info(
-                    msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL)
-                )
+                LOG.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
             except Exception as e:
                 LOG.exception(e)
                 LOG.info("Bibigrid not loaded.")
@@ -188,9 +184,7 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
                 self.FORC_ALLOWED = cfg["forc"]["forc_allowed"]
-                LOG.info(
-                    msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL)
-                )
+                LOG.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
                 LOG.info(
                     "Client allows following research environments and respective versions: {0}".format(
                         self.FORC_ALLOWED
@@ -219,12 +213,12 @@ class VirtualMachineHandler(Iface):
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
         """
-            Set the password of a user.
+        Set the password of a user.
 
-            :param user: Elixir-Id of the user which wants to set a password
-            :param password: The new password.
-            :return: The new password
-            """
+        :param user: Elixir-Id of the user which wants to set a password
+        :param password: The new password.
+        :return: The new password
+        """
         if str(self.SET_PASSWORD) == "True":
             try:
                 auth = v3.Password(
@@ -498,7 +492,11 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             LOG.exception(e)
             flav = Flavor(
-                vcpus=None, ram=None, disk=None, name=None, openstack_id=None,
+                vcpus=None,
+                ram=None,
+                disk=None,
+                name=None,
+                openstack_id=None,
             )
             return flav
 
@@ -515,9 +513,7 @@ class VirtualMachineHandler(Iface):
         try:
             server = self.conn.compute.get_server(openstack_id)
         except Exception as e:
-            LOG.exception(
-                "No Server found {0} | Error {1}".format(openstack_id, e)
-            )
+            LOG.exception("No Server found {0} | Error {1}".format(openstack_id, e))
             return VM(status="NOT FOUND")
 
         serv = server.to_dict()
@@ -638,9 +634,7 @@ class VirtualMachineHandler(Iface):
     def create_mount_init_script(
         self, volume_ids_path_new=None, volume_ids_path_attach=None
     ):
-        LOG.info(
-            "create init script for volume ids:{}".format(volume_ids_path_new)
-        )
+        LOG.info("create init script for volume ids:{}".format(volume_ids_path_new))
         if not volume_ids_path_new and not volume_ids_path_attach:
             return None
 
@@ -1122,9 +1116,7 @@ class VirtualMachineHandler(Iface):
         self, public_key, playbooks_information, openstack_id
     ):
         global active_playbooks
-        LOG.info(
-            msg="Starting Playbook for (openstack_id): {0}".format(openstack_id)
-        )
+        LOG.info(msg="Starting Playbook for (openstack_id): {0}".format(openstack_id))
         port = self.get_vm_ports(openstack_id=openstack_id)
         key = self.redis.hget(openstack_id, "key").decode("utf-8")
         playbook = Playbook(
@@ -1707,9 +1699,7 @@ class VirtualMachineHandler(Iface):
                 server.status = self.BUILD
                 return server
         except Exception as e:
-            LOG.exception(
-                "Check Status VM {0} error: {1}".format(openstack_id, e)
-            )
+            LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
             return None
 
     def openstack_server_to_thrift_server(self, server):
@@ -1725,9 +1715,7 @@ class VirtualMachineHandler(Iface):
                     "size"
                 ]
             except Exception as e:
-                LOG.exception(
-                    "Could not found volume {}: {}".format(volume_id, e)
-                )
+                LOG.exception("Could not found volume {}: {}".format(volume_id, e))
 
         if server["OS-SRV-USG:launched_at"]:
             dt = datetime.datetime.strptime(
@@ -1778,9 +1766,7 @@ class VirtualMachineHandler(Iface):
                 server_list.append(thrift_server)
 
             except Exception as e:
-                LOG.exception(
-                    "Could not transform to thrift_server: {}".format(e)
-                )
+                LOG.exception("Could not transform to thrift_server: {}".format(e))
         LOG.info(
             "Converted {} servers to thrift_server objects".format(len(server_list))
         )
@@ -1869,11 +1855,11 @@ class VirtualMachineHandler(Iface):
 
     def get_vm_ports(self, openstack_id):
         """
-               Get Ports of the sever.
+        Get Ports of the sever.
 
-               :param openstack_id: Id of the server
-               :return: {'PORT': port, 'UDP':start_port}
-               """
+        :param openstack_id: Id of the server
+        :return: {'PORT': port, 'UDP':start_port}
+        """
         LOG.info("Get IP and PORT for server {0}".format(openstack_id))
         server = self.get_server(openstack_id)
         server_base = server.fixed_ip.split(".")[-1]
@@ -2023,9 +2009,7 @@ class VirtualMachineHandler(Iface):
                 server=openstack_id, name=name
             )
         except ConflictException as e:
-            LOG.exception(
-                "Create snapshot {0} error: {1}".format(openstack_id, e)
-            )
+            LOG.exception("Create snapshot {0} error: {1}".format(openstack_id, e))
 
             raise conflictException(Reason="409")
         except Exception:
@@ -2195,15 +2179,11 @@ class VirtualMachineHandler(Iface):
 
             return True
         except ConflictException as e:
-            LOG.exception(
-                "Delete Server {0} error: {1}".format(openstack_id, e)
-            )
+            LOG.exception("Delete Server {0} error: {1}".format(openstack_id, e))
 
             raise conflictException(Reason="409")
         except Exception as e:
-            LOG.exception(
-                "Delete Server {0} error: {1}".format(openstack_id, e)
-            )
+            LOG.exception("Delete Server {0} error: {1}".format(openstack_id, e))
             return False
 
     def delete_volume_attachment(self, volume_id, server_id):
@@ -2352,9 +2332,7 @@ class VirtualMachineHandler(Iface):
             else:
                 return False
         except ConflictException as e:
-            LOG.exception(
-                "Resume Server {0} error: {1}".format(openstack_id, e)
-            )
+            LOG.exception("Resume Server {0} error: {1}".format(openstack_id, e))
 
             raise conflictException(Reason="409")
         except Exception as e:
@@ -2488,9 +2466,7 @@ class VirtualMachineHandler(Iface):
                 security_group_id=new_security_group["id"],
             )
         if JUPYTERNOTEBOOK in resenv:
-            LOG.info(
-                "Add jupyternotebook rule to security group {}".format(name)
-            )
+            LOG.info("Add jupyternotebook rule to security group {}".format(name))
 
             self.conn.network.create_security_group_rule(
                 direction="ingress",
