@@ -12,10 +12,11 @@ THEIA = "theiaide"
 RSTUDIO = "rstudio"
 GUACAMOLE = "guacamole"
 JUPYTERNOTEBOOK = "jupyternotebook"
+CWLAB = "cwlab"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK]
+ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK, CWLAB]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -135,24 +136,33 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            if playbook_name == THEIA:
+            if playbook_name == THEIA \
+                    or playbook_name == RSTUDIO \
+                    or playbook_name == GUACAMOLE \
+                    or playbook_name == CWLAB:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
                         data[playbook_name + "_vars"][k] = v
-            if playbook_name == RSTUDIO:
-                for k, v in playbook_vars.items():
-                    if k == "template_version":
-                        data[playbook_name + "_vars"][k] = v
-                    if k == "create_only_backend":
-                        data[playbook_name + "_vars"][k] = v
-            if playbook_name == GUACAMOLE:
-                for k, v in playbook_vars.items():
-                    if k == "template_version":
-                        data[playbook_name + "_vars"][k] = v
-                    if k == "create_only_backend":
-                        data[playbook_name + "_vars"][k] = v
+            # if playbook_name == RSTUDIO:
+            #     for k, v in playbook_vars.items():
+            #         if k == "template_version":
+            #             data[playbook_name + "_vars"][k] = v
+            #         if k == "create_only_backend":
+            #             data[playbook_name + "_vars"][k] = v
+            # if playbook_name == GUACAMOLE:
+            #     for k, v in playbook_vars.items():
+            #         if k == "template_version":
+            #             data[playbook_name + "_vars"][k] = v
+            #         if k == "create_only_backend":
+            #             data[playbook_name + "_vars"][k] = v
+            # if playbook_name == CWLAB:
+            #     for k, v in playbook_vars.items():
+            #         if k == "template_version":
+            #             data[playbook_name + "_vars"][k] = v
+            #         if k == "create_only_backend":
+            #             data[playbook_name + "_vars"][k] = v
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
                     if k == MOSH:
