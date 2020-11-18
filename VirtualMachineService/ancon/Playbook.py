@@ -136,10 +136,12 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            if playbook_name == THEIA \
-                    or playbook_name == RSTUDIO \
-                    or playbook_name == GUACAMOLE \
-                    or playbook_name == CWLAB:
+            if (
+                playbook_name == THEIA
+                or playbook_name == RSTUDIO
+                or playbook_name == GUACAMOLE
+                or playbook_name == CWLAB
+            ):
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
