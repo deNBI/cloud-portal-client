@@ -40,6 +40,8 @@ bibigrid:
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
   forc_allowed:
+    cwlab:
+      - v01
     theiaide:
       - v02
       - v01
