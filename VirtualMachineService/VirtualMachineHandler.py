@@ -67,6 +67,9 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
+
+import os
+import json
 from requests.exceptions import Timeout
 
 active_playbooks = dict()
@@ -84,6 +87,8 @@ fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 LOG.addHandler(fh)
 LOG.addHandler(ch)
+GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
+
 
 
 class VirtualMachineHandler(Iface):
@@ -147,6 +152,8 @@ class VirtualMachineHandler(Iface):
         # connection to redis. Uses a pool with 10 connections.
         self.pool = redis.ConnectionPool(host="redis", port=6379)
         self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+
+        self.update_playbooks()
 
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
@@ -2672,3 +2679,18 @@ class VirtualMachineHandler(Iface):
             "totalRamUsed": totalRamUsed,
             "totalInstancesUsed": totalInstancesUsed,
         }
+
+
+    def update_playbooks(self):
+        LOG.info("STARTED update")
+        r = req.get(GITHUB_PLAYBOOKS_REPO)
+        contents = json.loads(r.content)
+        for f in contents:
+            if f['name'] != "LICENSE":
+                LOG.info("started download of" + f["name"])
+                download_link = f["download_url"]
+                file_request = req.get(download_link)
+                filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
+                playbook_file = open(filename, 'w')
+                playbook_file.write(file_request.content.decode("utf-8"))
+                playbook_file.close()

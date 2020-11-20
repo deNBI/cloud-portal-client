@@ -1,6 +1,0 @@
-- name: Set user public Key and remove created public Key
-  authorized_key:
-    user: ubuntu
-    key: "{{ change_key_vars.key }}"
-    state: present
-    exclusive: True
