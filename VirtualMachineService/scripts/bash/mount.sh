@@ -31,9 +31,9 @@ for id in "${volumes_new[@]}"; do
   fi
   cd /dev/disk/by-id || exit
   sudo mkfs.ext4 "$id"
-  sudo mkdir -p /mnt/${paths_new[ITER]}
-  sudo chmod 777 /mnt/${paths_new[ITER]}/
-  sudo mount "$id" /mnt/${paths_new[ITER]}
+  sudo mkdir -p /vol//${paths_new[ITER]}
+  sudo chmod 777 /vol//${paths_new[ITER]}/
+  sudo mount "$id" /vol//${paths_new[ITER]}
   ((ITER++))
 done
 ITER=0
@@ -61,8 +61,8 @@ for id in "${volumes_attach[@]}"; do
     continue
   fi
   cd /dev/disk/by-id || exit
-  sudo mkdir -p /mnt/${paths_attach[ITER]}
-  sudo chmod 777 /mnt/${paths_attach[ITER]}/
-  sudo mount "$id" /mnt/${paths_attach[ITER]}
+  sudo mkdir -p /vol//${paths_attach[ITER]}
+  sudo chmod 777 /vol//${paths_attach[ITER]}/
+  sudo mount "$id" /vol//${paths_attach[ITER]}
   ((ITER++))
 done
