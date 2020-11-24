@@ -23,6 +23,7 @@ try:
         ALL_TEMPLATES,
         RSTUDIO,
         JUPYTERNOTEBOOK,
+        CWLAB,
     )
 
 except Exception:
@@ -44,6 +45,7 @@ except Exception:
         ALL_TEMPLATES,
         RSTUDIO,
         JUPYTERNOTEBOOK,
+        CWLAB,
     )
 
 import datetime
@@ -958,6 +960,15 @@ class VirtualMachineHandler(Iface):
                     name=servername + "_rstudio",
                     resenv=resenv,
                     description="Rstudio",
+                    ssh=False,
+                ).name
+            )
+        if CWLAB in resenv:
+            custom_security_groups.append(
+                self.create_security_group(
+                    name=servername + "_cwlab",
+                    resenv=resenv,
+                    description="CWLab",
                     ssh=False,
                 ).name
             )
@@ -2608,6 +2619,16 @@ class VirtualMachineHandler(Iface):
                 protocol="tcp",
                 port_range_max=8787,
                 port_range_min=8787,
+                security_group_id=new_security_group["id"],
+            )
+        if CWLAB in resenv:
+            LOG.info("Add cwlab rule to security group {}".format(name))
+
+            self.conn.network.create_security_group_rule(
+                direction="ingress",
+                protocol="tcp",
+                port_range_max=80,
+                port_range_min=80,
                 security_group_id=new_security_group["id"],
             )
         if JUPYTERNOTEBOOK in resenv:

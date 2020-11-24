@@ -3,6 +3,7 @@
   become: yes
   vars_files:
     - general_variables.yml
+
   
   roles:
     - role: geerlingguy.docker
@@ -47,7 +48,7 @@
 
     - name: Install list of packages
       apt:
-        name:  ['libffi-dev', 'libssl-dev', 'jq']
+        name:  ['libffi-dev', 'libssl-dev', 'jq', 'python3-setuptools']
         state: present
         update_cache: yes
       tags: always

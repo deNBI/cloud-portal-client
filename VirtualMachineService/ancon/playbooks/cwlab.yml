@@ -1,0 +1,40 @@
+- name: Wait for automatic system updates 1
+  shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+- name: Wait for automatic system updates 2
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+
+- name: Update apt cache
+  apt:
+    update_cache: true
+  become: yes
+
+- name: Install docker.io package
+  apt:
+    name: docker.io
+  become: yes
+
+- name: Add ubuntu user to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Install docker python dev package
+  apt:
+    name: python3-docker
+  become: yes
+
+- name: Launch cwlab container
+  community.general.docker_container:
+    name: cwlab
+    image: compepigen/cwlab:dev
+    ports:
+      - "{{ cwlab_vars.exposed_port }}:5000"
+    volumes:
+      - "{{ cwlab_vars.data_volume_path }}:/data"
+    restart_policy: always
+    user: 1000:1000
+    recreate: yes
+    container_default_behavior: no_defaults
