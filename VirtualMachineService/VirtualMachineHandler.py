@@ -90,7 +90,6 @@ LOG.addHandler(ch)
 GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
 
 
-
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
@@ -2680,17 +2679,16 @@ class VirtualMachineHandler(Iface):
             "totalInstancesUsed": totalInstancesUsed,
         }
 
-
     def update_playbooks(self):
         LOG.info("STARTED update")
         r = req.get(GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
         for f in contents:
-            if f['name'] != "LICENSE":
+            if f["name"] != "LICENSE":
                 LOG.info("started download of" + f["name"])
                 download_link = f["download_url"]
                 file_request = req.get(download_link)
                 filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
-                playbook_file = open(filename, 'w')
+                playbook_file = open(filename, "w")
                 playbook_file.write(file_request.content.decode("utf-8"))
                 playbook_file.close()
