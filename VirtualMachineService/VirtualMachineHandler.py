@@ -95,7 +95,7 @@ class VirtualMachineHandler(Iface):
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
-    NOT_FOUND = "NOT FOUND"
+    NOT_FOUND = "NOT_FOUND"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -1660,7 +1660,7 @@ class VirtualMachineHandler(Iface):
             return thrift_volume
         except Exception:
             LOG.exception("Could not find volume {}".format(id))
-            return Volume(status="NOT FOUND")
+            return Volume(status=self.NOT_FOUND)
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
