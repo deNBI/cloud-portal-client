@@ -26,7 +26,6 @@ services:
     networks:
      - portal
 
-
   redis:
     image: redis:5.0.5
     expose:
@@ -36,10 +35,8 @@ services:
 
   bibigrid:
     image: bibiserv/bibigrid:${BIBIGRID_TAG}
-
     env_file:
       - .env
-
     environment:
       - OS_AUTH_URL
       - OS_PROJECT_ID
@@ -56,11 +53,11 @@ services:
     networks:
       - portal
 
-
-
   # filebeat
   filebeat:
     image: docker.elastic.co/beats/filebeat:${FILEBEAT_TAG}
+    env_file:
+      - .env
     environment:
       - ELASTIC_USER
       - ELASTIC_PASSWORD

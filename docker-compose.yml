@@ -38,6 +38,8 @@ services:
   # filebeat
   filebeat:
     image: docker.elastic.co/beats/filebeat:${FILEBEAT_TAG}
+    env_file:
+      - .env
     environment:
       - ELASTIC_USER
       - ELASTIC_PASSWORD
