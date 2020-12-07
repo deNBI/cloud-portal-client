@@ -15,7 +15,6 @@ updates:
         interval: "weekly"
     target-branch: "dev"
     reviewers:
-      - "dweinholz"
-      - "eKatchko"
-      - "vktrrdk"
+      - "deNBI/portal-dev"
+
 
