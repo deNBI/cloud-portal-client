@@ -6,9 +6,8 @@ updates:
         interval: "weekly"
     target-branch: "dev"
     reviewers:
-      - "dweinholz"
-      - "eKatchko"
-      - "vktrrdk"
+      - "deNBI/portal-dev"
+
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
