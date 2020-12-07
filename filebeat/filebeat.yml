@@ -1,3 +1,7 @@
+fields_under_root: true
+fields:
+  region: '${REGION}'
+
 output.elasticsearch:
     hosts:
       - 'https://${HOST}:443'
