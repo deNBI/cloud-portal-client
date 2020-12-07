@@ -4,18 +4,12 @@
   vars_files:
     - general_variables.yml
   tasks:
-
+    # Checks
     - name: Setup persistent client directory
       file:
         path: "{{ client.PERSISTENT_PATH }}"
         state: directory
       tags: always
-    - name: Setup persistent client cert directory
-      file:
-        path: "{{ client.PERSISTENT_PATH }}"
-        state: directory
-      tags: always
-
 
     - name: Check if client config file exists already
       stat:
@@ -28,7 +22,15 @@
       register: stat_client_pem
       tags: always
 
+    - name: Setup filebeat data directory
+        file:
+          path: "{{ client.FILEBEAT_PATH }}"
+          state: directory
+          owner: ubuntu
+          group: ubuntu
+        tags: always
 
+    # Copy configs
     - name: Copy client config file from config folder
       copy: 
         remote_src: True 
@@ -37,15 +39,12 @@
       when: client_config is not defined and stat_client_config.stat.exists == False
       tags: always
 
-
     - name: Copy specified client config file to remote machine 
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src: "{{client_config}}", dest:  "{{ client.PERSISTENT_PATH }}/config.yml" }
       when: client_config is defined
       tags: always
-
-
 
     - name: Copy specified server pem file to remote machine persistent
       copy: src={{ item.src }} dest={{ item.dest }}
@@ -54,7 +53,6 @@
       when: client_server_pem is defined
       tags: always
 
-
     - name: Copy specified server pem file to remote machine persistent from default path
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
@@ -62,8 +60,7 @@
       when: client_server_pem is not defined and stat_client_pem.exists == False
       tags: always
 
-
-
+    # Copy envs
     - name: Copy env file default
       copy:
         src: "../.env"
@@ -71,7 +68,6 @@
         backup: yes
       when: env_file is not defined
       tags: always
-
 
     - name: Copy env file
       copy:
@@ -81,8 +77,6 @@
       when: env_file is defined
       tags: always
 
-
-
     - name: Copy secrets file default
       copy:
         src: "../.secrets"
@@ -91,7 +85,6 @@
       when: secrets_file is not defined
       tags: always
 
-
     - name: Copy secrets file
       copy:
         src: "{{secrets_file}}"
@@ -99,9 +92,6 @@
         backup: yes
       when: secrets_file is defined
       tags: always
-
-
-
 
     - name: Create variable files
       copy: 
@@ -114,7 +104,6 @@
         - { content: "{{ client }}", name: 'client' }
       tags: always
 
-
     - name: Transform json to properties file
       shell: rm -f "{{ client.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ client.REPO_PATH }}"/.ansible_environment_*.json >> "{{ client.REPO_PATH }}"/.ansible_environment
       tags: always
@@ -123,7 +112,7 @@
       shell: cat "{{ client.REPO_PATH }}"/.secrets "{{ client.REPO_PATH }}"/.ansible_environment >> "{{ client.REPO_PATH }}"/.env
       tags: always
 
-
+    # Start
     - name: Start client docker container without bibigrid
       docker_compose:
         recreate: always
@@ -134,7 +123,6 @@
       become: yes
       when: "'bibigrid' not in ansible_run_tags"
 
-
     - name: Start docker container with bibigrid
       docker_compose:
           recreate: always
@@ -144,7 +132,3 @@
             - docker-compose.bibigrid.yml
       become: yes
       tags: ['never', 'bibigrid']
-
-
-
-
