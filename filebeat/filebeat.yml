@@ -17,6 +17,7 @@ output.elasticsearch:
 filebeat.inputs:
   - type: log
     enabled: true
+    exclude_files: ['\.swp$']
     paths:
       - /usr/share/filebeat/log/client/*.log
     multiline:
