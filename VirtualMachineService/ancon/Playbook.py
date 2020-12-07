@@ -7,6 +7,7 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import redis
 import ruamel.yaml
 
+#Todo Needs to go
 BIOCONDA = "bioconda"
 THEIA = "theiaide"
 RSTUDIO = "rstudio"
@@ -126,6 +127,7 @@ class Playbook(object):
 
     def copy_and_init(self, playbook_name, playbook_vars):
         def load_vars():
+            #Todo Needs to go, maybe save key in playbook with has packages?
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
@@ -136,6 +138,7 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
+            #Todo Add key: is research env.
             if (
                 playbook_name == THEIA
                 or playbook_name == RSTUDIO
@@ -165,6 +168,7 @@ class Playbook(object):
             #             data[playbook_name + "_vars"][k] = v
             #         if k == "create_only_backend":
             #             data[playbook_name + "_vars"][k] = v
+            #Todo: add Key is Optional
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
                     if k == MOSH:
