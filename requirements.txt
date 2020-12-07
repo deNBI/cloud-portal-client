@@ -1,4 +1,4 @@
-setuptools==50.3.2
+setuptools==51.0.0
 thrift >= 0.11.0,<0.20.0
 python-keystoneclient
 openstacksdk ==0.51.0
