@@ -934,7 +934,7 @@ class VirtualMachineHandler(Iface):
             ).name
         )
 
-        #Todo change those information to parsing from metadata file
+        # Todo change those information to parsing from metadata file
 
         if http or https:
             custom_security_groups.append(
@@ -1539,17 +1539,24 @@ class VirtualMachineHandler(Iface):
             if template_dict["name"] in self.FORC_ALLOWED:
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return_templates.add(template_dict["name"])
-        #Todo load Metadata from multiple folders
+        # Todo load Metadata from multiple folders
         for template in return_templates:
             with open(PLAYBOOKS_DIR + template + "_metadata.yml") as template_metadata:
                 try:
-                    loaded_metadata = yaml.load(template_metadata, Loader=yaml.FullLoader)
+                    loaded_metadata = yaml.load(
+                        template_metadata, Loader=yaml.FullLoader
+                    )
                 except Exception as e:
-                    LOG.exception("Failed to parse Metadata yml: " + template + "_metadata.yml \n" + str(e))
+                    LOG.exception(
+                        "Failed to parse Metadata yml: "
+                        + template
+                        + "_metadata.yml \n"
+                        + str(e)
+                    )
                 templates_metada.append(loaded_metadata)
         return templates_metada
 
-    #TODO credits adjust response from forc should be generic
+    # TODO credits adjust response from forc should be generic
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
@@ -2611,7 +2618,7 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
-        #Todo change those information to parsing from metadata file
+        # Todo change those information to parsing from metadata file
         if THEIA in resenv:
             LOG.info("Add theia rule to security group {}".format(name))
 
