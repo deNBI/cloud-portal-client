@@ -1,12 +1,14 @@
 output.elasticsearch:
     hosts:
-      - https://cloud.denbi.de:443
+      - 'https://${HOST}:443'
     path: /elasticsearch/
-    username: "${ELASTIC_USER}"
-    password: "${ELASTIC_PASSWORD}"
+    username: '${ELASTIC_USER}'
+    password: '${ELASTIC_PASSWORD}'
     ssl:
       verification_mode: none
     timeout: 15
+    headers:
+      HOST: '${HOST}'
 
 filebeat.inputs:
   - type: log
