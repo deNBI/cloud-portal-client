@@ -3,5 +3,5 @@ client:
   CONFIG_DIR_PATH: /home/ubuntu/client/VirtualMachineService/config
   CERT_FILE_PATH: /home/ubuntu/client/VirtualMachineService/keys
   REPO_PATH: /home/ubuntu/client
-  FILEBEAT_PATH: /home/ubuntu/client/filebeat
+  FILEBEAT_DATA_APPEND: filebeat/data
   

@@ -24,10 +24,11 @@
 
     - name: Setup filebeat data directory
       file:
-          path: "{{ client.FILEBEAT_PATH }}"
-          state: directory
-          owner: ubuntu
-          group: ubuntu
+        path: "{{ client.REPO_PATH }}/{{ client.FILEBEAT_DATA_APPEND }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
       tags: always
 
     # Copy configs
