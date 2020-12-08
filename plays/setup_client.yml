@@ -23,12 +23,12 @@
       tags: always
 
     - name: Setup filebeat data directory
-        file:
+      file:
           path: "{{ client.FILEBEAT_PATH }}"
           state: directory
           owner: ubuntu
           group: ubuntu
-        tags: always
+      tags: always
 
     # Copy configs
     - name: Copy client config file from config folder
