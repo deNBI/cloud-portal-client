@@ -1,3 +1,26 @@
+- name: Disable periodic updates
+  block:
+    - name: Disable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "0";'
+        create: yes
+    - name: Stop apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
+        - apt-daily-upgrade
+        - apt-daily-upgrade.timer
+    - name: Uninstall unattended upgrades
+      apt:
+        name: unattended-upgrades
+        state: absent
+
 - name: Wait for automatic system updates 1
   shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
 
@@ -41,3 +64,26 @@
   systemd:
     daemon_reload: yes
   when: guacamole_vars.create_only_backend == "true"
+
+- name: Enable periodic updates
+  block:
+    - name: Disable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "0";'
+        create: yes
+    - name: Stop apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: started
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
+        - apt-daily-upgrade
+        - apt-daily-upgrade.timer
+    - name: Install unattended upgrades
+      apt:
+        name: unattended-upgrades
+        state: build-dep
