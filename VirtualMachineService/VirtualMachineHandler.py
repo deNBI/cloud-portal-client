@@ -3,6 +3,7 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+from VirtualMachineService.ResenvMetadata import ResenvMetadata
 
 try:
     from VirtualMachineService import Iface
@@ -83,6 +84,15 @@ LOG.addHandler(ch)
 GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
 PLAYBOOKS_DIR = "/code/VirtualMachineService/ancon/playbooks/"
 
+PORT_RANGE_MAX = "port_range_max"
+PORT_RANGE_MIN = "port_range_min"
+SECURITYGROUP_NAME = "securitygroup_name"
+SECURITYGROUP_DESCRIPTION = "securitygroup_description"
+SECURITYGROUP_SSH = "securitygroup_ssh"
+DIRECTION = "direction"
+PROTOCOL = "protocol"
+TEMPLATE_NAME = "template_name"
+
 
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
@@ -100,6 +110,7 @@ class VirtualMachineHandler(Iface):
     DEFAULT_SECURITY_GROUP = "defaultSimpleVM"
     DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
     ALL_TEMPLATES = ALL_TEMPLATES
+    loaded_resenv_metadata = {}
 
 
     def keyboard_interrupt_handler_playbooks(self):
@@ -1545,7 +1556,7 @@ class VirtualMachineHandler(Iface):
                         loaded_metadata = yaml.load(
                             template_metadata, Loader=yaml.FullLoader
                         )
-                        template_name = loaded_metadata["template_name"]
+                        template_name = loaded_metadata[TEMPLATE_NAME]
                         if loaded_metadata["needs_forc_support"]:
                             if template_name in template_dict:
                                 templates_metada.append(loaded_metadata)
@@ -2725,4 +2736,47 @@ class VirtualMachineHandler(Iface):
                 playbook_file = open(filename, "w")
                 playbook_file.write(file_request.content.decode("utf-8"))
                 playbook_file.close()
+        templates_metadata = self.load_resenv_metadata()
+        for template_metadata in templates_metadata:
+            try:
+                metadata = ResenvMetadata(template_metadata[TEMPLATE_NAME],
+                                          template_metadata[PORT_RANGE_MAX],
+                                          template_metadata[PORT_RANGE_MIN],
+                                          template_metadata[SECURITYGROUP_NAME],
+                                          template_metadata[SECURITYGROUP_DESCRIPTION],
+                                          template_metadata[SECURITYGROUP_SSH],
+                                          template_metadata[DIRECTION],
+                                          template_metadata[PROTOCOL])
+                if metadata not in self.loaded_resenv_metadata():
+                    self.loaded_resenv_metadata[metadata.name] = metadata
+                else:
 
+
+            except Exception as e:
+                LOG.exception(
+                    "Failed to parse Metadata yml: "
+                    + str(template_metadata) + "\n"
+                    + str(e)
+                )
+
+    def load_resenv_metadata(self):
+        for file in os.listdir(PLAYBOOKS_DIR):
+            templates_metada= []
+            if "_metadata.yml" in file:
+                with open(PLAYBOOKS_DIR + file) as template_metadata:
+                    try:
+                        loaded_metadata = yaml.load(
+                            template_metadata, Loader=yaml.FullLoader
+                        )
+                        template_name = loaded_metadata[TEMPLATE_NAME]
+
+                        templates_metada.append(loaded_metadata)
+                        if template_name not in self.ALL_TEMPLATES:
+                            ALL_TEMPLATES.append()
+                    except Exception as e:
+                        LOG.exception(
+                            "Failed to parse Metadata yml: "
+                            + file + "\n"
+                            + str(e)
+                        )
+        return templates_metada
