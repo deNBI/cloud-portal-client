@@ -95,7 +95,7 @@ class VirtualMachineHandler(Iface):
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
-    SHUTOFF="SHUTOFF"
+    SHUTOFF = "SHUTOFF"
     NOT_FOUND = "NOT_FOUND"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
@@ -1796,7 +1796,7 @@ class VirtualMachineHandler(Iface):
                 return server
             else:
                 server = self.get_server(openstack_id)
-               # server.status = self.BUILD
+                # server.status = self.BUILD
                 return server
         except Exception as e:
             LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
