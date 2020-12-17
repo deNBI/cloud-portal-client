@@ -7,17 +7,12 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import redis
 import ruamel.yaml
 
-# Todo Needs to go
 BIOCONDA = "bioconda"
-THEIA = "theiaide"
-RSTUDIO = "rstudio"
-GUACAMOLE = "guacamole"
 JUPYTERNOTEBOOK = "jupyternotebook"
-CWLAB = "cwlab"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK, CWLAB]
+ALL_TEMPLATES = [BIOCONDA, JUPYTERNOTEBOOK]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -90,8 +85,8 @@ class Playbook(object):
 
     def copy_playbooks_and_init(self, playbooks_information, public_key):
         # go through every wanted playbook
-        for k, v in playbooks_information.items():
-            self.copy_and_init(k, v)
+        for k, v, i in playbooks_information.items():
+            self.copy_and_init(k, v, i)
 
         # init yml to change public keys as last task
         shutil.copy(self.playbooks_dir + "/change_key.yml", self.directory.name)
@@ -125,9 +120,8 @@ class Playbook(object):
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
-    def copy_and_init(self, playbook_name, playbook_vars):
+    def copy_and_init(self, playbook_name, playbook_vars, is_resenv):
         def load_vars():
-            # Todo Needs to go, maybe save key in playbook with has packages?
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
@@ -138,37 +132,12 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            # Todo Add key: is research env.
-            if (
-                playbook_name == THEIA
-                or playbook_name == RSTUDIO
-                or playbook_name == GUACAMOLE
-                or playbook_name == CWLAB
-            ):
+            if is_resenv:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
                         data[playbook_name + "_vars"][k] = v
-            # if playbook_name == RSTUDIO:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
-            # if playbook_name == GUACAMOLE:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
-            # if playbook_name == CWLAB:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
-            # Todo: add Key is Optional
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
                     if k == MOSH:

@@ -18,12 +18,8 @@ try:
     from constants import VERSION
     from ancon.Playbook import (
         Playbook,
-        THEIA,
-        GUACAMOLE,
         ALL_TEMPLATES,
-        RSTUDIO,
         JUPYTERNOTEBOOK,
-        CWLAB,
     )
 
 except Exception:
@@ -40,12 +36,8 @@ except Exception:
     from .constants import VERSION
     from .ancon.Playbook import (
         Playbook,
-        THEIA,
-        GUACAMOLE,
         ALL_TEMPLATES,
-        RSTUDIO,
         JUPYTERNOTEBOOK,
-        CWLAB,
     )
 
 import datetime
@@ -107,6 +99,8 @@ class VirtualMachineHandler(Iface):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
     DEFAULT_SECURITY_GROUP = "defaultSimpleVM"
     DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
+    ALL_TEMPLATES = ALL_TEMPLATES
+
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
@@ -339,9 +333,9 @@ class VirtualMachineHandler(Iface):
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
-                LOG.info(set(ALL_TEMPLATES).intersection(tags))
+                LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
                 if len(
-                    set(ALL_TEMPLATES).intersection(tags)
+                    set(self.ALL_TEMPLATES).intersection(tags)
                 ) > 0 and not self.cross_check_forc_image(tags):
                     LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
                     continue
@@ -375,9 +369,9 @@ class VirtualMachineHandler(Iface):
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
-            LOG.info(set(ALL_TEMPLATES).intersection(tags))
+            LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
             if len(
-                set(ALL_TEMPLATES).intersection(tags)
+                set(self.ALL_TEMPLATES).intersection(tags)
             ) > 0 and not self.cross_check_forc_image(tags):
                 LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
                 return None
@@ -946,6 +940,9 @@ class VirtualMachineHandler(Iface):
                 ).name
             )
 
+        for researech_enviroment in resenv:
+            
+
         if THEIA in resenv:
             custom_security_groups.append(
                 self.create_security_group(
@@ -1264,7 +1261,7 @@ class VirtualMachineHandler(Iface):
                 templates = response.json()
         except Exception as e:
             LOG.error("Could not get templates from FORC.\n {0}".format(e))
-        cross_tags = list(set(ALL_TEMPLATES).intersection(tags))
+        cross_tags = list(set(self.ALL_TEMPLATES).intersection(tags))
         for template_dict in templates:
             if (
                 template_dict["name"] in self.FORC_ALLOWED
@@ -1540,20 +1537,33 @@ class VirtualMachineHandler(Iface):
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return_templates.add(template_dict["name"])
         # Todo load Metadata from multiple folders
-        for template in return_templates:
-            with open(PLAYBOOKS_DIR + template + "_metadata.yml") as template_metadata:
-                try:
-                    loaded_metadata = yaml.load(
-                        template_metadata, Loader=yaml.FullLoader
-                    )
-                except Exception as e:
-                    LOG.exception(
-                        "Failed to parse Metadata yml: "
-                        + template
-                        + "_metadata.yml \n"
-                        + str(e)
-                    )
-                templates_metada.append(loaded_metadata)
+        # Todo Check here
+        for file in os.listdir(PLAYBOOKS_DIR):
+            if "_metadata.yml" in file:
+                with open(PLAYBOOKS_DIR + file) as template_metadata:
+                    try:
+                        loaded_metadata = yaml.load(
+                            template_metadata, Loader=yaml.FullLoader
+                        )
+                        template_name = loaded_metadata["template_name"]
+                        if loaded_metadata["needs_forc_support"]:
+                            if template_name in template_dict:
+                                templates_metada.append(loaded_metadata)
+                                if template_name not in self.ALL_TEMPLATES:
+                                    ALL_TEMPLATES.append()
+                            else:
+                                LOG.info("Failed to find supporting FORC file for " + template_name)
+                        else:
+                            templates_metada.append(loaded_metadata)
+                            if template_name not in self.ALL_TEMPLATES:
+                                ALL_TEMPLATES.append()
+
+                    except Exception as e:
+                        LOG.exception(
+                            "Failed to parse Metadata yml: "
+                            + file + "\n"
+                            + str(e)
+                        )
         return templates_metada
 
     # TODO credits adjust response from forc should be generic
@@ -1574,6 +1584,7 @@ class VirtualMachineHandler(Iface):
         except Timeout as e:
             LOG.info(msg="get_templates timed out. {0}".format(e))
 
+    #Todo test this method
     def get_allowed_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
@@ -2714,3 +2725,4 @@ class VirtualMachineHandler(Iface):
                 playbook_file = open(filename, "w")
                 playbook_file.write(file_request.content.decode("utf-8"))
                 playbook_file.close()
+
