@@ -16,10 +16,6 @@
         - apt-daily.timer
         - apt-daily-upgrade
         - apt-daily-upgrade.timer
-    - name: Uninstall unattended upgrades
-      apt:
-        name: unattended-upgrades
-        state: absent
 
 - name: Wait for automatic system updates 1
   shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
@@ -67,6 +63,10 @@
 
 - name: Enable periodic updates
   block:
+    - name: Uninstall unattended upgrades
+        apt:
+          name: unattended-upgrades
+          state: absent
     - name: Disable unattended upgrades
       lineinfile:
         path: /etc/apt/apt.conf.d/10periodic
