@@ -7,6 +7,9 @@ updates:
     target-branch: "dev"
     reviewers:
       - "deNBI/portal-dev"
+    commit_message:
+      prefix: "feat"
+      include_scope: true
 
   - package-ecosystem: "docker"
     directory: "/"
@@ -15,5 +18,8 @@ updates:
     target-branch: "dev"
     reviewers:
       - "deNBI/portal-dev"
+    commit_message:
+      prefix: "feat"
+      include_scope: true
 
 
