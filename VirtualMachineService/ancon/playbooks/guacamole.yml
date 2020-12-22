@@ -16,10 +16,7 @@
         - apt-daily.timer
         - apt-daily-upgrade
         - apt-daily-upgrade.timer
-    - name: Uninstall unattended upgrades
-      apt:
-        name: unattended-upgrades
-        state: absent
+
 
 - name: Wait for automatic system updates 1
   shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
@@ -67,13 +64,13 @@
 
 - name: Enable periodic updates
   block:
-    - name: Disable unattended upgrades
+    - name: enable unattended upgrades
       lineinfile:
         path: /etc/apt/apt.conf.d/10periodic
         regexp: "^APT::Periodic::Unattended-Upgrade"
-        line: 'APT::Periodic::Unattended-Upgrade "0";'
+        line: 'APT::Periodic::Unattended-Upgrade "1";'
         create: yes
-    - name: Stop apt-daily.* systemd services
+    - name: Start apt-daily.* systemd services
       service:
         name: "{{ item }}"
         state: started
@@ -83,7 +80,3 @@
         - apt-daily.timer
         - apt-daily-upgrade
         - apt-daily-upgrade.timer
-    - name: Install unattended upgrades
-      apt:
-        name: unattended-upgrades
-        state: build-dep
