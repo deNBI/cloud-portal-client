@@ -27,7 +27,7 @@ services:
      - portal
 
   redis:
-    image: redis:5.0.5
+    image: redis:6.0.9
     expose:
       - "6379"
     networks:
