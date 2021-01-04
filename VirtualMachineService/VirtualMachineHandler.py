@@ -635,12 +635,19 @@ class VirtualMachineHandler(Iface):
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
                     fixed_ip = address["addr"]
+        task=serv["task_state"]
+        if task:
+            status=task.upper().replace("-","_")
+            LOG.info(f"{openstack_id} Task: {task}")
+
+        else:
+            status=serv["status"]
 
         if floating_ip:
             server = VM(
                 flav=flav,
                 img=img,
-                status=serv["status"],
+                status=status,
                 metadata=serv["metadata"],
                 project_id=serv["project_id"],
                 keyname=serv["key_name"],
@@ -655,7 +662,7 @@ class VirtualMachineHandler(Iface):
             server = VM(
                 flav=flav,
                 img=img,
-                status=serv["status"],
+                status=status,
                 metadata=serv["metadata"],
                 project_id=serv["project_id"],
                 keyname=serv["key_name"],
@@ -1299,6 +1306,7 @@ class VirtualMachineHandler(Iface):
             except Exception as e:
                 LOG.exception(e)
                 return {}
+            LOG.info(f"Backend created {data}")
             return Backend(
                 id=data["id"],
                 owner=data["owner"],
@@ -2302,12 +2310,15 @@ class VirtualMachineHandler(Iface):
         :param openstack_id: Id of the server
         :return: True if deleted, False if not
         """
-        LOG.info("Delete Server {0}".format(openstack_id))
+        LOG.info(f"Delete Server {openstack_id}")
         try:
-            server = self.conn.get_server(openstack_id)
+            server = self.conn.get_server(name_or_id=openstack_id)
+
             if server is None:
-                LOG.exception("Instance {0} not found".format(openstack_id))
-                return False
+                server=self.conn.compute.get_server(openstack_id)
+                if server is None:
+                    LOG.error("Instance {0} not found".format(openstack_id))
+                    return False
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
