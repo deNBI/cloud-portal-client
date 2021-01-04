@@ -635,13 +635,13 @@ class VirtualMachineHandler(Iface):
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
                     fixed_ip = address["addr"]
-        task=serv["task_state"]
+        task = serv["task_state"]
         if task:
-            status=task.upper().replace("-","_")
+            status = task.upper().replace("-", "_")
             LOG.info(f"{openstack_id} Task: {task}")
 
         else:
-            status=serv["status"]
+            status = serv["status"]
 
         if floating_ip:
             server = VM(
@@ -2315,7 +2315,7 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(name_or_id=openstack_id)
 
             if server is None:
-                server=self.conn.compute.get_server(openstack_id)
+                server = self.conn.compute.get_server(openstack_id)
                 if server is None:
                     LOG.error("Instance {0} not found".format(openstack_id))
                     return False
