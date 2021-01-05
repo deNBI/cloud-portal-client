@@ -35,8 +35,9 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self, ip, port, playbooks_information, osi_private_key, public_key, pool
+        self, ip, port, playbooks_information, osi_private_key, public_key, pool, loaded_metadata
     ):
+        self.loaded_metadata = loaded_metadata
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
         self.vars_files = []  # _vars_file.yml to read
@@ -74,6 +75,7 @@ class Playbook(object):
             mode="w+", dir=self.directory.name, delete=False
         )
 
+
         inventory_string = (
             "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu "
             "ansible_ssh_private_key_file="
@@ -85,8 +87,8 @@ class Playbook(object):
 
     def copy_playbooks_and_init(self, playbooks_information, public_key):
         # go through every wanted playbook
-        for k, v, i in playbooks_information.items():
-            self.copy_and_init(k, v, i)
+        for k, v in playbooks_information.items():
+            self.copy_and_init(k, v)
 
         # init yml to change public keys as last task
         shutil.copy(self.playbooks_dir + "/change_key.yml", self.directory.name)
@@ -120,7 +122,7 @@ class Playbook(object):
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
-    def copy_and_init(self, playbook_name, playbook_vars, is_resenv):
+    def copy_and_init(self, playbook_name, playbook_vars):
         def load_vars():
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
@@ -132,7 +134,7 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            if is_resenv:
+            if playbook_name in self.loaded_metadata.keys():
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v

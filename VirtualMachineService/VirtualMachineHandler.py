@@ -3,7 +3,6 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
-from VirtualMachineService.ResenvMetadata import ResenvMetadata
 
 try:
     from VirtualMachineService import Iface
@@ -49,7 +48,6 @@ import socket
 import time
 import urllib
 from contextlib import closing
-import yml
 
 import redis
 import requests as req
@@ -61,6 +59,7 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
+import ResenvMetadata
 
 import os
 import json
@@ -939,8 +938,6 @@ class VirtualMachineHandler(Iface):
             ).name
         )
 
-        # Todo change those information to parsing from metadata file
-
         if http or https:
             custom_security_groups.append(
                 self.create_security_group(
@@ -951,45 +948,21 @@ class VirtualMachineHandler(Iface):
                 ).name
             )
 
-        for researech_enviroment in resenv:
-            
+        for research_enviroment in resenv:
+            if research_enviroment in self.loaded_resenv_metadata:
+                resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+                custom_security_groups.append(
+                    self.create_security_group(
+                        name=servername + resenv_metadata.security_group_name,
+                        resenv=resenv,
+                        description=resenv_metadata.security_group_description,
+                        ssh=resenv.security_group_ssh,
+                    ).name
+                )
+            else:
+                LOG.info("Failure to load metadata  of reasearch enviroment: " + research_enviroment)
 
-        if THEIA in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_theiaide",
-                    resenv=resenv,
-                    description="Theiaide",
-                    ssh=False,
-                ).name
-            )
-        if GUACAMOLE in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_guacamole",
-                    resenv=resenv,
-                    description="Guacamole",
-                    ssh=False,
-                ).name
-            )
-        if RSTUDIO in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_rstudio",
-                    resenv=resenv,
-                    description="Rstudio",
-                    ssh=False,
-                ).name
-            )
-        if CWLAB in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_cwlab",
-                    resenv=resenv,
-                    description="CWLab",
-                    ssh=False,
-                ).name
-            )
+        #TODO: remove if JUPYTERNOTEBOOK is no longer used, as it appears
         if JUPYTERNOTEBOOK in resenv:
             custom_security_groups.append(
                 self.create_security_group(
@@ -1241,6 +1214,7 @@ class VirtualMachineHandler(Iface):
             osi_private_key=key,
             public_key=public_key,
             pool=self.pool,
+            loaded_metadata=self.loaded_resenv_metadata
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1558,16 +1532,16 @@ class VirtualMachineHandler(Iface):
                         )
                         template_name = loaded_metadata[TEMPLATE_NAME]
                         if loaded_metadata["needs_forc_support"]:
-                            if template_name in template_dict:
-                                templates_metada.append(loaded_metadata)
+                            if template_name in return_templates:
+                                templates_metada.append(str(loaded_metadata))
                                 if template_name not in self.ALL_TEMPLATES:
-                                    ALL_TEMPLATES.append()
+                                    ALL_TEMPLATES.append(template_name)
                             else:
-                                LOG.info("Failed to find supporting FORC file for " + template_name)
+                                LOG.info("Failed to find supporting FORC file for " + str(template_name))
                         else:
-                            templates_metada.append(loaded_metadata)
+                            templates_metada.append(str(loaded_metadata))
                             if template_name not in self.ALL_TEMPLATES:
-                                ALL_TEMPLATES.append()
+                                ALL_TEMPLATES.append(template_name)
 
                     except Exception as e:
                         LOG.exception(
@@ -1575,9 +1549,9 @@ class VirtualMachineHandler(Iface):
                             + file + "\n"
                             + str(e)
                         )
+        LOG.info("Plays DEBUG: Values of metadata: " + str(templates_metada))
         return templates_metada
 
-    # TODO credits adjust response from forc should be generic
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
@@ -2640,47 +2614,22 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
-        # Todo change those information to parsing from metadata file
-        if THEIA in resenv:
-            LOG.info("Add theia rule to security group {}".format(name))
+        for research_enviroment in resenv:
+            if research_enviroment in self.loaded_resenv_metadata:
+                LOG.info("Add " + research_enviroment + " rule to security group {}".format(name))
+                resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+                self.conn.network.create_security_group_rule(
+                    direction=resenv_metadata.direction,
+                    protocol=resenv_metadata.protocol,
+                    port_range_max=resenv_metadata.port_range_max,
+                    port_range_min=resenv_metadata.port_range_min,
+                    security_group_id=new_security_group["id"],
+                )
+            else:
+                #Todo add mail for this logging as this should not happen
+                LOG.info("Warning: Could not find metadata for research enviroment: " + research_enviroment)
 
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
-                security_group_id=new_security_group["id"],
-            )
-        if GUACAMOLE in resenv:
-            LOG.info("Add guacamole rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
-                security_group_id=new_security_group["id"],
-            )
-        if RSTUDIO in resenv:
-            LOG.info("Add rstudio rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8787,
-                port_range_min=8787,
-                security_group_id=new_security_group["id"],
-            )
-        if CWLAB in resenv:
-            LOG.info("Add cwlab rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=80,
-                port_range_min=80,
-                security_group_id=new_security_group["id"],
-            )
+        #Todo: remove Jupyter reference, if not needed
         if JUPYTERNOTEBOOK in resenv:
             LOG.info("Add jupyternotebook rule to security group {}".format(name))
 
@@ -2727,6 +2676,7 @@ class VirtualMachineHandler(Iface):
         LOG.info("STARTED update")
         r = req.get(GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
+        #Todo maybe clone entire direcotry
         for f in contents:
             if f["name"] != "LICENSE":
                 LOG.info("started download of" + f["name"])
@@ -2747,10 +2697,11 @@ class VirtualMachineHandler(Iface):
                                           template_metadata[SECURITYGROUP_SSH],
                                           template_metadata[DIRECTION],
                                           template_metadata[PROTOCOL])
-                if metadata not in self.loaded_resenv_metadata():
+                if metadata not in self.loaded_resenv_metadata.keys():
                     self.loaded_resenv_metadata[metadata.name] = metadata
                 else:
-
+                    if self.loaded_resenv_metadata[metadata.name] != metadata:
+                        self.loaded_resenv_metadata[metadata.name] = metadata
 
             except Exception as e:
                 LOG.exception(
@@ -2772,7 +2723,7 @@ class VirtualMachineHandler(Iface):
 
                         templates_metada.append(loaded_metadata)
                         if template_name not in self.ALL_TEMPLATES:
-                            ALL_TEMPLATES.append()
+                            ALL_TEMPLATES.append(template_name)
                     except Exception as e:
                         LOG.exception(
                             "Failed to parse Metadata yml: "
