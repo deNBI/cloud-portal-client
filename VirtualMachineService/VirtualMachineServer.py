@@ -61,6 +61,7 @@ def startServer(config):
         HOST = cfg["openstack_connection"]["host"]
         PORT = cfg["openstack_connection"]["port"]
         CERTFILE = cfg["openstack_connection"]["certfile"]
+        THREADS = cfg["openstack_connection"]["threads"]
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
@@ -70,7 +71,8 @@ def startServer(config):
     server = TServer.TThreadPoolServer(
         processor, transport, tfactory, pfactory, daemon=True
     )
-    server.setNumThreads(15)
+    server.setNumThreads(THREADS)
+    click.echo(f"Started with {THREADS} threads!")
 
     server.serve()
 

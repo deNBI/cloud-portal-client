@@ -95,7 +95,8 @@ class VirtualMachineHandler(Iface):
     BUILD = "BUILD"
     ACTIVE = "ACTIVE"
     ERROR = "ERROR"
-    NOT_FOUND = "NOT FOUND"
+    SHUTOFF = "SHUTOFF"
+    NOT_FOUND = "NOT_FOUND"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -634,12 +635,19 @@ class VirtualMachineHandler(Iface):
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
                     fixed_ip = address["addr"]
+        task = serv["task_state"]
+        if task:
+            status = task.upper().replace("-", "_")
+            LOG.info(f"{openstack_id} Task: {task}")
+
+        else:
+            status = serv["status"]
 
         if floating_ip:
             server = VM(
                 flav=flav,
                 img=img,
-                status=serv["status"],
+                status=status,
                 metadata=serv["metadata"],
                 project_id=serv["project_id"],
                 keyname=serv["key_name"],
@@ -654,7 +662,7 @@ class VirtualMachineHandler(Iface):
             server = VM(
                 flav=flav,
                 img=img,
-                status=serv["status"],
+                status=status,
                 metadata=serv["metadata"],
                 project_id=serv["project_id"],
                 keyname=serv["key_name"],
@@ -1298,6 +1306,7 @@ class VirtualMachineHandler(Iface):
             except Exception as e:
                 LOG.exception(e)
                 return {}
+            LOG.info(f"Backend created {data}")
             return Backend(
                 id=data["id"],
                 owner=data["owner"],
@@ -1660,7 +1669,7 @@ class VirtualMachineHandler(Iface):
             return thrift_volume
         except Exception:
             LOG.exception("Could not find volume {}".format(id))
-            return Volume(status="NOT FOUND")
+            return Volume(status=self.NOT_FOUND)
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -1795,7 +1804,7 @@ class VirtualMachineHandler(Iface):
                 return server
             else:
                 server = self.get_server(openstack_id)
-                server.status = self.BUILD
+                # server.status = self.BUILD
                 return server
         except Exception as e:
             LOG.exception("Check Status VM {0} error: {1}".format(openstack_id, e))
@@ -2301,12 +2310,15 @@ class VirtualMachineHandler(Iface):
         :param openstack_id: Id of the server
         :return: True if deleted, False if not
         """
-        LOG.info("Delete Server {0}".format(openstack_id))
+        LOG.info(f"Delete Server {openstack_id}")
         try:
-            server = self.conn.get_server(openstack_id)
+            server = self.conn.get_server(name_or_id=openstack_id)
+
             if server is None:
-                LOG.exception("Instance {0} not found".format(openstack_id))
-                return False
+                server = self.conn.compute.get_server(openstack_id)
+                if server is None:
+                    LOG.error("Instance {0} not found".format(openstack_id))
+                    return False
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
@@ -2428,7 +2440,7 @@ class VirtualMachineHandler(Iface):
                 LOG.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
 
-            if server.status == "ACTIVE":
+            if server.status == self.ACTIVE:
                 self.conn.compute.stop_server(server)
                 return True
             else:
@@ -2482,7 +2494,7 @@ class VirtualMachineHandler(Iface):
             if server is None:
                 LOG.exception("Instance {0} not found".format(openstack_id))
                 raise serverNotFoundException
-            if server.status == "SHUTOFF":
+            if server.status == self.SHUTOFF:
                 self.conn.compute.start_server(server)
                 return True
             else:
