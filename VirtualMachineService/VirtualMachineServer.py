@@ -61,17 +61,18 @@ def startServer(config):
         HOST = cfg["openstack_connection"]["host"]
         PORT = cfg["openstack_connection"]["port"]
         CERTFILE = cfg["openstack_connection"]["certfile"]
+        THREADS = cfg["openstack_connection"]["threads"]
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
-    processor.resize_volume("1e4d223a-b450-47f8-b7f1-52df40e4c39b", 2)
     transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     server = TServer.TThreadPoolServer(
         processor, transport, tfactory, pfactory, daemon=True
     )
-    server.setNumThreads(15)
+    server.setNumThreads(THREADS)
+    click.echo(f"Started with {THREADS} threads!")
 
     server.serve()
 
