@@ -35,7 +35,14 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self, ip, port, playbooks_information, osi_private_key, public_key, pool, loaded_metadata
+        self,
+        ip,
+        port,
+        playbooks_information,
+        osi_private_key,
+        public_key,
+        pool,
+        loaded_metadata,
     ):
         self.loaded_metadata = loaded_metadata
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
@@ -74,7 +81,6 @@ class Playbook(object):
         self.inventory = NamedTemporaryFile(
             mode="w+", dir=self.directory.name, delete=False
         )
-
 
         inventory_string = (
             "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu "

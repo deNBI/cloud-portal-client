@@ -111,7 +111,6 @@ class VirtualMachineHandler(Iface):
     ALL_TEMPLATES = ALL_TEMPLATES
     loaded_resenv_metadata = {}
 
-
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
         for k, v in active_playbooks.items():
@@ -960,9 +959,12 @@ class VirtualMachineHandler(Iface):
                     ).name
                 )
             else:
-                LOG.info("Failure to load metadata  of reasearch enviroment: " + research_enviroment)
+                LOG.info(
+                    "Failure to load metadata  of reasearch enviroment: "
+                    + research_enviroment
+                )
 
-        #TODO: remove if JUPYTERNOTEBOOK is no longer used, as it appears
+        # TODO: remove if JUPYTERNOTEBOOK is no longer used, as it appears
         if JUPYTERNOTEBOOK in resenv:
             custom_security_groups.append(
                 self.create_security_group(
@@ -1214,7 +1216,7 @@ class VirtualMachineHandler(Iface):
             osi_private_key=key,
             public_key=public_key,
             pool=self.pool,
-            loaded_metadata=self.loaded_resenv_metadata
+            loaded_metadata=self.loaded_resenv_metadata,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1537,7 +1539,10 @@ class VirtualMachineHandler(Iface):
                                 if template_name not in self.ALL_TEMPLATES:
                                     ALL_TEMPLATES.append(template_name)
                             else:
-                                LOG.info("Failed to find supporting FORC file for " + str(template_name))
+                                LOG.info(
+                                    "Failed to find supporting FORC file for "
+                                    + str(template_name)
+                                )
                         else:
                             templates_metada.append(str(loaded_metadata))
                             if template_name not in self.ALL_TEMPLATES:
@@ -1545,9 +1550,7 @@ class VirtualMachineHandler(Iface):
 
                     except Exception as e:
                         LOG.exception(
-                            "Failed to parse Metadata yml: "
-                            + file + "\n"
-                            + str(e)
+                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
         LOG.info("Plays DEBUG: Values of metadata: " + str(templates_metada))
         return templates_metada
@@ -1569,7 +1572,7 @@ class VirtualMachineHandler(Iface):
         except Timeout as e:
             LOG.info(msg="get_templates timed out. {0}".format(e))
 
-    #Todo test this method
+    # Todo test this method
     def get_allowed_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
@@ -2616,7 +2619,11 @@ class VirtualMachineHandler(Iface):
             )
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
-                LOG.info("Add " + research_enviroment + " rule to security group {}".format(name))
+                LOG.info(
+                    "Add "
+                    + research_enviroment
+                    + " rule to security group {}".format(name)
+                )
                 resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
                 self.conn.network.create_security_group_rule(
                     direction=resenv_metadata.direction,
@@ -2626,10 +2633,13 @@ class VirtualMachineHandler(Iface):
                     security_group_id=new_security_group["id"],
                 )
             else:
-                #Todo add mail for this logging as this should not happen
-                LOG.info("Warning: Could not find metadata for research enviroment: " + research_enviroment)
+                # Todo add mail for this logging as this should not happen
+                LOG.info(
+                    "Warning: Could not find metadata for research enviroment: "
+                    + research_enviroment
+                )
 
-        #Todo: remove Jupyter reference, if not needed
+        # Todo: remove Jupyter reference, if not needed
         if JUPYTERNOTEBOOK in resenv:
             LOG.info("Add jupyternotebook rule to security group {}".format(name))
 
@@ -2676,7 +2686,7 @@ class VirtualMachineHandler(Iface):
         LOG.info("STARTED update")
         r = req.get(GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
-        #Todo maybe clone entire direcotry
+        # Todo maybe clone entire direcotry
         for f in contents:
             if f["name"] != "LICENSE":
                 LOG.info("started download of" + f["name"])
@@ -2689,14 +2699,16 @@ class VirtualMachineHandler(Iface):
         templates_metadata = self.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
-                metadata = ResenvMetadata(template_metadata[TEMPLATE_NAME],
-                                          template_metadata[PORT_RANGE_MAX],
-                                          template_metadata[PORT_RANGE_MIN],
-                                          template_metadata[SECURITYGROUP_NAME],
-                                          template_metadata[SECURITYGROUP_DESCRIPTION],
-                                          template_metadata[SECURITYGROUP_SSH],
-                                          template_metadata[DIRECTION],
-                                          template_metadata[PROTOCOL])
+                metadata = ResenvMetadata(
+                    template_metadata[TEMPLATE_NAME],
+                    template_metadata[PORT_RANGE_MAX],
+                    template_metadata[PORT_RANGE_MIN],
+                    template_metadata[SECURITYGROUP_NAME],
+                    template_metadata[SECURITYGROUP_DESCRIPTION],
+                    template_metadata[SECURITYGROUP_SSH],
+                    template_metadata[DIRECTION],
+                    template_metadata[PROTOCOL],
+                )
                 if metadata not in self.loaded_resenv_metadata.keys():
                     self.loaded_resenv_metadata[metadata.name] = metadata
                 else:
@@ -2706,13 +2718,14 @@ class VirtualMachineHandler(Iface):
             except Exception as e:
                 LOG.exception(
                     "Failed to parse Metadata yml: "
-                    + str(template_metadata) + "\n"
+                    + str(template_metadata)
+                    + "\n"
                     + str(e)
                 )
 
     def load_resenv_metadata(self):
         for file in os.listdir(PLAYBOOKS_DIR):
-            templates_metada= []
+            templates_metada = []
             if "_metadata.yml" in file:
                 with open(PLAYBOOKS_DIR + file) as template_metadata:
                     try:
@@ -2726,8 +2739,6 @@ class VirtualMachineHandler(Iface):
                             ALL_TEMPLATES.append(template_name)
                     except Exception as e:
                         LOG.exception(
-                            "Failed to parse Metadata yml: "
-                            + file + "\n"
-                            + str(e)
+                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
         return templates_metada
