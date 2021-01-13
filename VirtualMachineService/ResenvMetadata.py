@@ -2,8 +2,7 @@ class ResenvMetadata:
     def __init__(
         self,
         name,
-        port_range_max,
-        port_range_min,
+        port,
         security_group_name,
         security_group_description,
         security_group_ssh,
@@ -11,8 +10,7 @@ class ResenvMetadata:
         protocol,
     ):
         self.name = name
-        self.port_range_max = port_range_max
-        self.port_range_min = port_range_min
+        self.port = port
         self.security_group_name = security_group_name
         self.security_group_description = security_group_description
         self.security_group_ssh = security_group_ssh

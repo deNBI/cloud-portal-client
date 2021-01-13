@@ -83,8 +83,7 @@ LOG.addHandler(ch)
 GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
 PLAYBOOKS_DIR = "/code/VirtualMachineService/ancon/playbooks/"
 
-PORT_RANGE_MAX = "port_range_max"
-PORT_RANGE_MIN = "port_range_min"
+PORT = "port"
 SECURITYGROUP_NAME = "securitygroup_name"
 SECURITYGROUP_DESCRIPTION = "securitygroup_description"
 SECURITYGROUP_SSH = "securitygroup_ssh"
@@ -2640,8 +2639,8 @@ class VirtualMachineHandler(Iface):
                 self.conn.network.create_security_group_rule(
                     direction=resenv_metadata.direction,
                     protocol=resenv_metadata.protocol,
-                    port_range_max=resenv_metadata.port_range_max,
-                    port_range_min=resenv_metadata.port_range_min,
+                    port_range_max=resenv_metadata.port,
+                    port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
                 )
             else:
@@ -2713,8 +2712,7 @@ class VirtualMachineHandler(Iface):
             try:
                 metadata = ResenvMetadata(
                     template_metadata[TEMPLATE_NAME],
-                    template_metadata[PORT_RANGE_MAX],
-                    template_metadata[PORT_RANGE_MIN],
+                    template_metadata[PORT],
                     template_metadata[SECURITYGROUP_NAME],
                     template_metadata[SECURITYGROUP_DESCRIPTION],
                     template_metadata[SECURITYGROUP_SSH],
