@@ -27,8 +27,7 @@
   when: theiaide_vars.create_only_backend == "false"
 
 - name: Install theia_ide role
-  include_role:
-    name: jkrue.theia_ide
+  include: theia_bibigrid.yml
   vars:
     theia_ide_bind_address: 0.0.0.0
     theia_ide_bind_port: 8080
