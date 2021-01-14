@@ -1570,7 +1570,6 @@ class VirtualMachineHandler(Iface):
                 headers={"X-API-KEY": self.FORC_API_KEY},
                 verify=self.PRODUCTION,
             )
-            print(response.json())
             if response.status_code == 401:
                 return [response.json()]
             else:
@@ -2626,7 +2625,6 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
-        print("DEBUG " + str(self.loaded_resenv_metadata))
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
                 LOG.info(
@@ -2642,7 +2640,6 @@ class VirtualMachineHandler(Iface):
                     port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
                 )
-                print("Added security group with_: " + str(resenv_metadata.port) + ", " + str(resenv_metadata.direction) + ", " + str(resenv_metadata.protocol))
             elif research_enviroment != "user_key_url":
                 # Todo add mail for this logging as this should not happen
                 LOG.error(
@@ -2732,7 +2729,6 @@ class VirtualMachineHandler(Iface):
                     + "\n"
                     + str(e)
                 )
-        print("DEBUG loaded the following metadata: " +  str(self.loaded_resenv_metadata.keys()))
 
     def load_resenv_metadata(self):
         templates_metada = []
