@@ -42,9 +42,9 @@ class Playbook(object):
         osi_private_key,
         public_key,
         pool,
-        loaded_metadata,
+        loaded_metadata_keys,
     ):
-        self.loaded_metadata = loaded_metadata
+        self.loaded_metadata_keys = loaded_metadata_keys
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
         self.vars_files = []  # _vars_file.yml to read
@@ -140,7 +140,7 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            if playbook_name in self.loaded_metadata.keys():
+            if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v

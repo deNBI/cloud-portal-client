@@ -59,7 +59,6 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
-import ResenvMetadata
 
 import os
 import json
@@ -962,11 +961,11 @@ class VirtualMachineHandler(Iface):
                         name=servername + resenv_metadata.security_group_name,
                         resenv=resenv,
                         description=resenv_metadata.security_group_description,
-                        ssh=resenv.security_group_ssh,
+                        ssh=resenv_metadata.security_group_ssh,
                     ).name
                 )
-            else:
-                LOG.info(
+            elif research_enviroment != "user_key_url":
+                LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
                     + research_enviroment
                 )
@@ -1223,7 +1222,7 @@ class VirtualMachineHandler(Iface):
             osi_private_key=key,
             public_key=public_key,
             pool=self.pool,
-            loaded_metadata=self.loaded_resenv_metadata,
+            loaded_metadata_keys=list(self.loaded_resenv_metadata.keys()),
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1532,7 +1531,6 @@ class VirtualMachineHandler(Iface):
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return_templates.add(template_dict["name"])
         # Todo load Metadata from multiple folders
-        # Todo Check here
         for file in os.listdir(PLAYBOOKS_DIR):
             if "_metadata.yml" in file:
                 with open(PLAYBOOKS_DIR + file) as template_metadata:
@@ -2628,6 +2626,7 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
+        print("DEBUG " + str(self.loaded_resenv_metadata))
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
                 LOG.info(
@@ -2643,10 +2642,11 @@ class VirtualMachineHandler(Iface):
                     port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
                 )
-            else:
+                print("Added security group with_: " + str(resenv_metadata.port) + ", " + str(resenv_metadata.direction) + ", " + str(resenv_metadata.protocol))
+            elif research_enviroment != "user_key_url":
                 # Todo add mail for this logging as this should not happen
-                LOG.info(
-                    "Warning: Could not find metadata for research enviroment: "
+                LOG.error(
+                    "Error: Could not find metadata for research enviroment: "
                     + research_enviroment
                 )
 
@@ -2719,7 +2719,7 @@ class VirtualMachineHandler(Iface):
                     template_metadata[DIRECTION],
                     template_metadata[PROTOCOL],
                 )
-                if metadata not in self.loaded_resenv_metadata.keys():
+                if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                     self.loaded_resenv_metadata[metadata.name] = metadata
                 else:
                     if self.loaded_resenv_metadata[metadata.name] != metadata:
@@ -2732,10 +2732,11 @@ class VirtualMachineHandler(Iface):
                     + "\n"
                     + str(e)
                 )
+        print("DEBUG loaded the following metadata: " +  str(self.loaded_resenv_metadata.keys()))
 
     def load_resenv_metadata(self):
+        templates_metada = []
         for file in os.listdir(PLAYBOOKS_DIR):
-            templates_metada = []
             if "_metadata.yml" in file:
                 with open(PLAYBOOKS_DIR + file) as template_metadata:
                     try:
@@ -2752,3 +2753,23 @@ class VirtualMachineHandler(Iface):
                             "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
         return templates_metada
+
+
+class ResenvMetadata:
+    def __init__(
+        self,
+        name,
+        port,
+        security_group_name,
+        security_group_description,
+        security_group_ssh,
+        direction,
+        protocol,
+    ):
+        self.name = name
+        self.port = port
+        self.security_group_name = security_group_name
+        self.security_group_description = security_group_description
+        self.security_group_ssh = security_group_ssh
+        self.direction = direction
+        self.protocol = protocol
