@@ -18,12 +18,8 @@ try:
     from constants import VERSION
     from ancon.Playbook import (
         Playbook,
-        THEIA,
-        GUACAMOLE,
         ALL_TEMPLATES,
-        RSTUDIO,
         JUPYTERNOTEBOOK,
-        CWLAB,
     )
 
 except Exception:
@@ -40,12 +36,8 @@ except Exception:
     from .constants import VERSION
     from .ancon.Playbook import (
         Playbook,
-        THEIA,
-        GUACAMOLE,
         ALL_TEMPLATES,
-        RSTUDIO,
         JUPYTERNOTEBOOK,
-        CWLAB,
     )
 
 import datetime
@@ -67,6 +59,9 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
+
+import os
+import json
 from requests.exceptions import Timeout
 
 active_playbooks = dict()
@@ -84,6 +79,16 @@ fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 LOG.addHandler(fh)
 LOG.addHandler(ch)
+GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
+PLAYBOOKS_DIR = "/code/VirtualMachineService/ancon/playbooks/"
+
+PORT = "port"
+SECURITYGROUP_NAME = "securitygroup_name"
+SECURITYGROUP_DESCRIPTION = "securitygroup_description"
+SECURITYGROUP_SSH = "securitygroup_ssh"
+DIRECTION = "direction"
+PROTOCOL = "protocol"
+TEMPLATE_NAME = "template_name"
 
 
 class VirtualMachineHandler(Iface):
@@ -102,6 +107,8 @@ class VirtualMachineHandler(Iface):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
     DEFAULT_SECURITY_GROUP = "defaultSimpleVM"
     DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
+    ALL_TEMPLATES = ALL_TEMPLATES
+    loaded_resenv_metadata = {}
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
@@ -148,6 +155,8 @@ class VirtualMachineHandler(Iface):
         # connection to redis. Uses a pool with 10 connections.
         self.pool = redis.ConnectionPool(host="redis", port=6379)
         self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+
+        self.update_playbooks()
 
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
@@ -332,9 +341,9 @@ class VirtualMachineHandler(Iface):
                 metadata = img["metadata"]
                 description = metadata.get("description")
                 tags = img.get("tags")
-                LOG.info(set(ALL_TEMPLATES).intersection(tags))
+                LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
                 if len(
-                    set(ALL_TEMPLATES).intersection(tags)
+                    set(self.ALL_TEMPLATES).intersection(tags)
                 ) > 0 and not self.cross_check_forc_image(tags):
                     LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
                     continue
@@ -368,9 +377,9 @@ class VirtualMachineHandler(Iface):
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
-            LOG.info(set(ALL_TEMPLATES).intersection(tags))
+            LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
             if len(
-                set(ALL_TEMPLATES).intersection(tags)
+                set(self.ALL_TEMPLATES).intersection(tags)
             ) > 0 and not self.cross_check_forc_image(tags):
                 LOG.info("Resenv check: Skipping {0}.".format(img["name"]))
                 return None
@@ -944,42 +953,24 @@ class VirtualMachineHandler(Iface):
                 ).name
             )
 
-        if THEIA in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_theiaide",
-                    resenv=resenv,
-                    description="Theiaide",
-                    ssh=False,
-                ).name
-            )
-        if GUACAMOLE in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_guacamole",
-                    resenv=resenv,
-                    description="Guacamole",
-                    ssh=False,
-                ).name
-            )
-        if RSTUDIO in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_rstudio",
-                    resenv=resenv,
-                    description="Rstudio",
-                    ssh=False,
-                ).name
-            )
-        if CWLAB in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_cwlab",
-                    resenv=resenv,
-                    description="CWLab",
-                    ssh=False,
-                ).name
-            )
+        for research_enviroment in resenv:
+            if research_enviroment in self.loaded_resenv_metadata:
+                resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+                custom_security_groups.append(
+                    self.create_security_group(
+                        name=servername + resenv_metadata.security_group_name,
+                        resenv=resenv,
+                        description=resenv_metadata.security_group_description,
+                        ssh=resenv_metadata.security_group_ssh,
+                    ).name
+                )
+            elif research_enviroment != "user_key_url":
+                LOG.error(
+                    "Failure to load metadata  of reasearch enviroment: "
+                    + research_enviroment
+                )
+
+        # TODO: remove if JUPYTERNOTEBOOK is no longer used, as it appears
         if JUPYTERNOTEBOOK in resenv:
             custom_security_groups.append(
                 self.create_security_group(
@@ -1231,6 +1222,7 @@ class VirtualMachineHandler(Iface):
             osi_private_key=key,
             public_key=public_key,
             pool=self.pool,
+            loaded_metadata_keys=list(self.loaded_resenv_metadata.keys()),
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1262,7 +1254,7 @@ class VirtualMachineHandler(Iface):
                 templates = response.json()
         except Exception as e:
             LOG.error("Could not get templates from FORC.\n {0}".format(e))
-        cross_tags = list(set(ALL_TEMPLATES).intersection(tags))
+        cross_tags = list(set(self.ALL_TEMPLATES).intersection(tags))
         for template_dict in templates:
             if (
                 template_dict["name"] in self.FORC_ALLOWED
@@ -1533,11 +1525,41 @@ class VirtualMachineHandler(Iface):
 
     def cross_check_templates(self, templates):
         return_templates = set()
+        templates_metada = []
         for template_dict in templates:
             if template_dict["name"] in self.FORC_ALLOWED:
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return_templates.add(template_dict["name"])
-        return return_templates
+        # Todo load Metadata from multiple folders
+        for file in os.listdir(PLAYBOOKS_DIR):
+            if "_metadata.yml" in file:
+                with open(PLAYBOOKS_DIR + file) as template_metadata:
+                    try:
+                        loaded_metadata = yaml.load(
+                            template_metadata, Loader=yaml.FullLoader
+                        )
+                        template_name = loaded_metadata[TEMPLATE_NAME]
+                        if loaded_metadata["needs_forc_support"]:
+                            if template_name in return_templates:
+                                templates_metada.append(str(loaded_metadata))
+                                if template_name not in self.ALL_TEMPLATES:
+                                    ALL_TEMPLATES.append(template_name)
+                            else:
+                                LOG.info(
+                                    "Failed to find supporting FORC file for "
+                                    + str(template_name)
+                                )
+                        else:
+                            templates_metada.append(str(loaded_metadata))
+                            if template_name not in self.ALL_TEMPLATES:
+                                ALL_TEMPLATES.append(template_name)
+
+                    except Exception as e:
+                        LOG.exception(
+                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
+                        )
+        LOG.info("Plays DEBUG: Values of metadata: " + str(templates_metada))
+        return templates_metada
 
     def get_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
@@ -1555,6 +1577,7 @@ class VirtualMachineHandler(Iface):
         except Timeout as e:
             LOG.info(msg="get_templates timed out. {0}".format(e))
 
+    # Todo test this method
     def get_allowed_templates(self):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
         try:
@@ -2602,47 +2625,29 @@ class VirtualMachineHandler(Iface):
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
             )
+        for research_enviroment in resenv:
+            if research_enviroment in self.loaded_resenv_metadata:
+                LOG.info(
+                    "Add "
+                    + research_enviroment
+                    + " rule to security group {}".format(name)
+                )
+                resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+                self.conn.network.create_security_group_rule(
+                    direction=resenv_metadata.direction,
+                    protocol=resenv_metadata.protocol,
+                    port_range_max=resenv_metadata.port,
+                    port_range_min=resenv_metadata.port,
+                    security_group_id=new_security_group["id"],
+                )
+            elif research_enviroment != "user_key_url":
+                # Todo add mail for this logging as this should not happen
+                LOG.error(
+                    "Error: Could not find metadata for research enviroment: "
+                    + research_enviroment
+                )
 
-        if THEIA in resenv:
-            LOG.info("Add theia rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
-                security_group_id=new_security_group["id"],
-            )
-        if GUACAMOLE in resenv:
-            LOG.info("Add guacamole rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
-                security_group_id=new_security_group["id"],
-            )
-        if RSTUDIO in resenv:
-            LOG.info("Add rstudio rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8787,
-                port_range_min=8787,
-                security_group_id=new_security_group["id"],
-            )
-        if CWLAB in resenv:
-            LOG.info("Add cwlab rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=80,
-                port_range_min=80,
-                security_group_id=new_security_group["id"],
-            )
+        # Todo: remove Jupyter reference, if not needed
         if JUPYTERNOTEBOOK in resenv:
             LOG.info("Add jupyternotebook rule to security group {}".format(name))
 
@@ -2684,3 +2689,83 @@ class VirtualMachineHandler(Iface):
             "totalRamUsed": totalRamUsed,
             "totalInstancesUsed": totalInstancesUsed,
         }
+
+    def update_playbooks(self):
+        LOG.info("STARTED update")
+        r = req.get(GITHUB_PLAYBOOKS_REPO)
+        contents = json.loads(r.content)
+        # Todo maybe clone entire direcotry
+        for f in contents:
+            if f["name"] != "LICENSE":
+                LOG.info("started download of" + f["name"])
+                download_link = f["download_url"]
+                file_request = req.get(download_link)
+                filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
+                playbook_file = open(filename, "w")
+                playbook_file.write(file_request.content.decode("utf-8"))
+                playbook_file.close()
+        templates_metadata = self.load_resenv_metadata()
+        for template_metadata in templates_metadata:
+            try:
+                metadata = ResenvMetadata(
+                    template_metadata[TEMPLATE_NAME],
+                    template_metadata[PORT],
+                    template_metadata[SECURITYGROUP_NAME],
+                    template_metadata[SECURITYGROUP_DESCRIPTION],
+                    template_metadata[SECURITYGROUP_SSH],
+                    template_metadata[DIRECTION],
+                    template_metadata[PROTOCOL],
+                )
+                if metadata.name not in list(self.loaded_resenv_metadata.keys()):
+                    self.loaded_resenv_metadata[metadata.name] = metadata
+                else:
+                    if self.loaded_resenv_metadata[metadata.name] != metadata:
+                        self.loaded_resenv_metadata[metadata.name] = metadata
+
+            except Exception as e:
+                LOG.exception(
+                    "Failed to parse Metadata yml: "
+                    + str(template_metadata)
+                    + "\n"
+                    + str(e)
+                )
+
+    def load_resenv_metadata(self):
+        templates_metada = []
+        for file in os.listdir(PLAYBOOKS_DIR):
+            if "_metadata.yml" in file:
+                with open(PLAYBOOKS_DIR + file) as template_metadata:
+                    try:
+                        loaded_metadata = yaml.load(
+                            template_metadata, Loader=yaml.FullLoader
+                        )
+                        template_name = loaded_metadata[TEMPLATE_NAME]
+
+                        templates_metada.append(loaded_metadata)
+                        if template_name not in self.ALL_TEMPLATES:
+                            ALL_TEMPLATES.append(template_name)
+                    except Exception as e:
+                        LOG.exception(
+                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
+                        )
+        return templates_metada
+
+
+class ResenvMetadata:
+    def __init__(
+        self,
+        name,
+        port,
+        security_group_name,
+        security_group_description,
+        security_group_ssh,
+        direction,
+        protocol,
+    ):
+        self.name = name
+        self.port = port
+        self.security_group_name = security_group_name
+        self.security_group_description = security_group_description
+        self.security_group_ssh = security_group_ssh
+        self.direction = direction
+        self.protocol = protocol

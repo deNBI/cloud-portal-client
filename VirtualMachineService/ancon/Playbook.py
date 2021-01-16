@@ -8,15 +8,11 @@ import redis
 import ruamel.yaml
 
 BIOCONDA = "bioconda"
-THEIA = "theiaide"
-RSTUDIO = "rstudio"
-GUACAMOLE = "guacamole"
 JUPYTERNOTEBOOK = "jupyternotebook"
-CWLAB = "cwlab"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-ALL_TEMPLATES = [BIOCONDA, THEIA, RSTUDIO, GUACAMOLE, JUPYTERNOTEBOOK, CWLAB]
+ALL_TEMPLATES = [BIOCONDA, JUPYTERNOTEBOOK]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -39,8 +35,16 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self, ip, port, playbooks_information, osi_private_key, public_key, pool
+        self,
+        ip,
+        port,
+        playbooks_information,
+        osi_private_key,
+        public_key,
+        pool,
+        loaded_metadata_keys,
     ):
+        self.loaded_metadata_keys = loaded_metadata_keys
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
         self.vars_files = []  # _vars_file.yml to read
@@ -136,35 +140,12 @@ class Playbook(object):
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
                         data[playbook_name + "_tools"][k] = p_dict
-            if (
-                playbook_name == THEIA
-                or playbook_name == RSTUDIO
-                or playbook_name == GUACAMOLE
-                or playbook_name == CWLAB
-            ):
+            if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
                         data[playbook_name + "_vars"][k] = v
-            # if playbook_name == RSTUDIO:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
-            # if playbook_name == GUACAMOLE:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
-            # if playbook_name == CWLAB:
-            #     for k, v in playbook_vars.items():
-            #         if k == "template_version":
-            #             data[playbook_name + "_vars"][k] = v
-            #         if k == "create_only_backend":
-            #             data[playbook_name + "_vars"][k] = v
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
                     if k == MOSH:
