@@ -1,3 +1,9 @@
 theiaide_vars:
   template_version:
   create_only_backend:
+  NVM_INSTALL_DIR: /opt/nvm/
+  IDEA_WORKSPACE: /home/ubuntu/theia/
+  THEIA_INSTALL_DIR: /opt/theia/
+  THEIA_USER: ubuntu
+  THEIA_BIND_ADDRESS: 0.0.0.0
+  THEIA_BIND_PORT: 8080
