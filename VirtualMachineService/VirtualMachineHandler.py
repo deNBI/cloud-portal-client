@@ -89,6 +89,7 @@ SECURITYGROUP_SSH = "securitygroup_ssh"
 DIRECTION = "direction"
 PROTOCOL = "protocol"
 TEMPLATE_NAME = "template_name"
+INFORMATION_FOR_DISPLAY = "information_for_display"
 
 
 class VirtualMachineHandler(Iface):
@@ -2715,6 +2716,7 @@ class VirtualMachineHandler(Iface):
                     template_metadata[SECURITYGROUP_SSH],
                     template_metadata[DIRECTION],
                     template_metadata[PROTOCOL],
+                    template_metadata[INFORMATION_FOR_DISPLAY],
                 )
                 if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                     self.loaded_resenv_metadata[metadata.name] = metadata
@@ -2761,6 +2763,7 @@ class ResenvMetadata:
         security_group_ssh,
         direction,
         protocol,
+        information_for_display,
     ):
         self.name = name
         self.port = port
@@ -2769,3 +2772,4 @@ class ResenvMetadata:
         self.security_group_ssh = security_group_ssh
         self.direction = direction
         self.protocol = protocol
+        self.information_for_display = information_for_display
