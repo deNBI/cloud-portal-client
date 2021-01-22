@@ -30,6 +30,7 @@ LOG.addHandler(fh)
 LOG.addHandler(ch)
 CLOUD_SITE = ""
 
+
 class Playbook(object):
 
     ACTIVE = "ACTIVE"
