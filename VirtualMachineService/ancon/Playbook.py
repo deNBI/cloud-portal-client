@@ -3,6 +3,7 @@ import shlex
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+import os
 
 import redis
 import ruamel.yaml
@@ -27,7 +28,7 @@ fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 LOG.addHandler(fh)
 LOG.addHandler(ch)
-
+CLOUD_SITE = ""
 
 class Playbook(object):
 
@@ -43,8 +44,10 @@ class Playbook(object):
         public_key,
         pool,
         loaded_metadata_keys,
+        cloud_site,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
+        self.cloud_site = cloud_site
         self.redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
         self.vars_files = []  # _vars_file.yml to read
@@ -151,7 +154,12 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
-        playbook_yml = "/{0}.yml".format(playbook_name)
+        site_specific_yml = "/{0}{1}.yml".format(playbook_name, "-" + self.cloud_site)
+        playbook_yml = ""
+        if os.path.isfile(self.playbooks_dir + site_specific_yml):
+            playbook_yml = site_specific_yml
+        else:
+            playbook_yml = "/{0}.yml".format(playbook_name)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)
         try:
             shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
