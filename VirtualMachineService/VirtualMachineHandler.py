@@ -741,7 +741,7 @@ class VirtualMachineHandler(Iface):
         key_script = os.path.join(fileDir, "scripts/bash/add_keys_to_authorized.sh")
         bash_keys_array = "("
         for key in keys:
-            bash_keys_array += f'\"{key}\" '
+            bash_keys_array += f'"{key}" '
         bash_keys_array += ")"
 
         with open(key_script, "r") as file:
@@ -752,7 +752,7 @@ class VirtualMachineHandler(Iface):
         return key_script
 
     def create_mount_init_script(
-            self, volume_ids_path_new=None, volume_ids_path_attach=None
+        self, volume_ids_path_new=None, volume_ids_path_attach=None
     ):
         LOG.info("create init script for volume ids:{}".format(volume_ids_path_new))
         if not volume_ids_path_new and not volume_ids_path_attach:
@@ -1010,7 +1010,7 @@ class VirtualMachineHandler(Iface):
         resenv,
         volume_ids_path_new=None,
         volume_ids_path_attach=None,
-            additional_keys=None
+        additional_keys=None,
     ):
         """
         Start a new Server.
@@ -1058,8 +1058,11 @@ class VirtualMachineHandler(Iface):
             if additional_keys:
                 if init_script:
                     add_key_script = self.create_add_keys_script(keys=additional_keys)
-                    init_script = add_key_script + encodeutils.safe_encode(
-                        "\n".encode("utf-8")) + init_script
+                    init_script = (
+                        add_key_script
+                        + encodeutils.safe_encode("\n".encode("utf-8"))
+                        + init_script
+                    )
 
                 else:
                     init_script = self.create_add_keys_script(keys=additional_keys)
