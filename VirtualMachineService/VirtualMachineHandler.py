@@ -41,6 +41,7 @@ except Exception:
     )
 
 import datetime
+import json
 import logging
 import os
 import parser
@@ -59,9 +60,6 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
-
-import os
-import json
 from requests.exceptions import Timeout
 
 active_playbooks = dict()
@@ -737,8 +735,24 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
+    def create_add_keys_script(self, keys):
+        LOG.info(f"create add key script")
+        fileDir = os.path.dirname(os.path.abspath(__file__))
+        key_script = os.path.join(fileDir, "scripts/bash/add_keys_to_authorized.sh")
+        bash_keys_array = "("
+        for key in keys:
+            bash_keys_array += f'\"{key}\" '
+        bash_keys_array += ")"
+
+        with open(key_script, "r") as file:
+            text = file.read()
+            text = text.replace("KEYS_TO_ADD", bash_keys_array)
+            text = encodeutils.safe_encode(text.encode("utf-8"))
+        key_script = text
+        return key_script
+
     def create_mount_init_script(
-        self, volume_ids_path_new=None, volume_ids_path_attach=None
+            self, volume_ids_path_new=None, volume_ids_path_attach=None
     ):
         LOG.info("create init script for volume ids:{}".format(volume_ids_path_new))
         if not volume_ids_path_new and not volume_ids_path_attach:
@@ -996,6 +1010,7 @@ class VirtualMachineHandler(Iface):
         resenv,
         volume_ids_path_new=None,
         volume_ids_path_attach=None,
+            additional_keys=None
     ):
         """
         Start a new Server.
@@ -1040,6 +1055,16 @@ class VirtualMachineHandler(Iface):
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
             )
+            if additional_keys:
+                if init_script:
+                    add_key_script = self.create_add_keys_script(keys=additional_keys)
+                    init_script = add_key_script + encodeutils.safe_encode(
+                        "\n".encode("utf-8")) + init_script
+
+                else:
+                    init_script = self.create_add_keys_script(keys=additional_keys)
+
+            LOG.info(init_script)
 
             server = self.conn.create_server(
                 name=servername,
