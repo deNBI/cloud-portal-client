@@ -1,0 +1,14 @@
+[Unit]
+Description=Theia-IDE service for user {{ theiaide_vars.THEIA_USER }}
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User={{ theiaide_vars.THEIA_USER }}
+ExecStart={{ theiaide_vars.THEIA_INSTALL_DIR }}/theia-ide.sh {{ theiaide_vars.IDEA_WORKSPACE }} {{ theiaide_vars.THEIA_BIND_ADDRESS }} {{ theiaide_vars.THEIA_BIND_PORT }}
+
+[Install]
+WantedBy=multi-user.target
