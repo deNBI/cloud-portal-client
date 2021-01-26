@@ -3,7 +3,6 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
-
 try:
     from VirtualMachineService import Iface
     from ttypes import serverNotFoundException
@@ -40,7 +39,7 @@ except Exception:
 
 import datetime
 import logging
-import os
+from distutils.version import LooseVersion
 import parser
 import socket
 import time
@@ -1499,13 +1498,7 @@ class VirtualMachineHandler(Iface):
             return False
 
     def get_template_version_for(self, template):
-        all_templates = self.get_templates()
-        for template_version in self.FORC_ALLOWED[template]:
-            for template_dict in all_templates:
-                if template_dict["name"] == template:
-                    if template_version == template_dict["version"]:
-                        return template_version
-        return None
+        return self.FORC_ALLOWED[template][0]
 
     def get_templates(self):
         return []
@@ -2708,6 +2701,8 @@ class VirtualMachineHandler(Iface):
                         allowed_versions.append(forc_version)
                 except Timeout as e:
                     LOG.info(msg="checking template/version timed out. {0}".format(e))
+            allowed_versions.sort(key=LooseVersion)
+            allowed_versions.reverse()
             self.FORC_ALLOWED[name] = allowed_versions
 
 
