@@ -1,0 +1,10 @@
+#!/bin/bash
+sudo touch /home/ubuntu/test.txt
+declare -a keys_to_add=KEYS_TO_ADD
+echo "Found keys: ${#keys_to_add[*]}"
+for ix in ${!keys_to_add[*]}
+do
+    printf "\n%s\n" "${keys_to_add[$ix]}" >> /home/ubuntu/.ssh/authorized_keys
+    printf "\n%s\n" "${keys_to_add[$ix]}" >> /home/ubuntu/test.txt
+
+done
