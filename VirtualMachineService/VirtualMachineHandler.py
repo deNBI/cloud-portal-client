@@ -175,6 +175,7 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
+            self.CLOUD_SITE = cfg["cloud_site"]
             # try to initialize forc connection
             try:
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
@@ -1252,6 +1253,7 @@ class VirtualMachineHandler(Iface):
             public_key=public_key,
             pool=self.pool,
             loaded_metadata_keys=list(self.loaded_resenv_metadata.keys()),
+            cloud_site=self.CLOUD_SITE,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -2726,7 +2728,7 @@ class VirtualMachineHandler(Iface):
         # Todo maybe clone entire direcotry
         for f in contents:
             if f["name"] != "LICENSE":
-                LOG.info("started download of" + f["name"])
+                LOG.info("started download of " + f["name"])
                 download_link = f["download_url"]
                 file_request = req.get(download_link)
                 filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
