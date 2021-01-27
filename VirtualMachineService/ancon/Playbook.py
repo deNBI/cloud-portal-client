@@ -9,11 +9,10 @@ import redis
 import ruamel.yaml
 
 BIOCONDA = "bioconda"
-JUPYTERNOTEBOOK = "jupyternotebook"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-ALL_TEMPLATES = [BIOCONDA, JUPYTERNOTEBOOK]
+ALL_TEMPLATES = [BIOCONDA]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
