@@ -382,7 +382,8 @@ service VirtualMachineService {
     7:bool http,
     8:list<string> resenv,
      9:list<map<string,string>> volume_ids_path_new,
-     10:list<map<string,string>> volume_ids_path_attach
+     10:list<map<string,string>> volume_ids_path_attach,
+     11:list <string> additional_keys
 )
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
