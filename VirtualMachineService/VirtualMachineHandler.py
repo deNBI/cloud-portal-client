@@ -3,7 +3,6 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
-
 try:
     from VirtualMachineService import Iface
     from ttypes import serverNotFoundException
@@ -19,7 +18,6 @@ try:
     from ancon.Playbook import (
         Playbook,
         ALL_TEMPLATES,
-        JUPYTERNOTEBOOK,
     )
 
 except Exception:
@@ -37,18 +35,19 @@ except Exception:
     from .ancon.Playbook import (
         Playbook,
         ALL_TEMPLATES,
-        JUPYTERNOTEBOOK,
     )
 
 import datetime
+import json
 import logging
-import os
+from distutils.version import LooseVersion
 import parser
 import socket
 import time
 import urllib
 from contextlib import closing
 
+import os
 import redis
 import requests as req
 import yaml
@@ -59,9 +58,6 @@ from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
-
-import os
-import json
 from requests.exceptions import Timeout
 
 active_playbooks = dict()
@@ -90,6 +86,7 @@ DIRECTION = "direction"
 PROTOCOL = "protocol"
 TEMPLATE_NAME = "template_name"
 INFORMATION_FOR_DISPLAY = "information_for_display"
+FORC_VERSIONS = "forc_versions"
 
 
 class VirtualMachineHandler(Iface):
@@ -157,8 +154,6 @@ class VirtualMachineHandler(Iface):
         self.pool = redis.ConnectionPool(host="redis", port=6379)
         self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
 
-        self.update_playbooks()
-
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
         self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
@@ -177,6 +172,7 @@ class VirtualMachineHandler(Iface):
             ]
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
+            self.CLOUD_SITE = cfg["cloud_site"]
             # try to initialize forc connection
             try:
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
@@ -197,13 +193,8 @@ class VirtualMachineHandler(Iface):
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ["FORC_API_KEY"]
-                self.FORC_ALLOWED = cfg["forc"]["forc_allowed"]
+                self.FORC_ALLOWED = {}
                 LOG.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
-                LOG.info(
-                    "Client allows following research environments and respective versions: {0}".format(
-                        self.FORC_ALLOWED
-                    )
-                )
             except Exception as e:
                 LOG.exception(e)
                 LOG.info("Forc-Backend not loaded.")
@@ -221,7 +212,7 @@ class VirtualMachineHandler(Iface):
                 self.SSH_PORT_CALCULATION = parser.expr(self.SSH_FORMULAR).compile()
                 self.UDP_PORT_CALCULATION = parser.expr(self.UDP_FORMULAR).compile()
                 LOG.info("Gateway IP is {}".format(self.GATEWAY_IP))
-
+        self.update_playbooks()
         self.conn = self.create_connection()
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
@@ -737,6 +728,22 @@ class VirtualMachineHandler(Iface):
             )
         return network
 
+    def create_add_keys_script(self, keys):
+        LOG.info(f"create add key script")
+        fileDir = os.path.dirname(os.path.abspath(__file__))
+        key_script = os.path.join(fileDir, "scripts/bash/add_keys_to_authorized.sh")
+        bash_keys_array = "("
+        for key in keys:
+            bash_keys_array += f'"{key}" '
+        bash_keys_array += ")"
+
+        with open(key_script, "r") as file:
+            text = file.read()
+            text = text.replace("KEYS_TO_ADD", bash_keys_array)
+            text = encodeutils.safe_encode(text.encode("utf-8"))
+        key_script = text
+        return key_script
+
     def create_mount_init_script(
         self, volume_ids_path_new=None, volume_ids_path_attach=None
     ):
@@ -971,17 +978,6 @@ class VirtualMachineHandler(Iface):
                     + research_enviroment
                 )
 
-        # TODO: remove if JUPYTERNOTEBOOK is no longer used, as it appears
-        if JUPYTERNOTEBOOK in resenv:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_jupyternotebook",
-                    resenv=resenv,
-                    description="Jupyter Notebook",
-                    ssh=False,
-                ).name
-            )
-
         return custom_security_groups
 
     def start_server_without_playbook(
@@ -996,6 +992,7 @@ class VirtualMachineHandler(Iface):
         resenv,
         volume_ids_path_new=None,
         volume_ids_path_attach=None,
+        additional_keys=None,
     ):
         """
         Start a new Server.
@@ -1040,6 +1037,19 @@ class VirtualMachineHandler(Iface):
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
             )
+            if additional_keys:
+                if init_script:
+                    add_key_script = self.create_add_keys_script(keys=additional_keys)
+                    init_script = (
+                        add_key_script
+                        + encodeutils.safe_encode("\n".encode("utf-8"))
+                        + init_script
+                    )
+
+                else:
+                    init_script = self.create_add_keys_script(keys=additional_keys)
+
+            LOG.info(init_script)
 
             server = self.conn.create_server(
                 name=servername,
@@ -1224,6 +1234,7 @@ class VirtualMachineHandler(Iface):
             public_key=public_key,
             pool=self.pool,
             loaded_metadata_keys=list(self.loaded_resenv_metadata.keys()),
+            cloud_site=self.CLOUD_SITE,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1247,7 +1258,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code != 200:
                 return ()
@@ -1292,7 +1303,7 @@ class VirtualMachineHandler(Iface):
                 json=backend_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             try:
                 data = response.json()
@@ -1321,7 +1332,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1348,7 +1359,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1375,7 +1386,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1402,7 +1413,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             try:
                 data = response.json()
@@ -1426,7 +1437,7 @@ class VirtualMachineHandler(Iface):
                 delete_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code != 200:
                 return str(response.json())
@@ -1455,7 +1466,7 @@ class VirtualMachineHandler(Iface):
                 json=user_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             try:
                 data = response.json()
@@ -1477,7 +1488,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return ["Error: 401"]
@@ -1499,7 +1510,7 @@ class VirtualMachineHandler(Iface):
                 json=user_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             return response.json()
         except Timeout as e:
@@ -1516,21 +1527,14 @@ class VirtualMachineHandler(Iface):
             return False
 
     def get_template_version_for(self, template):
-        all_templates = self.get_templates()
-        for template_version in self.FORC_ALLOWED[template]:
-            for template_dict in all_templates:
-                if template_dict["name"] == template:
-                    if template_version == template_dict["version"]:
-                        return template_version
-        return None
+        return self.FORC_ALLOWED[template][0]
 
-    def cross_check_templates(self, templates):
-        return_templates = set()
+    def get_templates(self):
+        return []
+
+    # Todo test this method
+    def get_allowed_templates(self):
         templates_metada = []
-        for template_dict in templates:
-            if template_dict["name"] in self.FORC_ALLOWED:
-                if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
-                    return_templates.add(template_dict["name"])
         # Todo load Metadata from multiple folders
         for file in os.listdir(PLAYBOOKS_DIR):
             if "_metadata.yml" in file:
@@ -1541,8 +1545,8 @@ class VirtualMachineHandler(Iface):
                         )
                         template_name = loaded_metadata[TEMPLATE_NAME]
                         if loaded_metadata["needs_forc_support"]:
-                            if template_name in return_templates:
-                                templates_metada.append(str(loaded_metadata))
+                            if template_name in list(self.FORC_ALLOWED.keys()):
+                                templates_metada.append(json.dumps(loaded_metadata))
                                 if template_name not in self.ALL_TEMPLATES:
                                     ALL_TEMPLATES.append(template_name)
                             else:
@@ -1551,7 +1555,7 @@ class VirtualMachineHandler(Iface):
                                     + str(template_name)
                                 )
                         else:
-                            templates_metada.append(str(loaded_metadata))
+                            templates_metada.append(json.dumps(loaded_metadata))
                             if template_name not in self.ALL_TEMPLATES:
                                 ALL_TEMPLATES.append(template_name)
 
@@ -1559,42 +1563,7 @@ class VirtualMachineHandler(Iface):
                         LOG.exception(
                             "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
-        LOG.info("Plays DEBUG: Values of metadata: " + str(templates_metada))
         return templates_metada
-
-    def get_templates(self):
-        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
-        try:
-            response = req.get(
-                get_url,
-                timeout=(30, 30),
-                headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
-            )
-            if response.status_code == 401:
-                return [response.json()]
-            else:
-                return response.json()
-        except Timeout as e:
-            LOG.info(msg="get_templates timed out. {0}".format(e))
-
-    # Todo test this method
-    def get_allowed_templates(self):
-        get_url = "{0}templates/".format(self.RE_BACKEND_URL)
-        try:
-            response = req.get(
-                get_url,
-                timeout=(30, 30),
-                headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
-            )
-            if response.status_code == 401:
-                return [response.json()]
-            elif response.status_code == 200:
-                templates = self.cross_check_templates(response.json())
-                return templates
-        except Timeout as e:
-            LOG.info(msg="create_backend timed out. {0}".format(e))
 
     def get_templates_by_template(self, template_name):
         get_url = "{0}/templates/{1}".format(self.RE_BACKEND_URL, template_name)
@@ -1603,7 +1572,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1621,7 +1590,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=self.PRODUCTION,
+                verify=True,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -2648,17 +2617,6 @@ class VirtualMachineHandler(Iface):
                     + research_enviroment
                 )
 
-        # Todo: remove Jupyter reference, if not needed
-        if JUPYTERNOTEBOOK in resenv:
-            LOG.info("Add jupyternotebook rule to security group {}".format(name))
-
-            self.conn.network.create_security_group_rule(
-                direction="ingress",
-                protocol="tcp",
-                port_range_max=8080,
-                port_range_min=8080,
-                security_group_id=new_security_group["id"],
-            )
         return new_security_group
 
     def get_limits(self):
@@ -2698,7 +2656,7 @@ class VirtualMachineHandler(Iface):
         # Todo maybe clone entire direcotry
         for f in contents:
             if f["name"] != "LICENSE":
-                LOG.info("started download of" + f["name"])
+                LOG.info("started download of " + f["name"])
                 download_link = f["download_url"]
                 file_request = req.get(download_link)
                 filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
@@ -2718,6 +2676,7 @@ class VirtualMachineHandler(Iface):
                     template_metadata[PROTOCOL],
                     template_metadata[INFORMATION_FOR_DISPLAY],
                 )
+                self.update_forc_allowed(template_metadata)
                 if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                     self.loaded_resenv_metadata[metadata.name] = metadata
                 else:
@@ -2751,6 +2710,29 @@ class VirtualMachineHandler(Iface):
                             "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
         return templates_metada
+
+    def update_forc_allowed(self, template_metadata):
+        if template_metadata["needs_forc_support"]:
+            name = template_metadata[TEMPLATE_NAME]
+            allowed_versions = []
+            for forc_version in template_metadata[FORC_VERSIONS]:
+                get_url = "{0}/templates/{1}/{2}".format(
+                    self.RE_BACKEND_URL, name, forc_version
+                )
+                try:
+                    response = req.get(
+                        get_url,
+                        timeout=(30, 30),
+                        headers={"X-API-KEY": self.FORC_API_KEY},
+                        verify=True,
+                    )
+                    if response.status_code == 200:
+                        allowed_versions.append(forc_version)
+                except Timeout as e:
+                    LOG.info(msg="checking template/version timed out. {0}".format(e))
+            allowed_versions.sort(key=LooseVersion)
+            allowed_versions.reverse()
+            self.FORC_ALLOWED[name] = allowed_versions
 
 
 class ResenvMetadata:
