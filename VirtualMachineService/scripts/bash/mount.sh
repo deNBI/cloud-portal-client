@@ -1,5 +1,4 @@
 #!/bin/bash
-sudo touch test
 declare -a volumes_new=VOLUME_IDS_NEW
 declare -a paths_new=VOLUME_PATHS_NEW
 declare -a volumes_attach=VOLUME_IDS_ATTACH
