@@ -47,6 +47,7 @@ import time
 import urllib
 from contextlib import closing
 
+import os
 import redis
 import requests as req
 import yaml
