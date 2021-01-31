@@ -40,16 +40,5 @@ bibigrid:
 
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
-  forc_allowed:
-    cwlab:
-      - v01
-    theiaide:
-      - v02
-      - v01
-    guacamole:
-      - v02
-      - v01
-    rstudio:
-      - v03
-      - v02
-      - v01
+
+cloud_site: bielefeld
