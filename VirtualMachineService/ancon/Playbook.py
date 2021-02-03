@@ -193,7 +193,14 @@ class Playbook(object):
                 import_tasks=playbook_name_local + ".yml",
             )
         )
-        LOG.info("Added playbook: " + playbook_name_local + ".yml" + ", vars file: " + playbook_name + "_vars_file.yml" )
+        LOG.info(
+            "Added playbook: "
+            + playbook_name_local
+            + ".yml"
+            + ", vars file: "
+            + playbook_name
+            + "_vars_file.yml"
+        )
 
     def add_tasks_only(self, playbook_name):
         self.tasks.append(
