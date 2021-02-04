@@ -155,11 +155,10 @@ class Playbook(object):
                         data[playbook_name + "_defined"][k] = v
 
         site_specific_yml = "/{0}{1}.yml".format(playbook_name, "-" + self.cloud_site)
-        playbook_yml = ""
+        playbook_name_local = playbook_name
         if os.path.isfile(self.playbooks_dir + site_specific_yml):
-            playbook_yml = site_specific_yml
-        else:
-            playbook_yml = "/{0}.yml".format(playbook_name)
+            playbook_name_local = playbook_name + "-" + self.cloud_site
+        playbook_yml = "/{0}.yml".format(playbook_name_local)
         playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)
         try:
             shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
@@ -174,25 +173,33 @@ class Playbook(object):
                     self.directory.name + playbook_var_yml, mode="w"
                 ) as variables:
                     self.yaml_exec.dump(data, variables)
-                self.add_to_playbook_lists(playbook_name)
+                self.add_to_playbook_lists(playbook_name_local, playbook_name)
             except shutil.Error as e:
                 LOG.exception(e)
-                self.add_tasks_only(playbook_name)
+                self.add_tasks_only(playbook_name_local)
             except IOError as e:
                 LOG.exception(e)
-                self.add_tasks_only(playbook_name)
+                self.add_tasks_only(playbook_name_local)
         except shutil.Error as e:
             LOG.exception(e)
         except IOError as e:
             LOG.exception(e)
 
-    def add_to_playbook_lists(self, playbook_name):
+    def add_to_playbook_lists(self, playbook_name_local, playbook_name):
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
-                import_tasks=playbook_name + ".yml",
+                name="Running {0} tasks".format(playbook_name_local),
+                import_tasks=playbook_name_local + ".yml",
             )
+        )
+        LOG.info(
+            "Added playbook: "
+            + playbook_name_local
+            + ".yml"
+            + ", vars file: "
+            + playbook_name
+            + "_vars_file.yml"
         )
 
     def add_tasks_only(self, playbook_name):
