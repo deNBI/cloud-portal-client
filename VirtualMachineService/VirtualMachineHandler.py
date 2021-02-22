@@ -40,14 +40,14 @@ except Exception:
 import datetime
 import json
 import logging
-from distutils.version import LooseVersion
+import os
 import parser
 import socket
 import time
 import urllib
 from contextlib import closing
+from distutils.version import LooseVersion
 
-import os
 import redis
 import requests as req
 import yaml
@@ -1440,7 +1440,10 @@ class VirtualMachineHandler(Iface):
                 verify=True,
             )
             if response.status_code != 200:
-                return str(response.json())
+                try:
+                    return str(response.json())
+                except json.JSONDecodeError:
+                    return response.content
             elif response.status_code == 200:
                 return str(True)
         except Timeout as e:
