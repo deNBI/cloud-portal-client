@@ -933,6 +933,8 @@ class VirtualMachineHandler(Iface):
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
             openstack_id = server["id"]
+            self.delete_keypair(key_name)
+
 
             return {"openstack_id": openstack_id}
 
@@ -1065,6 +1067,7 @@ class VirtualMachineHandler(Iface):
             )
 
             openstack_id = server["id"]
+            self.delete_keypair(key_name)
 
             return {"openstack_id": openstack_id}
         except Exception as e:
@@ -1126,6 +1129,8 @@ class VirtualMachineHandler(Iface):
             )
 
             openstack_id = server["id"]
+            self.delete_keypair(key_name)
+
 
             return {"openstack_id": openstack_id}
         except Exception as e:
