@@ -937,7 +937,6 @@ class VirtualMachineHandler(Iface):
             openstack_id = server["id"]
             self.delete_keypair(key_name)
 
-
             return {"openstack_id": openstack_id}
 
         except Exception as e:
