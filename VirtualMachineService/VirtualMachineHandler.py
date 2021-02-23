@@ -1053,7 +1053,6 @@ class VirtualMachineHandler(Iface):
                 else:
                     init_script = self.create_add_keys_script(keys=additional_keys)
 
-
             server = self.conn.create_server(
                 name=servername,
                 image=image.id,
