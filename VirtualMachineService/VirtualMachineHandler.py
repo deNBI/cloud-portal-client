@@ -3,6 +3,8 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+from uuid import uuid4
+
 try:
     from VirtualMachineService import Iface
     from ttypes import serverNotFoundException
@@ -909,7 +911,7 @@ class VirtualMachineHandler(Iface):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
         network = self.get_network()
-        key_name = metadata.get("elixir_id")[:-18]
+        key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"
         public_key = urllib.parse.unquote(public_key)
         key_pair = self.import_keypair(key_name, public_key)
         init_script = self.create_mount_init_script(
@@ -939,6 +941,7 @@ class VirtualMachineHandler(Iface):
             return {"openstack_id": openstack_id}
 
         except Exception as e:
+            self.delete_keypair(key_name)
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
             LOG.exception("Start Server {1} error:{0}".format(e, servername))
@@ -1015,12 +1018,13 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
-
+        key_name = None
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            key_name = metadata.get("elixir_id")[:-18]
+            key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"
+
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
             volume_ids = []
@@ -1034,7 +1038,6 @@ class VirtualMachineHandler(Iface):
                 )
             for id in volume_ids:
                 volumes.append(self.conn.get_volume_by_id(id=id))
-            LOG.info(volumes)
             init_script = self.create_mount_init_script(
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
@@ -1051,7 +1054,6 @@ class VirtualMachineHandler(Iface):
                 else:
                     init_script = self.create_add_keys_script(keys=additional_keys)
 
-            LOG.info(init_script)
 
             server = self.conn.create_server(
                 name=servername,
@@ -1071,6 +1073,9 @@ class VirtualMachineHandler(Iface):
 
             return {"openstack_id": openstack_id}
         except Exception as e:
+            if key_name:
+                self.delete_keypair(key_name)
+
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
             LOG.exception("Start Server {1} error:{0}".format(e, servername))
@@ -1108,12 +1113,12 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.prepare_security_groups_new_server(
             resenv=resenv, servername=servername, http=http, https=https
         )
-
+        key_name = None
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
             network = self.get_network()
-            key_name = metadata.get("elixir_id")[:-18]
+            key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"
             public_key = urllib.parse.unquote(public_key)
             key_pair = self.import_keypair(key_name, public_key)
 
@@ -1131,9 +1136,10 @@ class VirtualMachineHandler(Iface):
             openstack_id = server["id"]
             self.delete_keypair(key_name)
 
-
             return {"openstack_id": openstack_id}
         except Exception as e:
+            if key_name:
+                self.delete_keypair(key_name)
             for security_group in custom_security_groups:
                 self.conn.network.delete_security_group(security_group)
             LOG.exception("Start Server {1} error:{0}".format(e, servername))
@@ -1609,10 +1615,13 @@ class VirtualMachineHandler(Iface):
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
+        LOG.info(f"Get Playbook logs {openstack_id}")
         if self.redis.exists(openstack_id) == 1 and openstack_id in active_playbooks:
             key_name = self.redis.hget(openstack_id, "name").decode("utf-8")
             playbook = active_playbooks.pop(openstack_id)
             status, stdout, stderr = playbook.get_logs()
+            LOG.info(f" Playbook logs{openstack_id} stattus: {status}")
+
             playbook.cleanup(openstack_id)
             self.delete_keypair(key_name=key_name)
             return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
