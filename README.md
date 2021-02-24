@@ -23,11 +23,12 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).  
+You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml). Please copy this file and
+rename it to local_config.yml and fill in missing parameters.
 Also you need to provide the path to your config file as the first param when starting a server.
 
-Furthermore there are some parameters you can set in the [.env.in](.env.in) file, which are read only when starting with docker.  
-Important: You need to rename .env.in to .env in order for it to be read by docker.  
+Furthermore there are some parameters you can set in the [.env.in](.env.in) and in the [.env_local.in](config/.env_local.in) file, which are read only when starting with docker.  
+Important: You need to copy and rename .env.in to .env and .env_local.in to .env_local in order for it to be read by docker.  
 When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
