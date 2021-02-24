@@ -9,21 +9,11 @@ services:
 
     env_file:
         - .env
-
-    environment:
-      - OS_AUTH_URL
-      - OS_PROJECT_ID
-      - OS_PROJECT_NAME
-      - OS_USERNAME
-      - OS_PASSWORD
-      - OS_USER_DOMAIN_NAME
-      - OS_PROJECT_DOMAIN_ID
-      - FORC_API_KEY
-
+        - config/.env_local
     volumes:
-      - ./VirtualMachineService/config/config.yml:/code/VirtualMachineService/config.yml
+      - ./VirtualMachineService/config/local_config.yml:/code/VirtualMachineService/local_config.yml
       - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
-    command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    command: python3 VirtualMachineServer.py /code/VirtualMachineService/local_config.yml
     networks:
      - portal
 

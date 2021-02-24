@@ -155,3 +155,9 @@ fabric.properties
 # additional data
 *.pem
 #*.sh
+
+VirtualMachineService/config/config.yml
+
+VirtualMachineService/config/local_config.yml
+
+config/.env_local

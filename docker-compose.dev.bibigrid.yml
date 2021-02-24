@@ -8,22 +8,13 @@ services:
      - ${CLIENT_PORT}:9090
 
     env_file:
+        - config/.env_local
         - .env
 
-    environment:
-      - OS_AUTH_URL
-      - OS_PROJECT_ID
-      - OS_PROJECT_NAME
-      - OS_USERNAME
-      - OS_PASSWORD
-      - OS_USER_DOMAIN_NAME
-      - OS_PROJECT_DOMAIN_ID
-      - FORC_API_KEY
-
     volumes:
-      - ./VirtualMachineService/config/config.yml:/code/VirtualMachineService/config.yml
+      - ./VirtualMachineService/config/local_config.yml:/code/VirtualMachineService/local_config.yml
       - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
-    command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    command: python3 VirtualMachineServer.py /code/VirtualMachineService/local_config.yml
     networks:
      - portal
 
@@ -36,15 +27,9 @@ services:
 
   bibigrid:
     image: bibiserv/bibigrid:${BIBIGRID_TAG}
+    env_file:
+      - config/.env_local
     environment:
-      - OS_AUTH_URL
-      - OS_PROJECT_ID
-      - OS_PROJECT_NAME
-      - OS_USERNAME
-      - OS_PASSWORD
-      - OS_USER_DOMAIN_NAME
-      - OS_PROJECT_DOMAIN_ID
-      - OS_PROJECT_DOMAIN_NAME
       - server.enableHttps=false
       - server.enableHttp=true
 

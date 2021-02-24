@@ -40,5 +40,6 @@ bibigrid:
 
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
+  forc_api_key:
 
-cloud_site: giessen
+cloud_site: bielefeld
