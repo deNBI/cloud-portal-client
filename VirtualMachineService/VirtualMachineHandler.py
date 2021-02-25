@@ -194,7 +194,7 @@ class VirtualMachineHandler(Iface):
 
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
-                self.FORC_API_KEY = cfg["forc"]["forc_url"]
+                self.FORC_API_KEY = cfg["forc"]["forc_api_key"]
                 self.FORC_ALLOWED = {}
                 LOG.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
             except Exception as e:
