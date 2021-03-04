@@ -44,6 +44,14 @@ Also the client provides all flavors, which will also be filtered in the cloud-a
 
 _**Attention**_: If you are also using the machine where you run the client as a gateway, it is very important to configure the iptables before installing and using docker, otherwise docker could destroy the rules!
 
+##### Persistent IP-Tables
+If you are using a gateway, it makes sense to make your iptable rules persistent on this gateway.
+To do this, simply install and use this package:
+
+ ~~~BASH
+sudo apt-get install iptables-persistent
+~~~
+
 
 #### Create certificates
 
