@@ -77,7 +77,6 @@ fh.setFormatter(formatter)
 ch.setFormatter(formatter)
 LOG.addHandler(fh)
 LOG.addHandler(ch)
-GITHUB_PLAYBOOKS_REPO = os.environ["GITHUB_PLAYBOOKS_REPO"]
 PLAYBOOKS_DIR = "/code/VirtualMachineService/ancon/playbooks/"
 
 PORT = "port"
@@ -196,13 +195,24 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = cfg["forc"]["forc_api_key"]
                 self.FORC_ALLOWED = {}
+                self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
+                if not self.RE_BACKEND_URL or not self.FORC_API_KEY or not self.GITHUB_PLAYBOOKS_REPO:
+                    raise ValueError
                 LOG.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
+            except ValueError as ve:
+                LOG.exception(ve)
+                LOG.info("Forc-Backend not loaded as one of the configurations was empty.")
+                self.RE_BACKEND_URL = None
+                self.FORC_API_KEY = None
+                self.FORC_ALLOWED = None
+                self.GITHUB_PLAYBOOKS_REPO = None
             except Exception as e:
                 LOG.exception(e)
                 LOG.info("Forc-Backend not loaded.")
                 self.RE_BACKEND_URL = None
                 self.FORC_API_KEY = None
                 self.FORC_ALLOWED = None
+                self.GITHUB_PLAYBOOKS_REPO = None
             if self.USE_GATEWAY:
                 self.GATEWAY_IP = cfg["openstack_connection"]["gateway_ip"]
                 self.SSH_FORMULAR = cfg["openstack_connection"][
@@ -2665,8 +2675,11 @@ class VirtualMachineHandler(Iface):
         }
 
     def update_playbooks(self):
-        LOG.info("STARTED update")
-        r = req.get(GITHUB_PLAYBOOKS_REPO)
+        if self.GITHUB_PLAYBOOKS_REPO is None:
+            LOG.info("Github playbooks repo url is None. Aborting download of playbooks.")
+            return
+        LOG.info("STARTED update of playbooks")
+        r = req.get(self.GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
         # Todo maybe clone entire direcotry
         for f in contents:

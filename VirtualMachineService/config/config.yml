@@ -39,7 +39,8 @@ bibigrid:
       -   slurm
 
 forc:
-  forc_url: https://proxy-dev.bi.denbi.de:5000/
+  forc_url:
   forc_api_key:
+  github_playbooks_repo:
 
 cloud_site: bielefeld

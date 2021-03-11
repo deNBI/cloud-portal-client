@@ -2,20 +2,18 @@ version: '3.5'
 services:
   portal-client:
     build:
-       context: .
-       dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
-     - ${CLIENT_PORT}:9090
-
+      - ${CLIENT_PORT}:9090
     env_file:
-        - .env
-        - config/.env_local
+      - .env
     volumes:
-      - ./VirtualMachineService/config/local_config.yml:/code/VirtualMachineService/local_config.yml
+      - ./VirtualMachineService/config/config_local.yml:/code/VirtualMachineService/config.yml
       - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
-    command: python3 VirtualMachineServer.py /code/VirtualMachineService/local_config.yml
+    command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
-     - portal
+      - portal
 
   redis:
     image: redis:6.0.9
@@ -23,7 +21,6 @@ services:
       - "6379"
     networks:
       - portal
-
 
 networks:
   portal:

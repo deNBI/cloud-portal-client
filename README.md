@@ -23,12 +23,15 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml). Please copy this file and
-rename it to local_config.yml and fill in missing parameters.
+You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).  
+For local development:  
+Please copy this file and rename it to `config_local.yml` and fill in missing parameters.  
+For staging/production setup:  
+Please copy this file and rename it to `config_YOUR_LOCATION.yml` and fill in missing parameters.  
 Also you need to provide the path to your config file as the first param when starting a server.
 
-Furthermore there are some parameters you can set in the [.env.in](.env.in) and in the [.env_local.in](config/.env_local.in) file, which are read only when starting with docker.  
-Important: You need to copy and rename .env.in to .env and .env_local.in to .env_local in order for it to be read by docker.  
+Furthermore there are some parameters you must set in the .env file. Copy the [.env.in](.env.in) to .env and 
+fill in the missing parameters.  
 When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
@@ -222,20 +225,21 @@ You can read how to set an ssh key for the cloud-portal repository on [this webs
 ansible-galaxy install -r ansible_requirements.yml
 ~~~
 
-#### 5 Create your own  secrets file
-
-Copy the `.secrets.in` to `.secrets`.
-
 #### 6.Set all variables
 
-Set all variables that can be found in  `.env` and `.secrets` file.
+Set all variables that can be found in `.env`  and `VirtualMachineService/config/config.yml` file.  
+You can have more than one `.env` file (`.env` and `.env_*` are not tracked by git) and specify which you want to copy 
+by using the `env_file` variable.  
+You can have more than one `VirtualMachineService/config/config.yml` file (`VirtualMachineService/config/config_*` are 
+not tracked by git) and specify which you want to copy by using the `client_config` variable.  
+These options are useful when maintaining multiple client sites.  
 
-#### 8.Run the playbook
+#### 7.Run the playbook
 
 You can run the playbook using the following command:
 
 ~~~BASH
-ansible-playbook --tags "client_only" -i inventory_openstack site.yml
+ansible-playbook -i inventory_openstack site.yml
 ~~~
 
 where 
@@ -245,7 +249,7 @@ where
   * If you also want to start bibigrid use the tag "bibigrid"
 **Choose  different files**
 
-You can also specify different .env , .secrets and server.pem files.
+You can also specify different .env, config.yml and server.pem files.
 
 You can also specify branch, tag, commit that should be checked out with `--extra-vars`.
 
@@ -257,7 +261,6 @@ ansible-playbook -i inventory_openstack --extra-vars "repo_version=master" site.
 Optional Keys are:
 + repo_version
 + env_file
-+ secrets_file
 + client_server_pem
 + client_config
 
