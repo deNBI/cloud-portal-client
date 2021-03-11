@@ -196,12 +196,18 @@ class VirtualMachineHandler(Iface):
                 self.FORC_API_KEY = cfg["forc"]["forc_api_key"]
                 self.FORC_ALLOWED = {}
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
-                if not self.RE_BACKEND_URL or not self.FORC_API_KEY or not self.GITHUB_PLAYBOOKS_REPO:
+                if (
+                    not self.RE_BACKEND_URL
+                    or not self.FORC_API_KEY
+                    or not self.GITHUB_PLAYBOOKS_REPO
+                ):
                     raise ValueError
                 LOG.info(msg="Forc-Backend url loaded: {0}".format(self.RE_BACKEND_URL))
             except ValueError as ve:
                 LOG.exception(ve)
-                LOG.info("Forc-Backend not loaded as one of the configurations was empty.")
+                LOG.info(
+                    "Forc-Backend not loaded as one of the configurations was empty."
+                )
                 self.RE_BACKEND_URL = None
                 self.FORC_API_KEY = None
                 self.FORC_ALLOWED = None
@@ -2676,7 +2682,9 @@ class VirtualMachineHandler(Iface):
 
     def update_playbooks(self):
         if self.GITHUB_PLAYBOOKS_REPO is None:
-            LOG.info("Github playbooks repo url is None. Aborting download of playbooks.")
+            LOG.info(
+                "Github playbooks repo url is None. Aborting download of playbooks."
+            )
             return
         LOG.info("STARTED update of playbooks")
         r = req.get(self.GITHUB_PLAYBOOKS_REPO)
