@@ -3,30 +3,16 @@ services:
   portal-client:
     image: denbicloud/cloud-portal-client:${CLOUD_CLIENT_TAG}
     ports:
-     - ${CLIENT_PORT}:9090
-     
+      - ${CLIENT_PORT}:9090
     env_file:
-        - .env
-
-    environment:
-      - OS_AUTH_URL
-      - OS_PROJECT_ID
-      - OS_PROJECT_NAME
-      - OS_USERNAME
-      - OS_PASSWORD
-      - OS_USER_DOMAIN_NAME
-      - OS_PROJECT_DOMAIN_ID
-      - FORC_API_KEY
-
+      - .env
     volumes:
-      -  ${client_PERSISTENT_PATH}/config.yml:/code/VirtualMachineService/config.yml
+      -  ${client_PERSISTENT_PATH}/config.yml:/code/VirtualMachineService/local_config.yml
       -  ${client_PERSISTENT_PATH}/server.pem:/code/VirtualMachineService/keys/server.pem
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
-     - portal
-
-
+      - portal
 
   redis:
     image: redis:6.0.9
@@ -40,10 +26,6 @@ services:
     image: docker.elastic.co/beats/filebeat:${FILEBEAT_TAG}
     env_file:
       - .env
-    environment:
-      - ELASTIC_USER
-      - ELASTIC_PASSWORD
-      - HOST
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - ./logs:/usr/share/filebeat/log:ro
