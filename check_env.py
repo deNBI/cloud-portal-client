@@ -37,7 +37,7 @@ def get_keys_from_config_file(file_name):
     return all_keys
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if sys.argv[3] == "env":
         env_in = get_keys_from_file(sys.argv[1])
         env_to_check = get_keys_from_file(sys.argv[2])
@@ -58,7 +58,9 @@ if __name__ == '__main__':
                     continue
                 else:
                     if not v:
-                        print(f"{k} is not set in your config file. Could also be a yml key.")
+                        print(
+                            f"{k} is not set in your config file. Could also be a yml key."
+                        )
                     else:
                         print(f"{k} is not set in your config file.")
             else:
