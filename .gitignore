@@ -5,7 +5,6 @@ __pycache__/
 
 # C extensions
 *.so
-.env
 # Distribution / packaging
 .Python
 build/
@@ -155,3 +154,5 @@ fabric.properties
 # additional data
 *.pem
 #*.sh
+.env_*
+VirtualMachineService/config/config_*
