@@ -78,22 +78,6 @@
       when: env_file is defined
       tags: always
 
-    - name: Copy secrets file default
-      copy:
-        src: "../.secrets"
-        dest: "{{ client.REPO_PATH }}/.secrets"
-        backup: yes
-      when: secrets_file is not defined
-      tags: always
-
-    - name: Copy secrets file
-      copy:
-        src: "{{secrets_file}}"
-        dest: "{{ client.REPO_PATH }}/.secrets"
-        backup: yes
-      when: secrets_file is defined
-      tags: always
-
     - name: Create variable files
       copy: 
         content: "{{ item.content | dict2items | map('to_json') | map('regex_replace', '\"key\":\\s\"(.*)\"', lookup('vars', 'regex_env')) | map('from_json') | list}}"
@@ -107,10 +91,6 @@
 
     - name: Transform json to properties file
       shell: rm -f "{{ client.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ client.REPO_PATH }}"/.ansible_environment_*.json >> "{{ client.REPO_PATH }}"/.ansible_environment
-      tags: always
-
-    - name: Append secrets to env file
-      shell: cat "{{ client.REPO_PATH }}"/.secrets "{{ client.REPO_PATH }}"/.ansible_environment >> "{{ client.REPO_PATH }}"/.env
       tags: always
 
     # Start
