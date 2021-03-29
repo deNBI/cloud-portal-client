@@ -12,7 +12,7 @@ services:
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
-      - portal
+     - portal
 
   redis:
     image: redis:6.0.9
