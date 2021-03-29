@@ -59,7 +59,17 @@ bibigrid_logs: ## Logs from Bibigrid
 enter_client_container: ## Enter Client container
 	docker exec -it client_portal-client_1 bash
 
+check_env: ## Checks if your .env contains every key set in .env.in.
+	python3 check_env.py .env.in .env env
 
+check_manual_env: ## Checks if your specified .env_* contains every key set in .env.in.
+	python3 check_env.py .env.in $(env-file) env
+
+check_local_config: ## Check if your config_local.yml contains every key set in config.yml
+	python3 check_env.py VirtualMachineService/config/config.yml VirtualMachineService/config/config_local.yml config
+
+check_manual_config: ## Check if your specified config_*.yml contains every key set in config.yml
+	python3 check_env.py VirtualMachineService/config/config.yml VirtualMachineService/config/$(config-file) config
 
 
 .PHONY: help lint  docs thrift_py
