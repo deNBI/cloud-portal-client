@@ -1,4 +1,4 @@
-name: build-image
+name: Update env tags
 on:
   pull_request:
     paths:
@@ -35,4 +35,4 @@ jobs:
           team-reviewers: deNBI/portal-dev
           branch: feat/updated_env
           base: dev
-   
+
