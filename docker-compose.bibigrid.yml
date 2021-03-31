@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   portal-client:
-    image: denbicloud/cloud-portal-client:${CLOUD_CLIENT_TAG}
+    image: denbicloud/cloud-portal-client:${CLOUD_PORTAL_CLIENT_TAG}
     ports:
       - ${CLIENT_PORT}:9090
     env_file:
