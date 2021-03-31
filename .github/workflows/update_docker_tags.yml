@@ -1,0 +1,16 @@
+name: build-image
+on:
+  pull_request:
+    paths:
+      - 'Dockerfile.update'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Workflow run cleanup action
+        uses: rokroskar/workflow-run-cleanup-action@v0.2.2
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - uses: actions/checkout@v2
+      - run: python3 update_env_by_dockerfile.py Dockerfile.update .env.in
