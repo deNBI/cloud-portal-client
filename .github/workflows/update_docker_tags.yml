@@ -1,6 +1,8 @@
 name: Update env tags
 on:
-  pull_request:
+  push:
+    branches: 
+      - dev
     paths:
       - 'Dockerfile.update'
 
