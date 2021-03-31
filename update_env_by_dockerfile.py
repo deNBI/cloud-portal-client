@@ -18,7 +18,7 @@ with open(DOCKERFILE) as f:
 
 for line in fileinput.input([ENV_FILE], inplace=True):
     if "=" in line:
-        key = line.split('=')[0]
+        key = line.split("=")[0]
         if key in update_env:
             sys.stdout.write(update_env[key])
         else:
