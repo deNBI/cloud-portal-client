@@ -24,4 +24,16 @@ updates:
       include: "scope"
     open-pull-requests-limit: 15
 
+  - package-ecosystem: "docker"
+    directory: "/Dockerfile.update"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    reviewers:
+      - "deNBI/portal-dev"
+    commit-message:
+      prefix: "feat"
+      include: "scope"
+    open-pull-requests-limit: 15
+
 
