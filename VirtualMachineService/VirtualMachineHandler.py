@@ -1704,57 +1704,37 @@ class VirtualMachineHandler(Iface):
         :return: True if attached, False if not
         """
 
-        def waitTillVolumeIsAvailable(volume, conn):
-            LOG.info("Checking Status Volume {0}".format(volume_id))
-            done = False
-            while not done:
-
-                status = conn.block_storage.get_volume(volume).to_dict()["status"]
-                LOG.info("Volume {} Status:{}".format(volume_id, status))
-                if status == "in-use":
-                    return False
-
-                if status != "available":
-
-                    time.sleep(3)
-                else:
-                    done = True
-                    time.sleep(2)
-            return True
-
         server = self.conn.compute.get_server(openstack_id)
         if server is None:
             LOG.exception("No Server  {0} ".format(openstack_id))
             raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
-        if waitTillVolumeIsAvailable(volume_id, self.conn):
 
-            LOG.info(
-                "Attaching volume {0} to virtualmachine {1}".format(
-                    volume_id, openstack_id
-                )
+        LOG.info(
+            "Attaching volume {0} to virtualmachine {1}".format(
+                volume_id, openstack_id
             )
-            try:
-                attachment = self.conn.compute.create_volume_attachment(
-                    server=server, volumeId=volume_id
-                )
-                return {"device": attachment["device"]}
-            except ConflictException as e:
-                LOG.exception(
-                    "Trying to attach volume {0} to vm {1} error : {2}".format(
-                        volume_id, openstack_id, e
-                    ),
-                    exc_info=True,
-                )
-                raise conflictException(Reason="409")
-            except Exception as e:
-                LOG.exception(
-                    "Trying to attach volume {0} to vm {1} error : {2}".format(
-                        volume_id, openstack_id, e
-                    ),
-                    exc_info=True,
-                )
-                return {"error": e}
-
+        )
+        try:
+            attachment = self.conn.compute.create_volume_attachment(
+                server=server, volumeId=volume_id
+            )
+            return {"device": attachment["device"]}
+        except ConflictException as e:
+            LOG.exception(
+                "Trying to attach volume {0} to vm {1} error : {2}".format(
+                    volume_id, openstack_id, e
+                ),
+                exc_info=True,
+            )
+            raise conflictException(Reason="409")
+        except Exception as e:
+            LOG.exception(
+                "Trying to attach volume {0} to vm {1} error : {2}".format(
+                    volume_id, openstack_id, e
+                ),
+                exc_info=True,
+            )
+            return {"error": e}
         return {"error": "failed"}
 
     def check_server_status(self, openstack_id):
@@ -2423,22 +2403,7 @@ class VirtualMachineHandler(Iface):
         :return: True if deleted, False if not
         """
 
-        def checkStatusVolume(volume, conn):
-            LOG.info("Checking Status Volume {0}".format(volume_id))
-            done = False
-            while not done:
-
-                status = conn.block_storage.get_volume(volume).to_dict()["status"]
-
-                if status != "available":
-
-                    time.sleep(3)
-                else:
-                    done = True
-            return volume
-
         try:
-            checkStatusVolume(volume_id, self.conn)
             LOG.info("Delete Volume  {0}".format(volume_id))
             self.conn.block_storage.delete_volume(volume=volume_id)
             return True
