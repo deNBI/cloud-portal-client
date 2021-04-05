@@ -1710,9 +1710,7 @@ class VirtualMachineHandler(Iface):
             raise serverNotFoundException(Reason="No Server {0}".format(openstack_id))
 
         LOG.info(
-            "Attaching volume {0} to virtualmachine {1}".format(
-                volume_id, openstack_id
-            )
+            "Attaching volume {0} to virtualmachine {1}".format(volume_id, openstack_id)
         )
         try:
             attachment = self.conn.compute.create_volume_attachment(
