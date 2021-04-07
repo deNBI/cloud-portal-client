@@ -478,7 +478,7 @@ class VirtualMachineHandler(Iface):
         try:
             img = self.conn.get_image(name_or_id=id)
             if not img:
-                    return None
+                return None
             metadata = img["metadata"]
             description = metadata.get("description")
             tags = img.get("tags")
