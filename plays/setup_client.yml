@@ -58,7 +58,7 @@
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src:  "{{client.CERT_FILE_PATH}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
-      when: client_server_pem is not defined and stat_client_pem.exists == False
+      when: client_server_pem is not defined and stat_client_pem.stat.exists == False
       tags: always
 
     # Copy envs
@@ -91,6 +91,10 @@
 
     - name: Transform json to properties file
       shell: rm -f "{{ client.REPO_PATH }}"/.ansible_environment && jq -r '.[]|"\(.key)=\(.value)"' "{{ client.REPO_PATH }}"/.ansible_environment_*.json >> "{{ client.REPO_PATH }}"/.ansible_environment
+      tags: always
+
+    - name: Append variables to env file
+      shell: cat "{{ client.REPO_PATH }}"/.ansible_environment >> "{{ client.REPO_PATH }}"/.env
       tags: always
 
     # Start
