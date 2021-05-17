@@ -174,13 +174,18 @@ class VirtualMachineHandler(Iface):
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
             # connection to redis. Uses a pool with 10 connections.
-            self.pool = redis.ConnectionPool(host=cfg["redis"]["host"], port=cfg["redis"]["port"])
+            self.REDIS_HOST=cfg["redis"]["host"]
+            self.REDIS_PORT=cfg["redis"]["port"]
+            self.REDIS_PASSWORD=cfg["redis"]["password"]
+            LOG.info(f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}..")
+            self.pool = redis.ConnectionPool(host=self.REDIS_HOST, port=self.REDIS_PORT,password=self.REDIS_PASSWORD)
 
-            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8",password=cfg["redis"]["password"])
+            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
             try:
                 self.redis.ping()
-            except redis.ConnectionError as r_con_error:
-                LOG.exception("Could not connect to redis!")
+                LOG.info("Connected to Redis!")
+            except redis.ConnectionError:
+                LOG.exception("Could not connect to Redis!")
                 sys.exit(1)
 
             # try to initialize forc connection
