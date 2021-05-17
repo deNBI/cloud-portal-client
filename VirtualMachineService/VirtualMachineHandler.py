@@ -151,9 +151,7 @@ class VirtualMachineHandler(Iface):
         Read all config variables and creates a connection to OpenStack.
         """
 
-        # connection to redis. Uses a pool with 10 connections.
-        self.pool = redis.ConnectionPool(host="redis", port=6379)
-        self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+
 
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
@@ -174,6 +172,10 @@ class VirtualMachineHandler(Iface):
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
+            # connection to redis. Uses a pool with 10 connections.
+            self.pool = redis.ConnectionPool(host=cfg["redis"]["host"], port=cfg["redis"]["port"])
+
+            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
             # try to initialize forc connection
             try:
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
