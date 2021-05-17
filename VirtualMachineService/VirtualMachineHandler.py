@@ -176,7 +176,7 @@ class VirtualMachineHandler(Iface):
             # connection to redis. Uses a pool with 10 connections.
             self.pool = redis.ConnectionPool(host=cfg["redis"]["host"], port=cfg["redis"]["port"])
 
-            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8",password=cfg["redis"]["password"])
             try:
                 self.redis.ping()
             except redis.ConnectionError as r_con_error:

@@ -1,6 +1,7 @@
 redis:
   host: redis
   port: 6379
+  password: ""
 
 openstack_connection:
   threads: 30
