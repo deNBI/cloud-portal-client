@@ -22,7 +22,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-              name: denbicloud/cloud-portal-webapp
+              name: denbicloud/cloud-portal-client
               username: ${{ secrets.DOCKER_USERNAME }}
               password: ${{ secrets.DOCKER_PASSWORD }}
               dockerfile: Dockerfile
