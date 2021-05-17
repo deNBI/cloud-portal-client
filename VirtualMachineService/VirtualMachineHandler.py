@@ -3,6 +3,7 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+import sys
 from uuid import uuid4
 
 try:
@@ -176,6 +177,12 @@ class VirtualMachineHandler(Iface):
             self.pool = redis.ConnectionPool(host=cfg["redis"]["host"], port=cfg["redis"]["port"])
 
             self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+            try:
+                self.redis.ping()
+            except redis.ConnectionError as r_con_error:
+                LOG.exception("Could not connect to redis!")
+                sys.exit(1)
+
             # try to initialize forc connection
             try:
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]
