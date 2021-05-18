@@ -1652,7 +1652,7 @@ class VirtualMachineHandler(Iface):
             status, stdout, stderr = playbook.get_logs()
             LOG.info(f" Playbook logs{openstack_id} stattus: {status}")
 
-            playbook.cleanup(openstack_id)
+           # playbook.cleanup(openstack_id)
             self.delete_keypair(key_name=key_name)
             return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
         else:
