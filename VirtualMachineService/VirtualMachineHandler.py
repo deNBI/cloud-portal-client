@@ -152,8 +152,6 @@ class VirtualMachineHandler(Iface):
         Read all config variables and creates a connection to OpenStack.
         """
 
-
-
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
         self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
@@ -174,11 +172,13 @@ class VirtualMachineHandler(Iface):
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
             # connection to redis. Uses a pool with 10 connections.
-            self.REDIS_HOST=cfg["redis"]["host"]
-            self.REDIS_PORT=cfg["redis"]["port"]
-            self.REDIS_PASSWORD=cfg["redis"]["password"]
+            self.REDIS_HOST = cfg["redis"]["host"]
+            self.REDIS_PORT = cfg["redis"]["port"]
+            self.REDIS_PASSWORD = cfg["redis"]["password"]
             LOG.info(f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}..")
-            self.pool = redis.ConnectionPool(host=self.REDIS_HOST, port=self.REDIS_PORT,password=self.REDIS_PASSWORD)
+            self.pool = redis.ConnectionPool(
+                host=self.REDIS_HOST, port=self.REDIS_PORT, password=self.REDIS_PASSWORD
+            )
 
             self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
             try:
