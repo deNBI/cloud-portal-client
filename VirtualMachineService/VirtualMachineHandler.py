@@ -1907,16 +1907,15 @@ class VirtualMachineHandler(Iface):
                     server.name + "_udp"
                 )
             )
-            server_security_groups=self.conn.list_server_security_groups(server)
+            server_security_groups = self.conn.list_server_security_groups(server)
             for sg in server_security_groups:
-               if sg["name"] == server.name + "_udp":
-                   LOG.info(
-                       "UDP Security group with name {} already added to server.".format(
-                           server.name + "_udp"
-                       )
-                   )
-                   return True
-
+                if sg["name"] == server.name + "_udp":
+                    LOG.info(
+                        "UDP Security group with name {} already added to server.".format(
+                            server.name + "_udp"
+                        )
+                    )
+                    return True
 
             self.conn.compute.add_security_group_to_server(
                 server=server_id, security_group=sec
