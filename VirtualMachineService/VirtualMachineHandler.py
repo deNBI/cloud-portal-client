@@ -1278,6 +1278,10 @@ class VirtualMachineHandler(Iface):
             cloud_site=self.CLOUD_SITE,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
+        LOG.info("Start Sleeping for testing")
+        time.sleep(20)
+        LOG.info("Sleeped 20 s")
+
         playbook.run_it()
         active_playbooks[openstack_id] = playbook
         return 0
