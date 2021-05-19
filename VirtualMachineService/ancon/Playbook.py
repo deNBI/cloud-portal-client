@@ -228,8 +228,10 @@ class Playbook(object):
         )
 
     def run_it(self):
-        command_string = "/usr/local/bin/ansible-playbook -t 30 -vvvv -i {0} {1}/{2}".format(
-            self.inventory.name, self.directory.name, self.playbook_exec_name
+        command_string = (
+            "/usr/local/bin/ansible-playbook -t 30 -vvvv -i {0} {1}/{2}".format(
+                self.inventory.name, self.directory.name, self.playbook_exec_name
+            )
         )
         LOG.info(f"Run Playbook with command {command_string}")
         command_string = shlex.split(command_string)
@@ -274,7 +276,7 @@ class Playbook(object):
         return self.returncode, self.stdout, self.stderr
 
     def cleanup(self, openstack_id):
-        #self.directory.cleanup()
+        # self.directory.cleanup()
         self.redis.delete(openstack_id)
 
     def stop(self, openstack_id):
