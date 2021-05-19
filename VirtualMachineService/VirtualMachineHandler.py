@@ -1909,7 +1909,7 @@ class VirtualMachineHandler(Iface):
         :param server_id: The id of the server
         :return:
         """
-        LOG.info("Setting up security groups for {0}".format(server_id))
+        LOG.info("Setting up UDP security group for {0}".format(server_id))
         server = self.conn.get_server(name_or_id=server_id)
         if server is None:
             LOG.exception("Instance {0} not found".format(server_id))
@@ -1917,10 +1917,21 @@ class VirtualMachineHandler(Iface):
         sec = self.conn.get_security_group(name_or_id=server.name + "_udp")
         if sec:
             LOG.info(
-                "Security group with name {} already exists.".format(
+                "UDP Security group with name {} already exists.".format(
                     server.name + "_udp"
                 )
             )
+            server_security_groups=self.conn.list_server_security_groups(server)
+            for sg in server_security_groups:
+               if sg["name"] == server.name + "_udp":
+                   LOG.info(
+                       "UDP Security group with name {} already added to server.".format(
+                           server.name + "_udp"
+                       )
+                   )
+                   return True
+
+
             self.conn.compute.add_security_group_to_server(
                 server=server_id, security_group=sec
             )
