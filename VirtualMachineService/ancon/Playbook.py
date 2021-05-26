@@ -276,7 +276,7 @@ class Playbook(object):
         return self.returncode, self.stdout, self.stderr
 
     def cleanup(self, openstack_id):
-        # self.directory.cleanup()
+        self.directory.cleanup()
         self.redis.delete(openstack_id)
 
     def stop(self, openstack_id):
