@@ -2,9 +2,9 @@ name: Publish Docker
 on: 
   push:
     branches: 
+      - 'master'
       - 'staging'
       - 'dev'
-      - 'dev-no-ssl'
 jobs:
   build:
     runs-on: ubuntu-latest
