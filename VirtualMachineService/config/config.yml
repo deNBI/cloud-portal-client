@@ -1,3 +1,8 @@
+redis:
+  host: redis
+  port: 6379
+  password: ""
+
 openstack_connection:
   threads: 30
   host: 0.0.0.0
@@ -24,6 +29,7 @@ openstack_connection:
   availability_zone: default
   # If you use docker-compose this path needs to be the path you mount the server.pem into
   certfile: /code/VirtualMachineService/keys/server.pem
+  use_ssl: True
 
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
   ssh_port_calc_formular: 30000 + x
