@@ -3,6 +3,7 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+import sys
 from uuid import uuid4
 
 try:
@@ -151,10 +152,6 @@ class VirtualMachineHandler(Iface):
         Read all config variables and creates a connection to OpenStack.
         """
 
-        # connection to redis. Uses a pool with 10 connections.
-        self.pool = redis.ConnectionPool(host="redis", port=6379)
-        self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
-
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
         self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
@@ -174,6 +171,23 @@ class VirtualMachineHandler(Iface):
             self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
+            # connection to redis. Uses a pool with 10 connections.
+            self.REDIS_HOST = cfg["redis"]["host"]
+            self.REDIS_PORT = cfg["redis"]["port"]
+            self.REDIS_PASSWORD = cfg["redis"]["password"]
+            LOG.info(f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}..")
+            self.pool = redis.ConnectionPool(
+                host=self.REDIS_HOST, port=self.REDIS_PORT, password=self.REDIS_PASSWORD
+            )
+
+            self.redis = redis.Redis(connection_pool=self.pool, charset="utf-8")
+            try:
+                self.redis.ping()
+                LOG.info("Connected to Redis!")
+            except redis.ConnectionError:
+                LOG.exception("Could not connect to Redis!")
+                sys.exit(1)
+
             # try to initialize forc connection
             try:
                 self.SUB_NETWORK = cfg["bibigrid"]["sub_network"]

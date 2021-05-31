@@ -12,7 +12,7 @@ except Exception as e:
     print(e)
     from VirtualMachineHandler import VirtualMachineHandler
 
-from thrift.transport import TSSLSocket
+from thrift.transport import TSSLSocket, TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
@@ -62,10 +62,16 @@ def startServer(config):
         PORT = cfg["openstack_connection"]["port"]
         CERTFILE = cfg["openstack_connection"]["certfile"]
         THREADS = cfg["openstack_connection"]["threads"]
+        USE_SSL = cfg["openstack_connection"].get("use_ssl", True)
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
-    transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
+    if USE_SSL:
+        click.echo("Use SSL")
+        transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
+    else:
+        click.echo("Does not use SSL")
+        transport = TSocket.TServerSocket(host=HOST, port=PORT)
     tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
     server = TServer.TThreadPoolServer(

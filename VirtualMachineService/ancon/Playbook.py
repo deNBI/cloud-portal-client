@@ -228,9 +228,12 @@ class Playbook(object):
         )
 
     def run_it(self):
-        command_string = "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}".format(
-            self.inventory.name, self.directory.name, self.playbook_exec_name
+        command_string = (
+            "/usr/local/bin/ansible-playbook -t 30 -vvvv -i {0} {1}/{2}".format(
+                self.inventory.name, self.directory.name, self.playbook_exec_name
+            )
         )
+        LOG.info(f"Run Playbook with command {command_string}")
         command_string = shlex.split(command_string)
         self.process = subprocess.Popen(
             command_string,

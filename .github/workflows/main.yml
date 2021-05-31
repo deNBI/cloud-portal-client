@@ -2,7 +2,9 @@ name: Publish Docker
 on: 
   push:
     branches: 
+      - 'master'
       - 'staging'
+      - 'dev'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,11 +14,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/checkout@master
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: denbicloud/cloud-portal-client
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        dockerfile: Dockerfile
-        tags: "staging"
+              name: denbicloud/cloud-portal-client
+              username: ${{ secrets.DOCKER_USERNAME }}
+              password: ${{ secrets.DOCKER_PASSWORD }}
+              dockerfile: Dockerfile
+              tags: ${{ steps.extract_branch.outputs.branch }}
