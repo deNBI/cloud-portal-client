@@ -60,9 +60,10 @@ def startServer(config):
         cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
         HOST = cfg["openstack_connection"]["host"]
         PORT = cfg["openstack_connection"]["port"]
-        CERTFILE = cfg["openstack_connection"]["certfile"]
-        THREADS = cfg["openstack_connection"]["threads"]
         USE_SSL = cfg["openstack_connection"].get("use_ssl", True)
+        if USE_SSL:
+            CERTFILE = cfg["openstack_connection"]["certfile"]
+        THREADS = cfg["openstack_connection"]["threads"]
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
