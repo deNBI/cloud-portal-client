@@ -174,7 +174,7 @@ class VirtualMachineHandler(Iface):
             # connection to redis. Uses a pool with 10 connections.
             self.REDIS_HOST = cfg["redis"]["host"]
             self.REDIS_PORT = cfg["redis"]["port"]
-            self.REDIS_PASSWORD = cfg["redis"]["password"]
+            self.REDIS_PASSWORD = cfg["redis"].get("password", None)
             LOG.info(f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}..")
             self.pool = redis.ConnectionPool(
                 host=self.REDIS_HOST, port=self.REDIS_PORT, password=self.REDIS_PASSWORD
