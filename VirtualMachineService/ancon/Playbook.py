@@ -229,7 +229,7 @@ class Playbook(object):
 
     def run_it(self):
         command_string = (
-            "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}.format(
+            "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}".format(
                 self.inventory.name, self.directory.name, self.playbook_exec_name
             )
         )
