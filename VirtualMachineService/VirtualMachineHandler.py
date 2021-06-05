@@ -199,7 +199,7 @@ class VirtualMachineHandler(Iface):
                     self.BIBIGIRD_EP = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
                 else:
                     self.BIBIGRID_URL = f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
-                    self.BIBIGIRD_EP = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                    self.BIBIGIRD_EP = f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
 
                 LOG.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
             except Exception as e:
