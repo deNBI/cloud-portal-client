@@ -194,10 +194,13 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_MODES = cfg["bibigrid"]["bibigrid_modes"]
                 self.BIBIGRID_HOST = cfg["bibigrid"]["host"]
                 self.BIBIGRID_PORT = cfg["bibigrid"]["port"]
-                self.BIBIGRID_URL = str(cfg["bibigrid"]["bibigrid_url"])
-                self.BIBIGRID_URL = self.BIBIGRID_URL.format(
-                    host=self.BIBIGRID_HOST, port=self.BIBIGRID_PORT
-                )
+                if cfg["bibigrid"].get("https", False):
+                    self.BIBIGRID_URL = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
+                    self.BIBIGIRD_EP = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                else:
+                    self.BIBIGRID_URL = f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
+                    self.BIBIGIRD_EP = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+
                 LOG.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
             except Exception as e:
                 LOG.exception(e)
@@ -2039,17 +2042,13 @@ class VirtualMachineHandler(Iface):
 
     def bibigrid_available(self):
         LOG.info("Checking if Bibigrid is available")
-        if not self.BIBIGRID_URL:
-            LOG.info("Bibigrid Url is not set")
+        if not self.BIBIGIRD_EP:
+            LOG.info("Bibigrid EP is not set")
             return False
         try:
-            location = (self.BIBIGRID_HOST, self.BIBIGRID_PORT)
-            a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result_of_check = a_socket.connect_ex(location)
-            a_socket.close()
-            if result_of_check == 0:
-                LOG.info("Bibigrid Port is open")
-                LOG.info("Bibigrid is available")
+            status = req.get(self.BIBIGIRD_EP + "/server/health").status_code
+            if status == 200:
+                LOG.info("Bibigrid Server is available")
                 return True
 
             else:
