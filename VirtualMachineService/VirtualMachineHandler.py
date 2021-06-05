@@ -2053,7 +2053,6 @@ class VirtualMachineHandler(Iface):
 
             else:
 
-                LOG.info("Bibigrid Port is not open")
                 LOG.exception("Bibigrid is offline")
                 return False
 
