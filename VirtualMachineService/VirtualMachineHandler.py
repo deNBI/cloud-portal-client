@@ -195,11 +195,19 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_HOST = cfg["bibigrid"]["host"]
                 self.BIBIGRID_PORT = cfg["bibigrid"]["port"]
                 if cfg["bibigrid"].get("https", False):
-                    self.BIBIGRID_URL = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
-                    self.BIBIGIRD_EP = f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                    self.BIBIGRID_URL = (
+                        f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
+                    )
+                    self.BIBIGIRD_EP = (
+                        f"https://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                    )
                 else:
-                    self.BIBIGRID_URL = f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
-                    self.BIBIGIRD_EP = f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                    self.BIBIGRID_URL = (
+                        f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}/bibigrid"
+                    )
+                    self.BIBIGIRD_EP = (
+                        f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
+                    )
 
                 LOG.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
             except Exception as e:
