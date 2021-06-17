@@ -39,7 +39,7 @@ bibigrid:
   # Url for Bibigrid API
     port: 8080
     host: bibigrid
-    bibigrid_url: http://{host}:{port}/bibigrid/
+    https: False
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
       -   slurm
