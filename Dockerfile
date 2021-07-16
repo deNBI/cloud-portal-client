@@ -1,4 +1,4 @@
-FROM python:3.9.6-buster
+FROM python:alpine:3.14
 RUN  apt-get update -y 
 RUN apt-get install -y build-essential
 WORKDIR /code
