@@ -1,4 +1,4 @@
-FROM python:3.9.6-alpine3.13
+FROM python:3.10.0b4-alpine3.14
 #RUN  apt-get update -y 
 #RUN apt-get install -y build-essential
 WORKDIR /code
