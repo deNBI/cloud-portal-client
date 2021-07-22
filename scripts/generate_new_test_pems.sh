@@ -1,7 +1,7 @@
 #!/usr/bin/expect
 echo Creating new dir "new_pem"
-mkdir new_pem
-cd new_pem
+mkdir $1
+cd $1
 openssl req -new -x509 -nodes -days 3000 -out server.crt -keyout server.key -subj "/C=DE/ST=./L=./O=./CN=$1"  
 
 openssl x509 -in server.crt -text > CA.pem
