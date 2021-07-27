@@ -737,18 +737,17 @@ class VirtualMachineHandler(Iface):
         return server_list
 
     def check_server_task_state(self, openstack_id):
-            LOG.info("Checking Task State: {}".format(openstack_id))
-            server = self.conn.get_server_by_id(openstack_id)
-            LOG.info(server)
-            if not server:
-                return "No server found"
-            task_state = server.get("task_state", None)
-            LOG.info("Task State: {}".format(task_state))
-            if task_state:
-                return task_state
-            else:
-                return "No active task"
-
+        LOG.info("Checking Task State: {}".format(openstack_id))
+        server = self.conn.get_server_by_id(openstack_id)
+        LOG.info(server)
+        if not server:
+            return "No server found"
+        task_state = server.get("task_state", None)
+        LOG.info("Task State: {}".format(task_state))
+        if task_state:
+            return task_state
+        else:
+            return "No active task"
 
     def get_image(self, image):
         image = self.conn.compute.find_image(image)
@@ -2232,7 +2231,9 @@ class VirtualMachineHandler(Iface):
             try:
                 self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
             except Exception:
-                LOG.exception(f"Could not add Tag {elixir_id} to Snapshot: {snapshot_id}")
+                LOG.exception(
+                    f"Could not add Tag {elixir_id} to Snapshot: {snapshot_id}"
+                )
 
             return snapshot_id
         except Exception as e:
@@ -2411,7 +2412,8 @@ class VirtualMachineHandler(Iface):
             return True
         except ConflictException as e:
             LOG.exception(
-                f"Delete volume attachment (server: {server_id} volume: {volume_id}) error")
+                f"Delete volume attachment (server: {server_id} volume: {volume_id}) error"
+            )
 
             raise conflictException(Reason="409")
         except Exception as e:
