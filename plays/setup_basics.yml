@@ -54,3 +54,11 @@
       pip:
         name: docker-compose
       tags: always
+
+    - name: Prune everything Docker (inlucding non-dangling images - except Volumes)
+      community.docker.docker_prune:
+        containers: yes
+        images: yes
+        images_filter:
+          dangling: false
+        networks: yes
