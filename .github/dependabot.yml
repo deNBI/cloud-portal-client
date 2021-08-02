@@ -1,15 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     reviewers:
       - "deNBI/portal-dev"
-      commit-message:
+    commit-message:
         prefix: "feat"
         include: "scope"
-      open-pull-requests-limit: 15
+    open-pull-requests-limit: 15
 
   - package-ecosystem: "pip"
     directory: "/"
