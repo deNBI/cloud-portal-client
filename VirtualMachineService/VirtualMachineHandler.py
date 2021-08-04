@@ -285,6 +285,7 @@ class VirtualMachineHandler(Iface):
                     for user in users:
                         if user.__dict__["name"] == name:
                             return user
+                    return None
 
                 keystone = client.Client(session=sess)
                 user = findUser(keystone, user)
@@ -603,7 +604,7 @@ class VirtualMachineHandler(Iface):
             return keypair
         except Exception as e:
             LOG.exception("Import Keypair {0} error:{1}".format(keyname, e))
-            return
+            return None
 
     def openstack_flav_to_thrift_flav(self, flavor):
         try:
@@ -729,7 +730,6 @@ class VirtualMachineHandler(Iface):
                 servers.append(server)
             except Exception as e:
                 LOG.exception("Requested VM {} not found!\n {}".format(id, e))
-                pass
         server_list = []
         for server in servers:
             if server:
@@ -738,17 +738,16 @@ class VirtualMachineHandler(Iface):
 
     def check_server_task_state(self, openstack_id):
         LOG.info("Checking Task State: {}".format(openstack_id))
-        try:
-            server = self.conn.get_server_by_id(openstack_id)
-            LOG.info(server)
-            task_state = server["task_state"]
-            LOG.info("Task State: {}".format(task_state))
-            if task_state:
-                return task_state
-            else:
-                return "No active task"
-        except:
-            return "No server or task_state found"
+        server = self.conn.get_server_by_id(openstack_id)
+        LOG.info(server)
+        if not server:
+            return "No server found"
+        task_state = server.get("task_state", None)
+        LOG.info("Task State: {}".format(task_state))
+        if task_state:
+            return task_state
+        else:
+            return "No active task"
 
     def get_image(self, image):
         image = self.conn.compute.find_image(image)
@@ -1403,6 +1402,7 @@ class VirtualMachineHandler(Iface):
                 return backends
         except Timeout as e:
             LOG.info(msg="create_backend timed out. {0}".format(e))
+            return None
 
     def get_backends_by_owner(self, elixir_id):
         get_url = "{0}/backends/byOwner/{1}".format(self.RE_BACKEND_URL, elixir_id)
@@ -1430,6 +1430,7 @@ class VirtualMachineHandler(Iface):
                 return backends
         except Timeout as e:
             LOG.info(msg="create_backend timed out. {0}".format(e))
+            return None
 
     def get_backends_by_template(self, template):
         get_url = "{0}/backends/byTemplate/{1}".format(self.RE_BACKEND_URL, template)
@@ -1457,6 +1458,7 @@ class VirtualMachineHandler(Iface):
                 return backends
         except Timeout as e:
             LOG.info(msg="create_backend timed out. {0}".format(e))
+            return None
 
     def get_backend_by_id(self, id):
         get_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
@@ -1481,6 +1483,7 @@ class VirtualMachineHandler(Iface):
             )
         except Timeout as e:
             LOG.info(msg="create_backend timed out. {0}".format(e))
+            return None
 
     def delete_backend(self, id):
         delete_url = "{0}/backends/{1}".format(self.RE_BACKEND_URL, id)
@@ -1635,6 +1638,7 @@ class VirtualMachineHandler(Iface):
                 return response.json()
         except Timeout as e:
             LOG.info(msg="get_templates_by_template timed out. {0}".format(e))
+            return None
 
     def check_template(self, template_name, template_version):
         get_url = "{0}/templates/{1}/{2}".format(
@@ -1653,6 +1657,7 @@ class VirtualMachineHandler(Iface):
                 return response.json()
         except Timeout as e:
             LOG.info(msg="check_template timed out. {0}".format(e))
+            return None
 
     def get_playbook_logs(self, openstack_id):
         global active_playbooks
@@ -1760,7 +1765,6 @@ class VirtualMachineHandler(Iface):
                 exc_info=True,
             )
             return {"error": e}
-        return {"error": "failed"}
 
     def check_server_status(self, openstack_id):
         """
@@ -2037,14 +2041,10 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
         json_resp = response.json(strict=False)
-        try:
+        if json_resp.get("log", None):
             json_resp["log"] = str(json_resp["log"])
-        except:
-            pass
-        try:
+        if json_resp.get("msg", None):
             json_resp["msg"] = str(json_resp["msg"])
-        except:
-            pass
 
         return json_resp
 
@@ -2228,11 +2228,12 @@ class VirtualMachineHandler(Iface):
                     self.conn.image.add_tag(image=snapshot_id, tag=tag)
             except Exception:
                 LOG.exception("Tag error catched")
-                pass
             try:
                 self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
             except Exception:
-                pass
+                LOG.exception(
+                    f"Could not add Tag {elixir_id} to Snapshot: {snapshot_id}"
+                )
 
             return snapshot_id
         except Exception as e:
@@ -2242,7 +2243,7 @@ class VirtualMachineHandler(Iface):
                     openstack_id, name, elixir_id, e
                 )
             )
-            return
+            return None
 
     def delete_image(self, image_id):
         """
@@ -2316,7 +2317,7 @@ class VirtualMachineHandler(Iface):
                     openstack_id, network, e
                 )
             )
-            return
+            return None
 
     def netcat(self, host, port):
         """
@@ -2411,18 +2412,12 @@ class VirtualMachineHandler(Iface):
             return True
         except ConflictException as e:
             LOG.exception(
-                "Delete volume attachment (server: {0} volume: {1}) error: {2}".format(
-                    server_id, volume_id, e
-                )
+                f"Delete volume attachment (server: {server_id} volume: {volume_id}) error"
             )
 
             raise conflictException(Reason="409")
         except Exception as e:
-            LOG.exception(
-                "Delete Volume Attachment  {0} error: {1}".format(
-                    volume_attachment_id, e
-                )
-            )
+            LOG.exception(f"Delete Volume Attachment  {volume_attachment_id} error")
             return False
 
     def delete_volume(self, volume_id):
@@ -2438,11 +2433,11 @@ class VirtualMachineHandler(Iface):
             self.conn.block_storage.delete_volume(volume=volume_id)
             return True
         except ConflictException as e:
-            LOG.exception("Delete volume {0} error: {1}".format(volume_id, e))
+            LOG.exception(f"Delete volume {volume_id} error")
 
             raise conflictException(Reason="409")
         except Exception as e:
-            LOG.exception("Delete Volume {0} error".format(volume_id, e))
+            LOG.exception(f"Delete Volume {volume_id} error")
             return False
 
     def stop_server(self, openstack_id):
@@ -2452,11 +2447,11 @@ class VirtualMachineHandler(Iface):
         :param openstack_id: Id of the server.
         :return: True if resumed, False if not
         """
-        LOG.info("Stop Server {0}".format(openstack_id))
+        LOG.info(f"Stop Server {openstack_id}")
         server = self.conn.compute.get_server(openstack_id)
         try:
             if server is None:
-                LOG.exception("Instance {0} not found".format(openstack_id))
+                LOG.exception(f"Instance {openstack_id} not found")
                 raise serverNotFoundException
 
             if server.status == self.ACTIVE:
@@ -2465,11 +2460,11 @@ class VirtualMachineHandler(Iface):
             else:
                 return False
         except ConflictException as e:
-            LOG.exception("Stop Server {0} error: {1}".format(openstack_id, e))
+            LOG.exception(f"Stop Server {openstack_id} error")
 
             raise conflictException(Reason="409")
         except Exception as e:
-            LOG.exception("Stop Server {0} error:".format(openstack_id, e))
+            LOG.exception(f"Stop Server {openstack_id} error:")
 
             return False
 
@@ -2491,13 +2486,11 @@ class VirtualMachineHandler(Iface):
                 self.conn.compute.reboot_server(server, reboot_type)
                 return True
         except ConflictException as e:
-            LOG.exception("Reboot Server {0} error: {1}".format(server_id, e))
+            LOG.exception(f"Reboot Server {server_id} error")
 
             raise conflictException(Reason="409")
         except Exception as e:
-            LOG.exception(
-                "Reboot Server {} {} Error : {}".format(server_id, reboot_type, e)
-            )
+            LOG.exception(f"Reboot Server {server_id} {reboot_type} Error")
             return False
 
     def resume_server(self, openstack_id):
@@ -2518,12 +2511,12 @@ class VirtualMachineHandler(Iface):
                 return True
             else:
                 return False
-        except ConflictException as e:
-            LOG.exception("Resume Server {0} error: {1}".format(openstack_id, e))
+        except ConflictException:
+            LOG.exception(f"Resume Server {openstack_id} error")
 
             raise conflictException(Reason="409")
-        except Exception as e:
-            LOG.exception("Resume Server {0} error:".format(openstack_id, e))
+        except Exception:
+            LOG.exception(f"Resume Server {openstack_id} error:")
             return False
 
     def create_security_group(
@@ -2691,9 +2684,8 @@ class VirtualMachineHandler(Iface):
                 download_link = f["download_url"]
                 file_request = req.get(download_link)
                 filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
-                playbook_file = open(filename, "w")
-                playbook_file.write(file_request.content.decode("utf-8"))
-                playbook_file.close()
+                with open(filename, "w") as playbook_file:
+                    playbook_file.write(file_request.content.decode("utf-8"))
         templates_metadata = self.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
