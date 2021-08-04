@@ -1,2 +1,10 @@
-- src: geerlingguy.docker
-- src: geerlingguy.pip
+roles:
+  - name: geerlingguy.docker
+    version: 4.0.0
+
+  - name: geerlingguy.pip
+    version: 2.1.0
+
+collections:
+  - name: community.docker
+    version: 1.8.0
