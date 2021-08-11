@@ -2041,10 +2041,8 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info("Cluster {} status: {} ".format(cluster_id, response.content))
         json_resp = response.json(strict=False)
-        if json_resp.get("log", None):
-            json_resp["log"] = str(json_resp["log"])
-        if json_resp.get("msg", None):
-            json_resp["msg"] = str(json_resp["msg"])
+        json_resp["log"] = str(json_resp.get("log", ""))
+        json_resp["msg"] = str(json_resp.get("msg", ""))
 
         return json_resp
 
