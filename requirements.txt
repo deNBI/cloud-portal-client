@@ -4,7 +4,7 @@ python-keystoneclient
 openstacksdk ==0.58.0
 deprecated == 1.2.12
 Click==8.0.1
-ansible==4.3.0
+ansible==4.4.0
 flake8==3.9.2
 ruamel.yaml<0.18.0
 paramiko==2.7.2
