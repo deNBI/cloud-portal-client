@@ -64,28 +64,8 @@ _**Attention**_: You need to create your own `Server.pem` and your client needs 
 
 ## Production
 
-There are separate ways to use the portal-cloud-client:
 
-* [Using pip](#using-pip)
 * [Using Docker](#using-docker)
-
-### Using pip
-
-You need to have python3.6 and pip installed.
-
-Than install the cloud-portal-client with pip:
-
- ~~~BASH
-pip install git+https://github.com/deNBI/cloud-portal-client.git
-~~~
-
-#### Commandline client
-
-If you set your configuration you can start the portal-client:
-
- ~~~BASH
-portal_client_start_server path/to/config.yml
-~~~
 
 
 ### Using Docker
@@ -133,8 +113,18 @@ docker-compose -f docker-compose.dev.yml up --build
  ```
 make dev
 ```
-
-
+You can additionally start bibigrid:
+ ```
+make dev-bibigrid
+```
+and additionally also in detached mode:
+ ```
+make dev-bibigrid-d
+```
+to list all make commands use:
+ ```
+make help
+```
 
 ### Thrift Development
 
