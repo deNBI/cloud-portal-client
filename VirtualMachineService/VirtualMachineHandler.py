@@ -2675,7 +2675,7 @@ class VirtualMachineHandler(Iface):
                 "Github playbooks repo url is None. Aborting download of playbooks."
             )
             return
-        LOG.info("STARTED update of playbooks")
+        LOG.info(f"STARTED update of playbooks from - {self.GITHUB_PLAYBOOKS_REPO}")
         r = req.get(self.GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
         # Todo maybe clone entire direcotry
