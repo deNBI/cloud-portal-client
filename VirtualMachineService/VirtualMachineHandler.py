@@ -2656,17 +2656,16 @@ class VirtualMachineHandler(Iface):
         limits.update(self.conn.get_volume_limits()["absolute"])
 
         return {
-
-            'max_total_cores': str(limits["max_total_cores"]),
-            'max_total_instances': str(limits["max_total_instances"]),
-            'max_total_ram_size': math.ceil(str(limits["max_total_ram_size"])),
-            'total_cores_used': str(limits["total_cores_used"]),
-            'total_instances_used': str(limits["total_instances_used"]),
-            'total_ram_used': math.ceil(str(limits["total_ram_used"])/1024),
-            'maxTotalVolumes': str(limits["maxTotalVolumes"]),
-            'maxTotalVolumeGigabytes': str(limits["maxTotalVolumeGigabytes"]),
-            'totalVolumesUsed': str(limits["totalVolumesUsed"]),
-            'totalGigabytesUsed':str(limits["totalGigabytesUsed"])
+            "max_total_cores": str(limits["max_total_cores"]),
+            "max_total_instances": str(limits["max_total_instances"]),
+            "max_total_ram_size": math.ceil(str(limits["max_total_ram_size"])),
+            "total_cores_used": str(limits["total_cores_used"]),
+            "total_instances_used": str(limits["total_instances_used"]),
+            "total_ram_used": math.ceil(str(limits["total_ram_used"]) / 1024),
+            "maxTotalVolumes": str(limits["maxTotalVolumes"]),
+            "maxTotalVolumeGigabytes": str(limits["maxTotalVolumeGigabytes"]),
+            "totalVolumesUsed": str(limits["totalVolumesUsed"]),
+            "totalGigabytesUsed": str(limits["totalGigabytesUsed"]),
         }
 
     def update_playbooks(self):
