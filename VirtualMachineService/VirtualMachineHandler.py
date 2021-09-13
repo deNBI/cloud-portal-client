@@ -2658,10 +2658,10 @@ class VirtualMachineHandler(Iface):
         return {
             "max_total_cores": str(limits["max_total_cores"]),
             "max_total_instances": str(limits["max_total_instances"]),
-            "max_total_ram_size": math.ceil(str(limits["max_total_ram_size"])),
+            "max_total_ram_size": str(math.ceil(limits["max_total_ram_size"] / 1024)),
             "total_cores_used": str(limits["total_cores_used"]),
             "total_instances_used": str(limits["total_instances_used"]),
-            "total_ram_used": math.ceil(str(limits["total_ram_used"]) / 1024),
+            "total_ram_used": str(math.ceil(limits["total_ram_used"] / 1024)),
             "maxTotalVolumes": str(limits["maxTotalVolumes"]),
             "maxTotalVolumeGigabytes": str(limits["maxTotalVolumeGigabytes"]),
             "totalVolumesUsed": str(limits["totalVolumesUsed"]),
