@@ -37,6 +37,18 @@
       become: no
       tags: always
 
+    - name: Import deadsnake PPA for python3.8
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+        update_cache: yes
+      tags: always
+
+    - name: Install python3.8
+      apt:
+        state: latest
+        name: python=3.8
+      tags: always
+
     - name: Install python3-pip
       apt:
         state: latest
