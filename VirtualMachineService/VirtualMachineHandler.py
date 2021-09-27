@@ -3,6 +3,7 @@ This Module implements an VirtualMachineHandler.
 
 Which can be used for the PortalClient.
 """
+import math
 import sys
 from uuid import uuid4
 
@@ -1299,8 +1300,8 @@ class VirtualMachineHandler(Iface):
         if self.RE_BACKEND_URL is None:
             return ""
         else:
-            url = self.RE_BACKEND_URL.split(":5000", 1)[0]
-            return "{0}/".format(url)
+            url = self.RE_BACKEND_URL.split(":")
+            return f"https:{url[1]}/"
 
     def cross_check_forc_image(self, tags):
         get_url = "{0}templates/".format(self.RE_BACKEND_URL)
@@ -2652,18 +2653,19 @@ class VirtualMachineHandler(Iface):
         """
         LOG.info("Get Limits")
         limits = self.conn.get_compute_limits()
-        limits.update(self.conn.get_volume_limits())
-        maxTotalVolumes = str(limits["absolute"]["maxTotalVolumes"])
-        maxTotalInstances = str(limits["max_total_instances"])
-        maxTotalVolumeGigabytes = str(limits["absolute"]["maxTotalVolumeGigabytes"])
-        totalRamUsed = str(limits["total_ram_used"])
-        totalInstancesUsed = str(limits["total_instances_used"])
+        limits.update(self.conn.get_volume_limits()["absolute"])
+
         return {
-            "maxTotalVolumes": maxTotalVolumes,
-            "maxTotalVolumeGigabytes": maxTotalVolumeGigabytes,
-            "maxTotalInstances": maxTotalInstances,
-            "totalRamUsed": totalRamUsed,
-            "totalInstancesUsed": totalInstancesUsed,
+            "max_total_cores": str(limits["max_total_cores"]),
+            "max_total_instances": str(limits["max_total_instances"]),
+            "max_total_ram_size": str(math.ceil(limits["max_total_ram_size"] / 1024)),
+            "total_cores_used": str(limits["total_cores_used"]),
+            "total_instances_used": str(limits["total_instances_used"]),
+            "total_ram_used": str(math.ceil(limits["total_ram_used"] / 1024)),
+            "maxTotalVolumes": str(limits["maxTotalVolumes"]),
+            "maxTotalVolumeGigabytes": str(limits["maxTotalVolumeGigabytes"]),
+            "totalVolumesUsed": str(limits["totalVolumesUsed"]),
+            "totalGigabytesUsed": str(limits["totalGigabytesUsed"]),
         }
 
     def update_playbooks(self):
@@ -2672,7 +2674,7 @@ class VirtualMachineHandler(Iface):
                 "Github playbooks repo url is None. Aborting download of playbooks."
             )
             return
-        LOG.info("STARTED update of playbooks")
+        LOG.info(f"STARTED update of playbooks from - {self.GITHUB_PLAYBOOKS_REPO}")
         r = req.get(self.GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
         # Todo maybe clone entire direcotry
