@@ -106,8 +106,6 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
-    DEFAULT_SECURITY_GROUP = "defaultSimpleVM"
-    DEFAULT_SECURITY_GROUPS = [DEFAULT_SECURITY_GROUP]
     ALL_TEMPLATES = ALL_TEMPLATES
     loaded_resenv_metadata = {}
 
@@ -164,6 +162,10 @@ class VirtualMachineHandler(Iface):
 
         with open(config, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
+            self.DEFAULT_SECURITY_GROUP_NAME = cfg["openstack_connection"][
+                "default_simple_vm_security_group_name"
+            ]
+            self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
@@ -221,6 +223,7 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = cfg["forc"]["forc_api_key"]
                 self.FORC_ALLOWED = {}
+                self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
                     not self.RE_BACKEND_URL
@@ -991,12 +994,6 @@ class VirtualMachineHandler(Iface):
 
     def prepare_security_groups_new_server(self, resenv, servername, http, https):
         custom_security_groups = []
-
-        custom_security_groups.append(
-            self.create_security_group(
-                name=servername + "_ssh", description="Only SSH"
-            ).name
-        )
 
         if http or https:
             custom_security_groups.append(
@@ -2365,7 +2362,7 @@ class VirtualMachineHandler(Iface):
             security_groups = [
                 sec
                 for sec in security_groups
-                if sec.name != self.DEFAULT_SECURITY_GROUP
+                if sec.name != self.DEFAULT_SECURITY_GROUP_NAME
                 and not "bibigrid" in sec.name
             ]
             if security_groups is not None:
@@ -2627,6 +2624,7 @@ class VirtualMachineHandler(Iface):
                     port_range_max=resenv_metadata.port,
                     port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
+                    remote_group_id=self.FORC_REMOTE_ID,
                 )
             elif research_enviroment != "user_key_url":
                 # Todo add mail for this logging as this should not happen
