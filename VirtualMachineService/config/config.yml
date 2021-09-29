@@ -4,6 +4,7 @@ redis:
   password: ""
 
 openstack_connection:
+  default_simple_vm_security_group_name: "defaultSimpleVM"
   threads: 30
   host: 0.0.0.0
   # Client Port
@@ -48,5 +49,6 @@ forc:
   forc_url:
   forc_api_key:
   github_playbooks_repo:
+  forc_remote_id:
 
 cloud_site: bielefeld
