@@ -160,10 +160,11 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_DOMAIN_ID = os.environ["OS_PROJECT_DOMAIN_ID"]
         self.SSH_PORT = 22
 
-
         with open(config, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-            self.DEFAULT_SECURITY_GROUP_NAME = cfg["openstack_connection"]["default_simple_vm_security_group_name"]
+            self.DEFAULT_SECURITY_GROUP_NAME = cfg["openstack_connection"][
+                "default_simple_vm_security_group_name"
+            ]
             self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
@@ -993,7 +994,6 @@ class VirtualMachineHandler(Iface):
 
     def prepare_security_groups_new_server(self, resenv, servername, http, https):
         custom_security_groups = []
-
 
         if http or https:
             custom_security_groups.append(
@@ -2625,7 +2625,6 @@ class VirtualMachineHandler(Iface):
                     port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
                     remote_group_id=self.FORC_REMOTE_ID,
-
                 )
             elif research_enviroment != "user_key_url":
                 # Todo add mail for this logging as this should not happen
