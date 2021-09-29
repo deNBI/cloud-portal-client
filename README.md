@@ -35,7 +35,9 @@ fill in the missing parameters.
 When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
-The client expects a security group with the name "defaultSimpleVM" to exist which will be assigned to each machine at startup. Also, each machine will have its own security group when it starts.
+The config file contains a name for the default SimpleVM security group. 
+It can be configured via the `default_simple_vm_security_group_name` key.
+The client will set this group for every SimpleVM machine. Also, each machine will have its own security group when it starts.
 
 ##### Gateway
 
