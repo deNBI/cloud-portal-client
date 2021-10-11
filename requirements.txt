@@ -7,7 +7,7 @@ Click==8.0.1
 ansible==4.6.0
 flake8==3.9.2
 ruamel.yaml<0.18.0
-paramiko==2.7.2
+paramiko==2.8.0
 pyvim==3.0.2
 redis==3.5.3
 requests==2.26.0
