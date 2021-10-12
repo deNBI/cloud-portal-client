@@ -27,6 +27,7 @@ PROJECT_ID = "OS_PROJECT_ID"
 USER_DOMAIN_ID = "OS_USER_DOMAIN_NAME"
 AUTH_URL = "OS_AUTH_URL"
 PROJECT_DOMAIN_ID = "OS_PROJECT_DOMAIN_ID"
+FORC_API_KEY= "FORC_API_KEY"
 
 environment_variables = [
     USERNAME,
@@ -36,6 +37,7 @@ environment_variables = [
     USER_DOMAIN_ID,
     AUTH_URL,
     PROJECT_DOMAIN_ID,
+    FORC_API_KEY
 ]
 
 
