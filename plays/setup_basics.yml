@@ -11,15 +11,13 @@
 
 
   pre_tasks:
-    - name: Verify Ansible version.
+    - name: Verify Ansible version
       assert:
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >
           "You must update Ansible to at least 2.7"L
       tags: always
 
-
-  tasks:
     - name: Update cache
       apt:
         upgrade: yes
@@ -27,6 +25,8 @@
         cache_valid_time: 86400 #One day
       tags: always
 
+
+  tasks:
     - name: Checkout cloud-portal-client repository
       git:
         repo: "git@github.com:deNBI/cloud-portal-client.git"
@@ -35,6 +35,18 @@
         force: yes
         version: "{{ repo_version | default('master') }}"
       become: no
+      tags: always
+
+    - name: Import deadsnake PPA for python3.8
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+        update_cache: yes
+      tags: always
+
+    - name: Install python3.8
+      apt:
+        state: latest
+        name: python3.8
       tags: always
 
     - name: Install python3-pip
