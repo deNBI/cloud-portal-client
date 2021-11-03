@@ -1,6 +1,7 @@
 version: '3.5'
 services:
   portal-client:
+    container_name: client
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,13 +17,15 @@ services:
       - portal
 
   redis:
-    image: redis:6.0.9
+    container_name: client_redis
+    image: redis:6.2.6
     expose:
       - "6379"
     networks:
       - portal
 
   bibigrid:
+    container_name: bibigrid
     image: bibiserv/bibigrid:${BIBIGRID_TAG}
     env_file:
       - .env
