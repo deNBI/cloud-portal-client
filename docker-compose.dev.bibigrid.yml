@@ -16,7 +16,7 @@ services:
     networks:
       - portal
 
-  redis:
+  client_redis:
     container_name: client_redis
     image: redis:6.2.6
     expose:
@@ -39,7 +39,7 @@ services:
 
 networks:
   portal:
-    name: client_default
+    name: portal_default
     driver: bridge
     driver_opts:
       com.docker.network.driver.mtu: 1440
