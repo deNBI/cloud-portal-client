@@ -19,6 +19,7 @@ from thrift.server import TServer
 import yaml
 import click
 import signal
+import ssl
 
 USERNAME = "OS_USERNAME"
 PASSWORD = "OS_PASSWORD"
@@ -71,7 +72,7 @@ def startServer(config):
     processor = Processor(handler)
     if USE_SSL:
         click.echo("Use SSL")
-        transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
+        transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE,ssl_version=ssl.PROTOCOL_TLS_SERVER)
     else:
         click.echo("Does not use SSL")
         transport = TSocket.TServerSocket(host=HOST, port=PORT)
