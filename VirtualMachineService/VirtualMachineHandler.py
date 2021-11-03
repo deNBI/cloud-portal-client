@@ -524,7 +524,7 @@ class VirtualMachineHandler(Iface):
             return image
         except Exception as e:
             LOG.exception("Get Image {0} with Tag Error: {1}".format(id, e))
-            return None
+            return Image()
 
     def get_Images_by_filter(self, filter_list):
         """
