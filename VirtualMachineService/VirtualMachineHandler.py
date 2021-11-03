@@ -256,7 +256,6 @@ class VirtualMachineHandler(Iface):
                     "udp_port_calc_formular"
                 ]
 
-
                 LOG.info("Gateway IP is {}".format(self.GATEWAY_IP))
         self.update_playbooks()
         self.conn = self.create_connection()
@@ -525,7 +524,7 @@ class VirtualMachineHandler(Iface):
             return image
         except Exception as e:
             LOG.exception("Get Image {0} with Tag Error: {1}".format(id, e))
-            return None
+            return Image()
 
     def get_Images_by_filter(self, filter_list):
         """
