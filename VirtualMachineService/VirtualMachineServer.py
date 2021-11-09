@@ -19,6 +19,7 @@ from thrift.server import TServer
 import yaml
 import click
 import signal
+import ssl
 
 USERNAME = "OS_USERNAME"
 PASSWORD = "OS_PASSWORD"
@@ -27,7 +28,7 @@ PROJECT_ID = "OS_PROJECT_ID"
 USER_DOMAIN_ID = "OS_USER_DOMAIN_NAME"
 AUTH_URL = "OS_AUTH_URL"
 PROJECT_DOMAIN_ID = "OS_PROJECT_DOMAIN_ID"
-FORC_API_KEY= "FORC_API_KEY"
+FORC_API_KEY = "FORC_API_KEY"
 
 environment_variables = [
     USERNAME,
@@ -37,7 +38,7 @@ environment_variables = [
     USER_DOMAIN_ID,
     AUTH_URL,
     PROJECT_DOMAIN_ID,
-    FORC_API_KEY
+    FORC_API_KEY,
 ]
 
 
@@ -71,7 +72,7 @@ def startServer(config):
     processor = Processor(handler)
     if USE_SSL:
         click.echo("Use SSL")
-        transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE)
+        transport = TSSLSocket.TSSLServerSocket(host=HOST, port=PORT, certfile=CERTFILE,ssl_version=ssl.PROTOCOL_TLS_SERVER)
     else:
         click.echo("Does not use SSL")
         transport = TSocket.TServerSocket(host=HOST, port=PORT)

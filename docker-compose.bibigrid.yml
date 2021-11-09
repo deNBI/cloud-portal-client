@@ -1,6 +1,7 @@
 version: '3.5'
 services:
   portal-client:
+    container_name: client
     image: denbicloud/cloud-portal-client:${CLOUD_PORTAL_CLIENT_TAG}
     ports:
       - ${CLIENT_PORT}:9090
@@ -14,14 +15,16 @@ services:
     networks:
       - portal
 
-  redis:
-    image: redis:6.0.9
+  client_redis:
+    container_name: client_redis
+    image: redis:6.2.6
     expose:
       - "6379"
     networks:
       - portal
 
   bibigrid:
+    container_name: bibigrid
     image: bibiserv/bibigrid:${BIBIGRID_TAG}
     env_file:
       - .env

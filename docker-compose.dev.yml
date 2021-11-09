@@ -1,6 +1,7 @@
 version: '3.5'
 services:
   portal-client:
+    container_name: client
     build:
       context: .
       dockerfile: Dockerfile
@@ -15,8 +16,9 @@ services:
     networks:
       - portal
 
-  redis:
-    image: redis:6.0.9
+  client_redis:
+    container_name: client_redis
+    image: redis:6.2.6
     expose:
       - "6379"
     networks:
