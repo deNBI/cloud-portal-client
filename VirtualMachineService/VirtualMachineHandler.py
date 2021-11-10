@@ -2204,13 +2204,13 @@ class VirtualMachineHandler(Iface):
             LOG.exception("Create snapshot {0} error: {1}".format(openstack_id, e))
 
             raise conflictException(Reason="409")
+            return None
         except Exception:
             LOG.exception("Instance {0} not found".format(openstack_id))
-            return
+            return None
         try:
             snapshot = self.conn.get_image_by_id(snapshot_munch["id"])
             snapshot_id = snapshot["id"]
-            # todo check again
             try:
                 image = self.conn.get_image(name_or_id=snapshot_id)
                 if description:
@@ -2222,12 +2222,14 @@ class VirtualMachineHandler(Iface):
                     self.conn.image.add_tag(image=snapshot_id, tag=tag)
             except Exception:
                 LOG.exception("Tag error catched")
+                return None
             try:
                 self.conn.image.add_tag(image=snapshot_id, tag=elixir_id)
             except Exception:
                 LOG.exception(
                     f"Could not add Tag {elixir_id} to Snapshot: {snapshot_id}"
                 )
+                return None
 
             return snapshot_id
         except Exception as e:
