@@ -1,10 +1,10 @@
-setuptools==58.4.0
+setuptools==58.5.3
 thrift==0.15.0
 python-keystoneclient
 openstacksdk ==0.59.0
 deprecated == 1.2.13
 Click==8.0.3
-ansible==4.7.0
+ansible==4.8.0
 flake8==4.0.1
 ruamel.yaml<0.18.0
 paramiko==2.8.0
