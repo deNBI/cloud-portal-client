@@ -2204,7 +2204,6 @@ class VirtualMachineHandler(Iface):
             LOG.exception("Create snapshot {0} error: {1}".format(openstack_id, e))
 
             raise conflictException(Reason="409")
-            return None
         except Exception:
             LOG.exception("Instance {0} not found".format(openstack_id))
             return None
