@@ -1,4 +1,4 @@
-setuptools==58.5.3
+setuptools==59.1.0
 thrift==0.15.0
 python-keystoneclient
 openstacksdk ==0.59.0
@@ -9,6 +9,6 @@ flake8==4.0.1
 ruamel.yaml<0.18.0
 paramiko==2.8.0
 pyvim==3.0.2
-redis==3.5.3
+redis==4.0.0
 requests==2.26.0
 pyyaml==6.0
