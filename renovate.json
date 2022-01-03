@@ -5,12 +5,6 @@
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
   "labels": ["dependencies"],
-  "packageRules": [
-    {
-      "matchDatasources": ["docker"],
-      "labels": ["docker"]
-    }
-  ],
   "assignees": ["team:portal-dev"],
   "branchPrefix": "deps/",
   "bumpVersion": "minor",
