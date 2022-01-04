@@ -22,6 +22,7 @@
       "addLabels": ["pin"]
     }
    ],
+
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
   "labels": ["dependencies"],
