@@ -7,19 +7,19 @@
   "packageRules": [
     {
       "updateTypes": ["major"],
-      "addLabels": ["renovate::major"]
+      "addLabels": ["major"]
     },
     {
       "updateTypes": ["minor"],
-      "addLabels": ["renovate::minor"]
+      "addLabels": ["minor"]
     },
      {
       "updateTypes": ["patch"],
-      "addLabels": ["renovate::patch"]
+      "addLabels": ["patch"]
     },
     {
       "updateTypes": ["pin"],
-      "addLabels": ["renovate::pin"]
+      "addLabels": ["pin"]
     }
    ],
   "baseBranches": ["dev"],
