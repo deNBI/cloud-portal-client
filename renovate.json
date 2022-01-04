@@ -4,6 +4,24 @@
      ":automergePatch",
      ":automergeMinor"
   ],
+    "packageRules": [
+    {
+      "updateTypes": ["major"],
+      "appendLabels": ["renovate::major"]
+    },
+    {
+      "updateTypes": ["minor"],
+      "appendLabels": ["renovate::minor"]
+    },
+     {
+      "updateTypes": ["patch"],
+      "appendLabels": ["renovate::patch"]
+    },
+    {
+      "updateTypes": ["pin"],
+      "appendLabels": ["renovate::pin"]
+    },
+   ],
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
   "labels": ["dependencies"],
