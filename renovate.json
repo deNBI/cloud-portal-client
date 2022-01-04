@@ -4,23 +4,23 @@
      ":automergePatch",
      ":automergeMinor"
   ],
-    "packageRules": [
+  "packageRules": [
     {
       "updateTypes": ["major"],
-      "appendLabels": ["renovate::major"]
+      "addLabels": ["renovate::major"]
     },
     {
       "updateTypes": ["minor"],
-      "appendLabels": ["renovate::minor"]
+      "addLabels": ["renovate::minor"]
     },
      {
       "updateTypes": ["patch"],
-      "appendLabels": ["renovate::patch"]
+      "addLabels": ["renovate::patch"]
     },
     {
       "updateTypes": ["pin"],
-      "appendLabels": ["renovate::pin"]
-    },
+      "addLabels": ["renovate::pin"]
+    }
    ],
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
