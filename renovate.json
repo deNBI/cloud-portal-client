@@ -1,0 +1,34 @@
+{
+  "extends": [
+    "config:base",
+     ":automergePatch",
+     ":automergeMinor"
+  ],
+  "packageRules": [
+    {
+      "updateTypes": ["major"],
+      "addLabels": ["major"]
+    },
+    {
+      "updateTypes": ["minor"],
+      "addLabels": ["minor"]
+    },
+     {
+      "updateTypes": ["patch"],
+      "addLabels": ["patch"]
+    },
+    {
+      "updateTypes": ["pin"],
+      "addLabels": ["pin"]
+    }
+   ],
+
+  "baseBranches": ["dev"],
+  "reviewers": ["team:portal-dev"],
+  "labels": ["dependencies"],
+  "assignees": ["team:portal-dev"],
+  "branchPrefix": "deps/",
+  "bumpVersion": "minor",
+  "commitBodyTable": "true",
+  "commitMessagePrefix": "feat(Dependencies):"
+}
