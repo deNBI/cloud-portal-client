@@ -13,3 +13,4 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUBSECRET2 }}"
           MERGE_MSG: "Branch was auto-updated."
           MERGE_CONFLICT_ACTION: "ignore"
+          EXCLUDE_LABELS: "dependencies"
