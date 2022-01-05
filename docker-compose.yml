@@ -2,7 +2,7 @@ version: '3.5'
 services:
   portal-client:
     container_name: client
-    image: denbicloud/cloud-portal-client:0.1.0-beta.0.15.1
+    image: denbicloud/cloud-portal-client:${CLOUD_PORTAL_CLIENT_TAG}
     ports:
       - ${CLIENT_PORT}:9090
     env_file:
