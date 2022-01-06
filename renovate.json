@@ -22,6 +22,9 @@
       "addLabels": ["pin"]
     }
    ],
+   "vulnerabilityAlerts": {
+    "labels": ["security"]
+  },
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
   "labels": ["dependencies"],
