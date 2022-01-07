@@ -2077,17 +2077,16 @@ class VirtualMachineHandler(Iface):
     def get_active_image_by_os_version(self, os_version, os_distro):
         LOG.info(f"Get active Image by os-version: {os_version}")
         images = self.conn.list_images()
-        active_image = None
         for image in images:
             metadata = image["metadata"]
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
             if os_version == image_os_version and image.status == "active":
                 if os_distro and os_distro == image_os_distro:
-                    active_image = image
+                    return image
                 elif os_distro is None:
-                    active_image = image
-        return active_image
+                    return image
+        return None
 
     def scale_up_cluster(
             self, cluster_id, image, flavor, count, names, start_idx, batch_index
