@@ -752,7 +752,8 @@ class VirtualMachineHandler(Iface):
             return "No active task"
 
     def get_image(self, image):
-        image = self.conn.compute.find_image(image)
+        image = self.conn.get_image(name_or_id=image)
+
         if image is None:
             LOG.exception("Image {0} not found!".format(image))
             raise imageNotFoundException(Reason=("Image {0} not found".format(image)))
@@ -2076,24 +2077,30 @@ class VirtualMachineHandler(Iface):
     def get_active_image_by_os_version(self, os_version, os_distro):
         LOG.info(f"Get active Image by os-version: {os_version}")
         images = self.conn.list_images()
+        active_image = None
         for image in images:
             metadata = image["metadata"]
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
             if os_version == image_os_version and image.status == "active":
                 if os_distro and os_distro == image_os_distro:
-                    return image
+                    active_image = image
                 elif os_distro is None:
-                    return image
-        return None
+                    active_image = image
+        return active_image
 
     def scale_up_cluster(
             self, cluster_id, image, flavor, count, names, start_idx, batch_index
     ):
         cluster_info = self.get_cluster_info(cluster_id=cluster_id)
         image = self.get_image(image=image)
-        if image.status != "active":
-            metadata = image["metadata"]
+        if not image:
+            raise imageNotFoundException(
+                Reason=(f"No Image {image} found!")
+            )
+        if image and image.status != "active":
+            LOG.info(image.keys())
+            metadata = image.get("metadata", None)
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
             image = self.get_active_image_by_os_version(os_version=image_os_version, os_distro=image_os_distro)
