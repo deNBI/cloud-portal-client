@@ -2094,9 +2094,7 @@ class VirtualMachineHandler(Iface):
         cluster_info = self.get_cluster_info(cluster_id=cluster_id)
         image = self.get_image(image=image)
         if not image:
-            raise imageNotFoundException(
-                Reason=(f"No Image {image} found!")
-            )
+            raise imageNotFoundException(Reason=(f"No Image {image} found!"))
         if image and image.status != "active":
             LOG.info(image.keys())
             metadata = image.get("metadata", None)
