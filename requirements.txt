@@ -1,14 +1,14 @@
-setuptools==59.6.0
+setuptools==60.5.0
 thrift==0.15.0
 python-keystoneclient
 openstacksdk ==0.61.0
 deprecated == 1.2.13
 Click==8.0.3
-ansible==5.0.1
+ansible==5.2.0
 flake8==4.0.1
-ruamel.yaml<0.18.0
-paramiko==2.8.1
+paramiko==2.9.2
+ruamel.yaml==0.17.20
 pyvim==3.0.2
-redis==4.0.2
-requests==2.26.0
+redis==4.1.1
+requests==2.27.1
 pyyaml==6.0
