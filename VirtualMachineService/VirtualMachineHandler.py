@@ -1955,7 +1955,7 @@ class VirtualMachineHandler(Iface):
             .split(".")[-1]
         )
         x = int(ip_base)
-        udp_port_start = eval(self.UDP_PORT_CALCULATION)
+        udp_port_start = eval(self.UDP_FORMULAR)
 
         security_group = self.create_security_group(
             name=server.name + "_udp",
