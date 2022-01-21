@@ -2082,7 +2082,11 @@ class VirtualMachineHandler(Iface):
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
             base_image_ref = metadata.get("base_image_ref", None)
-            if os_version == image_os_version and image.status == "active" and base_image_ref is None:
+            if (
+                os_version == image_os_version
+                and image.status == "active"
+                and base_image_ref is None
+            ):
                 if os_distro and os_distro == image_os_distro:
                     return image
                 elif os_distro is None:
