@@ -607,6 +607,10 @@ service VirtualMachineService {
 	map<string,list<string>> scale_up_cluster(1: string cluster_id,2: string image,3:string flavor,4:int count,
                           5:list<string>names,6:int start_idx,7:int batch_idx)
 
+
+    string add_cluster_machine(1:string cluster_id,2:string cluster_user,3:string cluster_group_id,4:string image,5: string flavor,6: string name,7: string key_name,8: int batch_idx,
+                            9:int worker_idx)
+
 	ClusterInfo get_cluster_info(1:string cluster_id)
 
 	map<string,string>get_cluster_status(1:string cluster_id)
