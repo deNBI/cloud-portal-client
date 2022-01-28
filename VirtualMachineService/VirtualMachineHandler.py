@@ -210,7 +210,9 @@ class VirtualMachineHandler(Iface):
                     self.BIBIGIRD_EP = (
                         f"http://{self.BIBIGRID_HOST}:{self.BIBIGRID_PORT}"
                     )
-                self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT = self.create_deactivate_update_script();
+                self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT = (
+                    self.create_deactivate_update_script()
+                )
 
                 LOG.info(msg="Bibigrd url loaded: {0}".format(self.BIBIGRID_URL))
             except Exception as e:
@@ -2096,9 +2098,7 @@ class VirtualMachineHandler(Iface):
 
     def create_deactivate_update_script(self):
         fileDir = os.path.dirname(os.path.abspath(__file__))
-        deactivate_update_script_file = os.path.join(
-            fileDir, "scripts/bash/mount.sh"
-        )
+        deactivate_update_script_file = os.path.join(fileDir, "scripts/bash/mount.sh")
         with open(deactivate_update_script_file, "r") as file:
             deactivate_update_script = file.read()
             deactivate_update_script = encodeutils.safe_encode(
@@ -2106,23 +2106,35 @@ class VirtualMachineHandler(Iface):
             )
         return deactivate_update_script
 
-    def add_cluster_machine(self, cluster_id, cluster_user, cluster_group_id, image, flavor, name, key_name, batch_idx,
-                            worker_idx):
+    def add_cluster_machine(
+        self,
+        cluster_id,
+        cluster_user,
+        cluster_group_id,
+        image,
+        flavor,
+        name,
+        key_name,
+        batch_idx,
+        worker_idx,
+    ):
         LOG.info(f"Add machine to {cluster_id} - {key_name}")
         image = self.get_image(image=image)
         if not image:
-            raise imageNotFoundException(
-                Reason=(f"No Image {image} found!")
-            )
+            raise imageNotFoundException(Reason=(f"No Image {image} found!"))
         if image and image.status != "active":
             LOG.info(image.keys())
             metadata = image.get("metadata", None)
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
-            image = self.get_active_image_by_os_version(os_version=image_os_version, os_distro=image_os_distro)
+            image = self.get_active_image_by_os_version(
+                os_version=image_os_version, os_distro=image_os_distro
+            )
             if not image:
                 raise imageNotFoundException(
-                    Reason=(f"No active Image with os_version {image_os_version} found!")
+                    Reason=(
+                        f"No active Image with os_version {image_os_version} found!"
+                    )
                 )
         flavor = self.get_flavor(flavor=flavor)
         network = self.get_network()
@@ -2147,7 +2159,7 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info("Created cluster machine:{}".format(server["id"]))
 
-        return  server["id"]
+        return server["id"]
 
     def scale_up_cluster(
         self, cluster_id, image, flavor, count, names, start_idx, batch_index
