@@ -29,6 +29,8 @@ services:
     image: bibiserv/bibigrid:bibigrid-rest-2.3
     env_file:
       - .env
+    volumes:
+      - ./scripts/bibigrid/clear_keys_cron:/etc/crontabs/root
     environment:
       - server.enableHttps=false
       - server.enableHttp=true
