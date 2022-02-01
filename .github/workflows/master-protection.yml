@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-pr-branch:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
 
       - name: Workflow run cleanup action
