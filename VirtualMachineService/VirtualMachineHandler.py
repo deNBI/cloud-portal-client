@@ -2140,9 +2140,9 @@ class VirtualMachineHandler(Iface):
         network = self.get_network()
         metadata = {
             "bibigrid-id": cluster_id,
-            "user": cluster_user,
+            "user": cluster_user or "",
             "worker-batch": str(batch_idx),
-            "name": name,
+            "name": name or "",
             "worker-index": str(worker_idx),
         }
 
