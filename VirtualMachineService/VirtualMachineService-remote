@@ -24,32 +24,26 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
-    print('  bool check_Version(double version)')
+    print('  bool check_version(double version)')
     print('  string get_client_version()')
     print('   get_gateway_ip()')
-    print('   get_calculation_formulars()')
+    print('   get_calculation_values()')
     print('  string import_keypair(string keyname, string public_key)')
     print('   get_vm_ports(string openstack_id)')
-    print('   get_Flavors()')
-    print('   get_Images()')
-    print('   get_public_Images()')
-    print('   get_private_Images()')
-    print('  Image get_Image_with_Tag(string openstack_id)')
-    print('   get_Images_by_filter( filter_json)')
+    print('   get_flavors()')
+    print('   get_images()')
+    print('   get_public_images()')
+    print('   get_private_images()')
+    print('  Image get_image(string openstack_id)')
+    print('   get_images_by_filter( filter_json)')
     print('  Volume get_volume(string volume_id)')
     print('   get_volumes_by_ids( volume_ids)')
     print('  int resize_volume(string volume_id, int size)')
     print('  bool delete_server(string openstack_id)')
-    print('   add_metadata_to_server(string servername,  metadata)')
-    print('   delete_metadata_from_server(string servername,  keys)')
-    print('  string add_floating_ip_to_server(string openstack_id, string network)')
-    print('  bool create_connection(string username, string password, string auth_url, string user_domain_name, string project_domain_name)')
-    print('   start_server_without_playbook(string flavor, string image, string public_key, string servername,  metadata, bool https, bool http,  resenv,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)')
+    print('   start_server(string flavor, string image, string public_key, string servername,  metadata,  research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)')
     print('  bool bibigrid_available()')
     print('  bool detach_ip_from_server(string server_id, string floating_ip)')
-    print('   start_server_with_mounted_volume(string flavor, string image, string public_key, string servername,  metadata, bool https, bool http,  resenv,  volume_ids_path_new,  volume_ids_path_attach)')
-    print('   start_server(string flavor, string image, string public_key, string servername,  metadata, string diskspace, string volumename, bool https, bool http,  resenv)')
-    print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata, bool http, bool https,  resenv,  volume_ids_path_new,  volume_ids_path_attach)')
+    print('   start_server_with_custom_key(string flavor, string image, string servername,  metadata,  research_environment,  volume_ids_path_new,  volume_ids_path_attach)')
     print('  bool exist_server(string name)')
     print('  int create_and_deploy_playbook(string public_key,  playbooks_information, string openstack_id)')
     print('  PlaybookResult get_playbook_logs(string openstack_id)')
@@ -88,10 +82,9 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  bool delete_volume(string volume_id)')
     print('   attach_volume_to_server(string openstack_id, string volume_id)')
     print('  VM check_server_status(string openstack_id)')
-    print('  string setUserPassword(string user, string password)')
     print('  bool resume_server(string openstack_id)')
     print('   create_volume(string volume_name, int volume_storage,  metadata)')
-    print('  bool reboot_server(string server_id, string reboot_type)')
+    print('  bool reboot_server(string openstack_id, string reboot_type)')
     print('')
     sys.exit(0)
 
@@ -171,11 +164,11 @@ protocol = TBinaryProtocol(transport)
 client = VirtualMachineService.Client(protocol)
 transport.open()
 
-if cmd == 'check_Version':
+if cmd == 'check_version':
     if len(args) != 1:
-        print('check_Version requires 1 args')
+        print('check_version requires 1 args')
         sys.exit(1)
-    pp.pprint(client.check_Version(eval(args[0]),))
+    pp.pprint(client.check_version(eval(args[0]),))
 
 elif cmd == 'get_client_version':
     if len(args) != 0:
@@ -189,11 +182,11 @@ elif cmd == 'get_gateway_ip':
         sys.exit(1)
     pp.pprint(client.get_gateway_ip())
 
-elif cmd == 'get_calculation_formulars':
+elif cmd == 'get_calculation_values':
     if len(args) != 0:
-        print('get_calculation_formulars requires 0 args')
+        print('get_calculation_values requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_calculation_formulars())
+    pp.pprint(client.get_calculation_values())
 
 elif cmd == 'import_keypair':
     if len(args) != 2:
@@ -207,41 +200,41 @@ elif cmd == 'get_vm_ports':
         sys.exit(1)
     pp.pprint(client.get_vm_ports(args[0],))
 
-elif cmd == 'get_Flavors':
+elif cmd == 'get_flavors':
     if len(args) != 0:
-        print('get_Flavors requires 0 args')
+        print('get_flavors requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_Flavors())
+    pp.pprint(client.get_flavors())
 
-elif cmd == 'get_Images':
+elif cmd == 'get_images':
     if len(args) != 0:
-        print('get_Images requires 0 args')
+        print('get_images requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_Images())
+    pp.pprint(client.get_images())
 
-elif cmd == 'get_public_Images':
+elif cmd == 'get_public_images':
     if len(args) != 0:
-        print('get_public_Images requires 0 args')
+        print('get_public_images requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_public_Images())
+    pp.pprint(client.get_public_images())
 
-elif cmd == 'get_private_Images':
+elif cmd == 'get_private_images':
     if len(args) != 0:
-        print('get_private_Images requires 0 args')
+        print('get_private_images requires 0 args')
         sys.exit(1)
-    pp.pprint(client.get_private_Images())
+    pp.pprint(client.get_private_images())
 
-elif cmd == 'get_Image_with_Tag':
+elif cmd == 'get_image':
     if len(args) != 1:
-        print('get_Image_with_Tag requires 1 args')
+        print('get_image requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_Image_with_Tag(args[0],))
+    pp.pprint(client.get_image(args[0],))
 
-elif cmd == 'get_Images_by_filter':
+elif cmd == 'get_images_by_filter':
     if len(args) != 1:
-        print('get_Images_by_filter requires 1 args')
+        print('get_images_by_filter requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_Images_by_filter(eval(args[0]),))
+    pp.pprint(client.get_images_by_filter(eval(args[0]),))
 
 elif cmd == 'get_volume':
     if len(args) != 1:
@@ -267,35 +260,11 @@ elif cmd == 'delete_server':
         sys.exit(1)
     pp.pprint(client.delete_server(args[0],))
 
-elif cmd == 'add_metadata_to_server':
-    if len(args) != 2:
-        print('add_metadata_to_server requires 2 args')
+elif cmd == 'start_server':
+    if len(args) != 9:
+        print('start_server requires 9 args')
         sys.exit(1)
-    pp.pprint(client.add_metadata_to_server(args[0], eval(args[1]),))
-
-elif cmd == 'delete_metadata_from_server':
-    if len(args) != 2:
-        print('delete_metadata_from_server requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.delete_metadata_from_server(args[0], eval(args[1]),))
-
-elif cmd == 'add_floating_ip_to_server':
-    if len(args) != 2:
-        print('add_floating_ip_to_server requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.add_floating_ip_to_server(args[0], args[1],))
-
-elif cmd == 'create_connection':
-    if len(args) != 5:
-        print('create_connection requires 5 args')
-        sys.exit(1)
-    pp.pprint(client.create_connection(args[0], args[1], args[2], args[3], args[4],))
-
-elif cmd == 'start_server_without_playbook':
-    if len(args) != 11:
-        print('start_server_without_playbook requires 11 args')
-        sys.exit(1)
-    pp.pprint(client.start_server_without_playbook(args[0], args[1], args[2], args[3], eval(args[4]), eval(args[5]), eval(args[6]), eval(args[7]), eval(args[8]), eval(args[9]), eval(args[10]),))
+    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), eval(args[5]), eval(args[6]), eval(args[7]), eval(args[8]),))
 
 elif cmd == 'bibigrid_available':
     if len(args) != 0:
@@ -309,23 +278,11 @@ elif cmd == 'detach_ip_from_server':
         sys.exit(1)
     pp.pprint(client.detach_ip_from_server(args[0], args[1],))
 
-elif cmd == 'start_server_with_mounted_volume':
-    if len(args) != 10:
-        print('start_server_with_mounted_volume requires 10 args')
-        sys.exit(1)
-    pp.pprint(client.start_server_with_mounted_volume(args[0], args[1], args[2], args[3], eval(args[4]), eval(args[5]), eval(args[6]), eval(args[7]), eval(args[8]), eval(args[9]),))
-
-elif cmd == 'start_server':
-    if len(args) != 10:
-        print('start_server requires 10 args')
-        sys.exit(1)
-    pp.pprint(client.start_server(args[0], args[1], args[2], args[3], eval(args[4]), args[5], args[6], eval(args[7]), eval(args[8]), eval(args[9]),))
-
 elif cmd == 'start_server_with_custom_key':
-    if len(args) != 9:
-        print('start_server_with_custom_key requires 9 args')
+    if len(args) != 7:
+        print('start_server_with_custom_key requires 7 args')
         sys.exit(1)
-    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), eval(args[4]), eval(args[5]), eval(args[6]), eval(args[7]), eval(args[8]),))
+    pp.pprint(client.start_server_with_custom_key(args[0], args[1], args[2], eval(args[3]), eval(args[4]), eval(args[5]), eval(args[6]),))
 
 elif cmd == 'exist_server':
     if len(args) != 1:
@@ -554,12 +511,6 @@ elif cmd == 'check_server_status':
         print('check_server_status requires 1 args')
         sys.exit(1)
     pp.pprint(client.check_server_status(args[0],))
-
-elif cmd == 'setUserPassword':
-    if len(args) != 2:
-        print('setUserPassword requires 2 args')
-        sys.exit(1)
-    pp.pprint(client.setUserPassword(args[0], args[1],))
 
 elif cmd == 'resume_server':
     if len(args) != 1:

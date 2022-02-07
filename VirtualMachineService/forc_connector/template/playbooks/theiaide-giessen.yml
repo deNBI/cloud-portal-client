@@ -1,0 +1,124 @@
+- name: Disable periodic updates
+  block:
+    - name: Disable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "0";'
+        create: yes
+    - name: Stop apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
+
+- name: Update apt cache
+  apt:
+    update_cache: true
+  become: yes
+
+- name: Wait for automatic system updates 1
+  shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+  when: theiaide_vars.create_only_backend == "false"
+
+- name: Wait for automatic system updates 2
+  shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+  when: theiaide_vars.create_only_backend == "false"
+
+- name: Install theia_ide role
+  block:
+    - name: Install packages
+      apt:
+        name: ["python", "make", "g++", "curl", "git"]
+      when: ansible_distribution_file_variety == 'Debian'
+
+    - name: install packages
+      yum:
+        name: ["python", "curl", "git", "make", "gcc", "gcc-c++"]
+      when: ansible_distribution_file_variety == 'RedHat'
+
+    - name: Create NVM install dir
+      file:
+        path: "{{ theiaide_vars.NVM_INSTALL_DIR }}"
+        state: directory
+        mode: 0755
+
+    - name: Set fact 'theia_ide_user' when not defined
+      set_fact:
+        theia_ide_user: "{{ ansible_env.SUDO_USER }}"
+      when: theia_ide_user is not defined
+
+    - name: Set fact 'theia_ide_workspace' to '${HOME}'
+      set_fact:
+        theia_ide_workspace: "${HOME}"
+
+    - name: Install nvm
+      shell: |
+        curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.37.0/install.sh | NVM_DIR={{ theiaide_vars.NVM_INSTALL_DIR }} /bin/bash
+      args:
+        creates: "{{ theiaide_vars.NVM_INSTALL_DIR }}/nvm.sh"
+        warn: false
+
+    - name: Install node 12 and yarn
+      shell: |
+        source {{ theiaide_vars.NVM_INSTALL_DIR }}/nvm.sh
+        nvm install 12
+        npm install -g yarn
+      args:
+        executable: bash
+
+    - name: Install prebuild theia
+      shell: |
+        curl -o- https://bibiserv.cebitec.uni-bielefeld.de/resources/bibigrid/plugins/theia-ide_node12.tar.gz | tar -xzf -
+      args:
+        chdir: "/opt"
+        creates: "{{ theiaide_vars.THEIA_INSTALL_DIR }}"
+
+    - name: Set facts for templates
+      set_fact:
+        theia_ide_install_dir: "{{ theiaide_vars.THEIA_INSTALL_DIR }}"
+        theia_ide_bind_address: "{{ theiaide_vars.THEIA_BIND_ADDRESS }}"
+        theia_ide_bind_port: "{{ theiaide_vars.THEIA_BIND_PORT }}"
+        nvm_install_dir: "{{ theiaide_vars.NVM_INSTALL_DIR }}"
+
+    - name: Generate IDE start skript to /usr/local/bin
+      template:
+        src: "{{ theiaide_vars.templates_path }}theia-ide.sh.j2"
+        dest: "{{ theiaide_vars.THEIA_INSTALL_DIR }}/theia-ide.sh"
+        mode: 0755
+
+    - name: Generate systemd service
+      template:
+        src: "{{ theiaide_vars.templates_path }}theia-ide.service.j2"
+        dest: /etc/systemd/system/theia-ide.service
+        mode: 0644
+
+    - name: Enable and Start service
+      systemd:
+        name: theia-ide.service
+        enabled: true
+        state: started
+
+  when: theiaide_vars.create_only_backend == "false"
+
+- name: Enable periodic updates
+  block:
+    - name: enable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "1";'
+        create: yes
+    - name: Start apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: started
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
+        - apt-daily-upgrade.timer

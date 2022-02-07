@@ -1,0 +1,21 @@
+template_name: guacamole
+is_maintained: True
+port: 8080
+needs_forc_support: True
+forc_versions:
+    - v02
+    - v01
+incompatible_versions:
+    - Ubuntu 16.04
+    - Ubuntu 20.04
+direction: "ingress"
+protocol: "tcp"
+securitygroup_name: "_guacamole"
+securitygroup_description: "Guacamole"
+securitygroup_ssh: False
+title: "Guacamole"
+description: "Guacamole is a browser based remote desktop application."
+logo_url: "https://cloud.denbi.de/wp-content/uploads/2020/02/guacamole-7.png"
+info_url: ""
+information_for_display:
+     version: "1.0.0"

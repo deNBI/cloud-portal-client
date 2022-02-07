@@ -1,0 +1,18 @@
+template_name: cwlab
+is_maintained: True
+port: 80
+needs_forc_support: True
+forc_versions:
+    - v01
+incompatible_versions: []
+direction: "ingress"
+protocol: "tcp"
+securitygroup_name: "_cwlab"
+securitygroup_description: "CWLab"
+securitygroup_ssh: False
+title: "CWLab"
+description: ""
+logo_url: ""
+info_url: ""
+information_for_display:
+     version: "0.3.2"

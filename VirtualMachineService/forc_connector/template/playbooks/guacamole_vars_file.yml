@@ -1,0 +1,5 @@
+guacamole_vars:
+  template_version:
+  create_only_backend:
+  DEFAULT_USER: ubuntu
+  DEFAULT_PASSWORD_HASHED: $6$iRrIJogrR0N2ZVdb$oL5XzFqcTC.O3g4DS945a5K7nRvO0LqY.ugyjDINUA347qRYXe1YXag8cRlLf9PVwmNrRYU3LTNGyCIPbFvz4/

@@ -1,0 +1,6 @@
+cwlab_vars:
+  exposed_port: 80
+  data_volume_path: /home/ubuntu/cwlab-data/
+  image: ljelonek/cwlab:0.3.2
+  template_version:
+  create_only_backend:

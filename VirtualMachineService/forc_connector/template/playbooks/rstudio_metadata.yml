@@ -1,0 +1,21 @@
+template_name: rstudio
+is_maintained: True
+port: 8787
+needs_forc_support: True
+forc_versions:
+  - v03
+  - v02
+  - v01
+incompatible_versions:
+      - Ubuntu 20.04
+direction: "ingress"
+protocol: "tcp"
+securitygroup_name: "_rstudio"
+securitygroup_description: "Rstudio"
+securitygroup_ssh: False
+title: "RStudio"
+description: "RStudio is an integrated development environment for R."
+logo_url: "https://cloud.denbi.de/wp-content/uploads/2019/02/RStudio-Logo-Flat-1024x360-1.png"
+info_url: ""
+information_for_display:
+     version: 1.4.1103

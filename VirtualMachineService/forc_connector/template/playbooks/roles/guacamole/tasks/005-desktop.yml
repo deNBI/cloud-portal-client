@@ -1,0 +1,35 @@
+---
+
+- name: Update apt cache
+  apt:
+    cache_valid_time: 7600
+
+- name: Install xfce4
+  apt:
+    name: xfce4*
+    state: latest
+
+- name: Install Firefox
+  apt:
+    name: firefox
+    state: latest
+
+- name: Install xrdp and other goodies
+  apt:
+    name:
+      - xrdp
+      - xorg
+      - dbus-x11
+      - x11-xserver-utils
+    state: latest
+
+- name: Config xrdp to start xfce4
+  lineinfile:
+    path: /etc/xrdp/xrdp.ini
+    line: "exec startxfce4"
+  notify: Restart xrdp
+
+- name: Setup password for default user
+  user:
+    name: "{{ DEFAULT_USER }}"
+    password: "{{ DEFAULT_PASSWORD_HASHED }}"

@@ -973,9 +973,9 @@ class VirtualMachineHandler(Iface):
 
             server = self.conn.create_server(
                 name=servername,
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
+                image=image.ID,
+                flavor=flavor.ID,
+                network=[network.ID],
                 key_name=key_pair.name,
                 meta=metadata,
                 userdata=init_script,
@@ -1097,9 +1097,9 @@ class VirtualMachineHandler(Iface):
 
             server = self.conn.create_server(
                 name=servername,
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
+                image=image.ID,
+                flavor=flavor.ID,
+                network=[network.ID],
                 key_name=key_pair.name,
                 meta=metadata,
                 volumes=volumes,
@@ -1164,9 +1164,9 @@ class VirtualMachineHandler(Iface):
 
             server = self.conn.create_server(
                 name=servername,
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
+                image=image.ID,
+                flavor=flavor.ID,
+                network=[network.ID],
                 key_name=key_pair.name,
                 meta=metadata,
                 availability_zone=self.AVAIALABILITY_ZONE,
@@ -1243,9 +1243,9 @@ class VirtualMachineHandler(Iface):
 
             server = self.conn.create_server(
                 name=servername,
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
+                image=image.ID,
+                flavor=flavor.ID,
+                network=[network.ID],
                 key_name=servername,
                 userdata=init_script,
                 volumes=volumes,
@@ -1688,7 +1688,7 @@ class VirtualMachineHandler(Iface):
                 LOG.info(os_volume)
                 thrift_volume = Volume(
                     status=os_volume.status,
-                    id=os_volume.id,
+                    id=os_volume.ID,
                     name=os_volume.name,
                     description=os_volume.description,
                     created_at=os_volume.created_at,
@@ -1715,7 +1715,7 @@ class VirtualMachineHandler(Iface):
 
             thrift_volume = Volume(
                 status=os_volume.status,
-                id=os_volume.id,
+                id=os_volume.ID,
                 name=os_volume.name,
                 description=os_volume.description,
                 created_at=os_volume.created_at,
@@ -1971,7 +1971,7 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info(security_group)
         LOG.info(
-            "Add security group {} to server {} ".format(security_group.id, server_id)
+            "Add security group {} to server {} ".format(security_group.ID, server_id)
         )
         self.conn.compute.add_security_group_to_server(
             server=server_id, security_group=security_group
@@ -2046,36 +2046,7 @@ class VirtualMachineHandler(Iface):
 
         return json_resp
 
-    def bibigrid_available(self):
-        LOG.info("Checking if Bibigrid is available")
-        if not self.BIBIGIRD_EP:
-            LOG.info("Bibigrid EP is not set")
-            return False
-        try:
-            status = req.get(self.BIBIGIRD_EP + "/server/health").status_code
-            if status == 200:
-                LOG.info("Bibigrid Server is available")
-                return True
 
-            else:
-
-                LOG.exception("Bibigrid is offline")
-                return False
-
-        except Exception:
-            LOG.exception("Bibigrid is offline")
-            return False
-
-    def get_clusters_info(self):
-        headers = {"content-Type": "application/json"}
-        body = {"mode": "openstack"}
-        request_url = self.BIBIGRID_URL + "list"
-        response = req.get(
-            url=request_url, json=body, headers=headers, verify=self.PRODUCTION
-        )
-        LOG.info(response.json())
-        infos = response.json()["info"]
-        return infos
 
     def get_active_image_by_os_version(self, os_version, os_distro):
         LOG.info(f"Get active Image by os-version: {os_version}")
@@ -2149,8 +2120,8 @@ class VirtualMachineHandler(Iface):
         server = self.conn.create_server(
             name=name,
             image=image.id,
-            flavor=flavor.id,
-            network=[network.id],
+            flavor=flavor.ID,
+            network=[network.ID],
             userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
             key_name=key_name,
             meta=metadata,
@@ -2201,8 +2172,8 @@ class VirtualMachineHandler(Iface):
             server = self.conn.create_server(
                 name=names[i],
                 image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
+                flavor=flavor.ID,
+                network=[network.ID],
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=cluster_info.key_name,
                 meta=metadata,
@@ -2216,29 +2187,6 @@ class VirtualMachineHandler(Iface):
 
         return {"openstack_ids": openstack_ids}
 
-    def get_cluster_info(self, cluster_id):
-        infos = self.get_clusters_info()
-        for info in infos:
-            LOG.info(cluster_id)
-            LOG.info(info)
-            LOG.info(info["cluster-id"])
-            LOG.info(cluster_id == info["cluster-id"])
-            if info["cluster-id"] == cluster_id:
-                cluster_info = ClusterInfo(
-                    launch_date=info["launch date"],
-                    group_id=info["group-id"],
-                    network_id=info["network-id"],
-                    public_ip=info["public-ip"],
-                    subnet_id=info["subnet-id"],
-                    user=info["user"],
-                    inst_counter=info["# inst"],
-                    cluster_id=info["cluster-id"],
-                    key_name=info["key name"],
-                )
-                LOG.info("CLuster info : {}".format(cluster_info))
-                return cluster_info
-
-        return None
 
     def get_calculation_formulars(self):
         return {

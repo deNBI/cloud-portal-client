@@ -1,0 +1,20 @@
+template_name: theiaide
+is_maintained: True
+port: 8080
+needs_forc_support: True
+forc_versions:
+  - v02
+  - v01
+incompatible_versions:
+      - Ubuntu 20.04
+direction: "ingress"
+protocol: "tcp"
+securitygroup_name: "_theaide"
+securitygroup_description: "Theaide"
+securitygroup_ssh: False
+title: "Theia - Cloud and Desktop IDE"
+description: "Browser based IDE that offers among others a terminal, editor and a file browser."
+logo_url: "https://cloud.denbi.de/wp-content/uploads/2020/02/theia.png"
+info_url: ""
+information_for_display:
+     version: 12

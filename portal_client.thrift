@@ -94,7 +94,7 @@ struct Image{
 	8:optional string description
 
     /** List of tags from image */
-	9: required list<string> tag
+	9: required list<string> tags
 
 	/** If the Image is a snapshot*/
 	10:optional bool is_snapshot
@@ -105,10 +105,10 @@ struct Image{
 struct VM {
 
     	/** The flavor of the VM*/
-    1: required Flavor flav,
+    1: required Flavor flavor,
 
 	/** The image of the VM*/
-	2: required Image img,
+	2: required Image image,
 
 	/** The status of the VM*/
 	3: required string status
@@ -142,6 +142,10 @@ struct VM {
 
     /** Id of additional volume */
 	13:optional string volume_id
+
+	14:optional string task_state
+	15:optional string power_state
+	16:optional string vm_state
 }
 
 struct ClusterInstance{
@@ -215,7 +219,7 @@ exception conflictException {
 service VirtualMachineService {
 
 
-    bool check_Version(1:double version)
+    bool check_version(1:double version)
 
     /**
      * Get Client version.
@@ -230,7 +234,7 @@ service VirtualMachineService {
 
 
 
-    map<string,string>  get_calculation_formulars()
+    map<string,string>  get_calculation_values()
 
     /**
      * Import Key to openstack.
@@ -258,38 +262,38 @@ service VirtualMachineService {
 	 * Get Flavors.
 	 * Returns: List of flavor instances.
 	 */
-	list<Flavor> get_Flavors()
+	list<Flavor> get_flavors()
 
 
 	/**
 	 * Get Images.
 	 * Returns: List of Image instances.
 	 */
-	list<Image> get_Images()
+	list<Image> get_images()
 
     /**
 	 * Get Images.
 	 * Returns: List of public Image instances.
 	 */
-	list<Image> get_public_Images()
+	list<Image> get_public_images()
 
     /**
 	 * Get Images.
 	 * Returns: List of private Image instances.
 	 */
-	list<Image> get_private_Images()
+	list<Image> get_private_images()
 
 	/**
 	 * Get an image with tag.
-	 * Returns: Image with tag.
+	 * Returns: image.
 	 */
-	Image get_Image_with_Tag(1:string openstack_id)
+	Image get_image(1:string openstack_id)
 
 	/**
     * Get Images and filter by list of strings.
     * Returns: List of Image instances.
     */
-	list<Image> get_Images_by_filter(1: map<string, string> filter_json)
+	list<Image> get_images_by_filter(1: map<string, string> filter_json)
 
 
 	Volume get_volume(
@@ -316,52 +320,7 @@ service VirtualMachineService {
 	throws (1:serverNotFoundException e, 2: conflictException c)
 
 
-	map<string,string> add_metadata_to_server(1:string servername,2:map<string,string> metadata) throws (1:serverNotFoundException e)
-
-
-	set<string> delete_metadata_from_server(1:string servername,2:set<string> keys) throws (1:serverNotFoundException e)
-
-	/**
-	 * Add floating ip to server.
-	 * Returns: the floating ip
-	 */
-	string add_floating_ip_to_server(
-
-	/** Id of the server */
-	1:string openstack_id,
-
-	/** Network name of the network which provides the floating Ip.*/
-	2:string network) throws (1:serverNotFoundException e, 2:networkNotFoundException f)
-
-
-	/**
-	 * Create connection to OpenStack.
-	 * Connection instance
-	 */
-	bool create_connection(
-
-
-	/** Name of the OpenStack user. */
-	1:string username,
-
-	/** Password of the OpenStack user */
-	2:string password ,
-
-	/** Auth Url from OpenStack*/
-	3:string auth_url,
-
-	/** Name of the project from the OpenStack user.
-	4:string project_name,
-
-	/** Domain name of OpenStack*/
-	5:string user_domain_name,
-
-	/** Project domain name of OpenStack*/
-	6:string project_domain_name )
-
-	throws (1:authenticationException e),
-
-	map<string,string> start_server_without_playbook(
+	map<string,string> start_server(
 	/** Name of the  Flavor to use.*/
     1:string flavor,
 
@@ -377,13 +336,10 @@ service VirtualMachineService {
     /** Metadata for the new instance*/
     5:map<string,string> metadata,
 
-
-    6:bool https,
-    7:bool http,
-    8:list<string> resenv,
-     9:list<map<string,string>> volume_ids_path_new,
-     10:list<map<string,string>> volume_ids_path_attach,
-     11:list <string> additional_keys
+    7:list<string> research_environment,
+     8:list<map<string,string>> volume_ids_path_new,
+     9:list<map<string,string>> volume_ids_path_attach,
+     10:list <string> additional_keys
 )
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
@@ -391,68 +347,7 @@ service VirtualMachineService {
     bool bibigrid_available()
     bool detach_ip_from_server(1:string server_id,2:string floating_ip)
 
-	map<string,string> start_server_with_mounted_volume(
-	/** Name of the  Flavor to use.*/
-    1:string flavor,
 
-    /** Name of the image to use. */
-    2:string image,
-
-    /** Public Key to use*/
-    3:string public_key,
-
-    /** Name for the new server */
-    4:string servername,
-
-    /** Metadata for the new instance*/
-    5:map<string,string> metadata,
-
-
-    6:bool https,
-    7:bool http,
-    8:list<string> resenv,
-     9:list<map<string,string>> volume_ids_path_new,
-     10:list<map<string,string>> volume_ids_path_attach
-)
-
-
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
-
-
-
-
-
-	/**
-	 * Start a new server.
-	 */
-    map<string,string> start_server(
-
-    /** Name of the  Flavor to use.*/
-    1:string flavor,
-
-    /** Name of the image to use. */
-    2:string image,
-
-    /** Public Key to use*/
-    3:string public_key,
-
-    /** Name for the new server */
-    4:string servername,
-
-    /** Metadata for the new instance*/
-    5:map<string,string> metadata,
-
-    /** Diskspace in GB for additional volume.*/
-    6:string diskspace,
-
-    /** Name of additional Volume*/
-    7:string volumename,
-    8:bool https,
-    9:bool http,
-    10:list<string> resenv)
-
-
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
 
 
     /**
@@ -472,15 +367,10 @@ service VirtualMachineService {
     /** Metadata for the new instance*/
     4:map<string,string> metadata,
 
-    /** Boolean for http security rule*/
-    5:bool http,
 
-    /** Boolean for https security rule*/
-    6:bool https,
-
-    7:list<string> resenv,
-    9:list<map<string,string>> volume_ids_path_new,
-     10:list<map<string,string>> volume_ids_path_attach)
+    5:list<string> research_environment,
+    6:list<map<string,string>> volume_ids_path_new,
+     7:list<map<string,string>> volume_ids_path_attach)
 
 
     throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
@@ -734,19 +624,6 @@ service VirtualMachineService {
     throws (1:serverNotFoundException e,2:ressourceException r),
 
 
-    /**
-     * Set Password of a User
-     * Returns: the new password
-     */
-    string setUserPassword(
-    /** Elixir-Id of the user which wants to set a password */
-    1:string user,
-
-    /** New password */
-    2:string password)
-
-    throws (1:otherException e),
-
 
     /**
      * Resume Server.
@@ -784,7 +661,7 @@ service VirtualMachineService {
     bool reboot_server(
 
     /** Id of the server*/
-    1:string server_id,
+    1:string openstack_id,
 
     /** HARD or SOFT*/
     2:string reboot_type)
