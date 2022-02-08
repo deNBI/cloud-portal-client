@@ -1,1 +1,1 @@
-recursive-include VirtualMachineService/ *
+recursive-include simple_vm_client/ *

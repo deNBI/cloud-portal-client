@@ -10,9 +10,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./VirtualMachineService/config/config_local.yml:/code/VirtualMachineService/config.yml
-      - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
-    command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+      - ./simple_vm_client/config/config_local.yml:/code/simple_vm_client/config.yml
+      - ./simple_vm_client/keys/localhost/server.pem:/code/simple_vm_client/keys/server.pem
+    command: python3 VirtualMachineServer.py /code/simple_vm_client/config.yml
     networks:
       - portal
 

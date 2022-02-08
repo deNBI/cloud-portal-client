@@ -3,6 +3,7 @@ import time
 
 from ttypes import VM, Flavor, Image, Volume
 from util.logger import setup_custom_logger
+from util.state_enums import VmStates
 
 logger = setup_custom_logger(__name__)
 
@@ -48,6 +49,8 @@ def os_to_thrift_flavors(openstack_flavors):
 
 
 def os_to_thrift_volume(openstack_volume):
+    if not openstack_volume:
+        return Volume(status=VmStates.NOT_FOUND)
     if openstack_volume.get("attachments"):
         device = openstack_volume.attachments[0].device
     else:
@@ -65,6 +68,8 @@ def os_to_thrift_volume(openstack_volume):
 
 
 def os_to_thrift_server(openstack_server):
+    if not openstack_server:
+        return VM(status=VmStates.NOT_FOUND)
     logger.debug(f"Convert server {openstack_server} to thrift server")
     fixed_ip = None
     floating_ip = None

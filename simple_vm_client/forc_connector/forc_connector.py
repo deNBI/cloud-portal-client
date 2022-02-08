@@ -1,10 +1,14 @@
+import json
 import os
 
 import redis
+import requests
 import yaml
+from requests import Timeout
 from util.logger import setup_custom_logger
 from util.state_enums import VmTaskStates
 
+from .backend.backend import Backend
 from .playbook.playbook import Playbook
 from .template.template import Template
 
@@ -55,6 +59,260 @@ class ForcConnector:
             logger.info("Redis connection created!")
         else:
             logger.error("Could not connect to redis!")
+
+    def get_users_from_backend(self, backend_id):
+        get_url = f"{self.FORC_URL}/users/{backend_id}"
+        try:
+            response = requests.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            if response.status_code == 401:
+                return ["Error: 401"]
+            else:
+                return response.json()
+        except Timeout as e:
+            logger.info(msg="Get users for backend timed out. {0}".format(e))
+            return []
+
+    def delete_user_from_backend(self, user_id, backend_id, owner):
+        delete_url = f"{self.FORC_URL}/users/{backend_id}"
+        user_info = {
+            "owner": owner,
+            "user": user_id,
+        }
+        try:
+            response = requests.delete(
+                delete_url,
+                json=user_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            return response.json()
+        except Timeout as e:
+            logger.info(msg="Delete user from backend timed out. {0}".format(e))
+            return {"Error": "Timeout."}
+        except Exception as e:
+            logger.exception(e)
+            return {"Error": "An Exception occured."}
+
+    def delete_backend(self, backend_id):
+        delete_url = f"{self.FORC_URL}/backends/{backend_id}"
+        try:
+            response = requests.delete(
+                delete_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            if response.status_code != 200:
+                try:
+                    return str(response.json())
+                except json.JSONDecodeError:
+                    return response.content
+            elif response.status_code == 200:
+                return True
+        except Timeout:
+            logger.exception(msg="delete_backend timed out")
+            return False
+
+    def add_user_to_backend(self, user_id, backend_id, owner):
+        try:
+            post_url = f"{self.FORC_URL}/users/{backend_id}"
+            user_info = {
+                "owner": owner,
+                "user": user_id,
+            }
+        except Exception as e:
+            logger.exception(e)
+            return {"Error": "Could not create url or json body."}
+        try:
+            response = requests.post(
+                post_url,
+                json=user_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            try:
+                data = response.json()
+            except Exception as e:
+                logger.exception(e)
+                return {"Error": "Error in POST."}
+            return data
+        except Timeout as e:
+            logger.info(msg="add user to backend timed out. {0}".format(e))
+            return {"Error": "Timeout."}
+        except Exception as e:
+            logger.exception(e)
+            return {"Error": "An error occured."}
+
+    def create_backend(self, owner, user_key_url, template, upstream_url):
+        template_version = self.template.get_template_version_for(template=template)
+        if template_version is None:
+            logger.warning(
+                f"No suitable template version found for {template}. Aborting backend creation!"
+            )
+            return {}
+        try:
+            post_url = f"{self.FORC_URL}/backends/"
+            backend_info = {
+                "owner": owner,
+                "user_key_url": user_key_url,
+                "template": template,
+                "template_version": template_version,
+                "upstream_url": upstream_url,
+            }
+        except Exception as e:
+            logger.exception(e)
+            return {}
+        try:
+            response = requests.post(
+                post_url,
+                json=backend_info,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            try:
+                data = response.json()
+            except Exception as e:
+                logger.exception(e)
+                return {}
+            logger.info(f"Backend created {data}")
+            new_backend = Backend(
+                id=data["id"],
+                owner=data["owner"],
+                location_url=data["location_url"],
+                template=data["template"],
+                template_version=data["template_version"],
+            )
+            return new_backend.to_dict()
+
+        except Timeout as e:
+            logger.info(msg="create_backend timed out. {0}".format(e))
+            return {}
+        except Exception as e:
+            logger.exception(e)
+            return {}
+
+    def get_backends(self):
+        get_url = f"{self.FORC_URL}/backends/"
+        try:
+            response = requests.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
+                return backends
+        except Timeout as e:
+            logger.exception(msg="create_backend timed out. {0}".format(e))
+            return None
+
+    def get_backends_by_template(self, template):
+        get_url = f"{self.FORC_URL}/backends/byTemplate/{template}"
+        try:
+            response = requests.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
+                return backends
+        except Timeout as e:
+            logger.exception(msg="create_backend timed out. {0}".format(e))
+            return None
+
+    def get_backend_by_id(self, id):
+        get_url = f"{self.FORC_URL}/backends/{id}"
+        try:
+            response = requests.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            try:
+                data = response.json()
+            except Exception as e:
+                logger.exception(e)
+                return {}
+            return Backend(
+                id=data["id"],
+                owner=data["owner"],
+                location_url=data["location_url"],
+                template=data["template"],
+                template_version=data["template_version"],
+            )
+        except Timeout as e:
+            logger.exception(msg="create_backend timed out. {0}".format(e))
+            return None
+
+    def get_backends_by_owner(self, owner):
+        get_url = f"{self.FORC_URL}/backends/byOwner/{owner}"
+        try:
+            response = requests.get(
+                get_url,
+                timeout=(30, 30),
+                headers={"X-API-KEY": self.FORC_API_KEY},
+                verify=True,
+            )
+            if response.status_code == 401:
+                return [response.json()]
+            else:
+                backends = []
+                for data in response.json():
+                    backends.append(
+                        Backend(
+                            id=data["id"],
+                            owner=data["owner"],
+                            location_url=data["location_url"],
+                            template=data["template"],
+                            template_version=data["template_version"],
+                        )
+                    )
+                return backends
+        except Timeout as e:
+            logger.exception(msg="create_backend timed out. {0}".format(e))
+            return None
+
+    def has_forc(self):
+        return self.FORC_URL is not None
+
+    def get_forc_url(self):
+        return self.FORC_URL
 
     def load_env(self):
         self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
@@ -145,4 +403,4 @@ class ForcConnector:
         playbook.run_it()
         self._active_playbooks[openstack_id] = playbook
         logger.info(f"Playbook for (openstack_id): {openstack_id} started!")
-        return openstack_id
+        return 0

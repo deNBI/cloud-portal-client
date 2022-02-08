@@ -4,7 +4,6 @@ This Module implements an VirtualMachineHandler.
 Which can be used for the PortalClient.
 """
 
-
 from bibigrid_connector.bibigrid_connector import BibigridConnector
 from forc_connector.forc_connector import ForcConnector
 from openstack_connector.openstack_connector import OpenStackConnector
@@ -43,10 +42,6 @@ class VirtualMachineHandler(Iface):
             openstack_images=self.openstack_connector.get_private_images()
         )
 
-    def get_images_by_filter(self, filter_json):
-        # todo
-        pass
-
     def get_flavors(self):
         return thrift_converter.os_to_thrift_flavors(
             openstack_flavors=self.openstack_connector.get_flavors()
@@ -81,8 +76,14 @@ class VirtualMachineHandler(Iface):
             keyname=keyname, public_key=public_key
         )
 
+    def exist_server(self, name):
+        return self.openstack_connector.exist_server(name=name)
+
     def get_vm_ports(self, openstack_id):
         return self.openstack_connector.get_vm_ports(openstack_id=openstack_id)
+
+    def stop_server(self, openstack_id):
+        return self.openstack_connector.stop_server(openstack_id=openstack_id)
 
     def delete_server(self, openstack_id):
         return self.openstack_connector.delete_server(openstack_id=openstack_id)
@@ -95,17 +96,123 @@ class VirtualMachineHandler(Iface):
     def resume_server(self, openstack_id):
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
 
+    def get_server(self, openstack_id):
+        return thrift_converter.os_to_thrift_server(
+            openstack_server=self.openstack_connector.get_server(
+                openstack_id=openstack_id
+            )
+        )
+
     def get_servers(self):
         return thrift_converter.os_to_thrift_servers(
-            self.openstack_connector.get_servers()
+            openstack_servers=self.openstack_connector.get_servers()
         )
+
+    def get_servers_by_ids(self, server_ids):
+        return thrift_converter.os_to_thrift_servers(
+            openstack_servers=self.openstack_connector.get_servers_by_ids(
+                ids=server_ids
+            )
+        )
+
+    def get_servers_by_bibigrid_id(self, bibigrid_id):
+        return thrift_converter.os_to_thrift_servers(
+            openstack_servers=self.openstack_connector.get_servers_by_bibigrid_id(
+                bibigrid_id=bibigrid_id
+            )
+        )
+
+    def get_playbook_logs(self, openstack_id):
+        return self.forc_connector.get_playbook_logs(openstack_id=openstack_id)
+
+    def has_forc(self):
+        return self.forc_connector.has_forc()
+
+    def get_forc_url(self):
+        return self.forc_connector.get_forc_url()
+
+    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
+        return self.openstack_connector.create_snapshot(
+            openstack_id=openstack_id,
+            name=name,
+            elixir_id=elixir_id,
+            base_tags=base_tags,
+            description=description,
+        )
+
+    def delete_image(self, image_id):
+        return self.openstack_connector.delete_image(image_id=image_id)
+
+    def create_volume(self, volume_name, volume_storage, metadata):
+        return thrift_converter.os_to_thrift_volume(
+            openstack_volume=self.openstack_connector.create_volume(
+                volume_name=volume_name,
+                volume_storage=volume_storage,
+                metadata=metadata,
+            )
+        )
+
+    def detach_volume(self, volume_id, server_id):
+        return self.openstack_connector.detach_volume(
+            volume_id=volume_id, server_id=server_id
+        )
+
+    def delete_volume(self, volume_id):
+        return self.openstack_connector.delete_volume(volume_id=volume_id)
+
+    def attach_volume_to_server(self, openstack_id, volume_id):
+        return self.openstack_connector.attach_volume_to_server(
+            openstack_id=openstack_id, volume_id=volume_id
+        )
+
+    def get_limits(self):
+        return self.openstack_connector.get_limits()
+
+    def create_backend(self, elixir_id, user_key_url, template, upstream_url):
+        return self.forc_connector.create_backend(
+            owner=elixir_id,
+            user_key_url=user_key_url,
+            template=template,
+            upstream_url=upstream_url,
+        )
+
+    def delete_backend(self, id):
+        return self.forc_connector.delete_backend(backend_id=id)
+
+    def get_backends(self):
+        return self.forc_connector.get_backends()
+
+    def get_backends_by_owner(self, elixir_id):
+        return self.forc_connector.get_backends_by_owner(owner=elixir_id)
+
+    def get_backends_by_template(self, template):
+        return self.forc_connector.get_backends_by_template(template=template)
+
+    def get_backend_by_id(self, id):
+        return self.forc_connector.get_backend_by_id(id=id)
+
+    def add_user_to_backend(self, backend_id, owner_id, user_id):
+        return self.forc_connector.add_user_to_backend(
+            user_id=user_id, owner=owner_id, backend_id=backend_id
+        )
+
+    def get_users_from_backend(self, backend_id):
+        return self.forc_connector.get_users_from_backend(backend_id=backend_id)
+
+    def delete_user_from_backend(self, backend_id, owner_id, user_id):
+        return self.forc_connector.delete_user_from_backend(
+            user_id=user_id, backend_id=backend_id, owner=owner_id
+        )
+
+    def get_allowed_templates(self):
+        return self.forc_connector.template.get_allowed_templates()
 
     def check_server_status(self, openstack_id):
         server = self.openstack_connector.check_server_status(openstack_id=openstack_id)
         # Check if playbook in progress
         server = self.forc_connector.get_playbook_status(server=server)
 
-        return server
+        return thrift_converter.os_to_thrift_server(openstack_server=server)
 
     def start_server(
         self,
@@ -171,11 +278,37 @@ class VirtualMachineHandler(Iface):
         )
         return openstack_id
 
+    def create_and_deploy_playbook(
+        self, public_key, playbooks_information, openstack_id
+    ):
+        port = self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
+        gateway_ip = self.openstack_connector.get_gateway_ip()["gateway_ip"]
+        cloud_site = self.openstack_connector.CLOUD_SITE
+        return self.forc_connector.create_and_deploy_playbook(
+            public_key=public_key,
+            playbooks_information=playbooks_information,
+            openstack_id=openstack_id,
+            port=port,
+            ip=gateway_ip,
+            cloud_site=cloud_site,
+        )
+
     def bibigrid_available(self):
         return self.bibigrid_connector.bibigrid_available()
 
     def get_cluster_info(self, cluster_id):
         return self.bibigrid_connector.get_cluster_info(cluster_id=cluster_id)
+
+    def get_cluster_status(self, cluster_id):
+        return self.bibigrid_connector.get_cluster_status(cluster_id=cluster_id)
+
+    def start_cluster(self, public_key, master_instance, worker_instances, user):
+        return self.bibigrid_connector.start_cluster(
+            public_key=public_key,
+            master_instance=master_instance,
+            worker_instances=worker_instances,
+            user=user,
+        )
 
     def terminate_cluster(self, cluster_id):
         return self.bibigrid_connector.terminate_cluster(cluster_id=cluster_id)

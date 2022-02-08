@@ -145,7 +145,18 @@ class OpenStackConnector:
 
     def get_servers(self):
         servers = self.openstack_connection.list_servers()
-        logger.info(servers)
+        return servers
+
+    def get_servers_by_ids(self, ids):
+        servers = []
+        for id in ids:
+            logger.info(f"Get server {id}")
+            try:
+                server = self.openstack_connection.get_server_by_id(id)
+                servers.append(server)
+            except Exception as e:
+                logger.exception("Requested VM {} not found!\n {}".format(id, e))
+
         return servers
 
     def attach_volume_to_server(self, openstack_id, volume_id):
@@ -607,6 +618,14 @@ class OpenStackConnector:
             return True
         else:
             return False
+
+    def get_server(self, openstack_id):
+        try:
+            server = self.openstack_connection.compute.get_server(openstack_id)
+            return server
+        except Exception as e:
+            logger.exception("No Server found {0} | Error {1}".format(openstack_id, e))
+            return None
 
     def resume_server(self, openstack_id):
 

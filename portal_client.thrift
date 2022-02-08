@@ -279,12 +279,6 @@ service VirtualMachineService {
 	 */
 	Image get_image(1:string openstack_id)
 
-	/**
-    * Get Images and filter by list of strings.
-    * Returns: List of Image instances.
-    */
-	list<Image> get_images_by_filter(1: map<string, string> filter_json)
-
 
 	Volume get_volume(
 	1:string volume_id
@@ -440,30 +434,8 @@ service VirtualMachineService {
     3:string user_id
     )
 
-    list<map<string, string>> get_templates()
 
     list<string> get_allowed_templates()
-
-    list<map<string, string>> get_templates_by_template(
-    1:string template_name
-    )
-
-    map<string, string> check_template(
-    1:string template_name
-    2:string template_version
-    )
-
-
-    /**
-    * Adds a security group to a server
-    */
-    bool add_udp_security_group(
-    /** OpenStack id of the server*/
-    1:string server_id)
-
-    throws (1:ressourceException r,2:serverNotFoundException s
-
-    )
 
 
     /**
@@ -476,8 +448,6 @@ service VirtualMachineService {
 	* Get list of servers by ids
     **/
 	list<VM> get_servers_by_ids(1:list<string> server_ids)
-
-	string check_server_task_state(1: string openstack_id)
 
 	/**
 	* Get servers by bibigrid cluster id.
@@ -553,7 +523,7 @@ service VirtualMachineService {
      */
     map<string,string> get_limits()
 
-     map<string,string> start_cluster(1:string public_key,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instance,4:string user)
+     map<string,string> start_cluster(1:string public_key,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instances,4:string user)
 
      map<string,string> terminate_cluster(1:string cluster_id)
 
@@ -572,7 +542,7 @@ service VirtualMachineService {
      * Delete volume attachment
      * Return: True if deleted, False if not
      */
-    bool delete_volume_attachment(
+    bool detach_volume(
     /** Id of the attached volume */
     1:string volume_id,
 
@@ -628,9 +598,8 @@ service VirtualMachineService {
 
     /**
      * Create volume.
-     * Returns: Id of new volume
      */
-    map<string,string> create_volume(
+    Volume create_volume(
 
     /**  Name of volume*/
     1:string volume_name,
