@@ -52,17 +52,14 @@ struct Volume{
 	/** The name of the flavor*/
 	4:required string name
 
-	/** The openstack_id of the flavor*/
-	5:required string openstack_id
-
 	/** The description of the flavor*/
-	6:optional string description
+	5:optional string description
 
 	/** List of tags from flavor */
-	7: required list<string> tags
+	6: required list<string> tags
 
 	/** The ephemeral disk space of the flavor*/
-	8:optional i32 ephemeral_disk
+	7:optional i32 ephemeral_disk
 }
 /**
  * This Struct defines an Image.
@@ -136,16 +133,9 @@ struct VM {
 
 	/** The fixed ips of the VM*/
 	11: required string fixed_ip
-
-    /** Diskspace in GB from additional volume*/
-	12:optional int diskspace
-
-    /** Id of additional volume */
-	13:optional string volume_id
-
-	14:optional string task_state
-	15:optional string power_state
-	16:optional string vm_state
+	12:optional string task_state
+	13:optional string power_state
+	14:optional string vm_state
 }
 
 struct ClusterInstance{

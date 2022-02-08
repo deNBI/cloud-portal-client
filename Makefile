@@ -16,13 +16,13 @@ docs: ## Build documentation
 
 thrift_py: ## Builds python code from thrift file
 	thrift --gen py portal_client.thrift
-	cp -a gen-py/VirtualMachineService/. VirtualMachineService
+	cp -a gen-py/VirtualMachineService/. simple_vm_client
 	rm -rf gen-py
 	@echo Remember to fix the imports: for pip relative imports are needed, for others absolute imports
-	
+
 dev-build: ## Build and Start the docker-compose.dev.yml
 	docker-compose -f docker-compose.dev.yml up --build
-	
+
 dev-d: ## Build and Start the docker-compose.dev.yml
 	docker-compose -f docker-compose.dev.yml up -d
 
@@ -43,13 +43,13 @@ dev-build-bibigrid-d: ## Build and Start the docker-compose.dev.yml with bibigri
 
 dev-bibigrid-d: ## Build and Start the docker-compose.dev.yml with bibigrid
 	docker-compose -f docker-compose.dev.bibigrid.yml up -d
-	
+
 production: ## Build Release from .env
 	docker-compose -f docker-compose.yml up --build -d
 
 production-bibigrid: ## Build Release from .env and with bibigrid
 	docker-compose -f docker-compose.bibigrid.yml up --build -d
-	
+
 client_logs: ## Logs from Client
 	docker logs client_portal-client_1
 

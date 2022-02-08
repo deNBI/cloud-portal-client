@@ -1,0 +1,63 @@
+production: False
+
+
+
+redis:
+  host: client_redis
+  port: 6379
+  password: ""
+
+
+server:
+  threads: 30
+  host: 0.0.0.0
+  port: 9090
+  # If you use docker-compose this path needs to be the path you mount the server.pem into
+  certfile: /code/VirtualMachineService/keys/server.pem
+  use_ssl: True
+
+
+
+openstack:
+  default_simple_vm_security_group_name: "defaultSimpleVM"
+  cloud_site: bielefeld
+  base_gateway_port: 30000
+  ssh_multiplication_port: 1
+  udp_multiplication_port: 10
+
+
+  # Gateway IP
+  gateway_ip: 129.70.51.75
+  # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
+  use_gateway: True
+
+  set_password: False
+  # network where the project is located
+  network: portalexternalnetwork
+
+  # subnetwork for starting Clusters
+  sub_network: portalexternalsubnetwork
+
+  production: False
+
+
+  floating_ip_network: external
+  # The name of the availability zone the server should be placed.
+  availability_zone: default
+  # If you use docker-compose this path needs to be the path you mount the server.pem into
+  certfile: /code/VirtualMachineService/keys/server.pem
+  use_ssl: True
+
+bibigrid:
+  # Url for Bibigrid API
+    port: 8080
+    host: bibigrid
+    https: False
+    sub_network: portalexternalsubnetwork
+    modes:
+      -   slurm
+
+forc:
+  forc_url: https://proxy-dev.bi.denbi.de:5000/
+  github_playbooks_repo: https://api.github.com/repos/deNBI/resenvs/contents/?ref=staging
+  forc_security_group_id: forc_security_group_id
