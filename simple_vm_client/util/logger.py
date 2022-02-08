@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 
 
 def setup_custom_logger(name):
-    LOG_FILE_HANDLER_ACTIVATED = os.environ.get("LOG_FILE_HANDLER_ACTIVATED", False)
+    LOG_FILE_HANDLER_ACTIVATED = os.environ.get("LOG_FILE_HANDLER_ACTIVATED", True)
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     LOG_FILE = os.environ.get("LOG_FILE", "log/portal_client.log")
     LOG_BACKUP_COUNT = int(os.environ.get("LOG_BACKUP_COUNT", 5))
