@@ -17,7 +17,6 @@ from thrift.Thrift import (
     TType,
 )
 from thrift.TRecursive import fix_spec
-
-from .ttypes import *
+from ttypes import *
 
 VERSION = "1.0.0"

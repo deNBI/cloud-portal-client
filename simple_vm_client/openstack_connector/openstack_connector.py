@@ -49,6 +49,7 @@ class OpenStackConnector:
         self.load_config_yml(config_file)
 
         try:
+            logger.info("Connecting to Openstack..")
             self.openstack_connection = connection.Connection(
                 username=self.USERNAME,
                 password=self.PASSWORD,
@@ -86,7 +87,7 @@ class OpenStackConnector:
             self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
 
     def load_env_config(self):
-        logger.info("Load environment config")
+        logger.info("Load environment config: OpenStack")
         self.USERNAME = os.environ["OS_USERNAME"]
         self.PASSWORD = os.environ["OS_PASSWORD"]
         self.PROJECT_NAME = os.environ["OS_PROJECT_NAME"]
@@ -106,6 +107,9 @@ class OpenStackConnector:
         metadata,
         security_groups,
     ):
+        logger.info(
+            f"Create Server:\n\tname: {name}\n\timage_id:{image_id}\n\tflavor_id:{flavor_id}\n\tmetadata:{metadata}"
+        )
         return self.openstack_connection.create_server(
             name=name,
             image=image_id,
@@ -144,10 +148,12 @@ class OpenStackConnector:
             raise e
 
     def get_servers(self):
+        logger.info("Get servers")
         servers = self.openstack_connection.list_servers()
         return servers
 
     def get_servers_by_ids(self, ids):
+        logger.info(f"Get Servers by IDS : {ids}")
         servers = []
         for id in ids:
             logger.info(f"Get server {id}")
@@ -259,6 +265,7 @@ class OpenStackConnector:
             return keypair
 
     def delete_keypair(self, key_name):
+        logger.info(f"Delete keypair: {key_name}")
 
         key_pair = self.openstack_connection.compute.find_keypair(key_name)
         if key_pair:
@@ -292,6 +299,7 @@ class OpenStackConnector:
         return r == 0
 
     def get_flavor(self, name_or_id):
+        logger.info(f"Get flavor {name_or_id}")
 
         flavor = self.openstack_connection.get_flavor(
             name_or_id=name_or_id, get_extra=True
@@ -312,6 +320,7 @@ class OpenStackConnector:
             return []
 
     def get_servers_by_bibigrid_id(self, bibigrid_id):
+        logger.info(f"Get Servery by Bibigrid id: {bibigrid_id}")
         filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
         servers = self.openstack_connection.list_servers(filters=filters)
         return servers
@@ -620,6 +629,7 @@ class OpenStackConnector:
             return False
 
     def get_server(self, openstack_id):
+        logger.info(f"Get Server by id: {openstack_id}")
         try:
             server = self.openstack_connection.compute.get_server(openstack_id)
             return server

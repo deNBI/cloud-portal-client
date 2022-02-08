@@ -21,6 +21,7 @@ class BibigridConnector:
     def load_config_yml(self, config_file):
 
         with open(config_file, "r") as ymlfile:
+            logger.info("Load config: Bibigrid")
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
             self._NETWORK = cfg["openstack"]["network"]
             self._SUB_NETWORK = cfg["openstack"]["sub_network"]
@@ -94,6 +95,7 @@ class BibigridConnector:
         return []
 
     def get_clusters_info(self):
+        logger.info("Get clusters info")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         request_url = self._BIBIGRID_URL + "list"
@@ -127,6 +129,7 @@ class BibigridConnector:
             return False
 
     def terminate_cluster(self, cluster_id):
+        logger.info(f"Terminate cluster: {cluster_id}")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
         response = requests.delete(
@@ -139,6 +142,9 @@ class BibigridConnector:
         return response.json()
 
     def start_cluster(self, public_key, master_instance, worker_instances, user):
+        logger.info(
+            f"Start Cluster:\n\tmaster_instance: {master_instance}\n\tworker_instances:{worker_instances}\n\tuser:{user}"
+        )
         master_instance = master_instance
         del master_instance["count"]
         wI = []

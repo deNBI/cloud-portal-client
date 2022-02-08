@@ -1,4 +1,3 @@
-import logging
 import os
 import signal
 import ssl
@@ -9,7 +8,7 @@ import yaml
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 from thrift.transport import TSocket, TSSLSocket, TTransport
-from VirtualMachineHandler2 import VirtualMachineHandler
+from VirtualMachineHandler import VirtualMachineHandler
 from VirtualMachineService import Processor
 
 USERNAME = "OS_USERNAME"
@@ -60,7 +59,6 @@ def startServer(config):
         THREADS = cfg["server"]["threads"]
     click.echo("Server is running on port {}".format(PORT))
     handler = VirtualMachineHandler(CONFIG_FILE)
-    logging.info(handler.get_servers())
     processor = Processor(handler)
     if USE_SSL:
         click.echo("Use SSL")

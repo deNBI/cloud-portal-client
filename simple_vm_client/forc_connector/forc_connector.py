@@ -49,6 +49,7 @@ class ForcConnector:
             self.REDIS_PORT = cfg["redis"]["port"]
 
     def connect_to_redis(self):
+        logger.info("Connect to redis")
         self.redis_pool = redis.ConnectionPool(
             host=self.REDIS_HOST, port=self.REDIS_PORT
         )
@@ -61,6 +62,7 @@ class ForcConnector:
             logger.error("Could not connect to redis!")
 
     def get_users_from_backend(self, backend_id):
+        logger.info(f"Get users from backend {backend_id}")
         get_url = f"{self.FORC_URL}/users/{backend_id}"
         try:
             response = requests.get(
@@ -78,6 +80,7 @@ class ForcConnector:
             return []
 
     def delete_user_from_backend(self, user_id, backend_id, owner):
+        logger.info(f"Delete user {user_id} from backend {backend_id}")
         delete_url = f"{self.FORC_URL}/users/{backend_id}"
         user_info = {
             "owner": owner,
@@ -100,6 +103,7 @@ class ForcConnector:
             return {"Error": "An Exception occured."}
 
     def delete_backend(self, backend_id):
+        logger.info(f"Delete Backend {backend_id}")
         delete_url = f"{self.FORC_URL}/backends/{backend_id}"
         try:
             response = requests.delete(
@@ -120,6 +124,7 @@ class ForcConnector:
             return False
 
     def add_user_to_backend(self, user_id, backend_id, owner):
+        logger.info(f"Add User {user_id} to backend {backend_id}")
         try:
             post_url = f"{self.FORC_URL}/users/{backend_id}"
             user_info = {
@@ -151,6 +156,9 @@ class ForcConnector:
             return {"Error": "An error occured."}
 
     def create_backend(self, owner, user_key_url, template, upstream_url):
+        logger.info(
+            f"Create Backend - [Owner:{owner}, user_key_url:{user_key_url}, template:{template}, upstream_url:{upstream_url}"
+        )
         template_version = self.template.get_template_version_for(template=template)
         if template_version is None:
             logger.warning(
@@ -200,6 +208,7 @@ class ForcConnector:
             return {}
 
     def get_backends(self):
+        logger.info("Get Backends")
         get_url = f"{self.FORC_URL}/backends/"
         try:
             response = requests.get(
@@ -228,6 +237,7 @@ class ForcConnector:
             return None
 
     def get_backends_by_template(self, template):
+        logger.info(f"Get Backends by template: {template}")
         get_url = f"{self.FORC_URL}/backends/byTemplate/{template}"
         try:
             response = requests.get(
@@ -256,6 +266,7 @@ class ForcConnector:
             return None
 
     def get_backend_by_id(self, id):
+        logger.info(f"Get backends by id: {id}")
         get_url = f"{self.FORC_URL}/backends/{id}"
         try:
             response = requests.get(
@@ -281,6 +292,7 @@ class ForcConnector:
             return None
 
     def get_backends_by_owner(self, owner):
+        logger.info(f"Get backends by owner: {owner}")
         get_url = f"{self.FORC_URL}/backends/byOwner/{owner}"
         try:
             response = requests.get(
@@ -309,12 +321,15 @@ class ForcConnector:
             return None
 
     def has_forc(self):
+        logger.info("Check has forc")
         return self.FORC_URL is not None
 
     def get_forc_url(self):
+        logger.info("Get Forc Url")
         return self.FORC_URL
 
     def load_env(self):
+        logger.info("Load env: FORC")
         self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
 
     def get_playbook_logs(self, openstack_id):
@@ -336,6 +351,7 @@ class ForcConnector:
             return {"status": 2, "stdout": "", "stderr": ""}
 
     def set_vm_wait_for_playbook(self, openstack_id, private_key, name):
+        logger.info(f"Set vm {openstack_id}: {VmTaskStates.PREPARE_PLAYBOOK_BUILD} ")
         self.redis_connection.hmset(
             openstack_id,
             dict(
@@ -345,6 +361,7 @@ class ForcConnector:
 
     def get_playbook_status(self, server):
         openstack_id = server.openstack_id
+        logger.info(f"Get VM {openstack_id} Playbook status")
 
         if self.redis_connection.exists(openstack_id) == 1:
             if openstack_id in self._active_playbooks:
@@ -368,6 +385,7 @@ class ForcConnector:
         return server
 
     def get_metadata_by_research_environment(self, research_environment):
+        logger.info(f"Get Metadata Research environment: {research_environment}")
         if research_environment in self.template.get_loaded_resenv_metadata():
             resenv_metadata = self.template.get_loaded_resenv_metadata()[
                 research_environment

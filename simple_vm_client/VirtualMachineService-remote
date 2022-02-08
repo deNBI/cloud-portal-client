@@ -40,7 +40,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("   get_public_images()")
     print("   get_private_images()")
     print("  Image get_image(string openstack_id)")
-    print("   get_images_by_filter( filter_json)")
     print("  Volume get_volume(string volume_id)")
     print("   get_volumes_by_ids( volume_ids)")
     print("  int resize_volume(string volume_id, int size)")
@@ -73,14 +72,9 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print(
         "   delete_user_from_backend(i64 backend_id, string owner_id, string user_id)"
     )
-    print("   get_templates()")
     print("   get_allowed_templates()")
-    print("   get_templates_by_template(string template_name)")
-    print("   check_template(string template_name, string template_version)")
-    print("  bool add_udp_security_group(string server_id)")
     print("   get_servers()")
     print("   get_servers_by_ids( server_ids)")
-    print("  string check_server_task_state(string openstack_id)")
     print("   get_servers_by_bibigrid_id(string bibigrid_id)")
     print(
         "   scale_up_cluster(string cluster_id, string image, string flavor, int count,  names, int start_idx, int batch_idx)"
@@ -97,16 +91,16 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     )
     print("   get_limits()")
     print(
-        "   start_cluster(string public_key, ClusterInstance master_instance,  worker_instance, string user)"
+        "   start_cluster(string public_key, ClusterInstance master_instance,  worker_instances, string user)"
     )
     print("   terminate_cluster(string cluster_id)")
     print("  bool delete_image(string image_id)")
-    print("  bool delete_volume_attachment(string volume_id, string server_id)")
+    print("  bool detach_volume(string volume_id, string server_id)")
     print("  bool delete_volume(string volume_id)")
     print("   attach_volume_to_server(string openstack_id, string volume_id)")
     print("  VM check_server_status(string openstack_id)")
     print("  bool resume_server(string openstack_id)")
-    print("   create_volume(string volume_name, int volume_storage,  metadata)")
+    print("  Volume create_volume(string volume_name, int volume_storage,  metadata)")
     print("  bool reboot_server(string openstack_id, string reboot_type)")
     print("")
     sys.exit(0)
@@ -274,16 +268,6 @@ elif cmd == "get_image":
     pp.pprint(
         client.get_image(
             args[0],
-        )
-    )
-
-elif cmd == "get_images_by_filter":
-    if len(args) != 1:
-        print("get_images_by_filter requires 1 args")
-        sys.exit(1)
-    pp.pprint(
-        client.get_images_by_filter(
-            eval(args[0]),
         )
     )
 
@@ -516,48 +500,11 @@ elif cmd == "delete_user_from_backend":
         )
     )
 
-elif cmd == "get_templates":
-    if len(args) != 0:
-        print("get_templates requires 0 args")
-        sys.exit(1)
-    pp.pprint(client.get_templates())
-
 elif cmd == "get_allowed_templates":
     if len(args) != 0:
         print("get_allowed_templates requires 0 args")
         sys.exit(1)
     pp.pprint(client.get_allowed_templates())
-
-elif cmd == "get_templates_by_template":
-    if len(args) != 1:
-        print("get_templates_by_template requires 1 args")
-        sys.exit(1)
-    pp.pprint(
-        client.get_templates_by_template(
-            args[0],
-        )
-    )
-
-elif cmd == "check_template":
-    if len(args) != 2:
-        print("check_template requires 2 args")
-        sys.exit(1)
-    pp.pprint(
-        client.check_template(
-            args[0],
-            args[1],
-        )
-    )
-
-elif cmd == "add_udp_security_group":
-    if len(args) != 1:
-        print("add_udp_security_group requires 1 args")
-        sys.exit(1)
-    pp.pprint(
-        client.add_udp_security_group(
-            args[0],
-        )
-    )
 
 elif cmd == "get_servers":
     if len(args) != 0:
@@ -572,16 +519,6 @@ elif cmd == "get_servers_by_ids":
     pp.pprint(
         client.get_servers_by_ids(
             eval(args[0]),
-        )
-    )
-
-elif cmd == "check_server_task_state":
-    if len(args) != 1:
-        print("check_server_task_state requires 1 args")
-        sys.exit(1)
-    pp.pprint(
-        client.check_server_task_state(
-            args[0],
         )
     )
 
@@ -722,12 +659,12 @@ elif cmd == "delete_image":
         )
     )
 
-elif cmd == "delete_volume_attachment":
+elif cmd == "detach_volume":
     if len(args) != 2:
-        print("delete_volume_attachment requires 2 args")
+        print("detach_volume requires 2 args")
         sys.exit(1)
     pp.pprint(
-        client.delete_volume_attachment(
+        client.detach_volume(
             args[0],
             args[1],
         )

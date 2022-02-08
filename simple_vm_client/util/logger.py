@@ -4,8 +4,9 @@ from logging.handlers import RotatingFileHandler
 
 
 def setup_custom_logger(name):
+    LOG_FILE_HANDLER_ACTIVATED = os.environ.get("LOG_FILE_HANDLER_ACTIVATED", False)
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
-    LOG_FILE = os.environ.get("LOG_FILE", "log / portal_client.log")
+    LOG_FILE = os.environ.get("LOG_FILE", "log/portal_client.log")
     LOG_BACKUP_COUNT = int(os.environ.get("LOG_BACKUP_COUNT", 5))
     LOG_MAX_BYTES = int(os.environ.get("LOG_MAX_BATES", 1073741824))
 
@@ -24,5 +25,6 @@ def setup_custom_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(LOG_LEVEL)
     logger.addHandler(handler)
-    # logger.addHandler(file_handler)
+    if LOG_FILE_HANDLER_ACTIVATED:
+        logger.addHandler(file_handler)
     return logger
