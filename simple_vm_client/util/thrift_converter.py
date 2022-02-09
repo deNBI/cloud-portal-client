@@ -35,7 +35,8 @@ def os_to_thrift_flavor(openstack_flavor):
         vcpus=openstack_flavor["vcpus"],
         ram=openstack_flavor["ram"],
         disk=openstack_flavor["disk"],
-        name=openstack_flavor.get("name", openstack_flavor["original_name"]),
+        name=openstack_flavor.get("name", None)
+        or openstack_flavor.get("original_name", ""),
         tags=list(openstack_flavor["extra_specs"].keys()),
         ephemeral_disk=openstack_flavor["ephemeral"],
     )
