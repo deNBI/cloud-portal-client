@@ -1,6 +1,6 @@
 name: build-image
 on: pull_request
-jobs:   
+jobs:
     build-test:
         runs-on: ubuntu-latest
         steps:

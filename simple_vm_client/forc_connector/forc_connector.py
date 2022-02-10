@@ -4,7 +4,15 @@ import os
 import redis
 import requests
 import yaml
+from openstack.compute.v2.server import Server
 from requests import Timeout
+from ttypes import (
+    BackendNotFoundException,
+    DefaultException,
+    PlaybookNotFoundException,
+    PlaybookResult,
+    TemplateNotFoundException,
+)
 from util.logger import setup_custom_logger
 from util.state_enums import VmTaskStates
 
@@ -28,6 +36,7 @@ class ForcConnector:
         self.redis_pool = None
         self.redis_connection = None
         self._active_playbooks = {}
+        self.playbook_dir = "/playbooks"
 
         self.load_config(config_file=config_file)
         self.load_env()
@@ -61,7 +70,7 @@ class ForcConnector:
         else:
             logger.error("Could not connect to redis!")
 
-    def get_users_from_backend(self, backend_id: str):
+    def get_users_from_backend(self, backend_id: str) -> list[str]:
         logger.info(f"Get users from backend {backend_id}")
         get_url = f"{self.FORC_URL}/users/{backend_id}"
         try:
@@ -79,7 +88,9 @@ class ForcConnector:
             logger.info(msg="Get users for backend timed out. {0}".format(e))
             return []
 
-    def delete_user_from_backend(self, user_id, backend_id, owner):
+    def delete_user_from_backend(
+        self, user_id: str, backend_id: str, owner: str
+    ) -> dict[str, str]:
         logger.info(f"Delete user {user_id} from backend {backend_id}")
         delete_url = f"{self.FORC_URL}/users/{backend_id}"
         user_info = {
@@ -100,9 +111,9 @@ class ForcConnector:
             return {"Error": "Timeout."}
         except Exception as e:
             logger.exception(e)
-            return {"Error": "An Exception occured."}
+            raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
 
-    def delete_backend(self, backend_id):
+    def delete_backend(self, backend_id: str) -> bool:
         logger.info(f"Delete Backend {backend_id}")
         delete_url = f"{self.FORC_URL}/backends/{backend_id}"
         try:
@@ -114,16 +125,27 @@ class ForcConnector:
             )
             if response.status_code != 200:
                 try:
-                    return str(response.json())
+                    logger.exception(str(response.json()))
+                    raise BackendNotFoundException(
+                        message=str(response.json()), name_or_id=backend_id
+                    )
+
                 except json.JSONDecodeError:
-                    return response.content
+                    logger.exception(str(response.content))
+
+                    raise BackendNotFoundException(
+                        message=str(response.content), name_or_id=backend_id
+                    )
+
             elif response.status_code == 200:
                 return True
         except Timeout:
             logger.exception(msg="delete_backend timed out")
             return False
 
-    def add_user_to_backend(self, user_id, backend_id, owner):
+    def add_user_to_backend(
+        self, user_id: str, backend_id: str, owner: str
+    ) -> dict[str, str]:
         logger.info(f"Add User {user_id} to backend {backend_id}")
         try:
             post_url = f"{self.FORC_URL}/users/{backend_id}"
@@ -146,16 +168,18 @@ class ForcConnector:
                 data = response.json()
             except Exception as e:
                 logger.exception(e)
-                return {"Error": "Error in POST."}
+                raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
             return data
         except Timeout as e:
             logger.info(msg="add user to backend timed out. {0}".format(e))
             return {"Error": "Timeout."}
         except Exception as e:
             logger.exception(e)
-            return {"Error": "An error occured."}
+            raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
 
-    def create_backend(self, owner, user_key_url, template, upstream_url):
+    def create_backend(
+        self, owner: str, user_key_url: str, template: str, upstream_url: str
+    ) -> Backend:
         logger.info(
             f"Create Backend - [Owner:{owner}, user_key_url:{user_key_url}, template:{template}, upstream_url:{upstream_url}"
         )
@@ -164,7 +188,10 @@ class ForcConnector:
             logger.warning(
                 f"No suitable template version found for {template}. Aborting backend creation!"
             )
-            return {}
+            raise TemplateNotFoundException(
+                message=f"No suitable template version found for {template}. Aborting backend creation!",
+                template=template,
+            )
         try:
             post_url = f"{self.FORC_URL}/backends/"
             backend_info = {
@@ -176,7 +203,7 @@ class ForcConnector:
             }
         except Exception as e:
             logger.exception(e)
-            return {}
+            raise DefaultException(message=e)
         try:
             response = requests.post(
                 post_url,
@@ -189,7 +216,7 @@ class ForcConnector:
                 data = response.json()
             except Exception as e:
                 logger.exception(e)
-                return {}
+                raise DefaultException(message=e)
             logger.info(f"Backend created {data}")
             new_backend = Backend(
                 id=data["id"],
@@ -202,12 +229,13 @@ class ForcConnector:
 
         except Timeout as e:
             logger.info(msg="create_backend timed out. {0}".format(e))
-            return {}
+            raise DefaultException(message=e)
+
         except Exception as e:
             logger.exception(e)
-            return {}
+            raise DefaultException(message=e)
 
-    def get_backends(self):
+    def get_backends(self) -> list[Backend]:
         logger.info("Get Backends")
         get_url = f"{self.FORC_URL}/backends/"
         try:
@@ -218,7 +246,7 @@ class ForcConnector:
                 verify=True,
             )
             if response.status_code == 401:
-                return [response.json()]
+                raise DefaultException(message=str(response.json()))
             else:
                 backends = []
                 for data in response.json():
@@ -234,9 +262,9 @@ class ForcConnector:
                 return backends
         except Timeout as e:
             logger.exception(msg="create_backend timed out. {0}".format(e))
-            return None
+            raise DefaultException(message=str(e))
 
-    def get_backends_by_template(self, template):
+    def get_backends_by_template(self, template: str) -> list[Backend]:
         logger.info(f"Get Backends by template: {template}")
         get_url = f"{self.FORC_URL}/backends/byTemplate/{template}"
         try:
@@ -247,7 +275,8 @@ class ForcConnector:
                 verify=True,
             )
             if response.status_code == 401:
-                return [response.json()]
+                raise DefaultException(message=str(response.json()))
+
             else:
                 backends = []
                 for data in response.json():
@@ -263,9 +292,9 @@ class ForcConnector:
                 return backends
         except Timeout as e:
             logger.exception(msg="create_backend timed out. {0}".format(e))
-            return None
+            raise DefaultException(message=str(e))
 
-    def get_backend_by_id(self, id):
+    def get_backend_by_id(self, id: str) -> Backend:
         logger.info(f"Get backends by id: {id}")
         get_url = f"{self.FORC_URL}/backends/{id}"
         try:
@@ -279,7 +308,8 @@ class ForcConnector:
                 data = response.json()
             except Exception as e:
                 logger.exception(e)
-                return {}
+                raise DefaultException(message=str(e))
+
             return Backend(
                 id=data["id"],
                 owner=data["owner"],
@@ -289,9 +319,9 @@ class ForcConnector:
             )
         except Timeout as e:
             logger.exception(msg="create_backend timed out. {0}".format(e))
-            return None
+            raise DefaultException(message=str(e))
 
-    def get_backends_by_owner(self, owner):
+    def get_backends_by_owner(self, owner: str) -> list[Backend]:
         logger.info(f"Get backends by owner: {owner}")
         get_url = f"{self.FORC_URL}/backends/byOwner/{owner}"
         try:
@@ -302,7 +332,8 @@ class ForcConnector:
                 verify=True,
             )
             if response.status_code == 401:
-                return [response.json()]
+                raise DefaultException(message=str(response.json()))
+
             else:
                 backends = []
                 for data in response.json():
@@ -318,21 +349,21 @@ class ForcConnector:
                 return backends
         except Timeout as e:
             logger.exception(msg="create_backend timed out. {0}".format(e))
-            return None
+            raise DefaultException(message=str(e))
 
-    def has_forc(self):
+    def has_forc(self) -> bool:
         logger.info("Check has forc")
         return self.FORC_URL is not None
 
-    def get_forc_url(self):
+    def get_forc_url(self) -> str:
         logger.info("Get Forc Url")
         return self.FORC_URL
 
-    def load_env(self):
+    def load_env(self) -> None:
         logger.info("Load env: FORC")
         self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
 
-    def get_playbook_logs(self, openstack_id):
+    def get_playbook_logs(self, openstack_id: str) -> PlaybookResult:
         logger.info(f"Get Playbook logs {openstack_id}")
         if (
             self.redis_connection.exists(openstack_id) == 1
@@ -340,17 +371,24 @@ class ForcConnector:
         ):
             # key_name = self.redis_connection.hget(openstack_id, "name").decode("utf-8")
             playbook = self._active_playbooks.pop(openstack_id)
+            if not playbook:
+                raise PlaybookNotFoundException(
+                    message=f"No active Playbook found for {openstack_id}!",
+                    name_or_id=openstack_id,
+                )
             status, stdout, stderr = playbook.get_logs()
             logger.info(f" Playbook logs{openstack_id} status: {status}")
 
             playbook.cleanup(openstack_id)
             # todo get outside
             # self.delete_keypair(key_name=key_name)
-            return {"status": status, "stdout": stdout, "stderr": stderr}
+            return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
         else:
-            return {"status": 2, "stdout": "", "stderr": ""}
+            return PlaybookResult(status=2, stdout="", stderr="")
 
-    def set_vm_wait_for_playbook(self, openstack_id, private_key, name):
+    def set_vm_wait_for_playbook(
+        self, openstack_id: str, private_key: str, name: str
+    ) -> bool:
         logger.info(f"Set vm {openstack_id}: {VmTaskStates.PREPARE_PLAYBOOK_BUILD} ")
         self.redis_connection.hmset(
             openstack_id,
@@ -359,7 +397,7 @@ class ForcConnector:
             ),
         )
 
-    def get_playbook_status(self, server):
+    def get_playbook_status(self, server: Server) -> Server:
         openstack_id = server.openstack_id
         logger.info(f"Get VM {openstack_id} Playbook status")
 
@@ -384,7 +422,9 @@ class ForcConnector:
                 return server
         return server
 
-    def get_metadata_by_research_environment(self, research_environment):
+    def get_metadata_by_research_environment(
+        self, research_environment: str
+    ) -> dict[str, str]:
         logger.info(f"Get Metadata Research environment: {research_environment}")
         if research_environment in self.template.get_loaded_resenv_metadata():
             resenv_metadata = self.template.get_loaded_resenv_metadata()[
@@ -395,13 +435,19 @@ class ForcConnector:
             research_environment != "user_key_url" and research_environment != BIOCONDA
         ):
             logger.error(
-                f"Failure to load metadata  of reasearch enviroment: {research_environment}"
+                f"Failure to load metadata of reasearch enviroment: {research_environment}"
             )
-            return None
+            return {}
 
     def create_and_deploy_playbook(
-        self, public_key, playbooks_information, openstack_id, port, ip, cloud_site
-    ):
+        self,
+        public_key: str,
+        playbooks_information: dict[str, str],
+        openstack_id: str,
+        port: int,
+        ip: str,
+        cloud_site: str,
+    ) -> int:
 
         logger.info(f"Starting Playbook for (openstack_id): {openstack_id}")
         key = self.redis_connection.hget(openstack_id, "key").decode("utf-8")
@@ -416,6 +462,7 @@ class ForcConnector:
                 self.template.get_loaded_resenv_metadata().keys()
             ),
             cloud_site=cloud_site,
+            playbooks_dir=self.playbook_dir,
         )
         self.redis_connection.hset(openstack_id, "status", VmTaskStates.BUILD_PLAYBOOK)
         playbook.run_it()

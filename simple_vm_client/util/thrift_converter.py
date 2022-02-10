@@ -1,4 +1,4 @@
-from typing import List
+from __future__ import annotations
 
 from openstack.block_storage.v2.volume import Volume as OpenStack_Volume
 from openstack.compute.v2.flavor import Flavor as OpenStack_Flavor
@@ -29,7 +29,7 @@ def os_to_thrift_image(openstack_image: OpenStack_Image) -> Image:
     return image
 
 
-def os_to_thrift_images(openstack_images: List[OpenStack_Image]) -> List[Image]:
+def os_to_thrift_images(openstack_images: list[OpenStack_Image]) -> list[Image]:
     return [os_to_thrift_image(openstack_image=img) for img in openstack_images]
 
 
@@ -45,7 +45,7 @@ def os_to_thrift_flavor(openstack_flavor: OpenStack_Flavor) -> Flavor:
     return flavor
 
 
-def os_to_thrift_flavors(openstack_flavors: List[OpenStack_Flavor]) -> List[Flavor]:
+def os_to_thrift_flavors(openstack_flavors: list[OpenStack_Flavor]) -> list[Flavor]:
     return [
         os_to_thrift_flavor(openstack_flavor=flavor) for flavor in openstack_flavors
     ]
@@ -106,7 +106,7 @@ def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
     return server
 
 
-def os_to_thrift_servers(openstack_servers: List[OpenStack_Server]) -> List[VM]:
+def os_to_thrift_servers(openstack_servers: list[OpenStack_Server]) -> list[VM]:
     return [
         os_to_thrift_server(openstack_server=openstack_server)
         for openstack_server in openstack_servers

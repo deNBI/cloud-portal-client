@@ -832,6 +832,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.s is not None:
+            raise result.s
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "get_vm_ports failed: unknown result"
         )
@@ -1007,6 +1009,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.i is not None:
+            raise result.i
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "get_image failed: unknown result"
         )
@@ -1041,6 +1045,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.v is not None:
+            raise result.v
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "get_volume failed: unknown result"
         )
@@ -1114,6 +1120,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.v is not None:
+            raise result.v
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "resize_volume failed: unknown result"
         )
@@ -1241,10 +1249,6 @@ class Client(Iface):
             raise result.e
         if result.r is not None:
             raise result.r
-        if result.s is not None:
-            raise result.s
-        if result.n is not None:
-            raise result.n
         if result.i is not None:
             raise result.i
         if result.f is not None:
@@ -1320,6 +1324,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.s is not None:
+            raise result.s
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "detach_ip_from_server failed: unknown result",
@@ -1401,16 +1407,12 @@ class Client(Iface):
             raise result.e
         if result.r is not None:
             raise result.r
-        if result.s is not None:
-            raise result.s
-        if result.n is not None:
-            raise result.n
         if result.i is not None:
             raise result.i
         if result.f is not None:
             raise result.f
-        if result.o is not None:
-            raise result.o
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "start_server_with_custom_key failed: unknown result",
@@ -1496,6 +1498,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.s is not None:
+            raise result.s
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "create_and_deploy_playbook failed: unknown result",
@@ -1535,6 +1539,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.p is not None:
+            raise result.p
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_playbook_logs failed: unknown result",
@@ -1638,6 +1644,10 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.e is not None:
+            raise result.e
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "create_backend failed: unknown result",
@@ -1671,6 +1681,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "get_backends failed: unknown result"
         )
@@ -1709,6 +1721,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_backends_by_owner failed: unknown result",
@@ -1748,6 +1762,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_backends_by_template failed: unknown result",
@@ -1787,6 +1803,10 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.b is not None:
+            raise result.b
+        if result.d is not None:
+            raise result.d
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_backend_by_id failed: unknown result",
@@ -1824,6 +1844,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.b is not None:
+            raise result.b
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "delete_backend failed: unknown result",
@@ -1867,6 +1889,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.b is not None:
+            raise result.b
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "add_user_to_backend failed: unknown result",
@@ -1906,6 +1930,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.b is not None:
+            raise result.b
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_users_from_backend failed: unknown result",
@@ -1949,6 +1975,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.b is not None:
+            raise result.b
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "delete_user_from_backend failed: unknown result",
@@ -2270,6 +2298,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.c is not None:
+            raise result.c
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_cluster_info failed: unknown result",
@@ -2307,6 +2337,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.c is not None:
+            raise result.c
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "get_cluster_status failed: unknown result",
@@ -2552,6 +2584,8 @@ class Client(Iface):
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
+        if result.c is not None:
+            raise result.c
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "terminate_cluster failed: unknown result",
@@ -2635,6 +2669,8 @@ class Client(Iface):
             raise result.e
         if result.c is not None:
             raise result.c
+        if result.v is not None:
+            raise result.v
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "detach_volume failed: unknown result"
         )
@@ -2674,6 +2710,8 @@ class Client(Iface):
             return result.success
         if result.c is not None:
             raise result.c
+        if result.v is not None:
+            raise result.v
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "delete_volume failed: unknown result"
         )
@@ -2761,8 +2799,6 @@ class Client(Iface):
             return result.success
         if result.e is not None:
             raise result.e
-        if result.r is not None:
-            raise result.r
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
             "check_server_status failed: unknown result",
@@ -2847,6 +2883,8 @@ class Client(Iface):
             return result.success
         if result.r is not None:
             raise result.r
+        if result.n is not None:
+            raise result.n
         raise TApplicationException(
             TApplicationException.MISSING_RESULT, "create_volume failed: unknown result"
         )
@@ -3135,6 +3173,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ServerNotFoundException as s:
+            msg_type = TMessageType.REPLY
+            result.s = s
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3260,6 +3301,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ImageNotFoundException as i:
+            msg_type = TMessageType.REPLY
+            result.i = i
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3285,6 +3329,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except VolumeNotFoundException as v:
+            msg_type = TMessageType.REPLY
+            result.v = v
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3335,6 +3382,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except VolumeNotFoundException as v:
+            msg_type = TMessageType.REPLY
+            result.v = v
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3360,10 +3410,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -3401,25 +3451,19 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except nameException as e:
+        except NameAlreadyUsedException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except ressourceException as r:
+        except ResourceNotAvailableException as r:
             msg_type = TMessageType.REPLY
             result.r = r
-        except serverNotFoundException as s:
-            msg_type = TMessageType.REPLY
-            result.s = s
-        except networkNotFoundException as n:
-            msg_type = TMessageType.REPLY
-            result.n = n
-        except imageNotFoundException as i:
+        except ImageNotFoundException as i:
             msg_type = TMessageType.REPLY
             result.i = i
-        except flavorNotFoundException as f:
+        except FlavorNotFoundException as f:
             msg_type = TMessageType.REPLY
             result.f = f
-        except otherException as o:
+        except DefaultException as o:
             msg_type = TMessageType.REPLY
             result.o = o
         except TApplicationException as ex:
@@ -3474,6 +3518,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ServerNotFoundException as s:
+            msg_type = TMessageType.REPLY
+            result.s = s
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3507,27 +3554,21 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except nameException as e:
+        except NameAlreadyUsedException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except ressourceException as r:
+        except ResourceNotAvailableException as r:
             msg_type = TMessageType.REPLY
             result.r = r
-        except serverNotFoundException as s:
-            msg_type = TMessageType.REPLY
-            result.s = s
-        except networkNotFoundException as n:
-            msg_type = TMessageType.REPLY
-            result.n = n
-        except imageNotFoundException as i:
+        except ImageNotFoundException as i:
             msg_type = TMessageType.REPLY
             result.i = i
-        except flavorNotFoundException as f:
+        except FlavorNotFoundException as f:
             msg_type = TMessageType.REPLY
             result.f = f
-        except otherException as o:
+        except DefaultException as d:
             msg_type = TMessageType.REPLY
-            result.o = o
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3580,6 +3621,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ServerNotFoundException as s:
+            msg_type = TMessageType.REPLY
+            result.s = s
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3605,6 +3649,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except PlaybookNotFoundException as p:
+            msg_type = TMessageType.REPLY
+            result.p = p
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3682,6 +3729,12 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except TemplateNotFoundException as e:
+            msg_type = TMessageType.REPLY
+            result.e = e
+        except DefaultException as d:
+            msg_type = TMessageType.REPLY
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3707,6 +3760,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except DefaultException as d:
+            msg_type = TMessageType.REPLY
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3732,6 +3788,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except DefaultException as d:
+            msg_type = TMessageType.REPLY
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3757,6 +3816,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except DefaultException as d:
+            msg_type = TMessageType.REPLY
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3782,6 +3844,12 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except BackendNotFoundException as b:
+            msg_type = TMessageType.REPLY
+            result.b = b
+        except DefaultException as d:
+            msg_type = TMessageType.REPLY
+            result.d = d
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3807,6 +3875,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except BackendNotFoundException as b:
+            msg_type = TMessageType.REPLY
+            result.b = b
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3834,6 +3905,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except BackendNotFoundException as b:
+            msg_type = TMessageType.REPLY
+            result.b = b
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3859,6 +3933,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except BackendNotFoundException as b:
+            msg_type = TMessageType.REPLY
+            result.b = b
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -3886,6 +3963,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except BackendNotFoundException as b:
+            msg_type = TMessageType.REPLY
+            result.b = b
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4079,6 +4159,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ClusterNotFoundException as c:
+            msg_type = TMessageType.REPLY
+            result.c = c
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4104,6 +4187,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ClusterNotFoundException as c:
+            msg_type = TMessageType.REPLY
+            result.c = c
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4129,7 +4215,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except TApplicationException as ex:
@@ -4157,10 +4243,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -4194,10 +4280,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -4277,6 +4363,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
+        except ClusterNotFoundException as c:
+            msg_type = TMessageType.REPLY
+            result.c = c
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4302,7 +4391,7 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except imageNotFoundException as e:
+        except ImageNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
         except TApplicationException as ex:
@@ -4330,12 +4419,15 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
+        except VolumeNotFoundException as v:
+            msg_type = TMessageType.REPLY
+            result.v = v
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4361,9 +4453,12 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
+        except VolumeNotFoundException as v:
+            msg_type = TMessageType.REPLY
+            result.v = v
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4391,10 +4486,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except VolumeNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -4422,12 +4517,9 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except ressourceException as r:
-            msg_type = TMessageType.REPLY
-            result.r = r
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4453,10 +4545,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -4486,9 +4578,12 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except ressourceException as r:
+        except DefaultException as r:
             msg_type = TMessageType.REPLY
             result.r = r
+        except ResourceNotAvailableException as n:
+            msg_type = TMessageType.REPLY
+            result.n = n
         except TApplicationException as ex:
             logging.exception("TApplication exception in handler")
             msg_type = TMessageType.EXCEPTION
@@ -4516,10 +4611,10 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
-        except serverNotFoundException as e:
+        except ServerNotFoundException as e:
             msg_type = TMessageType.REPLY
             result.e = e
-        except conflictException as c:
+        except OpenStackConflictException as c:
             msg_type = TMessageType.REPLY
             result.c = c
         except TApplicationException as ex:
@@ -5400,14 +5495,17 @@ class get_vm_ports_result(object):
     """
     Attributes:
      - success
+     - s
 
     """
 
     def __init__(
         self,
         success=None,
+        s=None,
     ):
         self.success = success
+        self.s = s
 
     def read(self, iprot):
         if (
@@ -5441,6 +5539,11 @@ class get_vm_ports_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.s = ServerNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -5464,6 +5567,10 @@ class get_vm_ports_result(object):
                     viter49.encode("utf-8") if sys.version_info[0] == 2 else viter49
                 )
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.s is not None:
+            oprot.writeFieldBegin("s", TType.STRUCT, 1)
+            self.s.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -5491,6 +5598,13 @@ get_vm_ports_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "s",
+        [ServerNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -6111,14 +6225,17 @@ class get_image_result(object):
     """
     Attributes:
      - success
+     - i
 
     """
 
     def __init__(
         self,
         success=None,
+        i=None,
     ):
         self.success = success
+        self.i = i
 
     def read(self, iprot):
         if (
@@ -6139,6 +6256,11 @@ class get_image_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.i = ImageNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -6154,6 +6276,10 @@ class get_image_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.i is not None:
+            oprot.writeFieldBegin("i", TType.STRUCT, 1)
+            self.i.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6181,6 +6307,13 @@ get_image_result.thrift_spec = (
         [Image, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "i",
+        [ImageNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -6273,14 +6406,17 @@ class get_volume_result(object):
     """
     Attributes:
      - success
+     - v
 
     """
 
     def __init__(
         self,
         success=None,
+        v=None,
     ):
         self.success = success
+        self.v = v
 
     def read(self, iprot):
         if (
@@ -6301,6 +6437,11 @@ class get_volume_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.v = VolumeNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -6316,6 +6457,10 @@ class get_volume_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.v is not None:
+            oprot.writeFieldBegin("v", TType.STRUCT, 1)
+            self.v.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6343,6 +6488,13 @@ get_volume_result.thrift_spec = (
         [Volume, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "v",
+        [VolumeNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -6630,14 +6782,17 @@ class resize_volume_result(object):
     """
     Attributes:
      - success
+     - v
 
     """
 
     def __init__(
         self,
         success=None,
+        v=None,
     ):
         self.success = success
+        self.v = v
 
     def read(self, iprot):
         if (
@@ -6653,8 +6808,13 @@ class resize_volume_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.I32:
-                    self.success = iprot.readI32()
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.v = VolumeNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -6670,8 +6830,12 @@ class resize_volume_result(object):
             return
         oprot.writeStructBegin("resize_volume_result")
         if self.success is not None:
-            oprot.writeFieldBegin("success", TType.I32, 0)
-            oprot.writeI32(self.success)
+            oprot.writeFieldBegin("success", TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.v is not None:
+            oprot.writeFieldBegin("v", TType.STRUCT, 1)
+            self.v.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -6694,11 +6858,18 @@ all_structs.append(resize_volume_result)
 resize_volume_result.thrift_spec = (
     (
         0,
-        TType.I32,
+        TType.BOOL,
         "success",
         None,
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "v",
+        [VolumeNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -6826,12 +6997,12 @@ class delete_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -6888,14 +7059,14 @@ delete_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )
@@ -7283,8 +7454,6 @@ class start_server_result(object):
      - success
      - e
      - r
-     - s
-     - n
      - i
      - f
      - o
@@ -7296,8 +7465,6 @@ class start_server_result(object):
         success=None,
         e=None,
         r=None,
-        s=None,
-        n=None,
         i=None,
         f=None,
         o=None,
@@ -7305,8 +7472,6 @@ class start_server_result(object):
         self.success = success
         self.e = e
         self.r = r
-        self.s = s
-        self.n = n
         self.i = i
         self.f = f
         self.o = o
@@ -7345,37 +7510,27 @@ class start_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = nameException.read(iprot)
+                    self.e = NameAlreadyUsedException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.r = ressourceException.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.STRUCT:
-                    self.s = serverNotFoundException.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 4:
-                if ftype == TType.STRUCT:
-                    self.n = networkNotFoundException.read(iprot)
+                    self.r = ResourceNotAvailableException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRUCT:
-                    self.i = imageNotFoundException.read(iprot)
+                    self.i = ImageNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRUCT:
-                    self.f = flavorNotFoundException.read(iprot)
+                    self.f = FlavorNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRUCT:
-                    self.o = otherException.read(iprot)
+                    self.o = DefaultException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -7409,14 +7564,6 @@ class start_server_result(object):
         if self.r is not None:
             oprot.writeFieldBegin("r", TType.STRUCT, 2)
             self.r.write(oprot)
-            oprot.writeFieldEnd()
-        if self.s is not None:
-            oprot.writeFieldBegin("s", TType.STRUCT, 3)
-            self.s.write(oprot)
-            oprot.writeFieldEnd()
-        if self.n is not None:
-            oprot.writeFieldBegin("n", TType.STRUCT, 4)
-            self.n.write(oprot)
             oprot.writeFieldEnd()
         if self.i is not None:
             oprot.writeFieldBegin("i", TType.STRUCT, 5)
@@ -7460,49 +7607,37 @@ start_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [nameException, None],
+        [NameAlreadyUsedException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "r",
-        [ressourceException, None],
+        [ResourceNotAvailableException, None],
         None,
     ),  # 2
-    (
-        3,
-        TType.STRUCT,
-        "s",
-        [serverNotFoundException, None],
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRUCT,
-        "n",
-        [networkNotFoundException, None],
-        None,
-    ),  # 4
+    None,  # 3
+    None,  # 4
     (
         5,
         TType.STRUCT,
         "i",
-        [imageNotFoundException, None],
+        [ImageNotFoundException, None],
         None,
     ),  # 5
     (
         6,
         TType.STRUCT,
         "f",
-        [flavorNotFoundException, None],
+        [FlavorNotFoundException, None],
         None,
     ),  # 6
     (
         7,
         TType.STRUCT,
         "o",
-        [otherException, None],
+        [DefaultException, None],
         None,
     ),  # 7
 )
@@ -7747,14 +7882,17 @@ class detach_ip_from_server_result(object):
     """
     Attributes:
      - success
+     - s
 
     """
 
     def __init__(
         self,
         success=None,
+        s=None,
     ):
         self.success = success
+        self.s = s
 
     def read(self, iprot):
         if (
@@ -7774,6 +7912,11 @@ class detach_ip_from_server_result(object):
                     self.success = iprot.readBool()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.s = ServerNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -7789,6 +7932,10 @@ class detach_ip_from_server_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.BOOL, 0)
             oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.s is not None:
+            oprot.writeFieldBegin("s", TType.STRUCT, 1)
+            self.s.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -7816,6 +7963,13 @@ detach_ip_from_server_result.thrift_spec = (
         None,
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "s",
+        [ServerNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -8140,11 +8294,9 @@ class start_server_with_custom_key_result(object):
      - success
      - e
      - r
-     - s
-     - n
      - i
      - f
-     - o
+     - d
 
     """
 
@@ -8153,20 +8305,16 @@ class start_server_with_custom_key_result(object):
         success=None,
         e=None,
         r=None,
-        s=None,
-        n=None,
         i=None,
         f=None,
-        o=None,
+        d=None,
     ):
         self.success = success
         self.e = e
         self.r = r
-        self.s = s
-        self.n = n
         self.i = i
         self.f = f
-        self.o = o
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -8202,37 +8350,27 @@ class start_server_with_custom_key_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = nameException.read(iprot)
+                    self.e = NameAlreadyUsedException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.r = ressourceException.read(iprot)
+                    self.r = ResourceNotAvailableException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRUCT:
-                    self.s = serverNotFoundException.read(iprot)
+                    self.i = ImageNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRUCT:
-                    self.n = networkNotFoundException.read(iprot)
+                    self.f = FlavorNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRUCT:
-                    self.i = imageNotFoundException.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.STRUCT:
-                    self.f = flavorNotFoundException.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
-                if ftype == TType.STRUCT:
-                    self.o = otherException.read(iprot)
+                    self.d = DefaultException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -8267,25 +8405,17 @@ class start_server_with_custom_key_result(object):
             oprot.writeFieldBegin("r", TType.STRUCT, 2)
             self.r.write(oprot)
             oprot.writeFieldEnd()
-        if self.s is not None:
-            oprot.writeFieldBegin("s", TType.STRUCT, 3)
-            self.s.write(oprot)
-            oprot.writeFieldEnd()
-        if self.n is not None:
-            oprot.writeFieldBegin("n", TType.STRUCT, 4)
-            self.n.write(oprot)
-            oprot.writeFieldEnd()
         if self.i is not None:
-            oprot.writeFieldBegin("i", TType.STRUCT, 5)
+            oprot.writeFieldBegin("i", TType.STRUCT, 3)
             self.i.write(oprot)
             oprot.writeFieldEnd()
         if self.f is not None:
-            oprot.writeFieldBegin("f", TType.STRUCT, 6)
+            oprot.writeFieldBegin("f", TType.STRUCT, 4)
             self.f.write(oprot)
             oprot.writeFieldEnd()
-        if self.o is not None:
-            oprot.writeFieldBegin("o", TType.STRUCT, 7)
-            self.o.write(oprot)
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 5)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8317,51 +8447,37 @@ start_server_with_custom_key_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [nameException, None],
+        [NameAlreadyUsedException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "r",
-        [ressourceException, None],
+        [ResourceNotAvailableException, None],
         None,
     ),  # 2
     (
         3,
         TType.STRUCT,
-        "s",
-        [serverNotFoundException, None],
+        "i",
+        [ImageNotFoundException, None],
         None,
     ),  # 3
     (
         4,
         TType.STRUCT,
-        "n",
-        [networkNotFoundException, None],
+        "f",
+        [FlavorNotFoundException, None],
         None,
     ),  # 4
     (
         5,
         TType.STRUCT,
-        "i",
-        [imageNotFoundException, None],
+        "d",
+        [DefaultException, None],
         None,
     ),  # 5
-    (
-        6,
-        TType.STRUCT,
-        "f",
-        [flavorNotFoundException, None],
-        None,
-    ),  # 6
-    (
-        7,
-        TType.STRUCT,
-        "o",
-        [otherException, None],
-        None,
-    ),  # 7
 )
 
 
@@ -8709,14 +8825,17 @@ class create_and_deploy_playbook_result(object):
     """
     Attributes:
      - success
+     - s
 
     """
 
     def __init__(
         self,
         success=None,
+        s=None,
     ):
         self.success = success
+        self.s = s
 
     def read(self, iprot):
         if (
@@ -8736,6 +8855,11 @@ class create_and_deploy_playbook_result(object):
                     self.success = iprot.readI32()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.s = ServerNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -8751,6 +8875,10 @@ class create_and_deploy_playbook_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.I32, 0)
             oprot.writeI32(self.success)
+            oprot.writeFieldEnd()
+        if self.s is not None:
+            oprot.writeFieldBegin("s", TType.STRUCT, 1)
+            self.s.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8778,6 +8906,13 @@ create_and_deploy_playbook_result.thrift_spec = (
         None,
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "s",
+        [ServerNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -8870,14 +9005,17 @@ class get_playbook_logs_result(object):
     """
     Attributes:
      - success
+     - p
 
     """
 
     def __init__(
         self,
         success=None,
+        p=None,
     ):
         self.success = success
+        self.p = p
 
     def read(self, iprot):
         if (
@@ -8898,6 +9036,11 @@ class get_playbook_logs_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.p = PlaybookNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -8913,6 +9056,10 @@ class get_playbook_logs_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.p is not None:
+            oprot.writeFieldBegin("p", TType.STRUCT, 1)
+            self.p.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8940,6 +9087,13 @@ get_playbook_logs_result.thrift_spec = (
         [PlaybookResult, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "p",
+        [PlaybookNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -9367,14 +9521,20 @@ class create_backend_result(object):
     """
     Attributes:
      - success
+     - e
+     - d
 
     """
 
     def __init__(
         self,
         success=None,
+        e=None,
+        d=None,
     ):
         self.success = success
+        self.e = e
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -9395,6 +9555,16 @@ class create_backend_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.e = TemplateNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.d = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -9410,6 +9580,14 @@ class create_backend_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.e is not None:
+            oprot.writeFieldBegin("e", TType.STRUCT, 1)
+            self.e.write(oprot)
+            oprot.writeFieldEnd()
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 2)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9437,6 +9615,20 @@ create_backend_result.thrift_spec = (
         [Backend, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "e",
+        [TemplateNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "d",
+        [DefaultException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -9491,14 +9683,17 @@ class get_backends_result(object):
     """
     Attributes:
      - success
+     - d
 
     """
 
     def __init__(
         self,
         success=None,
+        d=None,
     ):
         self.success = success
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -9524,6 +9719,11 @@ class get_backends_result(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.d = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -9542,6 +9742,10 @@ class get_backends_result(object):
             for iter237 in self.success:
                 iter237.write(oprot)
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 1)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9569,6 +9773,13 @@ get_backends_result.thrift_spec = (
         (TType.STRUCT, [Backend, None], False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "d",
+        [DefaultException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -9661,14 +9872,17 @@ class get_backends_by_owner_result(object):
     """
     Attributes:
      - success
+     - d
 
     """
 
     def __init__(
         self,
         success=None,
+        d=None,
     ):
         self.success = success
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -9694,6 +9908,11 @@ class get_backends_by_owner_result(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.d = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -9712,6 +9931,10 @@ class get_backends_by_owner_result(object):
             for iter244 in self.success:
                 iter244.write(oprot)
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 1)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9739,6 +9962,13 @@ get_backends_by_owner_result.thrift_spec = (
         (TType.STRUCT, [Backend, None], False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "d",
+        [DefaultException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -9831,14 +10061,17 @@ class get_backends_by_template_result(object):
     """
     Attributes:
      - success
+     - d
 
     """
 
     def __init__(
         self,
         success=None,
+        d=None,
     ):
         self.success = success
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -9864,6 +10097,11 @@ class get_backends_by_template_result(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.d = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -9882,6 +10120,10 @@ class get_backends_by_template_result(object):
             for iter251 in self.success:
                 iter251.write(oprot)
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 1)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -9909,6 +10151,13 @@ get_backends_by_template_result.thrift_spec = (
         (TType.STRUCT, [Backend, None], False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "d",
+        [DefaultException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -9993,14 +10242,20 @@ class get_backend_by_id_result(object):
     """
     Attributes:
      - success
+     - b
+     - d
 
     """
 
     def __init__(
         self,
         success=None,
+        b=None,
+        d=None,
     ):
         self.success = success
+        self.b = b
+        self.d = d
 
     def read(self, iprot):
         if (
@@ -10021,6 +10276,16 @@ class get_backend_by_id_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.b = BackendNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.d = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -10036,6 +10301,14 @@ class get_backend_by_id_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.b is not None:
+            oprot.writeFieldBegin("b", TType.STRUCT, 1)
+            self.b.write(oprot)
+            oprot.writeFieldEnd()
+        if self.d is not None:
+            oprot.writeFieldBegin("d", TType.STRUCT, 2)
+            self.d.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10063,6 +10336,20 @@ get_backend_by_id_result.thrift_spec = (
         [Backend, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "b",
+        [BackendNotFoundException, None],
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "d",
+        [DefaultException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -10147,14 +10434,17 @@ class delete_backend_result(object):
     """
     Attributes:
      - success
+     - b
 
     """
 
     def __init__(
         self,
         success=None,
+        b=None,
     ):
         self.success = success
+        self.b = b
 
     def read(self, iprot):
         if (
@@ -10170,12 +10460,13 @@ class delete_backend_result(object):
             if ftype == TType.STOP:
                 break
             if fid == 0:
-                if ftype == TType.STRING:
-                    self.success = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                if ftype == TType.BOOL:
+                    self.success = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.b = BackendNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -10191,12 +10482,12 @@ class delete_backend_result(object):
             return
         oprot.writeStructBegin("delete_backend_result")
         if self.success is not None:
-            oprot.writeFieldBegin("success", TType.STRING, 0)
-            oprot.writeString(
-                self.success.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.success
-            )
+            oprot.writeFieldBegin("success", TType.BOOL, 0)
+            oprot.writeBool(self.success)
+            oprot.writeFieldEnd()
+        if self.b is not None:
+            oprot.writeFieldBegin("b", TType.STRUCT, 1)
+            self.b.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10219,11 +10510,18 @@ all_structs.append(delete_backend_result)
 delete_backend_result.thrift_spec = (
     (
         0,
-        TType.STRING,
+        TType.BOOL,
         "success",
-        "UTF8",
+        None,
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "b",
+        [BackendNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -10362,14 +10660,17 @@ class add_user_to_backend_result(object):
     """
     Attributes:
      - success
+     - b
 
     """
 
     def __init__(
         self,
         success=None,
+        b=None,
     ):
         self.success = success
+        self.b = b
 
     def read(self, iprot):
         if (
@@ -10403,6 +10704,11 @@ class add_user_to_backend_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.b = BackendNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -10426,6 +10732,10 @@ class add_user_to_backend_result(object):
                     viter260.encode("utf-8") if sys.version_info[0] == 2 else viter260
                 )
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.b is not None:
+            oprot.writeFieldBegin("b", TType.STRUCT, 1)
+            self.b.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10453,6 +10763,13 @@ add_user_to_backend_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "b",
+        [BackendNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -10537,14 +10854,17 @@ class get_users_from_backend_result(object):
     """
     Attributes:
      - success
+     - b
 
     """
 
     def __init__(
         self,
         success=None,
+        b=None,
     ):
         self.success = success
+        self.b = b
 
     def read(self, iprot):
         if (
@@ -10573,6 +10893,11 @@ class get_users_from_backend_result(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.b = BackendNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -10593,6 +10918,10 @@ class get_users_from_backend_result(object):
                     iter267.encode("utf-8") if sys.version_info[0] == 2 else iter267
                 )
             oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.b is not None:
+            oprot.writeFieldBegin("b", TType.STRUCT, 1)
+            self.b.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10620,6 +10949,13 @@ get_users_from_backend_result.thrift_spec = (
         (TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "b",
+        [BackendNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -10758,14 +11094,17 @@ class delete_user_from_backend_result(object):
     """
     Attributes:
      - success
+     - b
 
     """
 
     def __init__(
         self,
         success=None,
+        b=None,
     ):
         self.success = success
+        self.b = b
 
     def read(self, iprot):
         if (
@@ -10799,6 +11138,11 @@ class delete_user_from_backend_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.b = BackendNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -10822,6 +11166,10 @@ class delete_user_from_backend_result(object):
                     viter276.encode("utf-8") if sys.version_info[0] == 2 else viter276
                 )
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.b is not None:
+            oprot.writeFieldBegin("b", TType.STRUCT, 1)
+            self.b.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -10849,6 +11197,13 @@ delete_user_from_backend_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "b",
+        [BackendNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -12250,14 +12605,17 @@ class get_cluster_info_result(object):
     """
     Attributes:
      - success
+     - c
 
     """
 
     def __init__(
         self,
         success=None,
+        c=None,
     ):
         self.success = success
+        self.c = c
 
     def read(self, iprot):
         if (
@@ -12278,6 +12636,11 @@ class get_cluster_info_result(object):
                     self.success.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.c = ClusterNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -12293,6 +12656,10 @@ class get_cluster_info_result(object):
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.STRUCT, 0)
             self.success.write(oprot)
+            oprot.writeFieldEnd()
+        if self.c is not None:
+            oprot.writeFieldBegin("c", TType.STRUCT, 1)
+            self.c.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -12320,6 +12687,13 @@ get_cluster_info_result.thrift_spec = (
         [ClusterInfo, None],
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "c",
+        [ClusterNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -12412,14 +12786,17 @@ class get_cluster_status_result(object):
     """
     Attributes:
      - success
+     - c
 
     """
 
     def __init__(
         self,
         success=None,
+        c=None,
     ):
         self.success = success
+        self.c = c
 
     def read(self, iprot):
         if (
@@ -12453,6 +12830,11 @@ class get_cluster_status_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.c = ClusterNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -12476,6 +12858,10 @@ class get_cluster_status_result(object):
                     viter343.encode("utf-8") if sys.version_info[0] == 2 else viter343
                 )
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.c is not None:
+            oprot.writeFieldBegin("c", TType.STRUCT, 1)
+            self.c.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -12503,6 +12889,13 @@ get_cluster_status_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "c",
+        [ClusterNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -12628,7 +13021,7 @@ class get_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -12681,7 +13074,7 @@ get_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
 )
@@ -12811,12 +13204,12 @@ class stop_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -12873,14 +13266,14 @@ stop_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )
@@ -13126,12 +13519,12 @@ class create_snapshot_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -13192,14 +13585,14 @@ create_snapshot_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )
@@ -13695,14 +14088,17 @@ class terminate_cluster_result(object):
     """
     Attributes:
      - success
+     - c
 
     """
 
     def __init__(
         self,
         success=None,
+        c=None,
     ):
         self.success = success
+        self.c = c
 
     def read(self, iprot):
         if (
@@ -13736,6 +14132,11 @@ class terminate_cluster_result(object):
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.c = ClusterNotFoundException.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -13759,6 +14160,10 @@ class terminate_cluster_result(object):
                     viter384.encode("utf-8") if sys.version_info[0] == 2 else viter384
                 )
             oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        if self.c is not None:
+            oprot.writeFieldBegin("c", TType.STRUCT, 1)
+            self.c.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -13786,6 +14191,13 @@ terminate_cluster_result.thrift_spec = (
         (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
         None,
     ),  # 0
+    (
+        1,
+        TType.STRUCT,
+        "c",
+        [ClusterNotFoundException, None],
+        None,
+    ),  # 1
 )
 
 
@@ -13910,7 +14322,7 @@ class delete_image_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = imageNotFoundException.read(iprot)
+                    self.e = ImageNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -13963,7 +14375,7 @@ delete_image_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [imageNotFoundException, None],
+        [ImageNotFoundException, None],
         None,
     ),  # 1
 )
@@ -14087,6 +14499,7 @@ class detach_volume_result(object):
      - success
      - e
      - c
+     - v
 
     """
 
@@ -14095,10 +14508,12 @@ class detach_volume_result(object):
         success=None,
         e=None,
         c=None,
+        v=None,
     ):
         self.success = success
         self.e = e
         self.c = c
+        self.v = v
 
     def read(self, iprot):
         if (
@@ -14120,12 +14535,17 @@ class detach_volume_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRUCT:
+                    self.v = VolumeNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -14151,6 +14571,10 @@ class detach_volume_result(object):
         if self.c is not None:
             oprot.writeFieldBegin("c", TType.STRUCT, 2)
             self.c.write(oprot)
+            oprot.writeFieldEnd()
+        if self.v is not None:
+            oprot.writeFieldBegin("v", TType.STRUCT, 3)
+            self.v.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -14182,16 +14606,23 @@ detach_volume_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
+    (
+        3,
+        TType.STRUCT,
+        "v",
+        [VolumeNotFoundException, None],
+        None,
+    ),  # 3
 )
 
 
@@ -14285,6 +14716,7 @@ class delete_volume_result(object):
     Attributes:
      - success
      - c
+     - v
 
     """
 
@@ -14292,9 +14724,11 @@ class delete_volume_result(object):
         self,
         success=None,
         c=None,
+        v=None,
     ):
         self.success = success
         self.c = c
+        self.v = v
 
     def read(self, iprot):
         if (
@@ -14316,7 +14750,12 @@ class delete_volume_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.v = VolumeNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -14338,6 +14777,10 @@ class delete_volume_result(object):
         if self.c is not None:
             oprot.writeFieldBegin("c", TType.STRUCT, 1)
             self.c.write(oprot)
+            oprot.writeFieldEnd()
+        if self.v is not None:
+            oprot.writeFieldBegin("v", TType.STRUCT, 2)
+            self.v.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -14369,9 +14812,16 @@ delete_volume_result.thrift_spec = (
         1,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "v",
+        [VolumeNotFoundException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -14540,12 +14990,12 @@ class attach_volume_to_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = VolumeNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -14610,14 +15060,14 @@ attach_volume_to_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [VolumeNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )
@@ -14713,7 +15163,6 @@ class check_server_status_result(object):
     Attributes:
      - success
      - e
-     - r
 
     """
 
@@ -14721,11 +15170,9 @@ class check_server_status_result(object):
         self,
         success=None,
         e=None,
-        r=None,
     ):
         self.success = success
         self.e = e
-        self.r = r
 
     def read(self, iprot):
         if (
@@ -14748,12 +15195,7 @@ class check_server_status_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.STRUCT:
-                    self.r = ressourceException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -14775,10 +15217,6 @@ class check_server_status_result(object):
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
-            oprot.writeFieldEnd()
-        if self.r is not None:
-            oprot.writeFieldBegin("r", TType.STRUCT, 2)
-            self.r.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -14810,16 +15248,9 @@ check_server_status_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
-    (
-        2,
-        TType.STRUCT,
-        "r",
-        [ressourceException, None],
-        None,
-    ),  # 2
 )
 
 
@@ -14947,12 +15378,12 @@ class resume_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -15009,14 +15440,14 @@ resume_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )
@@ -15172,6 +15603,7 @@ class create_volume_result(object):
     Attributes:
      - success
      - r
+     - n
 
     """
 
@@ -15179,9 +15611,11 @@ class create_volume_result(object):
         self,
         success=None,
         r=None,
+        n=None,
     ):
         self.success = success
         self.r = r
+        self.n = n
 
     def read(self, iprot):
         if (
@@ -15204,7 +15638,12 @@ class create_volume_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.r = ressourceException.read(iprot)
+                    self.r = DefaultException.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.n = ResourceNotAvailableException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -15226,6 +15665,10 @@ class create_volume_result(object):
         if self.r is not None:
             oprot.writeFieldBegin("r", TType.STRUCT, 1)
             self.r.write(oprot)
+            oprot.writeFieldEnd()
+        if self.n is not None:
+            oprot.writeFieldBegin("n", TType.STRUCT, 2)
+            self.n.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -15257,9 +15700,16 @@ create_volume_result.thrift_spec = (
         1,
         TType.STRUCT,
         "r",
-        [ressourceException, None],
+        [DefaultException, None],
         None,
     ),  # 1
+    (
+        2,
+        TType.STRUCT,
+        "n",
+        [ResourceNotAvailableException, None],
+        None,
+    ),  # 2
 )
 
 
@@ -15414,12 +15864,12 @@ class reboot_server_result(object):
                     iprot.skip(ftype)
             elif fid == 1:
                 if ftype == TType.STRUCT:
-                    self.e = serverNotFoundException.read(iprot)
+                    self.e = ServerNotFoundException.read(iprot)
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRUCT:
-                    self.c = conflictException.read(iprot)
+                    self.c = OpenStackConflictException.read(iprot)
                 else:
                     iprot.skip(ftype)
             else:
@@ -15476,14 +15926,14 @@ reboot_server_result.thrift_spec = (
         1,
         TType.STRUCT,
         "e",
-        [serverNotFoundException, None],
+        [ServerNotFoundException, None],
         None,
     ),  # 1
     (
         2,
         TType.STRUCT,
         "c",
-        [conflictException, None],
+        [OpenStackConflictException, None],
         None,
     ),  # 2
 )

@@ -56,7 +56,7 @@
     - name: Run UDP script
       become: yes
       command: "{{ general.SCRIPT_PERSISTENT_PATH }}/{{ general.UDP_SCRIPT_PERSISTENT_NAME }}"
-      
+
     - name: Install IPtables-persistent
       apt:
         name:

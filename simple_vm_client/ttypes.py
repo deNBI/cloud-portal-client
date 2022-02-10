@@ -1540,18 +1540,26 @@ class PlaybookResult(object):
         return not (self == other)
 
 
-class otherException(TException):
+class ResourceNotFoundException(TException):
     """
     Attributes:
-     - Reason: Every other exception.
+     - message: Name already used.
+     - resource_type
+     - name_or_id
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        resource_type=None,
+        name_or_id=None,
     ):
-        super(otherException, self).__setattr__("Reason", Reason)
+        super(ResourceNotFoundException, self).__setattr__("message", message)
+        super(ResourceNotFoundException, self).__setattr__(
+            "resource_type", resource_type
+        )
+        super(ResourceNotFoundException, self).__setattr__("name_or_id", name_or_id)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1560,7 +1568,13 @@ class otherException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.resource_type,
+                self.name_or_id,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -1571,14 +1585,34 @@ class otherException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        resource_type = None
+        name_or_id = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    resource_type = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    name_or_id = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -1590,7 +1624,9 @@ class otherException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            resource_type=resource_type,
+            name_or_id=name_or_id,
         )
 
     def write(self, oprot):
@@ -1599,11 +1635,29 @@ class otherException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("otherException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("ResourceNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.resource_type is not None:
+            oprot.writeFieldBegin("resource_type", TType.STRING, 2)
+            oprot.writeString(
+                self.resource_type.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.resource_type
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 3)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1626,18 +1680,18 @@ class otherException(TException):
         return not (self == other)
 
 
-class ressourceException(TException):
+class ResourceNotAvailableException(TException):
     """
     Attributes:
-     - Reason: Name already used.
+     - message: Name already used.
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
     ):
-        super(ressourceException, self).__setattr__("Reason", Reason)
+        super(ResourceNotAvailableException, self).__setattr__("message", message)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1646,7 +1700,7 @@ class ressourceException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.message,))
 
     @classmethod
     def read(cls, iprot):
@@ -1657,14 +1711,14 @@ class ressourceException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -1676,7 +1730,7 @@ class ressourceException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
         )
 
     def write(self, oprot):
@@ -1685,11 +1739,13 @@ class ressourceException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("ressourceException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("ResourceNotAvailableException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1712,18 +1768,21 @@ class ressourceException(TException):
         return not (self == other)
 
 
-class nameException(TException):
+class TemplateNotFoundException(TException):
     """
     Attributes:
-     - Reason: @ Name already used.
+     - message: Name already used.
+     - template
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        template=None,
     ):
-        super(nameException, self).__setattr__("Reason", Reason)
+        super(TemplateNotFoundException, self).__setattr__("message", message)
+        super(TemplateNotFoundException, self).__setattr__("template", template)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1732,7 +1791,12 @@ class nameException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.template,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -1743,14 +1807,24 @@ class nameException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        template = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    template = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -1762,7 +1836,8 @@ class nameException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            template=template,
         )
 
     def write(self, oprot):
@@ -1771,11 +1846,21 @@ class nameException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("nameException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("TemplateNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.template is not None:
+            oprot.writeFieldBegin("template", TType.STRING, 2)
+            oprot.writeString(
+                self.template.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.template
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1798,18 +1883,21 @@ class nameException(TException):
         return not (self == other)
 
 
-class serverNotFoundException(TException):
+class NameAlreadyUsedException(TException):
     """
     Attributes:
-     - Reason: Server not found.
+     - message: @ Name already used.
+     - name
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        name=None,
     ):
-        super(serverNotFoundException, self).__setattr__("Reason", Reason)
+        super(NameAlreadyUsedException, self).__setattr__("message", message)
+        super(NameAlreadyUsedException, self).__setattr__("name", name)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1818,7 +1906,12 @@ class serverNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -1829,14 +1922,24 @@ class serverNotFoundException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        name = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -1848,7 +1951,8 @@ class serverNotFoundException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            name=name,
         )
 
     def write(self, oprot):
@@ -1857,11 +1961,19 @@ class serverNotFoundException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("serverNotFoundException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("NameAlreadyUsedException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name is not None:
+            oprot.writeFieldBegin("name", TType.STRING, 2)
+            oprot.writeString(
+                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1884,18 +1996,21 @@ class serverNotFoundException(TException):
         return not (self == other)
 
 
-class networkNotFoundException(TException):
+class ServerNotFoundException(TException):
     """
     Attributes:
-     - Reason: Network not found.
+     - message: Server not found.
+     - name_or_id
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        name_or_id=None,
     ):
-        super(networkNotFoundException, self).__setattr__("Reason", Reason)
+        super(ServerNotFoundException, self).__setattr__("message", message)
+        super(ServerNotFoundException, self).__setattr__("name_or_id", name_or_id)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1904,7 +2019,12 @@ class networkNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -1915,14 +2035,24 @@ class networkNotFoundException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        name_or_id = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -1934,7 +2064,8 @@ class networkNotFoundException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            name_or_id=name_or_id,
         )
 
     def write(self, oprot):
@@ -1943,11 +2074,21 @@ class networkNotFoundException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("networkNotFoundException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("ServerNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1970,18 +2111,21 @@ class networkNotFoundException(TException):
         return not (self == other)
 
 
-class imageNotFoundException(TException):
+class FlavorNotFoundException(TException):
     """
     Attributes:
-     - Reason: Image not found.
+     - message
+     - name_or_id
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        name_or_id=None,
     ):
-        super(imageNotFoundException, self).__setattr__("Reason", Reason)
+        super(FlavorNotFoundException, self).__setattr__("message", message)
+        super(FlavorNotFoundException, self).__setattr__("name_or_id", name_or_id)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1990,7 +2134,12 @@ class imageNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -2001,14 +2150,24 @@ class imageNotFoundException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        name_or_id = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -2020,7 +2179,8 @@ class imageNotFoundException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            name_or_id=name_or_id,
         )
 
     def write(self, oprot):
@@ -2029,11 +2189,21 @@ class imageNotFoundException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("imageNotFoundException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("FlavorNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2056,18 +2226,21 @@ class imageNotFoundException(TException):
         return not (self == other)
 
 
-class flavorNotFoundException(TException):
+class VolumeNotFoundException(TException):
     """
     Attributes:
-     - Reason
+     - message
+     - name_or_id
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        name_or_id=None,
     ):
-        super(flavorNotFoundException, self).__setattr__("Reason", Reason)
+        super(VolumeNotFoundException, self).__setattr__("message", message)
+        super(VolumeNotFoundException, self).__setattr__("name_or_id", name_or_id)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2076,7 +2249,12 @@ class flavorNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -2087,14 +2265,24 @@ class flavorNotFoundException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        name_or_id = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -2106,7 +2294,8 @@ class flavorNotFoundException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            name_or_id=name_or_id,
         )
 
     def write(self, oprot):
@@ -2115,11 +2304,21 @@ class flavorNotFoundException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("flavorNotFoundException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("VolumeNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2142,20 +2341,21 @@ class flavorNotFoundException(TException):
         return not (self == other)
 
 
-class authenticationException(TException):
+class ImageNotFoundException(TException):
     """
-    Authentication Failed Exception
-
     Attributes:
-     - Reason: Reason why the Authentication failed
+     - message
+     - name_or_id
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
+        name_or_id=None,
     ):
-        super(authenticationException, self).__setattr__("Reason", Reason)
+        super(ImageNotFoundException, self).__setattr__("message", message)
+        super(ImageNotFoundException, self).__setattr__("name_or_id", name_or_id)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2164,7 +2364,12 @@ class authenticationException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
 
     @classmethod
     def read(cls, iprot):
@@ -2175,14 +2380,24 @@ class authenticationException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
+        name_or_id = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -2194,7 +2409,8 @@ class authenticationException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
+            name_or_id=name_or_id,
         )
 
     def write(self, oprot):
@@ -2203,11 +2419,21 @@ class authenticationException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("authenticationException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("ImageNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2230,20 +2456,453 @@ class authenticationException(TException):
         return not (self == other)
 
 
-class conflictException(TException):
+class ClusterNotFoundException(TException):
+    """
+    Attributes:
+     - message
+     - name_or_id
+
+    """
+
+    def __init__(
+        self,
+        message=None,
+        name_or_id=None,
+    ):
+        super(ClusterNotFoundException, self).__setattr__("message", message)
+        super(ClusterNotFoundException, self).__setattr__("name_or_id", name_or_id)
+
+    def __setattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __delattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __hash__(self):
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
+
+    @classmethod
+    def read(cls, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and cls.thrift_spec is not None
+        ):
+            return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
+        iprot.readStructBegin()
+        message = None
+        name_or_id = None
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+        return cls(
+            message=message,
+            name_or_id=name_or_id,
+        )
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("ClusterNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
+            oprot.writeString(
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class BackendNotFoundException(TException):
+    """
+    Attributes:
+     - message
+     - name_or_id
+
+    """
+
+    def __init__(
+        self,
+        message=None,
+        name_or_id=None,
+    ):
+        super(BackendNotFoundException, self).__setattr__("message", message)
+        super(BackendNotFoundException, self).__setattr__("name_or_id", name_or_id)
+
+    def __setattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __delattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __hash__(self):
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
+
+    @classmethod
+    def read(cls, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and cls.thrift_spec is not None
+        ):
+            return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
+        iprot.readStructBegin()
+        message = None
+        name_or_id = None
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+        return cls(
+            message=message,
+            name_or_id=name_or_id,
+        )
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("BackendNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
+            oprot.writeString(
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class PlaybookNotFoundException(TException):
+    """
+    Attributes:
+     - message
+     - name_or_id
+
+    """
+
+    def __init__(
+        self,
+        message=None,
+        name_or_id=None,
+    ):
+        super(PlaybookNotFoundException, self).__setattr__("message", message)
+        super(PlaybookNotFoundException, self).__setattr__("name_or_id", name_or_id)
+
+    def __setattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __delattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __hash__(self):
+        return hash(self.__class__) ^ hash(
+            (
+                self.message,
+                self.name_or_id,
+            )
+        )
+
+    @classmethod
+    def read(cls, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and cls.thrift_spec is not None
+        ):
+            return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
+        iprot.readStructBegin()
+        message = None
+        name_or_id = None
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    name_or_id = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+        return cls(
+            message=message,
+            name_or_id=name_or_id,
+        )
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("PlaybookNotFoundException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
+            oprot.writeString(
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        if self.name_or_id is not None:
+            oprot.writeFieldBegin("name_or_id", TType.STRING, 2)
+            oprot.writeString(
+                self.name_or_id.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.name_or_id
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class DefaultException(TException):
+    """
+    Attributes:
+     - message
+
+    """
+
+    def __init__(
+        self,
+        message=None,
+    ):
+        super(DefaultException, self).__setattr__("message", message)
+
+    def __setattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __delattr__(self, *args):
+        raise TypeError("can't modify immutable instance")
+
+    def __hash__(self):
+        return hash(self.__class__) ^ hash((self.message,))
+
+    @classmethod
+    def read(cls, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and cls.thrift_spec is not None
+        ):
+            return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
+        iprot.readStructBegin()
+        message = None
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    message = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+        return cls(
+            message=message,
+        )
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("DefaultException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
+            oprot.writeString(
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class OpenStackConflictException(TException):
     """
     Conflict with request (e.g. while vm is in create image task)
 
     Attributes:
-     - Reason
+     - message
 
     """
 
     def __init__(
         self,
-        Reason=None,
+        message=None,
     ):
-        super(conflictException, self).__setattr__("Reason", Reason)
+        super(OpenStackConflictException, self).__setattr__("message", message)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2252,7 +2911,7 @@ class conflictException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.message,))
 
     @classmethod
     def read(cls, iprot):
@@ -2263,14 +2922,14 @@ class conflictException(TException):
         ):
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
-        Reason = None
+        message = None
         while True:
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
+                    message = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -2282,7 +2941,7 @@ class conflictException(TException):
             iprot.readFieldEnd()
         iprot.readStructEnd()
         return cls(
-            Reason=Reason,
+            message=message,
         )
 
     def write(self, oprot):
@@ -2291,11 +2950,13 @@ class conflictException(TException):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("conflictException")
-        if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
+        oprot.writeStructBegin("OpenStackConflictException")
+        if self.message is not None:
+            oprot.writeFieldBegin("message", TType.STRING, 1)
             oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
+                self.message.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.message
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2756,101 +3417,222 @@ PlaybookResult.thrift_spec = (
         None,
     ),  # 3
 )
-all_structs.append(otherException)
-otherException.thrift_spec = (
+all_structs.append(ResourceNotFoundException)
+ResourceNotFoundException.thrift_spec = (
     None,  # 0
     (
         1,
         TType.STRING,
-        "Reason",
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "resource_type",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 3
+)
+all_structs.append(ResourceNotAvailableException)
+ResourceNotAvailableException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
         "UTF8",
         None,
     ),  # 1
 )
-all_structs.append(ressourceException)
-ressourceException.thrift_spec = (
+all_structs.append(TemplateNotFoundException)
+TemplateNotFoundException.thrift_spec = (
     None,  # 0
     (
         1,
         TType.STRING,
-        "Reason",
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "template",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(NameAlreadyUsedException)
+NameAlreadyUsedException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(ServerNotFoundException)
+ServerNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(FlavorNotFoundException)
+FlavorNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(VolumeNotFoundException)
+VolumeNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(ImageNotFoundException)
+ImageNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(ClusterNotFoundException)
+ClusterNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(BackendNotFoundException)
+BackendNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(PlaybookNotFoundException)
+PlaybookNotFoundException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "name_or_id",
+        "UTF8",
+        None,
+    ),  # 2
+)
+all_structs.append(DefaultException)
+DefaultException.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "message",
         "UTF8",
         None,
     ),  # 1
 )
-all_structs.append(nameException)
-nameException.thrift_spec = (
+all_structs.append(OpenStackConflictException)
+OpenStackConflictException.thrift_spec = (
     None,  # 0
     (
         1,
         TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(serverNotFoundException)
-serverNotFoundException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(networkNotFoundException)
-networkNotFoundException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(imageNotFoundException)
-imageNotFoundException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(flavorNotFoundException)
-flavorNotFoundException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(authenticationException)
-authenticationException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
-)
-all_structs.append(conflictException)
-conflictException.thrift_spec = (
-    None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
+        "message",
         "UTF8",
         None,
     ),  # 1

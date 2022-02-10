@@ -5,7 +5,7 @@ Which can be used for the PortalClient.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING
 
 from bibigrid_connector.bibigrid_connector import BibigridConnector
 from forc_connector.forc_connector import ForcConnector
@@ -51,7 +51,7 @@ class VirtualMachineHandler(Iface):
             self.openstack_connector.delete_server(openstack_id=k)
         raise SystemExit(0)
 
-    def get_images(self) -> List[Image]:
+    def get_images(self) -> list[Image]:
         return thrift_converter.os_to_thrift_images(
             openstack_images=self.openstack_connector.get_images()
         )
@@ -61,17 +61,17 @@ class VirtualMachineHandler(Iface):
             openstack_image=self.openstack_connector.get_image(name_or_id=openstack_id)
         )
 
-    def get_public_images(self) -> List[Image]:
+    def get_public_images(self) -> list[Image]:
         return thrift_converter.os_to_thrift_images(
             openstack_images=self.openstack_connector.get_public_images()
         )
 
-    def get_private_images(self) -> List[Image]:
+    def get_private_images(self) -> list[Image]:
         return thrift_converter.os_to_thrift_images(
             openstack_images=self.openstack_connector.get_private_images()
         )
 
-    def get_flavors(self) -> List[Flavor]:
+    def get_flavors(self) -> list[Flavor]:
         return thrift_converter.os_to_thrift_flavors(
             openstack_flavors=self.openstack_connector.get_flavors()
         )
@@ -81,7 +81,7 @@ class VirtualMachineHandler(Iface):
             openstack_volume=self.openstack_connector.get_volume(name_or_id=volume_id)
         )
 
-    def get_volumes_by_ids(self, volume_ids: List[str]) -> List[Volume]:
+    def get_volumes_by_ids(self, volume_ids: list[str]) -> list[Volume]:
         volumes = []
         for id in volume_ids:
             volumes.append(
@@ -94,13 +94,13 @@ class VirtualMachineHandler(Iface):
     def resize_volume(self, volume_id: str, size: int) -> int:
         return self.openstack_connector.resize_volume(volume_id=volume_id, size=size)
 
-    def get_gateway_ip(self) -> Dict[str, str]:
+    def get_gateway_ip(self) -> dict[str, str]:
         return self.openstack_connector.get_gateway_ip()
 
-    def get_calculation_formulars(self) -> Dict[str, str]:
+    def get_calculation_formulars(self) -> dict[str, int]:
         return self.openstack_connector.get_calculation_values()
 
-    def import_keypair(self, keyname: str, public_key: str) -> str:
+    def import_keypair(self, keyname: str, public_key: str) -> dict[str, str]:
         return self.openstack_connector.import_keypair(
             keyname=keyname, public_key=public_key
         )
@@ -108,7 +108,7 @@ class VirtualMachineHandler(Iface):
     def exist_server(self, name: str) -> bool:
         return self.openstack_connector.exist_server(name=name)
 
-    def get_vm_ports(self, openstack_id: str) -> Dict[str, str]:
+    def get_vm_ports(self, openstack_id: str) -> dict[str, str]:
         return self.openstack_connector.get_vm_ports(openstack_id=openstack_id)
 
     def stop_server(self, openstack_id: str) -> bool:
@@ -132,19 +132,19 @@ class VirtualMachineHandler(Iface):
             )
         )
 
-    def get_servers(self) -> List[VM]:
+    def get_servers(self) -> list[VM]:
         return thrift_converter.os_to_thrift_servers(
             openstack_servers=self.openstack_connector.get_servers()
         )
 
-    def get_servers_by_ids(self, server_ids: List[str]) -> List[VM]:
+    def get_servers_by_ids(self, server_ids: list[str]) -> list[VM]:
         return thrift_converter.os_to_thrift_servers(
             openstack_servers=self.openstack_connector.get_servers_by_ids(
                 ids=server_ids
             )
         )
 
-    def get_servers_by_bibigrid_id(self, bibigrid_id: str) -> List[VM]:
+    def get_servers_by_bibigrid_id(self, bibigrid_id: str) -> list[VM]:
         return thrift_converter.os_to_thrift_servers(
             openstack_servers=self.openstack_connector.get_servers_by_bibigrid_id(
                 bibigrid_id=bibigrid_id
@@ -165,7 +165,7 @@ class VirtualMachineHandler(Iface):
         openstack_id: str,
         name: str,
         elixir_id: str,
-        base_tags: List[str],
+        base_tags: list[str],
         description: str,
     ) -> str:
         return self.openstack_connector.create_snapshot(
@@ -180,7 +180,7 @@ class VirtualMachineHandler(Iface):
         return self.openstack_connector.delete_image(image_id=image_id)
 
     def create_volume(
-        self, volume_name: str, volume_storage: int, metadata: Dict[str, str]
+        self, volume_name: str, volume_storage: int, metadata: dict[str, str]
     ) -> Volume:
         return thrift_converter.os_to_thrift_volume(
             openstack_volume=self.openstack_connector.create_volume(
@@ -203,7 +203,7 @@ class VirtualMachineHandler(Iface):
             openstack_id=openstack_id, volume_id=volume_id
         )
 
-    def get_limits(self) -> Dict[str, str]:
+    def get_limits(self) -> dict[str, str]:
         return self.openstack_connector.get_limits()
 
     def create_backend(
@@ -219,13 +219,13 @@ class VirtualMachineHandler(Iface):
     def delete_backend(self, id: str) -> str:
         return self.forc_connector.delete_backend(backend_id=id)
 
-    def get_backends(self) -> List[Backend]:
+    def get_backends(self) -> list[Backend]:
         return self.forc_connector.get_backends()
 
-    def get_backends_by_owner(self, elixir_id: str) -> List[Backend]:
+    def get_backends_by_owner(self, elixir_id: str) -> list[Backend]:
         return self.forc_connector.get_backends_by_owner(owner=elixir_id)
 
-    def get_backends_by_template(self, template: str) -> List[Backend]:
+    def get_backends_by_template(self, template: str) -> list[Backend]:
         return self.forc_connector.get_backends_by_template(template=template)
 
     def get_backend_by_id(self, id: str) -> Backend:
@@ -233,22 +233,22 @@ class VirtualMachineHandler(Iface):
 
     def add_user_to_backend(
         self, backend_id: str, owner_id: str, user_id: str
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.forc_connector.add_user_to_backend(
             user_id=user_id, owner=owner_id, backend_id=backend_id
         )
 
-    def get_users_from_backend(self, backend_id: str) -> List[str]:
+    def get_users_from_backend(self, backend_id: str) -> list[str]:
         return self.forc_connector.get_users_from_backend(backend_id=backend_id)
 
     def delete_user_from_backend(
         self, backend_id: str, owner_id: str, user_id: str
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.forc_connector.delete_user_from_backend(
             user_id=user_id, backend_id=backend_id, owner=owner_id
         )
 
-    def get_allowed_templates(self) -> List[str]:
+    def get_allowed_templates(self) -> list[str]:
         return self.forc_connector.template.get_allowed_templates()
 
     def check_server_status(self, openstack_id: str) -> VM:
@@ -264,12 +264,12 @@ class VirtualMachineHandler(Iface):
         image: str,
         public_key: str,
         servername: str,
-        metadata: Dict[str, str],
-        research_environment: List[str],
-        volume_ids_path_new: List[Dict[str, str]],
-        volume_ids_path_attach: List[Dict[str, str]],
-        additional_keys: List[str],
-    ) -> Dict[str, str]:
+        metadata: dict[str, str],
+        research_environment: list[str],
+        volume_ids_path_new: list[dict[str, str]],
+        volume_ids_path_attach: list[dict[str, str]],
+        additional_keys: list[str],
+    ) -> str:
         if research_environment:
             research_environment_metadata = (
                 self.forc_connector.get_metadata_by_research_environment(
@@ -295,11 +295,11 @@ class VirtualMachineHandler(Iface):
         flavor: str,
         image: str,
         servername: str,
-        metadata: Dict[str, str],
-        research_environment: List[str],
-        volume_ids_path_new: List[Dict[str, str]],
-        volume_ids_path_attach: List[Dict[str, str]],
-    ) -> Dict[str, str]:
+        metadata: dict[str, str],
+        research_environment: list[str],
+        volume_ids_path_new: list[dict[str, str]],
+        volume_ids_path_attach: list[dict[str, str]],
+    ) -> str:
         if research_environment:
             research_environment_metadata = (
                 self.forc_connector.get_metadata_by_research_environment(
@@ -325,7 +325,7 @@ class VirtualMachineHandler(Iface):
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: List[str, Dict[str, str]],
+        playbooks_information: list[str, dict[str, str]],
         openstack_id: str,
     ) -> int:
         port = self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
@@ -346,16 +346,16 @@ class VirtualMachineHandler(Iface):
     def get_cluster_info(self, cluster_id: str) -> ClusterInfo:
         return self.bibigrid_connector.get_cluster_info(cluster_id=cluster_id)
 
-    def get_cluster_status(self, cluster_id: str) -> Dict[str, str]:
+    def get_cluster_status(self, cluster_id: str) -> dict[str, str]:
         return self.bibigrid_connector.get_cluster_status(cluster_id=cluster_id)
 
     def start_cluster(
         self,
         public_key: str,
         master_instance: ClusterInstance,
-        worker_instances: List[ClusterInstance],
+        worker_instances: list[ClusterInstance],
         user: str,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         return self.bibigrid_connector.start_cluster(
             public_key=public_key,
             master_instance=master_instance,
@@ -363,14 +363,14 @@ class VirtualMachineHandler(Iface):
             user=user,
         )
 
-    def terminate_cluster(self, cluster_id: str) -> Dict[str, str]:
+    def terminate_cluster(self, cluster_id: str) -> dict[str, str]:
         return self.bibigrid_connector.terminate_cluster(cluster_id=cluster_id)
 
     def add_cluster_machine(
         self,
         cluster_id: str,
         cluster_user: str,
-        cluster_group_id: str,
+        cluster_group_id: list[str],
         image: str,
         flavor: str,
         name: str,

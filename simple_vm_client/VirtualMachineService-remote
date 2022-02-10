@@ -42,7 +42,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  Image get_image(string openstack_id)")
     print("  Volume get_volume(string volume_id)")
     print("   get_volumes_by_ids( volume_ids)")
-    print("  int resize_volume(string volume_id, int size)")
+    print("  bool resize_volume(string volume_id, int size)")
     print("  bool delete_server(string openstack_id)")
     print(
         "   start_server(string flavor, string image, string public_key, string servername,  metadata,  research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
@@ -66,7 +66,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("   get_backends_by_owner(string elixir_id)")
     print("   get_backends_by_template(string template)")
     print("  Backend get_backend_by_id(i64 id)")
-    print("  string delete_backend(i64 id)")
+    print("  bool delete_backend(i64 id)")
     print("   add_user_to_backend(i64 backend_id, string owner_id, string user_id)")
     print("   get_users_from_backend(i64 backend_id)")
     print(

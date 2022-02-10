@@ -1,6 +1,6 @@
 import requests
 import yaml
-from ttypes import ClusterInfo
+from ttypes import ClusterInfo, ClusterInstance
 from util.logger import setup_custom_logger
 
 logger = setup_custom_logger(__name__)
@@ -18,7 +18,7 @@ class BibigridConnector:
         self._PRODUCTION = True
         self.load_config_yml(config_file=config_file)
 
-    def load_config_yml(self, config_file):
+    def load_config_yml(self, config_file) -> None:
 
         with open(config_file, "r") as ymlfile:
             logger.info("Load config: Bibigrid")
@@ -48,7 +48,7 @@ class BibigridConnector:
                 "use_master_with_public_ip", False
             )
 
-    def get_cluster_status(self, cluster_id):
+    def get_cluster_status(self, cluster_id: str) -> dict[str, str]:
         logger.info(f"Get Cluster {cluster_id} status")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -72,7 +72,7 @@ class BibigridConnector:
 
         return json_resp
 
-    def get_cluster_info(self, cluster_id):
+    def get_cluster_info(self, cluster_id: str) -> ClusterInfo:
         logger.info(f"Get Cluster info from {cluster_id}")
         infos = self.get_clusters_info()
         for info in infos:
@@ -92,9 +92,7 @@ class BibigridConnector:
 
                 return cluster_info
 
-        return []
-
-    def get_clusters_info(self):
+    def get_clusters_info(self) -> dict[any, any]:
         logger.info("Get clusters info")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -108,7 +106,7 @@ class BibigridConnector:
         infos = response.json()["info"]
         return infos
 
-    def bibigrid_available(self):
+    def bibigrid_available(self) -> bool:
         logger.info("Checking if Bibigrid is available")
         if not self._BIBIGRID_EP:
             logger.info("Bibigrid Url is not set")
@@ -128,7 +126,7 @@ class BibigridConnector:
             logger.exception("Bibigrid is offline")
             return False
 
-    def terminate_cluster(self, cluster_id):
+    def terminate_cluster(self, cluster_id: str):
         logger.info(f"Terminate cluster: {cluster_id}")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -141,12 +139,17 @@ class BibigridConnector:
         logger.info(response.json())
         return response.json()
 
-    def start_cluster(self, public_key, master_instance, worker_instances, user):
+    def start_cluster(
+        self,
+        public_key: str,
+        master_instance: ClusterInstance,
+        worker_instances: list[ClusterInstance],
+        user: str,
+    ):
         logger.info(
             f"Start Cluster:\n\tmaster_instance: {master_instance}\n\tworker_instances:{worker_instances}\n\tuser:{user}"
         )
         master_instance = master_instance
-        del master_instance["count"]
         wI = []
         for wk in worker_instances:
             logger.info(wk)

@@ -12,7 +12,7 @@ class Backend:
         self.TEMPLATE = template
         self.TEMPLATE_VERSION = template_version
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, str]:
         return {
             "id": self.ID,
             "owner": self.OWNER,

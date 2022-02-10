@@ -12,7 +12,6 @@ BIOCONDA = "bioconda"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-
 logger = setup_custom_logger(__name__)
 
 
@@ -82,7 +81,9 @@ class Playbook(object):
         self.inventory.write(inventory_string)
         self.inventory.close()
 
-    def copy_playbooks_and_init(self, playbooks_information, public_key):
+    def copy_playbooks_and_init(
+        self, playbooks_information: dict[str, str], public_key: str
+    ) -> str:
         # go through every wanted playbook
         for k, v in playbooks_information.items():
             self.copy_and_init(k, v)
@@ -119,7 +120,7 @@ class Playbook(object):
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
-    def copy_and_init(self, playbook_name, playbook_vars):
+    def copy_and_init(self, playbook_name: str, playbook_vars: dict[str, str]) -> None:
         def load_vars():
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
@@ -173,7 +174,9 @@ class Playbook(object):
         except IOError as e:
             logger.exception(e)
 
-    def add_to_playbook_lists(self, playbook_name_local, playbook_name):
+    def add_to_playbook_lists(
+        self, playbook_name_local: str, playbook_name: str
+    ) -> None:
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.tasks.append(
             dict(
@@ -190,7 +193,7 @@ class Playbook(object):
             + "_vars_file.yml"
         )
 
-    def add_tasks_only(self, playbook_name):
+    def add_tasks_only(self, playbook_name: str) -> None:
         self.tasks.append(
             dict(
                 name="Running {0} tasks".format(playbook_name),
@@ -198,7 +201,7 @@ class Playbook(object):
             )
         )
 
-    def add_to_playbook_always_lists(self, playbook_name):
+    def add_to_playbook_always_lists(self, playbook_name: str) -> None:
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.always_tasks.append(
             dict(
@@ -207,7 +210,7 @@ class Playbook(object):
             )
         )
 
-    def add_always_tasks_only(self, playbook_name):
+    def add_always_tasks_only(self, playbook_name: str) -> None:
         self.always_tasks.append(
             dict(
                 name="Running {0} tasks".format(playbook_name),
@@ -215,7 +218,7 @@ class Playbook(object):
             )
         )
 
-    def run_it(self):
+    def run_it(self) -> None:
         command_string = f"/usr/local/bin/ansible-playbook -v -i {self.inventory.name} {self.directory.name}/{self.playbook_exec_name}"
         command_string = shlex.split(command_string)
         logger.info(f"Run Playbook for {self.playbook_exec_name} - [{command_string}]")
@@ -226,7 +229,7 @@ class Playbook(object):
             universal_newlines=True,
         )
 
-    def check_status(self, openstack_id):
+    def check_status(self, openstack_id: str) -> bool:
         logger.info(f"Check Status Playbook for VM {openstack_id}")
         done = self.process.poll()
         logger.info(f" Status Playbook for VM {openstack_id}: {done}")
@@ -253,7 +256,7 @@ class Playbook(object):
             self.process.wait()
         return done
 
-    def get_logs(self):
+    def get_logs(self) -> tuple[int, str, str]:
         self.log_file_stdout.seek(0, 0)
         lines_stdout = self.log_file_stdout.readlines()
         for line in lines_stdout:
@@ -264,11 +267,11 @@ class Playbook(object):
             self.stderr += line
         return self.returncode, self.stdout, self.stderr
 
-    def cleanup(self, openstack_id):
+    def cleanup(self, openstack_id: str) -> None:
         self.directory.cleanup()
         self.redis.delete(openstack_id)
 
-    def stop(self, openstack_id):
+    def stop(self, openstack_id: str) -> None:
         self.process.terminate()
         rc, stdout, stderr = self.get_logs()
         logs_to_save = {"returncode": rc, "stdout": stdout, "stderr": stderr}

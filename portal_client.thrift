@@ -157,50 +157,76 @@ struct PlaybookResult {
     3: required string stderr
 }
 
-exception otherException {
-    /** Every other exception. */
-    1: string Reason
-}
-exception ressourceException {
+exception ResourceNotFoundException {
     /** Name already used. */
-    1: string Reason
+    1: string message
+    2: string resource_type
+    3: string name_or_id
 }
 
-exception nameException {
+exception ResourceNotAvailableException {
+    /** Name already used. */
+    1: string message
+
+}
+
+exception TemplateNotFoundException {
+    /** Name already used. */
+    1: string message
+    2: string template
+
+}
+
+exception NameAlreadyUsedException {
     /**@ Name already used. */
-    1: string Reason
+    1: string message
+    2: string name
 }
 
-exception serverNotFoundException {
+exception ServerNotFoundException {
     /** Server not found. */
-    1: string Reason
-}
-
-exception networkNotFoundException{
-    /** Network not found. */
-    1: string Reason
-}
-
-exception imageNotFoundException {
-    /** Image not found. */
-    1: string Reason
-}
-
-exception flavorNotFoundException {
-    /* Flavor not found*/
-    1: string Reason
+    1: string message
+    2: string name_or_id
 }
 
 
-/** Authentication Failed Exception*/
-exception authenticationException {
-    /** Reason why the Authentication failed*/
-    1: string Reason
+exception FlavorNotFoundException {
+    1: string message
+    2: string name_or_id
 }
+
+exception VolumeNotFoundException {
+    1: string message
+    2: string name_or_id
+}
+exception ImageNotFoundException {
+    1: string message
+    2: string name_or_id
+}
+exception ClusterNotFoundException {
+    1: string message
+    2: string name_or_id
+}
+
+exception BackendNotFoundException {
+    1: string message
+    2: string name_or_id
+}
+
+exception PlaybookNotFoundException {
+    1: string message
+    2: string name_or_id
+}
+
+exception DefaultException {
+    1: string message
+}
+
 
 /** Conflict with request (e.g. while vm is in create image task)*/
-exception conflictException {
-    1: string Reason
+exception OpenStackConflictException {
+       1: string message
+
 }
 
 /**
@@ -245,7 +271,7 @@ service VirtualMachineService {
     map<string,string> get_vm_ports(
 
     /** Id of server */
-    1: string openstack_id)
+    1: string openstack_id) throws(1:ServerNotFoundException s)
 
 
 	 /**
@@ -277,18 +303,18 @@ service VirtualMachineService {
 	 * Get an image with tag.
 	 * Returns: image.
 	 */
-	Image get_image(1:string openstack_id)
+	Image get_image(1:string openstack_id) throws (1:ImageNotFoundException i)
 
 
 	Volume get_volume(
 	1:string volume_id
-	)
+	) throws (1:VolumeNotFoundException v)
 
 	list<Volume> get_volumes_by_ids(
 	1:list<string> volume_ids
 	)
 
-	int resize_volume(1:string volume_id,2:int size)
+	bool resize_volume(1:string volume_id,2:int size) throws(1:VolumeNotFoundException v)
 
 
 
@@ -301,7 +327,7 @@ service VirtualMachineService {
 	/** Id of the server. */
 	1:string openstack_id)
 
-	throws (1:serverNotFoundException e, 2: conflictException c)
+	throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
 
 
 	map<string,string> start_server(
@@ -326,10 +352,10 @@ service VirtualMachineService {
      10:list <string> additional_keys
 )
 
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+    throws (1:NameAlreadyUsedException e,2:ResourceNotAvailableException r,5:ImageNotFoundException i,6:FlavorNotFoundException f,7:DefaultException o)
 
     bool bibigrid_available()
-    bool detach_ip_from_server(1:string server_id,2:string floating_ip)
+    bool detach_ip_from_server(1:string server_id,2:string floating_ip) throws(1:ServerNotFoundException s)
 
 
 
@@ -357,7 +383,7 @@ service VirtualMachineService {
      7:list<map<string,string>> volume_ids_path_attach)
 
 
-    throws (1:nameException e,2:ressourceException r,3:serverNotFoundException s,4: networkNotFoundException n,5:imageNotFoundException i,6:flavorNotFoundException f,7:otherException o)
+    throws (1:NameAlreadyUsedException e,2:ResourceNotAvailableException r,3: ImageNotFoundException i,4: FlavorNotFoundException f,5:DefaultException d)
 
     /** Check if there is an instance with name */
     bool exist_server(
@@ -369,12 +395,12 @@ service VirtualMachineService {
     1:string public_key,
     2:map<string, map<string,string>> playbooks_information
     3:string openstack_id
-    )
+    ) throws (1:ServerNotFoundException s)
 
     /** Get the logs from a playbook run*/
     PlaybookResult get_playbook_logs(
     1:string openstack_id
-    )
+    ) throws(1:PlaybookNotFoundException p)
 
 
     /** Get boolean if client has backend url configured*/
@@ -388,51 +414,51 @@ service VirtualMachineService {
     2:string user_key_url,
     3:string template,
     4:string upstream_url
-    )
+    ) throws(1: TemplateNotFoundException e,2:DefaultException d)
 
     /** Get all backends*/
-    list<Backend> get_backends()
+    list<Backend> get_backends() throws(1:DefaultException d)
 
     /** Get all backends by owner*/
     list<Backend> get_backends_by_owner(
     1:string elixir_id
-    )
+    )  throws(1:DefaultException d)
 
     /** Get all backends by template*/
     list<Backend> get_backends_by_template(
     1:string template
-    )
+    )  throws(1:DefaultException d)
 
     /** Get a backend by id*/
     Backend get_backend_by_id(
     1:i64 id
-    )
+    ) throws (1:BackendNotFoundException b,2:DefaultException d)
 
 
 
     /** Delete a backend*/
-    string delete_backend(
+    bool delete_backend(
     1:i64 id
-    )
+    ) throws (1:BackendNotFoundException b)
 
     /** Add a user to a backend*/
     map<string,string> add_user_to_backend(
     1:i64 backend_id,
     2:string owner_id,
     3:string user_id
-    )
+    ) throws (1:BackendNotFoundException b)
 
     /** Get users from a backend*/
     list<string> get_users_from_backend(
     1:i64 backend_id
-    )
+    ) throws (1:BackendNotFoundException b)
 
     /** Delete user from a backend*/
     map<string,string> delete_user_from_backend(
     1:i64 backend_id,
     2:string owner_id,
     3:string user_id
-    )
+    ) throws (1:BackendNotFoundException b)
 
 
     list<string> get_allowed_templates()
@@ -461,9 +487,9 @@ service VirtualMachineService {
     string add_cluster_machine(1:string cluster_id,2:string cluster_user,3:string cluster_group_id,4:string image,5: string flavor,6: string name,7: string key_name,8: int batch_idx,
                             9:int worker_idx)
 
-	ClusterInfo get_cluster_info(1:string cluster_id)
+	ClusterInfo get_cluster_info(1:string cluster_id) throws(1:ClusterNotFoundException c)
 
-	map<string,string>get_cluster_status(1:string cluster_id)
+	map<string,string>get_cluster_status(1:string cluster_id) throws(1:ClusterNotFoundException c)
 
 
 
@@ -477,7 +503,7 @@ service VirtualMachineService {
 	/** Id of the server.*/
 	1:string openstack_id)
 
-	 throws (1:serverNotFoundException e),
+	 throws (1:ServerNotFoundException e),
 
 
 	/**
@@ -489,7 +515,7 @@ service VirtualMachineService {
     /** Id of the server.*/
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e , 2: conflictException c)
+    throws (1:ServerNotFoundException e , 2: OpenStackConflictException c)
 
 
     /**
@@ -512,7 +538,7 @@ service VirtualMachineService {
      /** Description of the new snapshot*/
      5:string description)
 
-     throws (1:serverNotFoundException e, 2: conflictException c),
+     throws (1:ServerNotFoundException e, 2: OpenStackConflictException c),
 
 
     /**
@@ -525,7 +551,7 @@ service VirtualMachineService {
 
      map<string,string> start_cluster(1:string public_key,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instances,4:string user)
 
-     map<string,string> terminate_cluster(1:string cluster_id)
+     map<string,string> terminate_cluster(1:string cluster_id) throws(1:ClusterNotFoundException c)
 
     /**
      * Delete Image.
@@ -535,7 +561,7 @@ service VirtualMachineService {
     /** Id of image */
     1:string image_id) throws (
 
-    1:imageNotFoundException e)
+    1:ImageNotFoundException e)
 
 
     /**
@@ -549,14 +575,14 @@ service VirtualMachineService {
     /** Id of the server where the volume is attached */
     2:string server_id)
 
-    throws (1:serverNotFoundException e, 2: conflictException c),
+    throws (1:ServerNotFoundException e, 2: OpenStackConflictException c,3: VolumeNotFoundException v),
 
 
     /**
      * Delete volume.
      * Returns:  True if deleted, False if not
      */
-    bool delete_volume(1:string volume_id) throws (1: conflictException c)
+    bool delete_volume(1:string volume_id) throws (1: OpenStackConflictException c,2:VolumeNotFoundException v)
 
     /**
      * Attach volume to server.
@@ -570,7 +596,7 @@ service VirtualMachineService {
     2:string volume_id,
     )
 
-    throws (1:serverNotFoundException e, 2: conflictException c),
+    throws (1:VolumeNotFoundException e, 2: OpenStackConflictException c),
 
 
     /**
@@ -581,7 +607,7 @@ service VirtualMachineService {
     /** Id of the server */
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e,2:ressourceException r),
+    throws (1:ServerNotFoundException e),
 
 
 
@@ -593,7 +619,7 @@ service VirtualMachineService {
     /** Id of the server */
     1:string openstack_id)
 
-    throws (1:serverNotFoundException e, 2: conflictException c)
+    throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
 
 
     /**
@@ -610,7 +636,7 @@ service VirtualMachineService {
      /** Metadata for the new volume*/
     3:map<string,string> metadata)
 
-    throws (1:ressourceException r)
+    throws (1:DefaultException r,2:ResourceNotAvailableException n)
 
 
     /**
@@ -625,6 +651,6 @@ service VirtualMachineService {
     /** HARD or SOFT*/
     2:string reboot_type)
 
-    throws (1:serverNotFoundException e, 2: conflictException c)
+    throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
 
 }
