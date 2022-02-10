@@ -11,7 +11,7 @@ def setup_custom_logger(name):
     LOG_MAX_BYTES = int(os.environ.get("LOG_MAX_BATES", 1073741824))
 
     formatter = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(funcName)s  - %(levelname)s - %(message)s"
+        fmt="%(asctime)s - %(name)s - %(funcName)s  - [%(levelname)s] - %(message)s"
     )
 
     handler = logging.StreamHandler()

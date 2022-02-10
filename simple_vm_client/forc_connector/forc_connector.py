@@ -38,7 +38,7 @@ class ForcConnector:
             forc_api_key=self.FORC_API_KEY,
         )
 
-    def load_config(self, config_file):
+    def load_config(self, config_file) -> None:
         logger.info("Load config file: FORC")
         with open(config_file, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
@@ -48,7 +48,7 @@ class ForcConnector:
             self.REDIS_HOST = cfg["redis"]["host"]
             self.REDIS_PORT = cfg["redis"]["port"]
 
-    def connect_to_redis(self):
+    def connect_to_redis(self) -> None:
         logger.info("Connect to redis")
         self.redis_pool = redis.ConnectionPool(
             host=self.REDIS_HOST, port=self.REDIS_PORT
@@ -61,7 +61,7 @@ class ForcConnector:
         else:
             logger.error("Could not connect to redis!")
 
-    def get_users_from_backend(self, backend_id):
+    def get_users_from_backend(self, backend_id: str):
         logger.info(f"Get users from backend {backend_id}")
         get_url = f"{self.FORC_URL}/users/{backend_id}"
         try:
