@@ -29,15 +29,15 @@ if TYPE_CHECKING:
 logger = setup_custom_logger(__name__)
 
 
-class VirtualMachineHandler(Iface):
+class VirtualMachineHandler(Iface):  # type: ignore
     """Handler which the PortalClient uses."""
 
-    def __init__(self, config_file):
+    def __init__(self, config_file: str):
         self.openstack_connector = OpenStackConnector(config_file=config_file)
         self.bibigrid_connector = BibigridConnector(config_file=config_file)
         self.forc_connector = ForcConnector(config_file=config_file)
 
-    def keyboard_interrupt_handler_playbooks(self):
+    def keyboard_interrupt_handler_playbooks(self) -> None:
         for k, v in self.forc_connector._active_playbooks.items():
             logger.info(
                 "Clearing traces of Playbook-VM for (openstack_id): {0}".format(k)
@@ -216,7 +216,7 @@ class VirtualMachineHandler(Iface):
             upstream_url=upstream_url,
         )
 
-    def delete_backend(self, id: str) -> str:
+    def delete_backend(self, id: str) -> bool:
         return self.forc_connector.delete_backend(backend_id=id)
 
     def get_backends(self) -> list[Backend]:
@@ -265,7 +265,7 @@ class VirtualMachineHandler(Iface):
         public_key: str,
         servername: str,
         metadata: dict[str, str],
-        research_environment: list[str],
+        research_environment: str,
         volume_ids_path_new: list[dict[str, str]],
         volume_ids_path_attach: list[dict[str, str]],
         additional_keys: list[str],
@@ -296,7 +296,7 @@ class VirtualMachineHandler(Iface):
         image: str,
         servername: str,
         metadata: dict[str, str],
-        research_environment: list[str],
+        research_environment: str,
         volume_ids_path_new: list[dict[str, str]],
         volume_ids_path_attach: list[dict[str, str]],
     ) -> str:
@@ -325,10 +325,12 @@ class VirtualMachineHandler(Iface):
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: list[str, dict[str, str]],
+        playbooks_information: dict[str, str],
         openstack_id: str,
     ) -> int:
-        port = self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
+        port = int(
+            self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
+        )
         gateway_ip = self.openstack_connector.get_gateway_ip()["gateway_ip"]
         cloud_site = self.openstack_connector.CLOUD_SITE
         return self.forc_connector.create_and_deploy_playbook(

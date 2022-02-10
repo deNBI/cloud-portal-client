@@ -45,12 +45,12 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  bool resize_volume(string volume_id, int size)")
     print("  bool delete_server(string openstack_id)")
     print(
-        "   start_server(string flavor, string image, string public_key, string servername,  metadata,  research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
+        "   start_server(string flavor_name, string image, string public_key, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
     )
     print("  bool bibigrid_available()")
     print("  bool detach_ip_from_server(string server_id, string floating_ip)")
     print(
-        "   start_server_with_custom_key(string flavor, string image, string servername,  metadata,  research_environment,  volume_ids_path_new,  volume_ids_path_attach)"
+        "   start_server_with_custom_key(string flavor_name, string image_name, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach)"
     )
     print("  bool exist_server(string name)")
     print(
@@ -77,10 +77,10 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("   get_servers_by_ids( server_ids)")
     print("   get_servers_by_bibigrid_id(string bibigrid_id)")
     print(
-        "   scale_up_cluster(string cluster_id, string image, string flavor, int count,  names, int start_idx, int batch_idx)"
+        "   scale_up_cluster(string cluster_id, string image_name, string flavor_name, int count,  names, int start_idx, int batch_idx)"
     )
     print(
-        "  string add_cluster_machine(string cluster_id, string cluster_user, string cluster_group_id, string image, string flavor, string name, string key_name, int batch_idx, int worker_idx)"
+        "  string add_cluster_machine(string cluster_id, string cluster_user, string cluster_group_id, string image_name, string flavor_name, string name, string key_name, int batch_idx, int worker_idx)"
     )
     print("  ClusterInfo get_cluster_info(string cluster_id)")
     print("   get_cluster_status(string cluster_id)")
@@ -323,7 +323,7 @@ elif cmd == "start_server":
             args[2],
             args[3],
             eval(args[4]),
-            eval(args[5]),
+            args[5],
             eval(args[6]),
             eval(args[7]),
             eval(args[8]),
@@ -357,7 +357,7 @@ elif cmd == "start_server_with_custom_key":
             args[1],
             args[2],
             eval(args[3]),
-            eval(args[4]),
+            args[4],
             eval(args[5]),
             eval(args[6]),
         )

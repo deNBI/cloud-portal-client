@@ -332,7 +332,7 @@ service VirtualMachineService {
 
 	map<string,string> start_server(
 	/** Name of the  Flavor to use.*/
-    1:string flavor,
+    1:string flavor_name,
 
     /** Name of the image to use. */
     2:string image,
@@ -346,7 +346,7 @@ service VirtualMachineService {
     /** Metadata for the new instance*/
     5:map<string,string> metadata,
 
-    7:list<string> research_environment,
+    7:string research_environment,
      8:list<map<string,string>> volume_ids_path_new,
      9:list<map<string,string>> volume_ids_path_attach,
      10:list <string> additional_keys
@@ -366,10 +366,10 @@ service VirtualMachineService {
     map<string,string> start_server_with_custom_key(
 
     /** Name of the  Flavor to use.*/
-    1:string flavor,
+    1:string flavor_name,
 
     /** Name of the image to use. */
-    2:string image,
+    2:string image_name,
 
     /** Name for the new server */
     3:string servername,
@@ -378,7 +378,7 @@ service VirtualMachineService {
     4:map<string,string> metadata,
 
 
-    5:list<string> research_environment,
+    5:string research_environment,
     6:list<map<string,string>> volume_ids_path_new,
      7:list<map<string,string>> volume_ids_path_attach)
 
@@ -480,11 +480,11 @@ service VirtualMachineService {
     **/
 	list<VM> get_servers_by_bibigrid_id(1:string bibigrid_id)
 
-	map<string,list<string>> scale_up_cluster(1: string cluster_id,2: string image,3:string flavor,4:int count,
+	map<string,list<string>> scale_up_cluster(1: string cluster_id,2: string image_name,3:string flavor_name,4:int count,
                           5:list<string>names,6:int start_idx,7:int batch_idx)
 
 
-    string add_cluster_machine(1:string cluster_id,2:string cluster_user,3:string cluster_group_id,4:string image,5: string flavor,6: string name,7: string key_name,8: int batch_idx,
+    string add_cluster_machine(1:string cluster_id,2:string cluster_user,3:string cluster_group_id,4:string image_name,5: string flavor_name,6: string name,7: string key_name,8: int batch_idx,
                             9:int worker_idx)
 
 	ClusterInfo get_cluster_info(1:string cluster_id) throws(1:ClusterNotFoundException c)

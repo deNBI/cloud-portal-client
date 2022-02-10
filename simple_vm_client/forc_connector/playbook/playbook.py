@@ -21,35 +21,33 @@ class Playbook(object):
 
     def __init__(
         self,
-        ip,
-        port,
-        playbooks_information,
-        osi_private_key,
-        public_key,
-        pool,
-        loaded_metadata_keys,
-        cloud_site,
-        playbooks_dir,
+        ip: str,
+        port: int,
+        playbooks_information: dict[str, dict[str, str]],
+        osi_private_key: str,
+        public_key: str,
+        pool: redis.ConnectionPool,
+        loaded_metadata_keys: list[str],
+        cloud_site: str,
+        playbooks_dir: str,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
-        self.cloud_site = cloud_site
-        self.redis = redis.Redis(connection_pool=pool)  # redis connection
+        self.cloud_site: str = cloud_site
+        self.redis: redis.Redis = redis.Redis(connection_pool=pool)  # redis connection
         self.yaml_exec = ruamel.yaml.YAML()  # yaml writer/reader
-        self.vars_files = []  # _vars_file.yml to read
-        self.tasks = []  # task list
-        self.always_tasks = []
-        self.process = (
-            None  # init process, returncode, standard output, standard error output
-        )
-        self.returncode = -1
-        self.stdout = ""
-        self.stderr = ""
+        self.vars_files: list[str] = []  # _vars_file.yml to read
+        self.tasks: list[dict[str, str]] = []  # task list
+        self.always_tasks: list[dict[str, str]] = []
+        self.process: subprocess.Popen = None  # type: ignore
+        self.returncode: int = -1
+        self.stdout: str = ""
+        self.stderr: str = ""
         # init temporary directories and mandatory generic files
-        self.ancon_dir = os.path.dirname(
+        self.ancon_dir: str = os.path.dirname(
             os.path.realpath(__file__)
         )  # path to this directory
-        self.playbooks_dir = playbooks_dir
-        self.directory = TemporaryDirectory(dir=self.ancon_dir)
+        self.playbooks_dir: str = playbooks_dir
+        self.directory: TemporaryDirectory = TemporaryDirectory(dir=self.ancon_dir)
         self.private_key = NamedTemporaryFile(
             mode="w+", dir=self.directory.name, delete=False, prefix="private_key_"
         )
@@ -64,7 +62,7 @@ class Playbook(object):
         )
 
         # create the custom playbook and save its name
-        self.playbook_exec_name = "generic_playbook.yml"
+        self.playbook_exec_name: str = "generic_playbook.yml"
         self.copy_playbooks_and_init(playbooks_information, public_key)
 
         # create inventory
@@ -73,17 +71,16 @@ class Playbook(object):
         )
 
         inventory_string = (
-            "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu "
-            "ansible_ssh_private_key_file="
-            + self.private_key.name
-            + " ansible_python_interpreter=/usr/bin/python3"
+            f"[vm]\n{ip}:{str(port)} ansible_user=ubuntu "
+            f"ansible_ssh_private_key_file={self.private_key.name} "
+            f"ansible_python_interpreter=/usr/bin/python3"
         )
         self.inventory.write(inventory_string)
         self.inventory.close()
 
     def copy_playbooks_and_init(
-        self, playbooks_information: dict[str, str], public_key: str
-    ) -> str:
+        self, playbooks_information: dict[str, dict[str, str]], public_key: str
+    ) -> None:
         # go through every wanted playbook
         for k, v in playbooks_information.items():
             self.copy_and_init(k, v)
@@ -121,7 +118,7 @@ class Playbook(object):
             self.yaml_exec.dump(data_gp, generic_playbook)
 
     def copy_and_init(self, playbook_name: str, playbook_vars: dict[str, str]) -> None:
-        def load_vars():
+        def load_vars() -> None:
             if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
@@ -129,8 +126,10 @@ class Playbook(object):
                         p_dict = {}
                         for p in (v.strip('"')).split():
                             p_array.append(p.split("="))
-                        for p in p_array:
-                            p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
+                        for p_l in p_array:
+                            p_dict.update(
+                                {p_l[0]: {"version": p_l[1], "build": p_l[2]}}
+                            )
                         data[playbook_name + "_tools"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
@@ -220,7 +219,7 @@ class Playbook(object):
 
     def run_it(self) -> None:
         command_string = f"/usr/local/bin/ansible-playbook -v -i {self.inventory.name} {self.directory.name}/{self.playbook_exec_name}"
-        command_string = shlex.split(command_string)
+        command_string = shlex.split(command_string)  # type: ignore
         logger.info(f"Run Playbook for {self.playbook_exec_name} - [{command_string}]")
         self.process = subprocess.Popen(
             command_string,
@@ -229,7 +228,7 @@ class Playbook(object):
             universal_newlines=True,
         )
 
-    def check_status(self, openstack_id: str) -> bool:
+    def check_status(self, openstack_id: str) -> int:
         logger.info(f"Check Status Playbook for VM {openstack_id}")
         done = self.process.poll()
         logger.info(f" Status Playbook for VM {openstack_id}: {done}")
@@ -275,5 +274,5 @@ class Playbook(object):
         self.process.terminate()
         rc, stdout, stderr = self.get_logs()
         logs_to_save = {"returncode": rc, "stdout": stdout, "stderr": stderr}
-        self.redis.hmset("pb_logs_{0}".format(openstack_id), logs_to_save)
+        self.redis.hset(name="pb_logs_{0}".format(openstack_id), mapping=logs_to_save)  # type: ignore
         self.cleanup(openstack_id)

@@ -25,19 +25,17 @@ BIOCONDA = "bioconda"
 
 
 class ForcConnector:
-    def __init__(self, config_file):
+    def __init__(self, config_file: str):
         logger.info("Initializing Forc Connector")
 
-        self.FORC_URL = None
-        self.FORC_REMOTE_ID = None
-        self.GITHUB_PLAYBOOKS_REPO = None
-        self.REDIS_HOST = None
-        self.REDIS_PORT = None
-        self.redis_pool = None
-        self.redis_connection = None
-        self._active_playbooks = {}
-        self.playbook_dir = "/playbooks"
-
+        self.FORC_URL: str = None  # type: ignore
+        self.FORC_REMOTE_ID: str = None  # type: ignore
+        self.GITHUB_PLAYBOOKS_REPO: str = None  # type: ignore
+        self.REDIS_HOST: str = None  # type: ignore
+        self.REDIS_PORT: int = None  # type: ignore
+        self.redis_pool: redis.ConnectionPool = None  # type: ignore
+        self.redis_connection: redis.Redis.connection_pool = None
+        self._active_playbooks: dict[str, Playbook] = {}
         self.load_config(config_file=config_file)
         self.load_env()
         self.connect_to_redis()
@@ -47,7 +45,7 @@ class ForcConnector:
             forc_api_key=self.FORC_API_KEY,
         )
 
-    def load_config(self, config_file) -> None:
+    def load_config(self, config_file: str) -> None:
         logger.info("Load config file: FORC")
         with open(config_file, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
@@ -65,6 +63,7 @@ class ForcConnector:
         self.redis_connection = redis.Redis(
             connection_pool=self.redis_pool, charset="utf-8"
         )
+
         if self.redis_connection.ping():
             logger.info("Redis connection created!")
         else:
@@ -83,7 +82,7 @@ class ForcConnector:
             if response.status_code == 401:
                 return ["Error: 401"]
             else:
-                return response.json()
+                return [response.json()]
         except Timeout as e:
             logger.info(msg="Get users for backend timed out. {0}".format(e))
             return []
@@ -105,7 +104,8 @@ class ForcConnector:
                 headers={"X-API-KEY": self.FORC_API_KEY},
                 verify=True,
             )
-            return response.json()
+            data: dict[str, str] = response.json()
+            return data
         except Timeout as e:
             logger.info(msg="Delete user from backend timed out. {0}".format(e))
             return {"Error": "Timeout."}
@@ -139,6 +139,8 @@ class ForcConnector:
 
             elif response.status_code == 200:
                 return True
+            else:
+                return False
         except Timeout:
             logger.exception(msg="delete_backend timed out")
             return False
@@ -165,7 +167,7 @@ class ForcConnector:
                 verify=True,
             )
             try:
-                data = response.json()
+                data: dict[str, str] = response.json()
             except Exception as e:
                 logger.exception(e)
                 raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
@@ -388,11 +390,11 @@ class ForcConnector:
 
     def set_vm_wait_for_playbook(
         self, openstack_id: str, private_key: str, name: str
-    ) -> bool:
+    ) -> None:
         logger.info(f"Set vm {openstack_id}: {VmTaskStates.PREPARE_PLAYBOOK_BUILD} ")
-        self.redis_connection.hmset(
-            openstack_id,
-            dict(
+        self.redis_connection.hst(
+            name=openstack_id,
+            mapper=dict(
                 key=private_key, name=name, status=VmTaskStates.PREPARE_PLAYBOOK_BUILD
             ),
         )
@@ -427,9 +429,9 @@ class ForcConnector:
     ) -> dict[str, str]:
         logger.info(f"Get Metadata Research environment: {research_environment}")
         if research_environment in self.template.get_loaded_resenv_metadata():
-            resenv_metadata = self.template.get_loaded_resenv_metadata()[
-                research_environment
-            ]
+            resenv_metadata: dict[
+                str, str
+            ] = self.template.get_loaded_resenv_metadata()[research_environment]
             return resenv_metadata
         elif (
             research_environment != "user_key_url" and research_environment != BIOCONDA
@@ -438,11 +440,12 @@ class ForcConnector:
                 f"Failure to load metadata of reasearch enviroment: {research_environment}"
             )
             return {}
+        return {}
 
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: dict[str, str],
+        playbooks_information: dict[str, dict[str, str]],
         openstack_id: str,
         port: int,
         ip: str,
@@ -450,7 +453,7 @@ class ForcConnector:
     ) -> int:
 
         logger.info(f"Starting Playbook for (openstack_id): {openstack_id}")
-        key = self.redis_connection.hget(openstack_id, "key").decode("utf-8")
+        key: str = self.redis_connection.hget(openstack_id, "key").decode("utf-8")
         playbook = Playbook(
             ip=ip,
             port=port,
@@ -462,7 +465,7 @@ class ForcConnector:
                 self.template.get_loaded_resenv_metadata().keys()
             ),
             cloud_site=cloud_site,
-            playbooks_dir=self.playbook_dir,
+            playbooks_dir=Template.get_playbook_dir(),
         )
         self.redis_connection.hset(openstack_id, "status", VmTaskStates.BUILD_PLAYBOOK)
         playbook.run_it()

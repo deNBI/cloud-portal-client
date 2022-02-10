@@ -4,7 +4,14 @@ logger = setup_custom_logger(__name__)
 
 
 class Backend:
-    def __init__(self, id, owner, location_url, template, template_version):
+    def __init__(
+        self,
+        id: str,
+        owner: str,
+        location_url: str,
+        template: str,
+        template_version: str,
+    ):
 
         self.ID = id
         self.OWNER = owner

@@ -43,30 +43,30 @@ ALL_TEMPLATES = [BIOCONDA]
 
 
 class OpenStackConnector:
-    def __init__(self, config_file):
+    def __init__(self, config_file: str):
         # Config FIle Data
         logger.info("Initializing OpenStack Connector")
-        self.GATEWAY_IP = None
-        self.NETWORK = None
-        self.SUB_NETWORK = None
-        self.PRODUCTION = None
-        self.AVAILABILITY_ZONE = "default"
-        self.CLOUD_SITE = None
-        self.BASE_GATEWAY_PORT = 30000
-        self.SSH_MULTIPLICATION_PORT = 1
-        self.UDP_MULTIPLICATION_PORT = 10
-        self.DEFAULT_SECURITY_GROUP_NAME = None
-        self.DEFAULT_SECURITY_GROUPS = []
+        self.GATEWAY_IP: str = ""
+        self.NETWORK: str = ""
+        self.SUB_NETWORK: str = ""
+        self.PRODUCTION: bool = True
+        self.AVAILABILITY_ZONE: str = "default"
+        self.CLOUD_SITE: str = ""
+        self.BASE_GATEWAY_PORT: int = 30000
+        self.SSH_MULTIPLICATION_PORT: int = 1
+        self.UDP_MULTIPLICATION_PORT: int = 10
+        self.DEFAULT_SECURITY_GROUP_NAME: str = ""
+        self.DEFAULT_SECURITY_GROUPS: list[str] = []
 
         # Environment Data
-        self.USERNAME = None
-        self.PASSWORD = None
-        self.PROJECT_NAME = None
-        self.PROJECT_ID = None
-        self.USER_DOMAIN_NAME = None
-        self.AUTH_URL = None
-        self.PROJECT_DOMAIN_ID = None
-        self.FORC_SECURITY_GROUP_ID = None
+        self.USERNAME: str = ""
+        self.PASSWORD: str = ""
+        self.PROJECT_NAME: str = ""
+        self.PROJECT_ID: str = ""
+        self.USER_DOMAIN_NAME: str = ""
+        self.AUTH_URL: str = ""
+        self.PROJECT_DOMAIN_ID: str = ""
+        self.FORC_SECURITY_GROUP_ID: str = ""
 
         self.load_env_config()
         self.load_config_yml(config_file)
@@ -87,7 +87,9 @@ class OpenStackConnector:
             logger.error("Client failed authentication at Openstack!")
             raise ConnectionError("Client failed authentication at Openstack")
 
-        self.DEACTIVATE_UPGRADES_SCRIPT = self.create_deactivate_update_script()
+        self.DEACTIVATE_UPGRADES_SCRIPT = (
+            OpenStackConnector.create_deactivate_update_script()
+        )
 
     def load_config_yml(self, config_file: str) -> None:
         logger.info(f"Load config file openstack config - {config_file}")
@@ -133,7 +135,7 @@ class OpenStackConnector:
         logger.info(
             f"Create Server:\n\tname: {name}\n\timage_id:{image_id}\n\tflavor_id:{flavor_id}\n\tmetadata:{metadata}"
         )
-        return self.openstack_connection.create_server(
+        server: Server = self.openstack_connection.create_server(
             name=name,
             image=image_id,
             flavor=flavor_id,
@@ -144,10 +146,11 @@ class OpenStackConnector:
             availability_zone=self.AVAILABILITY_ZONE,
             security_groups=security_groups,
         )
+        return server
 
     def get_volume(self, name_or_id: str) -> Volume:
         logger.info(f"Get Volume {name_or_id}")
-        volume = self.openstack_connection.get_volume(name_or_id=name_or_id)
+        volume: Volume = self.openstack_connection.get_volume(name_or_id=name_or_id)
         if volume is None:
             logger.exception(f"No Volume with id  {name_or_id} ")
             raise VolumeNotFoundException(
@@ -172,19 +175,19 @@ class OpenStackConnector:
 
     def get_servers(self) -> list[Server]:
         logger.info("Get servers")
-        servers = self.openstack_connection.list_servers()
+        servers: list[Server] = self.openstack_connection.list_servers()
         return servers
 
     def get_servers_by_ids(self, ids: list[str]) -> list[Server]:
         logger.info(f"Get Servers by IDS : {ids}")
-        servers = []
-        for id in ids:
-            logger.info(f"Get server {id}")
+        servers: list[Server] = []
+        for server_id in ids:
+            logger.info(f"Get server {server_id}")
             try:
-                server = self.openstack_connection.get_server_by_id(id)
+                server = self.openstack_connection.get_server_by_id(server_id)
                 servers.append(server)
             except Exception as e:
-                logger.exception("Requested VM {} not found!\n {}".format(id, e))
+                logger.exception("Requested VM {} not found!\n {}".format(server_id, e))
 
         return servers
 
@@ -237,11 +240,11 @@ class OpenStackConnector:
 
     def create_volume(
         self, volume_name: str, volume_storage: int, metadata: dict[str, str]
-    ):
+    ) -> Volume:
 
         logger.info(f"Creating volume with {volume_storage} GB storage")
         try:
-            volume = self.openstack_connection.block_storage.create_volume(
+            volume: Volume = self.openstack_connection.block_storage.create_volume(
                 name=volume_name, size=volume_storage, metadata=metadata
             )
             return volume
@@ -254,7 +257,7 @@ class OpenStackConnector:
 
     def get_network(self) -> Network:
 
-        network = self.openstack_connection.network.find_network(self.NETWORK)
+        network: Network = self.openstack_connection.network.find_network(self.NETWORK)
         if network is None:
             logger.exception("Network {0} not found!".format(network))
             raise Exception("Network {0} not found!".format(network))
@@ -288,11 +291,12 @@ class OpenStackConnector:
         if key_pair:
             self.openstack_connection.delete_keypair(name=key_name)
 
-    def create_add_keys_script(self, keys: list[str]) -> str:
+    @staticmethod
+    def create_add_keys_script(keys: list[str]) -> str:
         logger.info("create add key script")
-        fileDir = os.path.dirname(os.path.abspath(__file__))
+        file_dir = os.path.dirname(os.path.abspath(__file__))
         key_script = os.path.join(
-            fileDir, "openstack_connector/scripts/bash/add_keys_to_authorized.sh"
+            file_dir, "openstack_connector/scripts/bash/add_keys_to_authorized.sh"
         )
         bash_keys_array = "("
         for key in keys:
@@ -306,7 +310,8 @@ class OpenStackConnector:
         key_script = text
         return key_script
 
-    def netcat(self, host: str, port: int) -> bool:
+    @staticmethod
+    def netcat(host: str, port: int) -> bool:
         logger.info(f"Checking SSH Connection {host}:{port}")
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             sock.settimeout(5)
@@ -318,7 +323,7 @@ class OpenStackConnector:
     def get_flavor(self, name_or_id: str) -> Flavor:
         logger.info(f"Get flavor {name_or_id}")
 
-        flavor = self.openstack_connection.get_flavor(
+        flavor: Flavor = self.openstack_connection.get_flavor(
             name_or_id=name_or_id, get_extra=True
         )
         if flavor is None:
@@ -331,7 +336,9 @@ class OpenStackConnector:
     def get_flavors(self) -> list[Flavor]:
         logger.info("Get Flavors")
         if self.openstack_connection:
-            flavors = self.openstack_connection.list_flavors(get_extra=True)
+            flavors: list[Flavor] = self.openstack_connection.list_flavors(
+                get_extra=True
+            )
             logger.info([flav["name"] for flav in flavors])
             return flavors
         else:
@@ -341,13 +348,14 @@ class OpenStackConnector:
     def get_servers_by_bibigrid_id(self, bibigrid_id: str) -> list[Server]:
         logger.info(f"Get Servery by Bibigrid id: {bibigrid_id}")
         filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
-        servers = self.openstack_connection.list_servers(filters=filters)
+        servers: list[Server] = self.openstack_connection.list_servers(filters=filters)
         return servers
 
     def get_active_image_by_os_version(self, os_version: str, os_distro: str) -> Image:
         logger.info(f"Get active Image by os-version: {os_version}")
         images = self.openstack_connection.list_images()
-        for image in images:
+        for img in images:
+            image: Image = img
             metadata = image["metadata"]
             image_os_version = metadata.get("os_version", None)
             image_os_distro = metadata.get("os_distro", None)
@@ -366,10 +374,10 @@ class OpenStackConnector:
             name_or_id="",
         )
 
-    def get_image(self, name_or_id: str, replace_inactive=False) -> Image:
+    def get_image(self, name_or_id: str, replace_inactive: bool = False) -> Image:
         logger.info(f"Get Image {name_or_id}")
 
-        image = self.openstack_connection.get_image(name_or_id=name_or_id)
+        image: Image = self.openstack_connection.get_image(name_or_id=name_or_id)
         if image is None:
             raise ImageNotFoundException(
                 message=f"Image {name_or_id} not found!", name_or_id=name_or_id
@@ -409,7 +417,8 @@ class OpenStackConnector:
                 self.openstack_connection.image.add_tag(
                     image=snapshot_munch["id"], tag=tag
                 )
-            return snapshot_munch["id"]
+            snapshot_id: str = snapshot_munch["id"]
+            return snapshot_id
 
         except ConflictException as e:
             logger.exception(f"Create snapshot {openstack_id} failed!")
@@ -432,7 +441,7 @@ class OpenStackConnector:
             return True
         except Exception as e:
             logger.exception(f"Delete Image {image_id} failed!")
-            return DefaultException(message=str(e))
+            raise DefaultException(message=str(e))
 
     def get_public_images(self) -> list[Image]:
         logger.info("Get public images")
@@ -492,13 +501,17 @@ class OpenStackConnector:
     def get_gateway_ip(self) -> dict[str, str]:
         return {"gateway_ip": self.GATEWAY_IP}
 
-    def create_mount_init_script(self, new_volumes=None, attach_volumes=None) -> str:
+    @staticmethod
+    def create_mount_init_script(
+        new_volumes: list[dict[str, str]] = None,
+        attach_volumes: list[dict[str, str]] = None,
+    ) -> str:
         logger.info(f"Create init script for volume ids:{new_volumes}")
         if not new_volumes and not attach_volumes:
             return ""
 
-        fileDir = os.path.dirname(os.path.abspath(__file__))
-        mount_script = os.path.join(fileDir, "scripts/bash/mount.sh")
+        file_dir: str = os.path.dirname(os.path.abspath(__file__))
+        mount_script: str = os.path.join(file_dir, "scripts/bash/mount.sh")
 
         if new_volumes:
             volume_ids_new = [vol["openstack_id"] for vol in new_volumes]
@@ -549,14 +562,16 @@ class OpenStackConnector:
     def create_security_group(
         self,
         name: str,
-        udp_port_start=None,
-        ssh=True,
-        udp=False,
-        description=None,
-        research_environment_metadata=None,
+        udp_port_start: int = None,  # type: ignore
+        ssh: bool = True,
+        udp: bool = False,
+        description: str = "",
+        research_environment_metadata: dict[str, str] = None,  # type: ignore
     ) -> SecurityGroup:
         logger.info(f"Create new security group {name}")
-        sec = self.openstack_connection.get_security_group(name_or_id=name)
+        sec: SecurityGroup = self.openstack_connection.get_security_group(
+            name_or_id=name
+        )
         if sec:
             logger.info("Security group with name {} already exists.".format(name))
             return sec
@@ -618,22 +633,20 @@ class OpenStackConnector:
 
     def prepare_security_groups_new_server(
         self, research_environment_metadata, servername
-    ) -> list[SecurityGroup]:
-        custom_security_groups = []
-
-        custom_security_groups.append(
+    ) -> list[str]:
+        custom_security_groups = [
             self.create_security_group(
                 name=servername + "_ssh", description="Only SSH"
             ).name
-        )
+        ]
 
         if research_environment_metadata:
             custom_security_groups.append(
                 self.create_security_group(
                     name=servername + research_environment_metadata.security_group_name,
-                    research_environment_metadata=research_environment_metadata,
-                    description=research_environment_metadata.security_group_description,
                     ssh=research_environment_metadata.security_group_ssh,
+                    description=research_environment_metadata.security_group_description,
+                    research_environment_metadata=research_environment_metadata,
                 ).name
             )
 
@@ -715,7 +728,7 @@ class OpenStackConnector:
 
             raise OpenStackConflictException(message=str(e))
 
-    def stop_server(self, openstack_id: str) -> str:
+    def stop_server(self, openstack_id: str) -> bool:
 
         logger.info(f"Stop Server {openstack_id}")
         server = self.openstack_connection.get_server(name_or_id=openstack_id)
@@ -727,7 +740,7 @@ class OpenStackConnector:
                 )
 
             self.openstack_connection.compute.stop_server(server)
-            return openstack_id
+            return True
 
         except ConflictException as e:
             logger.exception(f"Stop Server {openstack_id} failed!")
@@ -793,20 +806,22 @@ class OpenStackConnector:
         )
         return {"port": str(ssh_port), "udp": str(udp_port)}
 
+    @staticmethod
     def create_userdata(
-        self,
         volume_ids_path_new: list[dict[str, str]],
         volume_ids_path_attach: list[dict[str, str]],
         additional_keys: list[str],
     ) -> str:
 
-        init_script = self.create_mount_init_script(
+        init_script = OpenStackConnector.create_mount_init_script(
             new_volumes=volume_ids_path_new,
             attach_volumes=volume_ids_path_attach,
         )
         if additional_keys:
             if init_script:
-                add_key_script = self.create_add_keys_script(keys=additional_keys)
+                add_key_script = OpenStackConnector.create_add_keys_script(
+                    keys=additional_keys
+                )
                 init_script = (
                     add_key_script
                     + encodeutils.safe_encode("\n".encode("utf-8"))
@@ -814,7 +829,9 @@ class OpenStackConnector:
                 )
 
             else:
-                init_script = self.create_add_keys_script(keys=additional_keys)
+                init_script = OpenStackConnector.create_add_keys_script(
+                    keys=additional_keys
+                )
         return init_script
 
     def start_server(
@@ -854,12 +871,12 @@ class OpenStackConnector:
                     [vol["openstack_id"] for vol in volume_ids_path_attach]
                 )
             logger.info(f"volume ids {volume_ids}")
-            for id in volume_ids:
+            for volume_id in volume_ids:
                 try:
-                    volumes.append(self.get_volume(name_or_id=id))
+                    volumes.append(self.get_volume(name_or_id=volume_id))
                 except VolumeNotFoundException:
                     pass
-            init_script = self.create_userdata(
+            init_script = OpenStackConnector.create_userdata(
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
                 additional_keys=additional_keys,
@@ -907,7 +924,7 @@ class OpenStackConnector:
             research_environment_metadata=research_environment_metadata,
             servername=servername,
         )
-        key_name = None
+        key_name = ""
         try:
 
             image = self.get_image(name_or_id=image)
@@ -929,9 +946,11 @@ class OpenStackConnector:
                     [vol["openstack_id"] for vol in volume_ids_path_attach]
                 )
             logger.info(f"volume ids {volume_ids}")
-            for id in volume_ids:
-                volumes.append(self.openstack_connection.get_volume(name_or_id=id))
-            init_script = self.create_userdata(
+            for volume_id in volume_ids:
+                volumes.append(
+                    self.openstack_connection.get_volume(name_or_id=volume_id)
+                )
+            init_script = OpenStackConnector.create_userdata(
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
                 additional_keys=additional_keys,
@@ -962,9 +981,10 @@ class OpenStackConnector:
             logger.exception("Start Server {1} error:{0}".format(e, servername))
             raise DefaultException(message=str(e))
 
-    def create_deactivate_update_script(self) -> str:
-        fileDir = os.path.dirname(os.path.abspath(__file__))
-        deactivate_update_script_file = os.path.join(fileDir, "scripts/bash/mount.sh")
+    @staticmethod
+    def create_deactivate_update_script() -> str:
+        file_dir = os.path.dirname(os.path.abspath(__file__))
+        deactivate_update_script_file = os.path.join(file_dir, "scripts/bash/mount.sh")
         with open(deactivate_update_script_file, "r") as file:
             deactivate_update_script = file.read()
             deactivate_update_script = encodeutils.safe_encode(
@@ -977,16 +997,18 @@ class OpenStackConnector:
         cluster_id: str,
         cluster_user: str,
         cluster_group_id: list[str],
-        image: str,
-        flavor: str,
+        image_name_or_id: str,
+        flavor_name_or_id: str,
         name: str,
         key_name: str,
         batch_idx: int,
         worker_idx: int,
     ) -> str:
         logger.info(f"Add machine to {cluster_id}")
-        image = self.get_image(name_or_id=image, replace_inactive=True)
-        flavor = self.get_flavor(name_or_id=flavor)
+        image: Image = self.get_image(
+            name_or_id=image_name_or_id, replace_inactive=True
+        )
+        flavor: Flavor = self.get_flavor(name_or_id=flavor_name_or_id)
         network = self.get_network()
         metadata = {
             "bibigrid-id": cluster_id,
@@ -1007,8 +1029,8 @@ class OpenStackConnector:
             security_groups=cluster_group_id,
         )
         logger.info("Created cluster machine:{}".format(server["id"]))
-
-        return server["id"]
+        server_id: str = server["id"]
+        return server_id
 
     def check_server_status(self, openstack_id: str) -> dict[str, str]:
 
@@ -1032,7 +1054,7 @@ class OpenStackConnector:
                     server_base * self.SSH_MULTIPLICATION_PORT
                 )
 
-                if self.netcat(host=self.GATEWAY_IP, port=port):
+                if OpenStackConnector.netcat(host=self.GATEWAY_IP, port=port):
                     return server
                 else:
                     server["status"] = VmStates.PORT_CLOSED

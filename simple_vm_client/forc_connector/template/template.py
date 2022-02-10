@@ -56,13 +56,13 @@ class Template(object):
         self.FORC_API_KEY = forc_api_key
         self._forc_allowed = {}
         self._all_templates = [BIOCONDA]
-        self._loaded_resenv_metadata = {}
+        self._loaded_resenv_metadata: dict[str, dict[str, str]] = {}
         self.update_playbooks()
 
-    def get_loaded_resenv_metadata(self):
+    def get_loaded_resenv_metadata(self) -> dict[str, dict[str, str]]:
         return self._loaded_resenv_metadata
 
-    def update_playbooks(self):
+    def update_playbooks(self) -> None:
         logger.info("STARTED update")
         r = requests.get(self.GITHUB_PLAYBOOKS_REPO)
         contents = json.loads(r.content)
@@ -104,7 +104,7 @@ class Template(object):
                 )
         logger.info(f"Allowed Forc {self._forc_allowed}")
 
-    def cross_check_forc_image(self, tags):
+    def cross_check_forc_image(self, tags: list[str]) -> bool:
         get_url = f"{self.FORC_URL}/templates/"
         try:
             response = requests.get(
@@ -114,7 +114,7 @@ class Template(object):
                 verify=True,
             )
             if response.status_code != 200:
-                return ()
+                return True
             else:
                 templates = response.json()
         except Exception:
@@ -134,7 +134,7 @@ class Template(object):
         return False
 
     @staticmethod
-    def get_playbook_dir():
+    def get_playbook_dir() -> str:
         Path(f"{os.path.dirname(os.path.realpath(__file__))}/playbooks/").mkdir(
             parents=True, exist_ok=True
         )
@@ -142,7 +142,7 @@ class Template(object):
         return dir_path
 
     @staticmethod
-    def load_resenv_metadata():
+    def load_resenv_metadata() -> list[str]:
         templates_metada = []
         for file in os.listdir(Template.get_playbook_dir()):
             if "_metadata.yml" in file:
@@ -160,13 +160,13 @@ class Template(object):
                         logger.exception(f"Failed to parse Metadata yml: {file}")
         return templates_metada
 
-    def get_template_version_for(self, template):
+    def get_template_version_for(self, template: str) -> str:
         template = self._forc_allowed.get(template)
         if template:
             return template[0]
-        return None
+        return ""
 
-    def get_allowed_templates(self):
+    def get_allowed_templates(self) -> list[str]:
         templates_metada = []
         for file in os.listdir(Template.get_playbook_dir()):
             if "_metadata.yml" in file:
@@ -196,7 +196,7 @@ class Template(object):
                         )
         return templates_metada
 
-    def update_forc_allowed(self, template_metadata):
+    def update_forc_allowed(self, template_metadata: dict[str, str]) -> None:
         if template_metadata["needs_forc_support"]:
             name = template_metadata[TEMPLATE_NAME]
             allowed_versions = []
