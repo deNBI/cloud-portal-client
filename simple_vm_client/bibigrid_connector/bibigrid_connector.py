@@ -7,18 +7,18 @@ logger = setup_custom_logger(__name__)
 
 
 class BibigridConnector:
-    def __init__(self, config_file):
+    def __init__(self, config_file: str):
         logger.info("Initializing Bibigrid Connector")
 
-        self._BIBIGRID_URL = None
-        self._BIBIGRID_MODES = None
-        self._BIBIGRID_HOST = None
-        self._BIBIGRID_PORT = None
-        self._BIBIGRID_USE_MASTER_WITH_PUBLIC_IP = False
-        self._PRODUCTION = True
+        self._BIBIGRID_URL: str = ""
+        self._BIBIGRID_MODES: str = ""
+        self._BIBIGRID_HOST: str = ""
+        self._BIBIGRID_PORT: str = ""
+        self._BIBIGRID_USE_MASTER_WITH_PUBLIC_IP: bool = False
+        self._PRODUCTION_bool = True
         self.load_config_yml(config_file=config_file)
 
-    def load_config_yml(self, config_file) -> None:
+    def load_config_yml(self, config_file: str) -> None:
 
         with open(config_file, "r") as ymlfile:
             logger.info("Load config: Bibigrid")
@@ -59,8 +59,8 @@ class BibigridConnector:
             headers=headers,
             verify=self._PRODUCTION,
         )
-        logger.info(f"Cluster {cluster_id} status: {response.content} ")
-        json_resp = response.json(strict=False)
+        logger.info(f"Cluster {cluster_id} status: {str(response.content)} ")
+        json_resp: dict[str, str] = response.json(strict=False)
         try:
             json_resp["log"] = str(json_resp["log"])
         except Exception:
@@ -74,7 +74,7 @@ class BibigridConnector:
 
     def get_cluster_info(self, cluster_id: str) -> ClusterInfo:
         logger.info(f"Get Cluster info from {cluster_id}")
-        infos = self.get_clusters_info()
+        infos: list[dict[str, str]] = self.get_clusters_info()
         for info in infos:
             if info["cluster-id"] == cluster_id:
                 cluster_info = ClusterInfo(
@@ -92,7 +92,7 @@ class BibigridConnector:
 
                 return cluster_info
 
-    def get_clusters_info(self) -> dict[any, any]:
+    def get_clusters_info(self) -> list[dict[str, str]]:
         logger.info("Get clusters info")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -103,7 +103,7 @@ class BibigridConnector:
             headers=headers,
             verify=self._PRODUCTION,
         )
-        infos = response.json()["info"]
+        infos: list[dict[str, str]] = response.json()["info"]
         return infos
 
     def bibigrid_available(self) -> bool:
@@ -126,18 +126,18 @@ class BibigridConnector:
             logger.exception("Bibigrid is offline")
             return False
 
-    def terminate_cluster(self, cluster_id: str):
+    def terminate_cluster(self, cluster_id: str) -> dict[str, str]:
         logger.info(f"Terminate cluster: {cluster_id}")
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
-        response = requests.delete(
+        response: dict[str, str] = requests.delete(
             url=f"{self._BIBIGRID_URL}terminate/{cluster_id}",
             json=body,
             headers=headers,
             verify=self._PRODUCTION,
-        )
-        logger.info(response.json())
-        return response.json()
+        ).json()
+        logger.info(response)
+        return response
 
     def start_cluster(
         self,
@@ -145,7 +145,7 @@ class BibigridConnector:
         master_instance: ClusterInstance,
         worker_instances: list[ClusterInstance],
         user: str,
-    ):
+    ) -> dict[str, str]:
         logger.info(
             f"Start Cluster:\n\tmaster_instance: {master_instance}\n\tworker_instances:{worker_instances}\n\tuser:{user}"
         )
@@ -169,11 +169,11 @@ class BibigridConnector:
         for mode in self._BIBIGRID_MODES:
             body.update({mode: True})
         request_url = self._BIBIGRID_URL + "create"
-        response = requests.post(
+        response: dict[str, str] = requests.post(
             url=request_url,
             json=body,
             headers=headers,
             verify=self._PRODUCTION,
-        )
-        logger.info(response.json())
-        return response.json()
+        ).json()
+        logger.info(response)
+        return response

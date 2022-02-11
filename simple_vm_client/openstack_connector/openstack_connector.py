@@ -4,10 +4,12 @@ import math
 import os
 import socket
 import urllib
+import urllib.parse
 from contextlib import closing
 from uuid import uuid4
 
 import yaml
+from forc_connector.template.template import ResenvMetadata
 from openstack import connection
 from openstack.block_storage.v3.volume import Volume
 from openstack.compute.v2.flavor import Flavor
@@ -265,22 +267,24 @@ class OpenStackConnector:
 
     def import_keypair(self, keyname: str, public_key: str) -> dict[str, str]:
         logger.info(f"Get Keypair {keyname}")
-        keypair = self.openstack_connection.get_keypair(name_or_id=keyname)
+        keypair: dict[str, str] = self.openstack_connection.get_keypair(
+            name_or_id=keyname
+        )
         if not keypair:
             logger.info(f"Create Keypair {keyname}")
 
-            keypair = self.openstack_connection.create_keypair(
+            new_keypair: dict[str, str] = self.openstack_connection.create_keypair(
                 name=keyname, public_key=public_key
             )
-            return {"keypair": keypair}
+            return new_keypair
 
-        elif keypair.public_key != public_key:
+        elif keypair["public_key"] != public_key:
             logger.info(f"Key {keyname} has changed. Replace old Key")
             self.delete_keypair(key_name=keyname)
-            keypair = self.openstack_connection.create_keypair(
+            old_keypair: dict[str, str] = self.openstack_connection.create_keypair(
                 name=keyname, public_key=public_key
             )
-            return keypair
+            return old_keypair
         else:
             return keypair
 
@@ -503,8 +507,8 @@ class OpenStackConnector:
 
     @staticmethod
     def create_mount_init_script(
-        new_volumes: list[dict[str, str]] = None,
-        attach_volumes: list[dict[str, str]] = None,
+        new_volumes: list[dict[str, str]] = None,  # type: ignore
+        attach_volumes: list[dict[str, str]] = None,  # type: ignore
     ) -> str:
         logger.info(f"Create init script for volume ids:{new_volumes}")
         if not new_volumes and not attach_volumes:
@@ -566,7 +570,7 @@ class OpenStackConnector:
         ssh: bool = True,
         udp: bool = False,
         description: str = "",
-        research_environment_metadata: dict[str, str] = None,  # type: ignore
+        research_environment_metadata: ResenvMetadata = None,
     ) -> SecurityGroup:
         logger.info(f"Create new security group {name}")
         sec: SecurityGroup = self.openstack_connection.get_security_group(
@@ -575,8 +579,10 @@ class OpenStackConnector:
         if sec:
             logger.info("Security group with name {} already exists.".format(name))
             return sec
-        new_security_group = self.openstack_connection.create_security_group(
-            name=name, description=description
+        new_security_group: SecurityGroup = (
+            self.openstack_connection.create_security_group(
+                name=name, description=description
+            )
         )
 
         if udp:
@@ -632,7 +638,7 @@ class OpenStackConnector:
         return new_security_group
 
     def prepare_security_groups_new_server(
-        self, research_environment_metadata, servername
+        self, research_environment_metadata: ResenvMetadata, servername: str
     ) -> list[str]:
         custom_security_groups = [
             self.create_security_group(
@@ -671,7 +677,7 @@ class OpenStackConnector:
             "current_used_volume_storage": str(limits["totalGigabytesUsed"]),
         }
 
-    def exist_server(self, name) -> bool:
+    def exist_server(self, name: str) -> bool:
 
         if self.openstack_connection.compute.find_server(name) is not None:
             return True
@@ -681,7 +687,7 @@ class OpenStackConnector:
     def get_server(self, openstack_id: str) -> Server:
         logger.info(f"Get Server by id: {openstack_id}")
         try:
-            server = self.openstack_connection.compute.get_server(openstack_id)
+            server: Server = self.openstack_connection.compute.get_server(openstack_id)
             if server is None:
                 logger.exception(f"Instance {openstack_id} not found")
                 raise ServerNotFoundException(
@@ -836,29 +842,29 @@ class OpenStackConnector:
 
     def start_server(
         self,
-        flavor: str,
-        image: str,
+        flavor_name: str,
+        image_name: str,
         servername: str,
         metadata: dict[str, str],
         public_key: str,
-        research_environment_metadata: dict[str, str],
-        volume_ids_path_new=None,
-        volume_ids_path_attach=None,
-        additional_keys=None,
+        research_environment_metadata: ResenvMetadata = None,
+        volume_ids_path_new: list[dict[str, str]] = None,  # type: ignore
+        volume_ids_path_attach: list[dict[str, str]] = None,  # type: ignore
+        additional_keys: list[str] = None,  # type: ignore
     ) -> str:
         logger.info(f"Start Server {servername}")
         custom_security_groups = self.prepare_security_groups_new_server(
             research_environment_metadata=research_environment_metadata,
             servername=servername,
         )
-        key_name = None
+        key_name: str = None  # type: ignore
         try:
 
-            image = self.get_image(name_or_id=image)
-            flavor = self.get_flavor(name_or_id=flavor)
-            network = self.get_network()
+            image: Image = self.get_image(name_or_id=image_name)
+            flavor: Flavor = self.get_flavor(name_or_id=flavor_name)
+            network: Network = self.get_network()
 
-            key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"
+            key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"  # type: ignore
             logger.info(f"Key name {key_name}")
             public_key = urllib.parse.unquote(public_key)
             self.import_keypair(key_name, public_key)
@@ -883,9 +889,9 @@ class OpenStackConnector:
             )
             server = self.openstack_connection.create_server(
                 name=servername,
-                image=image["id"],
-                flavor=flavor["id"],
-                network=[network["id"]],
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
                 key_name=key_name,
                 meta=metadata,
                 volumes=volumes,
@@ -894,7 +900,7 @@ class OpenStackConnector:
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
-            openstack_id = server["id"]
+            openstack_id: str = server["id"]
             self.delete_keypair(key_name=key_name)
 
             return openstack_id
@@ -910,14 +916,14 @@ class OpenStackConnector:
 
     def start_server_with_playbook(
         self,
-        flavor: str,
-        image: str,
+        flavor_name: str,
+        image_name: str,
         servername: str,
         metadata: dict[str, str],
         research_environment_metadata: dict[str, str],
-        volume_ids_path_new=None,
-        volume_ids_path_attach=None,
-        additional_keys=None,
+        volume_ids_path_new: list[dict[str, str]] = None,  # type: ignore
+        volume_ids_path_attach: list[dict[str, str]] = None,  # type: ignore
+        additional_keys: list[str] = None,  # type: ignore
     ) -> tuple[str, str]:
         logger.info(f"Start Server {servername}")
         custom_security_groups = self.prepare_security_groups_new_server(
@@ -927,9 +933,9 @@ class OpenStackConnector:
         key_name = ""
         try:
 
-            image = self.get_image(name_or_id=image)
-            flavor = self.get_flavor(name_or_id=flavor)
-            network = self.get_network()
+            image: Image = self.get_image(name_or_id=image_name)
+            flavor: Flavor = self.get_flavor(name_or_id=flavor_name)
+            network: Network = self.get_network()
 
             key_creation = self.openstack_connection.create_keypair(name=servername)
 
@@ -957,9 +963,9 @@ class OpenStackConnector:
             )
             server = self.openstack_connection.create_server(
                 name=servername,
-                image=image["id"],
-                flavor=flavor["id"],
-                network=[network["id"]],
+                image=image.id,
+                flavor=flavor.id,
+                network=[network.id],
                 key_name=servername,
                 meta=metadata,
                 volumes=volumes,
@@ -997,18 +1003,16 @@ class OpenStackConnector:
         cluster_id: str,
         cluster_user: str,
         cluster_group_id: list[str],
-        image_name_or_id: str,
-        flavor_name_or_id: str,
+        image_name: str,
+        flavor_name: str,
         name: str,
         key_name: str,
         batch_idx: int,
         worker_idx: int,
     ) -> str:
         logger.info(f"Add machine to {cluster_id}")
-        image: Image = self.get_image(
-            name_or_id=image_name_or_id, replace_inactive=True
-        )
-        flavor: Flavor = self.get_flavor(name_or_id=flavor_name_or_id)
+        image: Image = self.get_image(name_or_id=image_name, replace_inactive=True)
+        flavor: Flavor = self.get_flavor(name_or_id=flavor_name)
         network = self.get_network()
         metadata = {
             "bibigrid-id": cluster_id,
@@ -1032,11 +1036,13 @@ class OpenStackConnector:
         server_id: str = server["id"]
         return server_id
 
-    def check_server_status(self, openstack_id: str) -> dict[str, str]:
+    def check_server_status(self, openstack_id: str) -> Server:
 
         logger.info(f"Check Status VM {openstack_id}")
         try:
-            server = self.openstack_connection.get_server(name_or_id=openstack_id)
+            server: Server = self.openstack_connection.get_server(
+                name_or_id=openstack_id
+            )
         except Exception as e:
             logger.exception(f"No Server with id  {openstack_id} ")
             raise ServerNotFoundException(message=str(e), name_or_id=openstack_id)

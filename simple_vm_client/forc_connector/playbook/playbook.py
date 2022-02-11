@@ -239,6 +239,7 @@ class Playbook(object):
                     openstack_id
                 )
             )
+            return 3
         elif done != 0:
             logger.info(
                 "Playbook for (openstack_id) {0} has failed.".format(openstack_id)

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 logger = setup_custom_logger(__name__)
 
 
-class VirtualMachineHandler(Iface):  # type: ignore
+class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
     def __init__(self, config_file: str):
@@ -52,9 +52,10 @@ class VirtualMachineHandler(Iface):  # type: ignore
         raise SystemExit(0)
 
     def get_images(self) -> list[Image]:
-        return thrift_converter.os_to_thrift_images(
+        images: list[Image] = thrift_converter.os_to_thrift_images(
             openstack_images=self.openstack_connector.get_images()
         )
+        return images
 
     def get_image(self, openstack_id: str) -> Image:
         return thrift_converter.os_to_thrift_image(
@@ -198,7 +199,9 @@ class VirtualMachineHandler(Iface):  # type: ignore
     def delete_volume(self, volume_id: str) -> bool:
         return self.openstack_connector.delete_volume(volume_id=volume_id)
 
-    def attach_volume_to_server(self, openstack_id, volume_id):
+    def attach_volume_to_server(
+        self, openstack_id: str, volume_id: str
+    ) -> dict[str, str]:
         return self.openstack_connector.attach_volume_to_server(
             openstack_id=openstack_id, volume_id=volume_id
         )
@@ -260,8 +263,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
 
     def start_server(
         self,
-        flavor: str,
-        image: str,
+        flavor_name: str,
+        image_name: str,
         public_key: str,
         servername: str,
         metadata: dict[str, str],
@@ -279,8 +282,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
         else:
             research_environment_metadata = None
         return self.openstack_connector.start_server(
-            flavor=flavor,
-            image=image,
+            flavor_name=flavor_name,
+            image_name=image_name,
             public_key=public_key,
             servername=servername,
             metadata=metadata,
@@ -292,8 +295,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
 
     def start_server_with_custom_key(
         self,
-        flavor: str,
-        image: str,
+        flavor_name: str,
+        image_name: str,
         servername: str,
         metadata: dict[str, str],
         research_environment: str,
@@ -309,8 +312,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
         else:
             research_environment_metadata = None
         openstack_id, private_key = self.openstack_connector.start_server_with_playbook(
-            flavor=flavor,
-            image=image,
+            flavor_name=flavor_name,
+            image_name=image_name,
             servername=servername,
             metadata=metadata,
             research_environment_metadata=research_environment_metadata,
@@ -325,7 +328,7 @@ class VirtualMachineHandler(Iface):  # type: ignore
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: dict[str, str],
+        playbooks_information: dict[str, dict[str, str]],
         openstack_id: str,
     ) -> int:
         port = int(
@@ -373,8 +376,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
         cluster_id: str,
         cluster_user: str,
         cluster_group_id: list[str],
-        image: str,
-        flavor: str,
+        image_name: str,
+        flavor_name: str,
         name: str,
         key_name: str,
         batch_idx: int,
@@ -384,8 +387,8 @@ class VirtualMachineHandler(Iface):  # type: ignore
             cluster_id=cluster_id,
             cluster_user=cluster_user,
             cluster_group_id=cluster_group_id,
-            image=image,
-            flavor=flavor,
+            image_name=image_name,
+            flavor_name=flavor_name,
             name=name,
             key_name=key_name,
             batch_idx=batch_idx,

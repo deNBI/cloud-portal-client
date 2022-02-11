@@ -30,14 +30,14 @@ INFORMATION_FOR_DISPLAY = "information_for_display"
 class ResenvMetadata:
     def __init__(
         self,
-        name,
-        port,
-        security_group_name,
-        security_group_description,
-        security_group_ssh,
-        direction,
-        protocol,
-        information_for_display,
+        name: str,
+        port: str,
+        security_group_name: str,
+        security_group_description: str,
+        security_group_ssh: bool,
+        direction: str,
+        protocol: str,
+        information_for_display: str,
     ):
         self.name = name
         self.port = port
@@ -50,16 +50,16 @@ class ResenvMetadata:
 
 
 class Template(object):
-    def __init__(self, github_playbook_repo, forc_url, forc_api_key):
+    def __init__(self, github_playbook_repo: str, forc_url: str, forc_api_key: str):
         self.GITHUB_PLAYBOOKS_REPO = github_playbook_repo
         self.FORC_URL = forc_url
         self.FORC_API_KEY = forc_api_key
-        self._forc_allowed = {}
+        self._forc_allowed: dict[str, list[str]] = {}
         self._all_templates = [BIOCONDA]
-        self._loaded_resenv_metadata: dict[str, dict[str, str]] = {}
+        self._loaded_resenv_metadata: dict[str, ResenvMetadata] = {}
         self.update_playbooks()
 
-    def get_loaded_resenv_metadata(self) -> dict[str, dict[str, str]]:
+    def get_loaded_resenv_metadata(self) -> dict[str, ResenvMetadata]:
         return self._loaded_resenv_metadata
 
     def update_playbooks(self) -> None:
@@ -75,7 +75,7 @@ class Template(object):
                 filename = Template.get_playbook_dir() + f["name"]
                 with open(filename, "w") as playbook_file:
                     playbook_file.write(file_request.content.decode("utf-8"))
-        templates_metadata = Template.load_resenv_metadata()
+        templates_metadata: list[dict[str, str]] = Template.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
                 metadata = ResenvMetadata(
@@ -83,7 +83,7 @@ class Template(object):
                     template_metadata[PORT],
                     template_metadata[SECURITYGROUP_NAME],
                     template_metadata[SECURITYGROUP_DESCRIPTION],
-                    template_metadata[SECURITYGROUP_SSH],
+                    bool(template_metadata[SECURITYGROUP_SSH]),
                     template_metadata[DIRECTION],
                     template_metadata[PROTOCOL],
                     template_metadata[INFORMATION_FOR_DISPLAY],
@@ -142,7 +142,7 @@ class Template(object):
         return dir_path
 
     @staticmethod
-    def load_resenv_metadata() -> list[str]:
+    def load_resenv_metadata() -> list[dict[str, str]]:
         templates_metada = []
         for file in os.listdir(Template.get_playbook_dir()):
             if "_metadata.yml" in file:
@@ -161,9 +161,9 @@ class Template(object):
         return templates_metada
 
     def get_template_version_for(self, template: str) -> str:
-        template = self._forc_allowed.get(template)
-        if template:
-            return template[0]
+        template_versions: list[str] = self._forc_allowed.get(template)  # type: ignore
+        if template_versions:
+            return template_versions[0]
         return ""
 
     def get_allowed_templates(self) -> list[str]:

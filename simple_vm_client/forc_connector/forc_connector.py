@@ -227,7 +227,7 @@ class ForcConnector:
                 template=data["template"],
                 template_version=data["template_version"],
             )
-            return new_backend.to_dict()
+            return new_backend
 
         except Timeout as e:
             logger.info(msg="create_backend timed out. {0}".format(e))

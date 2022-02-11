@@ -13,11 +13,11 @@ class Backend:
         template_version: str,
     ):
 
-        self.ID = id
-        self.OWNER = owner
-        self.LOCATION_URL = location_url
-        self.TEMPLATE = template
-        self.TEMPLATE_VERSION = template_version
+        self.ID: str = id
+        self.OWNER: str = owner
+        self.LOCATION_URL: str = location_url
+        self.TEMPLATE: str = template
+        self.TEMPLATE_VERSION: str = template_version
 
     def to_dict(self) -> dict[str, str]:
         return {
