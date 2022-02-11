@@ -6,18 +6,5 @@
 #  options string: py
 #
 
-import sys
-
-from thrift.protocol.TProtocol import TProtocolException
-from thrift.Thrift import (
-    TApplicationException,
-    TException,
-    TFrozenDict,
-    TMessageType,
-    TType,
-)
-from thrift.TRecursive import fix_spec
-
-from .ttypes import *
 
 VERSION = "1.0.0"

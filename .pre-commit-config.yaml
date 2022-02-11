@@ -25,6 +25,21 @@ repos:
       - id: mypy
         additional_dependencies: [types-PyYAML==6.0.4,types-redis==4.1.15,types-requests==2.27.9]
 
+
+  - repo: https://github.com/neutrinoceros/flynt/
+    rev: ''
+    hooks:
+      - id: flynt
+
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        args:
+          - --in-place
+          - --remove-unused-variables
+          - --remove-all-unused-imports
+
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:

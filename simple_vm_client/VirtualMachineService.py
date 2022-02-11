@@ -9,19 +9,10 @@
 import logging
 import sys
 
-from thrift.protocol.TProtocol import TProtocolException
-from thrift.Thrift import (
-    TApplicationException,
-    TException,
-    TFrozenDict,
-    TMessageType,
-    TProcessor,
-    TType,
-)
+from thrift.Thrift import TApplicationException, TMessageType, TProcessor, TType
 from thrift.transport import TTransport
 from thrift.TRecursive import fix_spec
-
-from .ttypes import *
+from ttypes import *
 
 all_structs = []
 
@@ -38,7 +29,6 @@ class Iface(object):
          - version
 
         """
-        pass
 
     def get_client_version(self):
         """
@@ -46,14 +36,12 @@ class Iface(object):
         Returns Version of the client
 
         """
-        pass
 
     def get_gateway_ip(self):
         """
         Gets the gateway ip.
 
         """
-        pass
 
     def get_calculation_values(self):
         pass
@@ -68,7 +56,6 @@ class Iface(object):
          - public_key: The public key
 
         """
-        pass
 
     def get_vm_ports(self, openstack_id):
         """
@@ -79,7 +66,6 @@ class Iface(object):
          - openstack_id: Id of server
 
         """
-        pass
 
     def get_flavors(self):
         """
@@ -87,7 +73,6 @@ class Iface(object):
         Returns: List of flavor instances.
 
         """
-        pass
 
     def get_images(self):
         """
@@ -95,7 +80,6 @@ class Iface(object):
         Returns: List of Image instances.
 
         """
-        pass
 
     def get_public_images(self):
         """
@@ -103,7 +87,6 @@ class Iface(object):
         Returns: List of public Image instances.
 
         """
-        pass
 
     def get_private_images(self):
         """
@@ -111,7 +94,6 @@ class Iface(object):
         Returns: List of private Image instances.
 
         """
-        pass
 
     def get_image(self, openstack_id):
         """
@@ -122,7 +104,6 @@ class Iface(object):
          - openstack_id
 
         """
-        pass
 
     def get_volume(self, volume_id):
         """
@@ -130,7 +111,6 @@ class Iface(object):
          - volume_id
 
         """
-        pass
 
     def get_volumes_by_ids(self, volume_ids):
         """
@@ -138,7 +118,6 @@ class Iface(object):
          - volume_ids
 
         """
-        pass
 
     def resize_volume(self, volume_id, size):
         """
@@ -147,7 +126,6 @@ class Iface(object):
          - size
 
         """
-        pass
 
     def delete_server(self, openstack_id):
         """
@@ -158,7 +136,6 @@ class Iface(object):
          - openstack_id: Id of the server.
 
         """
-        pass
 
     def start_server(
         self,
@@ -185,7 +162,6 @@ class Iface(object):
          - additional_keys
 
         """
-        pass
 
     def bibigrid_available(self):
         pass
@@ -197,7 +173,6 @@ class Iface(object):
          - floating_ip
 
         """
-        pass
 
     def start_server_with_custom_key(
         self,
@@ -222,7 +197,6 @@ class Iface(object):
          - volume_ids_path_attach
 
         """
-        pass
 
     def exist_server(self, name):
         """
@@ -232,7 +206,6 @@ class Iface(object):
          - name
 
         """
-        pass
 
     def create_and_deploy_playbook(
         self, public_key, playbooks_information, openstack_id
@@ -246,7 +219,6 @@ class Iface(object):
          - openstack_id
 
         """
-        pass
 
     def get_playbook_logs(self, openstack_id):
         """
@@ -256,14 +228,12 @@ class Iface(object):
          - openstack_id
 
         """
-        pass
 
     def has_forc(self):
         """
         Get boolean if client has backend url configured
 
         """
-        pass
 
     def get_forc_url(self):
         pass
@@ -279,14 +249,12 @@ class Iface(object):
          - upstream_url
 
         """
-        pass
 
     def get_backends(self):
         """
         Get all backends
 
         """
-        pass
 
     def get_backends_by_owner(self, elixir_id):
         """
@@ -296,7 +264,6 @@ class Iface(object):
          - elixir_id
 
         """
-        pass
 
     def get_backends_by_template(self, template):
         """
@@ -306,7 +273,6 @@ class Iface(object):
          - template
 
         """
-        pass
 
     def get_backend_by_id(self, id):
         """
@@ -316,7 +282,6 @@ class Iface(object):
          - id
 
         """
-        pass
 
     def delete_backend(self, id):
         """
@@ -326,7 +291,6 @@ class Iface(object):
          - id
 
         """
-        pass
 
     def add_user_to_backend(self, backend_id, owner_id, user_id):
         """
@@ -338,7 +302,6 @@ class Iface(object):
          - user_id
 
         """
-        pass
 
     def get_users_from_backend(self, backend_id):
         """
@@ -348,7 +311,6 @@ class Iface(object):
          - backend_id
 
         """
-        pass
 
     def delete_user_from_backend(self, backend_id, owner_id, user_id):
         """
@@ -360,7 +322,6 @@ class Iface(object):
          - user_id
 
         """
-        pass
 
     def get_allowed_templates(self):
         pass
@@ -371,7 +332,6 @@ class Iface(object):
         Returns: List of server instances.
 
         """
-        pass
 
     def get_servers_by_ids(self, server_ids):
         """
@@ -382,7 +342,6 @@ class Iface(object):
          - server_ids
 
         """
-        pass
 
     def get_servers_by_bibigrid_id(self, bibigrid_id):
         """
@@ -393,7 +352,6 @@ class Iface(object):
          - bibigrid_id
 
         """
-        pass
 
     def scale_up_cluster(
         self, cluster_id, image_name, flavor_name, count, names, start_idx, batch_idx
@@ -409,7 +367,6 @@ class Iface(object):
          - batch_idx
 
         """
-        pass
 
     def add_cluster_machine(
         self,
@@ -436,7 +393,6 @@ class Iface(object):
          - worker_idx
 
         """
-        pass
 
     def get_cluster_info(self, cluster_id):
         """
@@ -444,7 +400,6 @@ class Iface(object):
          - cluster_id
 
         """
-        pass
 
     def get_cluster_status(self, cluster_id):
         """
@@ -452,7 +407,6 @@ class Iface(object):
          - cluster_id
 
         """
-        pass
 
     def get_server(self, openstack_id):
         """
@@ -463,7 +417,6 @@ class Iface(object):
          - openstack_id: Id of the server.
 
         """
-        pass
 
     def stop_server(self, openstack_id):
         """
@@ -474,7 +427,6 @@ class Iface(object):
          - openstack_id: Id of the server.
 
         """
-        pass
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
@@ -490,7 +442,6 @@ class Iface(object):
          - description: Description of the new snapshot
 
         """
-        pass
 
     def get_limits(self):
         """
@@ -500,7 +451,6 @@ class Iface(object):
                  'totalInstancesUsed': totalInstancesUsed}
 
         """
-        pass
 
     def start_cluster(self, public_key, master_instance, worker_instances, user):
         """
@@ -511,7 +461,6 @@ class Iface(object):
          - user
 
         """
-        pass
 
     def terminate_cluster(self, cluster_id):
         """
@@ -519,7 +468,6 @@ class Iface(object):
          - cluster_id
 
         """
-        pass
 
     def delete_image(self, image_id):
         """
@@ -530,7 +478,6 @@ class Iface(object):
          - image_id: Id of image
 
         """
-        pass
 
     def detach_volume(self, volume_id, server_id):
         """
@@ -542,7 +489,6 @@ class Iface(object):
          - server_id: Id of the server where the volume is attached
 
         """
-        pass
 
     def delete_volume(self, volume_id):
         """
@@ -553,7 +499,6 @@ class Iface(object):
          - volume_id
 
         """
-        pass
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -565,7 +510,6 @@ class Iface(object):
          - volume_id: Id of volume
 
         """
-        pass
 
     def check_server_status(self, openstack_id):
         """
@@ -576,7 +520,6 @@ class Iface(object):
          - openstack_id: Id of the server
 
         """
-        pass
 
     def resume_server(self, openstack_id):
         """
@@ -587,7 +530,6 @@ class Iface(object):
          - openstack_id: Id of the server
 
         """
-        pass
 
     def create_volume(self, volume_name, volume_storage, metadata):
         """
@@ -599,7 +541,6 @@ class Iface(object):
          - metadata: Metadata for the new volume
 
         """
-        pass
 
     def reboot_server(self, openstack_id, reboot_type):
         """
@@ -611,7 +552,6 @@ class Iface(object):
          - reboot_type: HARD or SOFT
 
         """
-        pass
 
 
 class Client(Iface):
@@ -3028,7 +2968,7 @@ class Processor(Iface, TProcessor):
             iprot.skip(TType.STRUCT)
             iprot.readMessageEnd()
             x = TApplicationException(
-                TApplicationException.UNKNOWN_METHOD, "Unknown function %s" % (name)
+                TApplicationException.UNKNOWN_METHOD, f"Unknown function {name}"
             )
             oprot.writeMessageBegin(name, TMessageType.EXCEPTION, seqid)
             x.write(oprot)
@@ -4691,8 +4631,8 @@ class check_version_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4768,8 +4708,8 @@ class check_version_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4823,8 +4763,8 @@ class get_client_version_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4899,8 +4839,8 @@ class get_client_version_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -4954,8 +4894,8 @@ class get_gateway_ip_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5044,8 +4984,8 @@ class get_gateway_ip_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5099,8 +5039,8 @@ class get_calculation_values_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5189,8 +5129,8 @@ class get_calculation_values_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5293,8 +5233,8 @@ class import_keypair_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5385,8 +5325,8 @@ class import_keypair_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5469,8 +5409,8 @@ class get_vm_ports_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5580,8 +5520,8 @@ class get_vm_ports_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5642,8 +5582,8 @@ class get_flavors_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5719,8 +5659,8 @@ class get_flavors_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5774,8 +5714,8 @@ class get_images_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5851,8 +5791,8 @@ class get_images_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5906,8 +5846,8 @@ class get_public_images_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -5983,8 +5923,8 @@ class get_public_images_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6038,8 +5978,8 @@ class get_private_images_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6115,8 +6055,8 @@ class get_private_images_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6199,8 +6139,8 @@ class get_image_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6289,8 +6229,8 @@ class get_image_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6380,8 +6320,8 @@ class get_volume_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6470,8 +6410,8 @@ class get_volume_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6567,8 +6507,8 @@ class get_volumes_by_ids_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6653,8 +6593,8 @@ class get_volumes_by_ids_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6749,8 +6689,8 @@ class resize_volume_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6845,8 +6785,8 @@ class resize_volume_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -6936,8 +6876,8 @@ class delete_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7037,8 +6977,8 @@ class delete_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7365,8 +7305,8 @@ class start_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7581,8 +7521,8 @@ class start_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7673,8 +7613,8 @@ class bibigrid_available_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7741,8 +7681,8 @@ class bibigrid_available_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7845,8 +7785,8 @@ class detach_ip_from_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -7941,8 +7881,8 @@ class detach_ip_from_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8218,8 +8158,8 @@ class start_server_with_custom_key_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8419,8 +8359,8 @@ class start_server_with_custom_key_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8536,8 +8476,8 @@ class exist_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8613,8 +8553,8 @@ class exist_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8773,8 +8713,8 @@ class create_and_deploy_playbook_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8882,8 +8822,8 @@ class create_and_deploy_playbook_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -8973,8 +8913,8 @@ class get_playbook_logs_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9063,8 +9003,8 @@ class get_playbook_logs_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9125,8 +9065,8 @@ class has_forc_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9193,8 +9133,8 @@ class has_forc_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9248,8 +9188,8 @@ class get_forc_url_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9324,8 +9264,8 @@ class get_forc_url_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9468,8 +9408,8 @@ class create_backend_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9591,8 +9531,8 @@ class create_backend_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9660,8 +9600,8 @@ class get_backends_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9749,8 +9689,8 @@ class get_backends_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9840,8 +9780,8 @@ class get_backends_by_owner_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -9938,8 +9878,8 @@ class get_backends_by_owner_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10029,8 +9969,8 @@ class get_backends_by_template_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10127,8 +10067,8 @@ class get_backends_by_template_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10210,8 +10150,8 @@ class get_backend_by_id_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10312,8 +10252,8 @@ class get_backend_by_id_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10402,8 +10342,8 @@ class delete_backend_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10491,8 +10431,8 @@ class delete_backend_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10614,8 +10554,8 @@ class add_user_to_backend_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10739,8 +10679,8 @@ class add_user_to_backend_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10822,8 +10762,8 @@ class get_users_from_backend_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -10925,8 +10865,8 @@ class get_users_from_backend_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11048,8 +10988,8 @@ class delete_user_from_backend_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11173,8 +11113,8 @@ class delete_user_from_backend_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11235,8 +11175,8 @@ class get_allowed_templates_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11317,8 +11257,8 @@ class get_allowed_templates_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11372,8 +11312,8 @@ class get_servers_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11449,8 +11389,8 @@ class get_servers_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11539,8 +11479,8 @@ class get_servers_by_ids_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11625,8 +11565,8 @@ class get_servers_by_ids_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11709,8 +11649,8 @@ class get_servers_by_bibigrid_id_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11795,8 +11735,8 @@ class get_servers_by_bibigrid_id_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -11981,8 +11921,8 @@ class scale_up_cluster_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12130,8 +12070,8 @@ class scale_up_cluster_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12356,8 +12296,8 @@ class add_cluster_machine_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12497,8 +12437,8 @@ class add_cluster_machine_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12581,8 +12521,8 @@ class get_cluster_info_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12671,8 +12611,8 @@ class get_cluster_info_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12762,8 +12702,8 @@ class get_cluster_status_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12873,8 +12813,8 @@ class get_cluster_status_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -12964,8 +12904,8 @@ class get_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13054,8 +12994,8 @@ class get_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13145,8 +13085,8 @@ class stop_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13246,8 +13186,8 @@ class stop_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13428,8 +13368,8 @@ class create_snapshot_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13565,8 +13505,8 @@ class create_snapshot_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13634,8 +13574,8 @@ class get_limits_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13724,8 +13664,8 @@ class get_limits_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13860,8 +13800,8 @@ class start_cluster_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -13980,8 +13920,8 @@ class start_cluster_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14064,8 +14004,8 @@ class terminate_cluster_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14175,8 +14115,8 @@ class terminate_cluster_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14266,8 +14206,8 @@ class delete_image_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14355,8 +14295,8 @@ class delete_image_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14466,8 +14406,8 @@ class detach_volume_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14586,8 +14526,8 @@ class detach_volume_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14691,8 +14631,8 @@ class delete_volume_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14792,8 +14732,8 @@ class delete_volume_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -14910,8 +14850,8 @@ class attach_volume_to_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15040,8 +14980,8 @@ class attach_volume_to_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15138,8 +15078,8 @@ class check_server_status_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15228,8 +15168,8 @@ class check_server_status_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15319,8 +15259,8 @@ class resume_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15420,8 +15360,8 @@ class resume_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15564,8 +15504,8 @@ class create_volume_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15680,8 +15620,8 @@ class create_volume_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15798,8 +15738,8 @@ class reboot_server_args(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -15906,8 +15846,8 @@ class reboot_server_result(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
