@@ -6,19 +6,12 @@
 #  options string: py
 #
 
-from thrift.Thrift import (
-    TType,
-    TMessageType,
-    TFrozenDict,
-    TException,
-    TApplicationException,
-)
-from thrift.protocol.TProtocol import TProtocolException
-from thrift.TRecursive import fix_spec
-
 import sys
 
+from thrift.protocol.TProtocol import TProtocolException
+from thrift.Thrift import TException, TType
 from thrift.transport import TTransport
+from thrift.TRecursive import fix_spec
 
 all_structs = []
 
@@ -155,8 +148,8 @@ class Backend(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -377,8 +370,8 @@ class ClusterInfo(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -553,8 +546,8 @@ class Volume(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -751,8 +744,8 @@ class Flavor(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -995,8 +988,8 @@ class Image(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1313,8 +1306,8 @@ class VM(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1417,8 +1410,8 @@ class ClusterInstance(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1525,8 +1518,8 @@ class PlaybookResult(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1611,8 +1604,8 @@ class otherException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1697,8 +1690,8 @@ class ressourceException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1783,8 +1776,8 @@ class nameException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1869,8 +1862,8 @@ class serverNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1955,8 +1948,8 @@ class networkNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2041,8 +2034,8 @@ class imageNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2127,8 +2120,8 @@ class flavorNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2215,8 +2208,8 @@ class authenticationException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2303,8 +2296,8 @@ class conflictException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__

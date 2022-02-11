@@ -23,19 +23,19 @@ source NameOfRcFile.sh
 ~~~
 
 #### Configuration
-You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).  
-For local development:  
-Please copy this file and rename it to `config_local.yml` and fill in missing parameters.  
-For staging/production setup:  
-Please copy this file and rename it to `config_YOUR_LOCATION.yml` and fill in missing parameters.  
+You can view (almost) all existing parameters in the [yaml file](VirtualMachineService/config/config.yml).
+For local development:
+Please copy this file and rename it to `config_local.yml` and fill in missing parameters.
+For staging/production setup:
+Please copy this file and rename it to `config_YOUR_LOCATION.yml` and fill in missing parameters.
 Also you need to provide the path to your config file as the first param when starting a server.
 
-Furthermore there are some parameters you must set in the .env file. Copy the [.env.in](.env.in) to .env and 
-fill in the missing parameters.  
+Furthermore there are some parameters you must set in the .env file. Copy the [.env.in](.env.in) to .env and
+fill in the missing parameters.
 When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
-The config file contains a name for the default SimpleVM security group. 
+The config file contains a name for the default SimpleVM security group.
 It can be configured via the `default_simple_vm_security_group_name` key.
 The client will set this group for every SimpleVM machine.
 
@@ -44,7 +44,7 @@ The client will set this group for every SimpleVM machine.
 The client can use a Gateway for starting and stopping machines which allows to use just one floating IP instead of one floating IP per Machine.
 You can read [here](ProjectGateway.md) how to setup a gateway on an OpenStack instance.
 You can also find complete scripts in the [gateway](gateway) folder.
-The client will provide all images with at least one tag, which will be filtered for in the cloud-api. 
+The client will provide all images with at least one tag, which will be filtered for in the cloud-api.
 Also the client provides all flavors, which will also be filtered in the cloud-api.
 
 _**Attention**_: If you are also using the machine where you run the client as a gateway, it is very important to configure the iptables before installing and using docker, otherwise docker could destroy the rules!
@@ -141,7 +141,7 @@ This command will generate python code from the thrift file.
 
 In order for the cloud-api to use the new/changed methods, [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py), [ttypes.py](VirtualMachineService/ttypes.py) and [constants.py](VirtualMachineService/constants.py) must be copied over.
 
-Because docker can't use relative imports, you also need to change the import  of [ttypes.py](VirtualMachineService/ttypes.py) in [constants.py](VirtualMachineService/constants.py) and [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py): 
+Because docker can't use relative imports, you also need to change the import  of [ttypes.py](VirtualMachineService/ttypes.py) in [constants.py](VirtualMachineService/constants.py) and [VirtualMachineService.py](VirtualMachineService/VirtualMachineService.py):
 
 ```python
 from .ttypes import *
@@ -156,7 +156,7 @@ _**Attention**_: The cloud-api needs the files with the relative imports (from .
 
 A detailed instruction, how to write a thrift file can be found on this link: [thrift](http://thrift-tutorial.readthedocs.io/en/latest/usage-example.html#generating-code-with-thrift)
 
-To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService. 
+To use the methods declared in the thrift file you need to write a handler which implements the Iface from the VirtualMachineService.
 The handler contains the logic for the methods. Then you can start a server which uses your handler.
 Example python code for the server:
 ```python
@@ -188,9 +188,9 @@ REMOTE_IP ansible_user=ubuntu ansible_ssh_private_key_file=PATH_TO_SSH_FILE ansi
 ~~~
 
 where
-  
+
   * REMOTE_IP is the IP of your staging machine
-  
+
   * PATH_TO_SSH_FILE is the path to the ssh key of the virtual machine
 
 #### 2.Set SSH keyforwarding
@@ -199,7 +199,7 @@ In order to checkout the GitHub project you will have to enable
 SSH Key forwarding in your `~/.ssh/config` file.
 
 ~~~BASH
-Host IP 
+Host IP
  ForwardAgent yes
 ~~~
 
@@ -219,12 +219,12 @@ ansible-galaxy install -r ansible_requirements.yml
 
 #### 6.Set all variables
 
-Set all variables that can be found in `.env`  and `VirtualMachineService/config/config.yml` file.  
-You can have more than one `.env` file (`.env` and `.env_*` are not tracked by git) and specify which you want to copy 
-by using the `env_file` variable.  
-You can have more than one `VirtualMachineService/config/config.yml` file (`VirtualMachineService/config/config_*` are 
-not tracked by git) and specify which you want to copy by using the `client_config` variable.  
-These options are useful when maintaining multiple client sites.  
+Set all variables that can be found in `.env`  and `VirtualMachineService/config/config.yml` file.
+You can have more than one `.env` file (`.env` and `.env_*` are not tracked by git) and specify which you want to copy
+by using the `env_file` variable.
+You can have more than one `VirtualMachineService/config/config.yml` file (`VirtualMachineService/config/config_*` are
+not tracked by git) and specify which you want to copy by using the `client_config` variable.
+These options are useful when maintaining multiple client sites.
 
 #### 7.Run the playbook
 
@@ -234,10 +234,10 @@ You can run the playbook using the following command:
 ansible-playbook -i inventory_openstack site.yml
 ~~~
 
-where 
+where
 
   * inventory_openstack is your inventory file which you created in the first step.
-  
+
   * If you also want to start bibigrid use the tag "bibigrid"
 **Choose  different files**
 

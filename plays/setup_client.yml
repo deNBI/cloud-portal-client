@@ -15,7 +15,7 @@
       stat:
         path: "{{ client.PERSISTENT_PATH }}/config.yml"
       register: stat_client_config
-      
+
     - name: Check if server pem file exists already
       stat:
         path: "{{ client.PERSISTENT_PATH }}/server.pem"
@@ -33,14 +33,14 @@
 
     # Copy configs
     - name: Copy client config file from config folder
-      copy: 
-        remote_src: True 
-        src: "{{ client.CONFIG_DIR_PATH }}/config.yml"  
-        dest: "{{ client.PERSISTENT_PATH }}/config.yml" 
+      copy:
+        remote_src: True
+        src: "{{ client.CONFIG_DIR_PATH }}/config.yml"
+        dest: "{{ client.PERSISTENT_PATH }}/config.yml"
       when: client_config is not defined and stat_client_config.stat.exists == False
       tags: always
 
-    - name: Copy specified client config file to remote machine 
+    - name: Copy specified client config file to remote machine
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src: "{{client_config}}", dest:  "{{ client.PERSISTENT_PATH }}/config.yml" }
@@ -79,7 +79,7 @@
       tags: always
 
     - name: Create variable files
-      copy: 
+      copy:
         content: "{{ item.content | dict2items | map('to_json') | map('regex_replace', '\"key\":\\s\"(.*)\"', lookup('vars', 'regex_env')) | map('from_json') | list}}"
         dest: "{{ client.REPO_PATH }}/.ansible_environment_{{ item.name }}.json"
         backup: yes

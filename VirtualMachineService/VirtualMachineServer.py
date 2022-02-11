@@ -2,9 +2,9 @@ import os
 import sys
 
 try:
-    from VirtualMachineService.VirtualMachineService import Client, Processor
+    from VirtualMachineService.VirtualMachineService import Processor
 except Exception:
-    from VirtualMachineService import Client, Processor
+    from VirtualMachineService import Processor
 
 try:
     from VirtualMachineService.VirtualMachineHandler import VirtualMachineHandler
@@ -12,14 +12,14 @@ except Exception as e:
     print(e)
     from VirtualMachineHandler import VirtualMachineHandler
 
-from thrift.transport import TSSLSocket, TSocket
-from thrift.transport import TTransport
-from thrift.protocol import TBinaryProtocol
-from thrift.server import TServer
-import yaml
-import click
 import signal
 import ssl
+
+import click
+import yaml
+from thrift.protocol import TBinaryProtocol
+from thrift.server import TServer
+from thrift.transport import TSocket, TSSLSocket, TTransport
 
 USERNAME = "OS_USERNAME"
 PASSWORD = "OS_PASSWORD"
@@ -46,11 +46,7 @@ environment_variables = [
 @click.argument("config")
 def startServer(config):
     def catch_shutdown(signal, frame):
-        click.echo(
-            "Caught SIGTERM. Shutting down. Signal: {0} Frame: {1}".format(
-                signal, frame
-            )
-        )
+        click.echo(f"Caught SIGTERM. Shutting down. Signal: {signal} Frame: {frame}")
         handler.keyboard_interrupt_handler_playbooks()
         click.echo("SIGTERM was handled. Exiting with Exitcode: -1.")
         sys.exit(-1)
@@ -67,7 +63,7 @@ def startServer(config):
         if USE_SSL:
             CERTFILE = cfg["openstack_connection"]["certfile"]
         THREADS = cfg["openstack_connection"]["threads"]
-    click.echo("Server is running on port {}".format(PORT))
+    click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
     if USE_SSL:
@@ -92,7 +88,7 @@ def startServer(config):
 def check_environment_variables(envs):
     def check_env(var):
         if var not in os.environ:
-            click.echo("ERROR: There is no {} set in environment.".format(var))
+            click.echo(f"ERROR: There is no {var} set in environment.")
             click.echo("Please make sure you have sourced your OpenStack rc file")
             sys.exit()
 
