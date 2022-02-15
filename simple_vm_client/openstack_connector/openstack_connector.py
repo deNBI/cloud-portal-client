@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import logging
 import math
 import os
 import socket
 import urllib
 import urllib.parse
 from contextlib import closing
-from uuid import uuid4
 
 import yaml
 from forc_connector.template.template import ResenvMetadata
@@ -189,7 +189,7 @@ class OpenStackConnector:
                 server = self.openstack_connection.get_server_by_id(server_id)
                 servers.append(server)
             except Exception as e:
-                logger.exception("Requested VM {} not found!\n {}".format(server_id, e))
+                logger.exception(f"Requested VM {server_id} not found!\n {e}")
 
         return servers
 
@@ -261,8 +261,8 @@ class OpenStackConnector:
 
         network: Network = self.openstack_connection.network.find_network(self.NETWORK)
         if network is None:
-            logger.exception("Network {0} not found!".format(network))
-            raise Exception("Network {0} not found!".format(network))
+            logger.exception(f"Network {network} not found!")
+            raise Exception(f"Network {network} not found!")
         return network
 
     def import_keypair(self, keyname: str, public_key: str) -> dict[str, str]:
@@ -496,6 +496,7 @@ class OpenStackConnector:
             return []
 
     def get_calculation_values(self) -> dict[str, int]:
+        logging.info("Get Client Calculation Values")
         return {
             "SSH_MULTIPLICATION_PORT": self.SSH_MULTIPLICATION_PORT,
             "UDP_MULTIPLICATION_PORT": self.UDP_MULTIPLICATION_PORT,
@@ -503,6 +504,8 @@ class OpenStackConnector:
         }
 
     def get_gateway_ip(self) -> dict[str, str]:
+        logging.info("Get Gateway IP")
+
         return {"gateway_ip": self.GATEWAY_IP}
 
     @staticmethod
@@ -577,7 +580,7 @@ class OpenStackConnector:
             name_or_id=name
         )
         if sec:
-            logger.info("Security group with name {} already exists.".format(name))
+            logger.info(f"Security group with name {name} already exists.")
             return sec
         new_security_group: SecurityGroup = (
             self.openstack_connection.create_security_group(
@@ -608,7 +611,7 @@ class OpenStackConnector:
                 secgroup_name_or_id=new_security_group["id"],
             )
         if ssh:
-            logger.info("Add ssh rule to security group {}".format(name))
+            logger.info(f"Add ssh rule to security group {name}")
 
             self.openstack_connection.create_security_group_rule(
                 direction="ingress",
@@ -687,23 +690,28 @@ class OpenStackConnector:
     def get_server(self, openstack_id: str) -> Server:
         logger.info(f"Get Server by id: {openstack_id}")
         try:
-            server: Server = self.openstack_connection.compute.get_server(openstack_id)
+            server: Server = self.openstack_connection.get_server_by_id(id=openstack_id)
             if server is None:
                 logger.exception(f"Instance {openstack_id} not found")
                 raise ServerNotFoundException(
                     message=f"Instance {openstack_id} not found",
                     name_or_id=openstack_id,
                 )
+            server.image = self.get_image(name_or_id=server.image["id"])
+
+            server.flavor = self.get_flavor(name_or_id=server.flavor["id"])
+
             return server
         except Exception as e:
-            logger.exception("No Server found {0} | Error {1}".format(openstack_id, e))
-            raise DefaultException(message=f"Instance {openstack_id} not found")
+            raise DefaultException(
+                message=f"Error when getting server {openstack_id}! - {e}"
+            )
 
     def resume_server(self, openstack_id: str) -> bool:
 
         logger.info(f"Resume Server {openstack_id}")
         try:
-            server = self.openstack_connection.get_server(openstack_id)
+            server = self.get_server(openstack_id=openstack_id)
             if server is None:
                 logger.exception(f"Instance {openstack_id} not found")
                 raise ServerNotFoundException(
@@ -719,7 +727,7 @@ class OpenStackConnector:
 
     def reboot_server(self, openstack_id: str, reboot_type: str) -> bool:
         logger.info(f"Reboot Server {openstack_id} - {reboot_type}")
-        server = self.openstack_connection.get_server(name_or_id=openstack_id)
+        server = self.get_server(openstack_id=openstack_id)
         try:
             logger.info(f"Stop Server {openstack_id}")
 
@@ -737,7 +745,7 @@ class OpenStackConnector:
     def stop_server(self, openstack_id: str) -> bool:
 
         logger.info(f"Stop Server {openstack_id}")
-        server = self.openstack_connection.get_server(name_or_id=openstack_id)
+        server = self.get_server(openstack_id=openstack_id)
         try:
             if server is None:
                 raise ServerNotFoundException(
@@ -756,10 +764,10 @@ class OpenStackConnector:
 
         logger.info(f"Delete Server {openstack_id}")
         try:
-            server = self.openstack_connection.get_server(name_or_id=openstack_id)
+            server = self.get_server(openstack_id=openstack_id)
 
             if not server:
-                logger.error("Instance {0} not found".format(openstack_id))
+                logger.error(f"Instance {openstack_id} not found")
                 raise ServerNotFoundException(
                     message=f"Instance {openstack_id} not found",
                     name_or_id=openstack_id,
@@ -798,7 +806,7 @@ class OpenStackConnector:
 
     def get_vm_ports(self, openstack_id: str) -> dict[str, str]:
         logger.info(f"Get IP and PORT for server {openstack_id}")
-        server = self.openstack_connection.get_server(name_or_id=openstack_id)
+        server = self.get_server(openstack_id=openstack_id)
         if not server:
             raise ServerNotFoundException(
                 message=f"Server {openstack_id} not found!", name_or_id=openstack_id
@@ -853,19 +861,19 @@ class OpenStackConnector:
         additional_keys: list[str] = None,  # type: ignore
     ) -> str:
         logger.info(f"Start Server {servername}")
-        custom_security_groups = self.prepare_security_groups_new_server(
-            research_environment_metadata=research_environment_metadata,
-            servername=servername,
-        )
+
         key_name: str = None  # type: ignore
         try:
 
             image: Image = self.get_image(name_or_id=image_name)
             flavor: Flavor = self.get_flavor(name_or_id=flavor_name)
             network: Network = self.get_network()
-
-            key_name = f"{metadata.get('elixir_id')[:-18]}{str(uuid4())[0:5]}"  # type: ignore
+            key_name = f"{servername}_{metadata['project_name']}"
             logger.info(f"Key name {key_name}")
+            custom_security_groups = self.prepare_security_groups_new_server(
+                research_environment_metadata=research_environment_metadata,
+                servername=servername,
+            )
             public_key = urllib.parse.unquote(public_key)
             self.import_keypair(key_name, public_key)
             volume_ids = []
@@ -887,6 +895,7 @@ class OpenStackConnector:
                 volume_ids_path_attach=volume_ids_path_attach,
                 additional_keys=additional_keys,
             )
+            logger.info(f"Starting Server {servername}...")
             server = self.openstack_connection.create_server(
                 name=servername,
                 image=image.id,
@@ -911,7 +920,7 @@ class OpenStackConnector:
 
             for security_group in custom_security_groups:
                 self.openstack_connection.delete_security_group(security_group)
-            logger.exception("Start Server {1} error:{0}".format(e, servername))
+            logger.exception(f"Start Server {servername} error:{e}")
             raise DefaultException(message=str(e))
 
     def start_server_with_playbook(
@@ -984,7 +993,7 @@ class OpenStackConnector:
 
             for security_group in custom_security_groups:
                 self.openstack_connection.delete_security_group(security_group)
-            logger.exception("Start Server {1} error:{0}".format(e, servername))
+            logger.exception(f"Start Server {servername} error:{e}")
             raise DefaultException(message=str(e))
 
     @staticmethod
@@ -1032,7 +1041,7 @@ class OpenStackConnector:
             metadata=metadata,
             security_groups=cluster_group_id,
         )
-        logger.info("Created cluster machine:{}".format(server["id"]))
+        logger.info(f"Created cluster machine:{server['id']}")
         server_id: str = server["id"]
         return server_id
 
@@ -1040,9 +1049,7 @@ class OpenStackConnector:
 
         logger.info(f"Check Status VM {openstack_id}")
         try:
-            server: Server = self.openstack_connection.get_server(
-                name_or_id=openstack_id
-            )
+            server: Server = self.get_server(openstack_id=openstack_id)
         except Exception as e:
             logger.exception(f"No Server with id  {openstack_id} ")
             raise ServerNotFoundException(message=str(e), name_or_id=openstack_id)

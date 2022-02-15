@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from openstack.block_storage.v2.volume import Volume as OpenStack_Volume
 from openstack.compute.v2.flavor import Flavor as OpenStack_Flavor
 from openstack.compute.v2.image import Image as OpenStack_Image
@@ -39,8 +41,8 @@ def os_to_thrift_flavor(openstack_flavor: OpenStack_Flavor) -> Flavor:
         ram=openstack_flavor.ram,
         disk=openstack_flavor.disk,
         name=openstack_flavor.name or openstack_flavor.get("original_name", ""),
-        tags=list(openstack_flavor.extra_specs.keys()),
         ephemeral_disk=openstack_flavor.ephemeral,
+        description=openstack_flavor.description or "",
     )
     return flavor
 
@@ -72,12 +74,14 @@ def os_to_thrift_volume(openstack_volume: OpenStack_Volume) -> Volume:
 
 def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
     if not openstack_server:
-        return VM(status=VmStates.NOT_FOUND)
-    logger.debug(f"Convert server {openstack_server} to thrift server")
-    fixed_ip = None
-    floating_ip = None
+        logging.error("Openstack server not found")
 
-    flavor = os_to_thrift_flavor(openstack_server["flavor"])
+        return VM(status=VmStates.NOT_FOUND)
+    fixed_ip = ""
+    floating_ip = ""
+
+    flavor = os_to_thrift_flavor(openstack_flavor=openstack_server.flavor)
+    image = os_to_thrift_image(openstack_image=openstack_server.image)
     for values in openstack_server.addresses.values():
         for address in values:
 
@@ -85,11 +89,10 @@ def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
                 floating_ip = address["addr"]
             elif address["OS-EXT-IPS:type"] == "fixed":
                 fixed_ip = address["addr"]
-
+    logging.error("Converting...")
     server = VM(
         flavor=flavor,
-        # image=openstack_server.image,
-        image=None,
+        image=image,
         status=openstack_server.status,
         metadata=openstack_server.metadata,
         project_id=openstack_server.project_id,
@@ -97,12 +100,13 @@ def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
         openstack_id=openstack_server.id,
         name=openstack_server.name,
         created_at=openstack_server.created_at,
-        task_state=openstack_server.task_state,
+        task_state=openstack_server.task_state or "",
         vm_state=openstack_server.vm_state,
         power_state=openstack_server.power_state,
         fixed_ip=fixed_ip,
         floating_ip=floating_ip,
     )
+
     return server
 
 

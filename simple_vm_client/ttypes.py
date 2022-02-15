@@ -9,13 +9,7 @@
 import sys
 
 from thrift.protocol.TProtocol import TProtocolException
-from thrift.Thrift import (
-    TApplicationException,
-    TException,
-    TFrozenDict,
-    TMessageType,
-    TType,
-)
+from thrift.Thrift import TException, TType
 from thrift.transport import TTransport
 from thrift.TRecursive import fix_spec
 
@@ -154,8 +148,8 @@ class Backend(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -376,8 +370,8 @@ class ClusterInfo(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -552,8 +546,8 @@ class Volume(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -572,7 +566,6 @@ class Flavor(object):
      - disk: The disk of the flavor
      - name: The name of the flavor
      - description: The description of the flavor
-     - tags: List of tags from flavor
      - ephemeral_disk: The ephemeral disk space of the flavor
 
     """
@@ -584,7 +577,6 @@ class Flavor(object):
         disk=None,
         name=None,
         description=None,
-        tags=None,
         ephemeral_disk=None,
     ):
         self.vcpus = vcpus
@@ -592,7 +584,6 @@ class Flavor(object):
         self.disk = disk
         self.name = name
         self.description = description
-        self.tags = tags
         self.ephemeral_disk = ephemeral_disk
 
     def read(self, iprot):
@@ -642,20 +633,6 @@ class Flavor(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
-                if ftype == TType.LIST:
-                    self.tags = []
-                    (_etype3, _size0) = iprot.readListBegin()
-                    for _i4 in range(_size0):
-                        _elem5 = (
-                            iprot.readString().decode("utf-8", errors="replace")
-                            if sys.version_info[0] == 2
-                            else iprot.readString()
-                        )
-                        self.tags.append(_elem5)
-                    iprot.readListEnd()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 7:
                 if ftype == TType.I32:
                     self.ephemeral_disk = iprot.readI32()
                 else:
@@ -698,17 +675,8 @@ class Flavor(object):
                 else self.description
             )
             oprot.writeFieldEnd()
-        if self.tags is not None:
-            oprot.writeFieldBegin("tags", TType.LIST, 6)
-            oprot.writeListBegin(TType.STRING, len(self.tags))
-            for iter6 in self.tags:
-                oprot.writeString(
-                    iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
-                )
-            oprot.writeListEnd()
-            oprot.writeFieldEnd()
         if self.ephemeral_disk is not None:
-            oprot.writeFieldBegin("ephemeral_disk", TType.I32, 7)
+            oprot.writeFieldBegin("ephemeral_disk", TType.I32, 6)
             oprot.writeI32(self.ephemeral_disk)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -723,13 +691,11 @@ class Flavor(object):
             raise TProtocolException(message="Required field disk is unset!")
         if self.name is None:
             raise TProtocolException(message="Required field name is unset!")
-        if self.tags is None:
-            raise TProtocolException(message="Required field tags is unset!")
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -860,14 +826,14 @@ class Image(object):
             elif fid == 9:
                 if ftype == TType.LIST:
                     self.tags = []
-                    (_etype10, _size7) = iprot.readListBegin()
-                    for _i11 in range(_size7):
-                        _elem12 = (
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        self.tags.append(_elem12)
+                        self.tags.append(_elem5)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -943,9 +909,9 @@ class Image(object):
         if self.tags is not None:
             oprot.writeFieldBegin("tags", TType.LIST, 9)
             oprot.writeListBegin(TType.STRING, len(self.tags))
-            for iter13 in self.tags:
+            for iter6 in self.tags:
                 oprot.writeString(
-                    iter13.encode("utf-8") if sys.version_info[0] == 2 else iter13
+                    iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
                 )
             oprot.writeListEnd()
             oprot.writeFieldEnd()
@@ -972,8 +938,8 @@ class Image(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1073,19 +1039,19 @@ class VM(object):
             elif fid == 4:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype15, _vtype16, _size14) = iprot.readMapBegin()
-                    for _i18 in range(_size14):
-                        _key19 = (
+                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
+                    for _i11 in range(_size7):
+                        _key12 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        _val20 = (
+                        _val13 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        self.metadata[_key19] = _val20
+                        self.metadata[_key12] = _val13
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -1162,12 +1128,8 @@ class VM(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 13:
-                if ftype == TType.STRING:
-                    self.power_state = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                if ftype == TType.I32:
+                    self.power_state = iprot.readI32()
                 else:
                     iprot.skip(ftype)
             elif fid == 14:
@@ -1208,12 +1170,12 @@ class VM(object):
         if self.metadata is not None:
             oprot.writeFieldBegin("metadata", TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter21, viter22 in self.metadata.items():
+            for kiter14, viter15 in self.metadata.items():
                 oprot.writeString(
-                    kiter21.encode("utf-8") if sys.version_info[0] == 2 else kiter21
+                    kiter14.encode("utf-8") if sys.version_info[0] == 2 else kiter14
                 )
                 oprot.writeString(
-                    viter22.encode("utf-8") if sys.version_info[0] == 2 else viter22
+                    viter15.encode("utf-8") if sys.version_info[0] == 2 else viter15
                 )
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -1280,12 +1242,8 @@ class VM(object):
             )
             oprot.writeFieldEnd()
         if self.power_state is not None:
-            oprot.writeFieldBegin("power_state", TType.STRING, 13)
-            oprot.writeString(
-                self.power_state.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.power_state
-            )
+            oprot.writeFieldBegin("power_state", TType.I32, 13)
+            oprot.writeI32(self.power_state)
             oprot.writeFieldEnd()
         if self.vm_state is not None:
             oprot.writeFieldBegin("vm_state", TType.STRING, 14)
@@ -1318,8 +1276,8 @@ class VM(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1422,8 +1380,8 @@ class ClusterInstance(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1530,8 +1488,8 @@ class PlaybookResult(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1670,8 +1628,8 @@ class ResourceNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1758,8 +1716,8 @@ class ResourceNotAvailableException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1873,8 +1831,8 @@ class TemplateNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1986,8 +1944,8 @@ class NameAlreadyUsedException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2101,8 +2059,8 @@ class ServerNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2216,8 +2174,8 @@ class FlavorNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2331,8 +2289,8 @@ class VolumeNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2446,8 +2404,8 @@ class ImageNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2561,8 +2519,8 @@ class ClusterNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2676,8 +2634,8 @@ class BackendNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2791,8 +2749,8 @@ class PlaybookNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2879,8 +2837,8 @@ class DefaultException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2969,8 +2927,8 @@ class OpenStackConflictException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -3178,18 +3136,11 @@ Flavor.thrift_spec = (
     ),  # 5
     (
         6,
-        TType.LIST,
-        "tags",
-        (TType.STRING, "UTF8", False),
-        None,
-    ),  # 6
-    (
-        7,
         TType.I32,
         "ephemeral_disk",
         None,
         None,
-    ),  # 7
+    ),  # 6
 )
 all_structs.append(Image)
 Image.thrift_spec = (
@@ -3354,9 +3305,9 @@ VM.thrift_spec = (
     ),  # 12
     (
         13,
-        TType.STRING,
+        TType.I32,
         "power_state",
-        "UTF8",
+        None,
         None,
     ),  # 13
     (

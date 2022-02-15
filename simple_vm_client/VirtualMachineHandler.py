@@ -5,6 +5,7 @@ Which can be used for the PortalClient.
 """
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from bibigrid_connector.bibigrid_connector import BibigridConnector
@@ -39,9 +40,7 @@ class VirtualMachineHandler(Iface):
 
     def keyboard_interrupt_handler_playbooks(self) -> None:
         for k, v in self.forc_connector._active_playbooks.items():
-            logger.info(
-                "Clearing traces of Playbook-VM for (openstack_id): {0}".format(k)
-            )
+            logger.info(f"Clearing traces of Playbook-VM for (openstack_id): {k}")
             self.openstack_connector.delete_keypair(
                 key_name=self.forc_connector.redis_connection.hget(k, "name").decode(
                     "utf-8"
@@ -98,7 +97,7 @@ class VirtualMachineHandler(Iface):
     def get_gateway_ip(self) -> dict[str, str]:
         return self.openstack_connector.get_gateway_ip()
 
-    def get_calculation_formulars(self) -> dict[str, int]:
+    def get_calculation_values(self) -> dict[str, int]:
         return self.openstack_connector.get_calculation_values()
 
     def import_keypair(self, keyname: str, public_key: str) -> dict[str, str]:
@@ -127,16 +126,19 @@ class VirtualMachineHandler(Iface):
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
 
     def get_server(self, openstack_id: str) -> VM:
-        return thrift_converter.os_to_thrift_server(
+        server = thrift_converter.os_to_thrift_server(
             openstack_server=self.openstack_connector.get_server(
                 openstack_id=openstack_id
             )
         )
+        logging.error(f"server:{server}")
+        return server
 
     def get_servers(self) -> list[VM]:
-        return thrift_converter.os_to_thrift_servers(
+        serv = thrift_converter.os_to_thrift_servers(
             openstack_servers=self.openstack_connector.get_servers()
         )
+        return serv
 
     def get_servers_by_ids(self, server_ids: list[str]) -> list[VM]:
         return thrift_converter.os_to_thrift_servers(

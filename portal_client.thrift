@@ -55,11 +55,8 @@ struct Volume{
 	/** The description of the flavor*/
 	5:optional string description
 
-	/** List of tags from flavor */
-	6: required list<string> tags
-
 	/** The ephemeral disk space of the flavor*/
-	7:optional i32 ephemeral_disk
+	6:optional i32 ephemeral_disk
 }
 /**
  * This Struct defines an Image.
@@ -134,7 +131,7 @@ struct VM {
 	/** The fixed ips of the VM*/
 	11: required string fixed_ip
 	12:optional string task_state
-	13:optional string power_state
+	13:optional i32 power_state
 	14:optional string vm_state
 }
 
@@ -250,7 +247,7 @@ service VirtualMachineService {
 
 
 
-    map<string,string>  get_calculation_values()
+    map<string,i32>  get_calculation_values()
 
     /**
      * Import Key to openstack.
@@ -330,12 +327,12 @@ service VirtualMachineService {
 	throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
 
 
-	map<string,string> start_server(
+	string start_server(
 	/** Name of the  Flavor to use.*/
     1:string flavor_name,
 
     /** Name of the image to use. */
-    2:string image,
+    2:string image_name,
 
     /** Public Key to use*/
     3:string public_key,
@@ -363,7 +360,7 @@ service VirtualMachineService {
     /**
 	 * Start a new server with custom key for ansible.
 	 */
-    map<string,string> start_server_with_custom_key(
+    string start_server_with_custom_key(
 
     /** Name of the  Flavor to use.*/
     1:string flavor_name,

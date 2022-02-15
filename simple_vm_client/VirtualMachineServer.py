@@ -34,13 +34,9 @@ environment_variables = [
 
 @click.command()
 @click.argument("config")
-def startServer(config):
-    def catch_shutdown(signal, frame):
-        click.echo(
-            "Caught SIGTERM. Shutting down. Signal: {0} Frame: {1}".format(
-                signal, frame
-            )
-        )
+def startServer(config: str) -> None:
+    def catch_shutdown(signal: int, frame: object) -> None:
+        click.echo(f"Caught SIGTERM. Shutting down. Signal: {signal} Frame: {frame}")
         handler.keyboard_interrupt_handler_playbooks()
         click.echo("SIGTERM was handled. Exiting with Exitcode: -1.")
         sys.exit(-1)
@@ -57,7 +53,7 @@ def startServer(config):
         if USE_SSL:
             CERTFILE = cfg["server"]["certfile"]
         THREADS = cfg["server"]["threads"]
-    click.echo("Server is running on port {}".format(PORT))
+    click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
     if USE_SSL:
@@ -79,10 +75,10 @@ def startServer(config):
     server.serve()
 
 
-def check_environment_variables(envs):
-    def check_env(var):
+def check_environment_variables(envs: list[str]) -> None:
+    def check_env(var: str) -> None:
         if var not in os.environ:
-            click.echo("ERROR: There is no {} set in environment.".format(var))
+            click.echo(f"ERROR: There is no {var} set in environment.")
             click.echo("Please make sure you have sourced your OpenStack rc file")
             sys.exit()
 

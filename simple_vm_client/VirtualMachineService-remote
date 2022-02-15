@@ -18,7 +18,6 @@ else:
 from thrift.protocol.TBinaryProtocol import TBinaryProtocol
 from thrift.transport import THttpClient, TSocket, TSSLSocket, TTransport
 from VirtualMachineService import VirtualMachineService
-from VirtualMachineService.ttypes import *
 
 if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("")
@@ -45,12 +44,12 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  bool resize_volume(string volume_id, int size)")
     print("  bool delete_server(string openstack_id)")
     print(
-        "   start_server(string flavor_name, string image, string public_key, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
+        "  string start_server(string flavor_name, string image_name, string public_key, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
     )
     print("  bool bibigrid_available()")
     print("  bool detach_ip_from_server(string server_id, string floating_ip)")
     print(
-        "   start_server_with_custom_key(string flavor_name, string image_name, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach)"
+        "  string start_server_with_custom_key(string flavor_name, string image_name, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach)"
     )
     print("  bool exist_server(string name)")
     print(
@@ -135,7 +134,7 @@ if sys.argv[argi] == "-u":
         port = 80
     uri = url[2]
     if url[4]:
-        uri += "?%s" % url[4]
+        uri += f"?{url[4]}"
     http = True
     argi += 2
 
@@ -735,7 +734,7 @@ elif cmd == "reboot_server":
     )
 
 else:
-    print("Unrecognized method %s" % cmd)
+    print(f"Unrecognized method {cmd}")
     sys.exit(1)
 
 transport.close()
