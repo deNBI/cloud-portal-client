@@ -74,7 +74,7 @@ def os_to_thrift_volume(openstack_volume: OpenStack_Volume) -> Volume:
 
 def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
     if not openstack_server:
-        logging.error("Openstack server not found")
+        logging.info("Openstack server not found")
 
         return VM(status=VmStates.NOT_FOUND)
     fixed_ip = ""
@@ -89,7 +89,6 @@ def os_to_thrift_server(openstack_server: OpenStack_Server) -> VM:
                 floating_ip = address["addr"]
             elif address["OS-EXT-IPS:type"] == "fixed":
                 fixed_ip = address["addr"]
-    logging.error("Converting...")
     server = VM(
         flavor=flavor,
         image=image,

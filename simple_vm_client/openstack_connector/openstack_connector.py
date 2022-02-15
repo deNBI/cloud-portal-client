@@ -17,7 +17,6 @@ from openstack.compute.v2.image import Image
 from openstack.compute.v2.server import Server
 from openstack.exceptions import (
     ConflictException,
-    NotFoundException,
     OpenStackCloudException,
     ResourceFailure,
     ResourceNotFound,
@@ -702,7 +701,7 @@ class OpenStackConnector:
             server.flavor = self.get_flavor(name_or_id=server.flavor["id"])
 
             return server
-        except Exception as e:
+        except OpenStackCloudException as e:
             raise DefaultException(
                 message=f"Error when getting server {openstack_id}! - {e}"
             )
@@ -725,18 +724,18 @@ class OpenStackConnector:
             logger.exception(f"Resume Server {openstack_id} failed!")
             raise OpenStackConflictException(message=str(e))
 
+    def reboot_hard_server(self, openstack_id: str) -> bool:
+        return self.reboot_server(openstack_id=openstack_id, reboot_type="HARD")
+
+    def reboot_soft_server(self, openstack_id: str) -> bool:
+        return self.reboot_server(openstack_id=openstack_id, reboot_type="SOFT")
+
     def reboot_server(self, openstack_id: str, reboot_type: str) -> bool:
         logger.info(f"Reboot Server {openstack_id} - {reboot_type}")
         server = self.get_server(openstack_id=openstack_id)
         try:
-            logger.info(f"Stop Server {openstack_id}")
-
-            if server is None:
-                logger.exception(f"Instance {openstack_id} not found")
-                raise NotFoundException(message=f"Instance {openstack_id} not found")
-            else:
-                self.openstack_connection.compute.reboot_server(server, reboot_type)
-                return True
+            self.openstack_connection.compute.reboot_server(server, reboot_type)
+            return True
         except ConflictException as e:
             logger.exception(f"Reboot Server {openstack_id} failed!")
 
@@ -800,9 +799,6 @@ class OpenStackConnector:
             logger.error(f"Delete Server {openstack_id} failed!")
 
             raise OpenStackConflictException(message=e.message)
-        except Exception as e:
-            logger.error(f"Delete Server {openstack_id} failed!")
-            raise DefaultException(message=str(e))
 
     def get_vm_ports(self, openstack_id: str) -> dict[str, str]:
         logger.info(f"Get IP and PORT for server {openstack_id}")
@@ -914,7 +910,7 @@ class OpenStackConnector:
 
             return openstack_id
 
-        except Exception as e:
+        except OpenStackCloudException as e:
             if key_name:
                 self.delete_keypair(key_name=key_name)
 
@@ -948,10 +944,8 @@ class OpenStackConnector:
 
             key_creation = self.openstack_connection.create_keypair(name=servername)
 
-            try:
-                private_key = key_creation["private_key"]
-            except Exception:
-                private_key = key_creation.__dict__["private_key"]
+            private_key = key_creation["private_key"]
+
             volume_ids = []
             volumes = []
             if volume_ids_path_new:
@@ -987,7 +981,7 @@ class OpenStackConnector:
 
             return openstack_id, private_key
 
-        except Exception as e:
+        except OpenStackCloudException as e:
             if key_name:
                 self.delete_keypair(key_name=key_name)
 
@@ -1048,17 +1042,8 @@ class OpenStackConnector:
     def check_server_status(self, openstack_id: str) -> Server:
 
         logger.info(f"Check Status VM {openstack_id}")
-        try:
-            server: Server = self.get_server(openstack_id=openstack_id)
-        except Exception as e:
-            logger.exception(f"No Server with id  {openstack_id} ")
-            raise ServerNotFoundException(message=str(e), name_or_id=openstack_id)
 
-        if server is None:
-            logger.exception(f"No Server with id  {openstack_id} ")
-            raise ServerNotFoundException(
-                message=f"No Server with id  {openstack_id} ", name_or_id=openstack_id
-            )
+        server: Server = self.get_server(openstack_id=openstack_id)
 
         try:
             if server["status"] == VmStates.ACTIVE:
@@ -1070,7 +1055,7 @@ class OpenStackConnector:
                 if OpenStackConnector.netcat(host=self.GATEWAY_IP, port=port):
                     return server
                 else:
-                    server["status"] = VmStates.PORT_CLOSED
+                    server["task_state"] = VmStates.PORT_CLOSED
                     return server
             else:
                 return server

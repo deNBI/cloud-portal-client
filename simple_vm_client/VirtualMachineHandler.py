@@ -5,7 +5,6 @@ Which can be used for the PortalClient.
 """
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING
 
 from bibigrid_connector.bibigrid_connector import BibigridConnector
@@ -117,10 +116,11 @@ class VirtualMachineHandler(Iface):
     def delete_server(self, openstack_id: str) -> bool:
         return self.openstack_connector.delete_server(openstack_id=openstack_id)
 
-    def reboot_server(self, openstack_id: str, reboot_type: str) -> bool:
-        return self.openstack_connector.reboot_server(
-            openstack_id=openstack_id, reboot_type=reboot_type
-        )
+    def reboot_hard_server(self, openstack_id: str) -> bool:
+        return self.openstack_connector.reboot_hard_server(openstack_id=openstack_id)
+
+    def reboot_soft_server(self, openstack_id: str) -> bool:
+        return self.openstack_connector.reboot_soft_server(openstack_id=openstack_id)
 
     def resume_server(self, openstack_id: str) -> bool:
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
@@ -131,7 +131,6 @@ class VirtualMachineHandler(Iface):
                 openstack_id=openstack_id
             )
         )
-        logging.error(f"server:{server}")
         return server
 
     def get_servers(self) -> list[VM]:

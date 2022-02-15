@@ -636,17 +636,27 @@ service VirtualMachineService {
     throws (1:DefaultException r,2:ResourceNotAvailableException n)
 
 
-    /**
+      /**
      * Reboot server.
      * Returns: True if rebooted False if not
      */
-    bool reboot_server(
+    bool reboot_hard_server(
 
     /** Id of the server*/
     1:string openstack_id,
+)
 
-    /** HARD or SOFT*/
-    2:string reboot_type)
+    throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
+
+       /**
+     * Reboot server.
+     * Returns: True if rebooted False if not
+     */
+    bool reboot_soft_server(
+
+    /** Id of the server*/
+    1:string openstack_id,
+)
 
     throws (1:ServerNotFoundException e, 2: OpenStackConflictException c)
 
