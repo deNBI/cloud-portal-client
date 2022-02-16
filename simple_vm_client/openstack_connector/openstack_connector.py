@@ -197,7 +197,7 @@ class OpenStackConnector:
     ) -> dict[str, str]:
 
         server = self.get_server(openstack_id=openstack_id)
-        volume = self.get_volume(name_or_id=openstack_id)
+        volume = self.get_volume(name_or_id=volume_id)
 
         logger.info(f"Attaching volume {volume_id} to virtualmachine {openstack_id}")
         try:
@@ -234,7 +234,7 @@ class OpenStackConnector:
             self.openstack_connection.block_storage.extend_volume(volume_id, size)
         except ResourceNotFound as e:
             raise VolumeNotFoundException(message=e.message, name_or_id=volume_id)
-        except Exception as e:
+        except OpenStackCloudException as e:
             logger.exception(f"Could not extend volume {volume_id}")
             raise DefaultException(message=str(e))
         return True

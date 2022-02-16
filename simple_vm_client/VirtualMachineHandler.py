@@ -90,7 +90,7 @@ class VirtualMachineHandler(Iface):
             )
         return volumes
 
-    def resize_volume(self, volume_id: str, size: int) -> int:
+    def resize_volume(self, volume_id: str, size: int) -> bool:
         return self.openstack_connector.resize_volume(volume_id=volume_id, size=size)
 
     def get_gateway_ip(self) -> dict[str, str]:
