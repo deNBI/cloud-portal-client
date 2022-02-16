@@ -28,7 +28,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     )
     print("")
     print("Functions:")
-    print("  bool check_version(double version)")
+    print("  bool is_version(double version)")
     print("  string get_client_version()")
     print("   get_gateway_ip()")
     print("   get_calculation_values()")
@@ -41,13 +41,13 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  Image get_image(string openstack_id)")
     print("  Volume get_volume(string volume_id)")
     print("   get_volumes_by_ids( volume_ids)")
-    print("  bool resize_volume(string volume_id, int size)")
-    print("  bool delete_server(string openstack_id)")
+    print("  void resize_volume(string volume_id, int size)")
+    print("  void delete_server(string openstack_id)")
     print(
         "  string start_server(string flavor_name, string image_name, string public_key, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach,  additional_keys)"
     )
-    print("  bool bibigrid_available()")
-    print("  bool detach_ip_from_server(string server_id, string floating_ip)")
+    print("  bool is_bibigrid_available()")
+    print("  void detach_ip_from_server(string server_id, string floating_ip)")
     print(
         "  string start_server_with_custom_key(string flavor_name, string image_name, string servername,  metadata, string research_environment,  volume_ids_path_new,  volume_ids_path_attach)"
     )
@@ -65,7 +65,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("   get_backends_by_owner(string elixir_id)")
     print("   get_backends_by_template(string template)")
     print("  Backend get_backend_by_id(i64 id)")
-    print("  bool delete_backend(i64 id)")
+    print("  void delete_backend(i64 id)")
     print("   add_user_to_backend(i64 backend_id, string owner_id, string user_id)")
     print("   get_users_from_backend(i64 backend_id)")
     print(
@@ -84,7 +84,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  ClusterInfo get_cluster_info(string cluster_id)")
     print("   get_cluster_status(string cluster_id)")
     print("  VM get_server(string openstack_id)")
-    print("  bool stop_server(string openstack_id)")
+    print("  void stop_server(string openstack_id)")
     print(
         "  string create_snapshot(string openstack_id, string name, string elixir_id,  base_tags, string description)"
     )
@@ -93,15 +93,15 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
         "   start_cluster(string public_key, ClusterInstance master_instance,  worker_instances, string user)"
     )
     print("   terminate_cluster(string cluster_id)")
-    print("  bool delete_image(string image_id)")
-    print("  bool detach_volume(string volume_id, string server_id)")
-    print("  bool delete_volume(string volume_id)")
+    print("  void delete_image(string image_id)")
+    print("  void detach_volume(string volume_id, string server_id)")
+    print("  void delete_volume(string volume_id)")
     print("   attach_volume_to_server(string openstack_id, string volume_id)")
     print("  VM check_server_status(string openstack_id)")
-    print("  bool resume_server(string openstack_id)")
+    print("  void resume_server(string openstack_id)")
     print("  Volume create_volume(string volume_name, int volume_storage,  metadata)")
-    print("  bool reboot_hard_server(string openstack_id)")
-    print("  bool reboot_soft_server(string openstack_id)")
+    print("  void reboot_hard_server(string openstack_id)")
+    print("  void reboot_soft_server(string openstack_id)")
     print("")
     sys.exit(0)
 
@@ -188,12 +188,12 @@ protocol = TBinaryProtocol(transport)
 client = VirtualMachineService.Client(protocol)
 transport.open()
 
-if cmd == "check_version":
+if cmd == "is_version":
     if len(args) != 1:
-        print("check_version requires 1 args")
+        print("is_version requires 1 args")
         sys.exit(1)
     pp.pprint(
-        client.check_version(
+        client.is_version(
             eval(args[0]),
         )
     )
@@ -330,11 +330,11 @@ elif cmd == "start_server":
         )
     )
 
-elif cmd == "bibigrid_available":
+elif cmd == "is_bibigrid_available":
     if len(args) != 0:
-        print("bibigrid_available requires 0 args")
+        print("is_bibigrid_available requires 0 args")
         sys.exit(1)
-    pp.pprint(client.bibigrid_available())
+    pp.pprint(client.is_bibigrid_available())
 
 elif cmd == "detach_ip_from_server":
     if len(args) != 2:

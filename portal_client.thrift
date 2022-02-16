@@ -232,7 +232,7 @@ exception OpenStackConflictException {
 service VirtualMachineService {
 
 
-    bool check_version(1:double version)
+    bool is_version(1:double version)
 
     /**
      * Get Client version.
@@ -311,7 +311,7 @@ service VirtualMachineService {
 	1:list<string> volume_ids
 	)
 
-	bool resize_volume(1:string volume_id,2:int size) throws(1:VolumeNotFoundException v)
+	void resize_volume(1:string volume_id,2:int size) throws(1:VolumeNotFoundException v)
 
 
 
@@ -319,7 +319,7 @@ service VirtualMachineService {
 	  * Delete server.
 	  * Returns: True if deleted, False if not
 	  */
-	bool delete_server(
+	void delete_server(
 
 	/** Id of the server. */
 	1:string openstack_id)
@@ -351,8 +351,8 @@ service VirtualMachineService {
 
     throws (1:NameAlreadyUsedException e,2:ResourceNotAvailableException r,5:ImageNotFoundException i,6:FlavorNotFoundException f,7:DefaultException o)
 
-    bool bibigrid_available()
-    bool detach_ip_from_server(1:string server_id,2:string floating_ip) throws(1:ServerNotFoundException s)
+    bool is_bibigrid_available()
+    void detach_ip_from_server(1:string server_id,2:string floating_ip) throws(1:ServerNotFoundException s)
 
 
 
@@ -434,7 +434,7 @@ service VirtualMachineService {
 
 
     /** Delete a backend*/
-    bool delete_backend(
+    void delete_backend(
     1:i64 id
     ) throws (1:BackendNotFoundException b)
 
@@ -507,7 +507,7 @@ service VirtualMachineService {
 	 * Stop a Server.
 	 * Returns: True if stopped, False if not.
 	 */
-    bool stop_server(
+    void stop_server(
 
     /** Id of the server.*/
     1:string openstack_id)
@@ -554,7 +554,7 @@ service VirtualMachineService {
      * Delete Image.
      * Return: True if deleted, False if not
      */
-    bool delete_image(
+    void delete_image(
     /** Id of image */
     1:string image_id) throws (
 
@@ -565,7 +565,7 @@ service VirtualMachineService {
      * Delete volume attachment
      * Return: True if deleted, False if not
      */
-    bool detach_volume(
+    void detach_volume(
     /** Id of the attached volume */
     1:string volume_id,
 
@@ -579,7 +579,7 @@ service VirtualMachineService {
      * Delete volume.
      * Returns:  True if deleted, False if not
      */
-    bool delete_volume(1:string volume_id) throws (1: OpenStackConflictException c,2:VolumeNotFoundException v)
+    void delete_volume(1:string volume_id) throws (1: OpenStackConflictException c,2:VolumeNotFoundException v)
 
     /**
      * Attach volume to server.
@@ -612,7 +612,7 @@ service VirtualMachineService {
      * Resume Server.
      * Returns: True if resumed False if not
      */
-    bool resume_server(
+    void resume_server(
     /** Id of the server */
     1:string openstack_id)
 
@@ -640,7 +640,7 @@ service VirtualMachineService {
      * Reboot server.
      * Returns: True if rebooted False if not
      */
-    bool reboot_hard_server(
+    void reboot_hard_server(
 
     /** Id of the server*/
     1:string openstack_id,
@@ -652,7 +652,7 @@ service VirtualMachineService {
      * Reboot server.
      * Returns: True if rebooted False if not
      */
-    bool reboot_soft_server(
+    void reboot_soft_server(
 
     /** Id of the server*/
     1:string openstack_id,

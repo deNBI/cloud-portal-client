@@ -90,7 +90,7 @@ class VirtualMachineHandler(Iface):
             )
         return volumes
 
-    def resize_volume(self, volume_id: str, size: int) -> bool:
+    def resize_volume(self, volume_id: str, size: int) -> None:
         return self.openstack_connector.resize_volume(volume_id=volume_id, size=size)
 
     def get_gateway_ip(self) -> dict[str, str]:
@@ -110,19 +110,19 @@ class VirtualMachineHandler(Iface):
     def get_vm_ports(self, openstack_id: str) -> dict[str, str]:
         return self.openstack_connector.get_vm_ports(openstack_id=openstack_id)
 
-    def stop_server(self, openstack_id: str) -> bool:
+    def stop_server(self, openstack_id: str) -> None:
         return self.openstack_connector.stop_server(openstack_id=openstack_id)
 
-    def delete_server(self, openstack_id: str) -> bool:
+    def delete_server(self, openstack_id: str) -> None:
         return self.openstack_connector.delete_server(openstack_id=openstack_id)
 
-    def reboot_hard_server(self, openstack_id: str) -> bool:
+    def reboot_hard_server(self, openstack_id: str) -> None:
         return self.openstack_connector.reboot_hard_server(openstack_id=openstack_id)
 
-    def reboot_soft_server(self, openstack_id: str) -> bool:
+    def reboot_soft_server(self, openstack_id: str) -> None:
         return self.openstack_connector.reboot_soft_server(openstack_id=openstack_id)
 
-    def resume_server(self, openstack_id: str) -> bool:
+    def resume_server(self, openstack_id: str) -> None:
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
 
     def get_server(self, openstack_id: str) -> VM:
@@ -178,7 +178,7 @@ class VirtualMachineHandler(Iface):
             description=description,
         )
 
-    def delete_image(self, image_id: str) -> bool:
+    def delete_image(self, image_id: str) -> None:
         return self.openstack_connector.delete_image(image_id=image_id)
 
     def create_volume(
@@ -192,12 +192,12 @@ class VirtualMachineHandler(Iface):
             )
         )
 
-    def detach_volume(self, volume_id: str, server_id: str) -> bool:
+    def detach_volume(self, volume_id: str, server_id: str) -> None:
         return self.openstack_connector.detach_volume(
             volume_id=volume_id, server_id=server_id
         )
 
-    def delete_volume(self, volume_id: str) -> bool:
+    def delete_volume(self, volume_id: str) -> None:
         return self.openstack_connector.delete_volume(volume_id=volume_id)
 
     def attach_volume_to_server(
@@ -220,7 +220,7 @@ class VirtualMachineHandler(Iface):
             upstream_url=upstream_url,
         )
 
-    def delete_backend(self, id: str) -> bool:
+    def delete_backend(self, id: str) -> None:
         return self.forc_connector.delete_backend(backend_id=id)
 
     def get_backends(self) -> list[Backend]:
@@ -346,8 +346,8 @@ class VirtualMachineHandler(Iface):
             cloud_site=cloud_site,
         )
 
-    def bibigrid_available(self) -> bool:
-        return self.bibigrid_connector.bibigrid_available()
+    def is_bibigrid_available(self) -> bool:
+        return self.bibigrid_connector.is_bibigrid_available()
 
     def get_cluster_info(self, cluster_id: str) -> ClusterInfo:
         return self.bibigrid_connector.get_cluster_info(cluster_id=cluster_id)

@@ -159,12 +159,11 @@ class OpenStackConnector:
             )
         return volume
 
-    def delete_volume(self, volume_id: str) -> bool:
+    def delete_volume(self, volume_id: str) -> None:
 
         try:
             logger.info(f"Delete Volume   {volume_id} ")
             self.openstack_connection.delete_volume(name_or_id=volume_id)
-            return True
         except ResourceNotFound as e:
             raise VolumeNotFoundException(message=e.message, name_or_id=volume_id)
 
@@ -212,7 +211,7 @@ class OpenStackConnector:
             )
             raise OpenStackConflictException(message=e.message)
 
-    def detach_volume(self, volume_id: str, server_id: str) -> bool:
+    def detach_volume(self, volume_id: str, server_id: str) -> None:
 
         try:
 
@@ -220,14 +219,13 @@ class OpenStackConnector:
             volume = self.get_volume(name_or_id=volume_id)
             server = self.get_server(openstack_id=server_id)
             self.openstack_connection.detach_volume(volume=volume, server=server)
-            return True
         except ConflictException as e:
             logger.exception(
                 f"Delete volume attachment (server: {server_id} volume: {volume_id}) failed!"
             )
             raise OpenStackConflictException(message=e.message)
 
-    def resize_volume(self, volume_id: str, size: int) -> bool:
+    def resize_volume(self, volume_id: str, size: int) -> None:
 
         try:
             logger.info(f"Extend volume {volume_id} to size {size}")
@@ -237,7 +235,6 @@ class OpenStackConnector:
         except OpenStackCloudException as e:
             logger.exception(f"Could not extend volume {volume_id}")
             raise DefaultException(message=str(e))
-        return True
 
     def create_volume(
         self, volume_name: str, volume_storage: int, metadata: dict[str, str]
@@ -430,7 +427,7 @@ class OpenStackConnector:
         except OpenStackCloudException as e:
             raise DefaultException(message=e.message)
 
-    def delete_image(self, image_id: str) -> bool:
+    def delete_image(self, image_id: str) -> None:
 
         logger.info(f"Delete Image {image_id}")
         try:
@@ -441,7 +438,6 @@ class OpenStackConnector:
                     message=f"Image {image_id} not found!", name_or_id=image_id
                 )
             self.openstack_connection.compute.delete_image(image)
-            return True
         except Exception as e:
             logger.exception(f"Delete Image {image_id} failed!")
             raise DefaultException(message=str(e))
@@ -706,7 +702,7 @@ class OpenStackConnector:
                 message=f"Error when getting server {openstack_id}! - {e}"
             )
 
-    def resume_server(self, openstack_id: str) -> bool:
+    def resume_server(self, openstack_id: str) -> None:
 
         logger.info(f"Resume Server {openstack_id}")
         try:
@@ -718,30 +714,28 @@ class OpenStackConnector:
                     name_or_id=openstack_id,
                 )
             self.openstack_connection.compute.start_server(server)
-            return True
 
         except ConflictException as e:
             logger.exception(f"Resume Server {openstack_id} failed!")
             raise OpenStackConflictException(message=str(e))
 
-    def reboot_hard_server(self, openstack_id: str) -> bool:
+    def reboot_hard_server(self, openstack_id: str) -> None:
         return self.reboot_server(openstack_id=openstack_id, reboot_type="HARD")
 
-    def reboot_soft_server(self, openstack_id: str) -> bool:
+    def reboot_soft_server(self, openstack_id: str) -> None:
         return self.reboot_server(openstack_id=openstack_id, reboot_type="SOFT")
 
-    def reboot_server(self, openstack_id: str, reboot_type: str) -> bool:
+    def reboot_server(self, openstack_id: str, reboot_type: str) -> None:
         logger.info(f"Reboot Server {openstack_id} - {reboot_type}")
         server = self.get_server(openstack_id=openstack_id)
         try:
             self.openstack_connection.compute.reboot_server(server, reboot_type)
-            return True
         except ConflictException as e:
             logger.exception(f"Reboot Server {openstack_id} failed!")
 
             raise OpenStackConflictException(message=str(e))
 
-    def stop_server(self, openstack_id: str) -> bool:
+    def stop_server(self, openstack_id: str) -> None:
 
         logger.info(f"Stop Server {openstack_id}")
         server = self.get_server(openstack_id=openstack_id)
@@ -753,13 +747,12 @@ class OpenStackConnector:
                 )
 
             self.openstack_connection.compute.stop_server(server)
-            return True
 
         except ConflictException as e:
             logger.exception(f"Stop Server {openstack_id} failed!")
             raise OpenStackConflictException(message=e.message)
 
-    def delete_server(self, openstack_id: str) -> bool:
+    def delete_server(self, openstack_id: str) -> None:
 
         logger.info(f"Delete Server {openstack_id}")
         try:
@@ -794,7 +787,6 @@ class OpenStackConnector:
                     )
                     self.openstack_connection.delete_security_group(sg)
             self.openstack_connection.delete_server(server)
-            return True
         except ConflictException as e:
             logger.error(f"Delete Server {openstack_id} failed!")
 

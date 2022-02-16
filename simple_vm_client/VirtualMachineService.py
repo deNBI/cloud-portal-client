@@ -23,7 +23,7 @@ class Iface(object):
 
     """
 
-    def check_version(self, version):
+    def is_version(self, version):
         """
         Parameters:
          - version
@@ -163,7 +163,7 @@ class Iface(object):
 
         """
 
-    def bibigrid_available(self):
+    def is_bibigrid_available(self):
         pass
 
     def detach_ip_from_server(self, server_id, floating_ip):
@@ -575,24 +575,24 @@ class Client(Iface):
             self._oprot = oprot
         self._seqid = 0
 
-    def check_version(self, version):
+    def is_version(self, version):
         """
         Parameters:
          - version
 
         """
-        self.send_check_version(version)
-        return self.recv_check_version()
+        self.send_is_version(version)
+        return self.recv_is_version()
 
-    def send_check_version(self, version):
-        self._oprot.writeMessageBegin("check_version", TMessageType.CALL, self._seqid)
-        args = check_version_args()
+    def send_is_version(self, version):
+        self._oprot.writeMessageBegin("is_version", TMessageType.CALL, self._seqid)
+        args = is_version_args()
         args.version = version
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_check_version(self):
+    def recv_is_version(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -600,13 +600,13 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = check_version_result()
+        result = is_version_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
         raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "check_version failed: unknown result"
+            TApplicationException.MISSING_RESULT, "is_version failed: unknown result"
         )
 
     def get_client_version(self):
@@ -1046,7 +1046,7 @@ class Client(Iface):
 
         """
         self.send_resize_volume(volume_id, size)
-        return self.recv_resize_volume()
+        self.recv_resize_volume()
 
     def send_resize_volume(self, volume_id, size):
         self._oprot.writeMessageBegin("resize_volume", TMessageType.CALL, self._seqid)
@@ -1068,13 +1068,9 @@ class Client(Iface):
         result = resize_volume_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.v is not None:
             raise result.v
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "resize_volume failed: unknown result"
-        )
+        return
 
     def delete_server(self, openstack_id):
         """
@@ -1086,7 +1082,7 @@ class Client(Iface):
 
         """
         self.send_delete_server(openstack_id)
-        return self.recv_delete_server()
+        self.recv_delete_server()
 
     def send_delete_server(self, openstack_id):
         self._oprot.writeMessageBegin("delete_server", TMessageType.CALL, self._seqid)
@@ -1107,15 +1103,11 @@ class Client(Iface):
         result = delete_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "delete_server failed: unknown result"
-        )
+        return
 
     def start_server(
         self,
@@ -1209,20 +1201,20 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "start_server failed: unknown result"
         )
 
-    def bibigrid_available(self):
-        self.send_bibigrid_available()
-        return self.recv_bibigrid_available()
+    def is_bibigrid_available(self):
+        self.send_is_bibigrid_available()
+        return self.recv_is_bibigrid_available()
 
-    def send_bibigrid_available(self):
+    def send_is_bibigrid_available(self):
         self._oprot.writeMessageBegin(
-            "bibigrid_available", TMessageType.CALL, self._seqid
+            "is_bibigrid_available", TMessageType.CALL, self._seqid
         )
-        args = bibigrid_available_args()
+        args = is_bibigrid_available_args()
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_bibigrid_available(self):
+    def recv_is_bibigrid_available(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -1230,14 +1222,14 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = bibigrid_available_result()
+        result = is_bibigrid_available_result()
         result.read(iprot)
         iprot.readMessageEnd()
         if result.success is not None:
             return result.success
         raise TApplicationException(
             TApplicationException.MISSING_RESULT,
-            "bibigrid_available failed: unknown result",
+            "is_bibigrid_available failed: unknown result",
         )
 
     def detach_ip_from_server(self, server_id, floating_ip):
@@ -1248,7 +1240,7 @@ class Client(Iface):
 
         """
         self.send_detach_ip_from_server(server_id, floating_ip)
-        return self.recv_detach_ip_from_server()
+        self.recv_detach_ip_from_server()
 
     def send_detach_ip_from_server(self, server_id, floating_ip):
         self._oprot.writeMessageBegin(
@@ -1272,14 +1264,9 @@ class Client(Iface):
         result = detach_ip_from_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.s is not None:
             raise result.s
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT,
-            "detach_ip_from_server failed: unknown result",
-        )
+        return
 
     def start_server_with_custom_key(
         self,
@@ -1771,7 +1758,7 @@ class Client(Iface):
 
         """
         self.send_delete_backend(id)
-        return self.recv_delete_backend()
+        self.recv_delete_backend()
 
     def send_delete_backend(self, id):
         self._oprot.writeMessageBegin("delete_backend", TMessageType.CALL, self._seqid)
@@ -1792,14 +1779,9 @@ class Client(Iface):
         result = delete_backend_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.b is not None:
             raise result.b
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT,
-            "delete_backend failed: unknown result",
-        )
+        return
 
     def add_user_to_backend(self, backend_id, owner_id, user_id):
         """
@@ -2343,7 +2325,7 @@ class Client(Iface):
 
         """
         self.send_stop_server(openstack_id)
-        return self.recv_stop_server()
+        self.recv_stop_server()
 
     def send_stop_server(self, openstack_id):
         self._oprot.writeMessageBegin("stop_server", TMessageType.CALL, self._seqid)
@@ -2364,15 +2346,11 @@ class Client(Iface):
         result = stop_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "stop_server failed: unknown result"
-        )
+        return
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
@@ -2551,7 +2529,7 @@ class Client(Iface):
 
         """
         self.send_delete_image(image_id)
-        return self.recv_delete_image()
+        self.recv_delete_image()
 
     def send_delete_image(self, image_id):
         self._oprot.writeMessageBegin("delete_image", TMessageType.CALL, self._seqid)
@@ -2572,13 +2550,9 @@ class Client(Iface):
         result = delete_image_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "delete_image failed: unknown result"
-        )
+        return
 
     def detach_volume(self, volume_id, server_id):
         """
@@ -2591,7 +2565,7 @@ class Client(Iface):
 
         """
         self.send_detach_volume(volume_id, server_id)
-        return self.recv_detach_volume()
+        self.recv_detach_volume()
 
     def send_detach_volume(self, volume_id, server_id):
         self._oprot.writeMessageBegin("detach_volume", TMessageType.CALL, self._seqid)
@@ -2613,17 +2587,13 @@ class Client(Iface):
         result = detach_volume_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
         if result.v is not None:
             raise result.v
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "detach_volume failed: unknown result"
-        )
+        return
 
     def delete_volume(self, volume_id):
         """
@@ -2635,7 +2605,7 @@ class Client(Iface):
 
         """
         self.send_delete_volume(volume_id)
-        return self.recv_delete_volume()
+        self.recv_delete_volume()
 
     def send_delete_volume(self, volume_id):
         self._oprot.writeMessageBegin("delete_volume", TMessageType.CALL, self._seqid)
@@ -2656,15 +2626,11 @@ class Client(Iface):
         result = delete_volume_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.c is not None:
             raise result.c
         if result.v is not None:
             raise result.v
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "delete_volume failed: unknown result"
-        )
+        return
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -2764,7 +2730,7 @@ class Client(Iface):
 
         """
         self.send_resume_server(openstack_id)
-        return self.recv_resume_server()
+        self.recv_resume_server()
 
     def send_resume_server(self, openstack_id):
         self._oprot.writeMessageBegin("resume_server", TMessageType.CALL, self._seqid)
@@ -2785,15 +2751,11 @@ class Client(Iface):
         result = resume_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT, "resume_server failed: unknown result"
-        )
+        return
 
     def create_volume(self, volume_name, volume_storage, metadata):
         """
@@ -2849,7 +2811,7 @@ class Client(Iface):
 
         """
         self.send_reboot_hard_server(openstack_id)
-        return self.recv_reboot_hard_server()
+        self.recv_reboot_hard_server()
 
     def send_reboot_hard_server(self, openstack_id):
         self._oprot.writeMessageBegin(
@@ -2872,16 +2834,11 @@ class Client(Iface):
         result = reboot_hard_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT,
-            "reboot_hard_server failed: unknown result",
-        )
+        return
 
     def reboot_soft_server(self, openstack_id):
         """
@@ -2893,7 +2850,7 @@ class Client(Iface):
 
         """
         self.send_reboot_soft_server(openstack_id)
-        return self.recv_reboot_soft_server()
+        self.recv_reboot_soft_server()
 
     def send_reboot_soft_server(self, openstack_id):
         self._oprot.writeMessageBegin(
@@ -2916,23 +2873,18 @@ class Client(Iface):
         result = reboot_soft_server_result()
         result.read(iprot)
         iprot.readMessageEnd()
-        if result.success is not None:
-            return result.success
         if result.e is not None:
             raise result.e
         if result.c is not None:
             raise result.c
-        raise TApplicationException(
-            TApplicationException.MISSING_RESULT,
-            "reboot_soft_server failed: unknown result",
-        )
+        return
 
 
 class Processor(Iface, TProcessor):
     def __init__(self, handler):
         self._handler = handler
         self._processMap = {}
-        self._processMap["check_version"] = Processor.process_check_version
+        self._processMap["is_version"] = Processor.process_is_version
         self._processMap["get_client_version"] = Processor.process_get_client_version
         self._processMap["get_gateway_ip"] = Processor.process_get_gateway_ip
         self._processMap[
@@ -2950,7 +2902,9 @@ class Processor(Iface, TProcessor):
         self._processMap["resize_volume"] = Processor.process_resize_volume
         self._processMap["delete_server"] = Processor.process_delete_server
         self._processMap["start_server"] = Processor.process_start_server
-        self._processMap["bibigrid_available"] = Processor.process_bibigrid_available
+        self._processMap[
+            "is_bibigrid_available"
+        ] = Processor.process_is_bibigrid_available
         self._processMap[
             "detach_ip_from_server"
         ] = Processor.process_detach_ip_from_server
@@ -3034,13 +2988,13 @@ class Processor(Iface, TProcessor):
             self._processMap[name](self, seqid, iprot, oprot)
         return True
 
-    def process_check_version(self, seqid, iprot, oprot):
-        args = check_version_args()
+    def process_is_version(self, seqid, iprot, oprot):
+        args = is_version_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = check_version_result()
+        result = is_version_result()
         try:
-            result.success = self._handler.check_version(args.version)
+            result.success = self._handler.is_version(args.version)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -3054,7 +3008,7 @@ class Processor(Iface, TProcessor):
             result = TApplicationException(
                 TApplicationException.INTERNAL_ERROR, "Internal error"
             )
-        oprot.writeMessageBegin("check_version", msg_type, seqid)
+        oprot.writeMessageBegin("is_version", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -3374,7 +3328,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = resize_volume_result()
         try:
-            result.success = self._handler.resize_volume(args.volume_id, args.size)
+            self._handler.resize_volume(args.volume_id, args.size)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -3402,7 +3356,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_server_result()
         try:
-            result.success = self._handler.delete_server(args.openstack_id)
+            self._handler.delete_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -3477,13 +3431,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_bibigrid_available(self, seqid, iprot, oprot):
-        args = bibigrid_available_args()
+    def process_is_bibigrid_available(self, seqid, iprot, oprot):
+        args = is_bibigrid_available_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = bibigrid_available_result()
+        result = is_bibigrid_available_result()
         try:
-            result.success = self._handler.bibigrid_available()
+            result.success = self._handler.is_bibigrid_available()
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -3497,7 +3451,7 @@ class Processor(Iface, TProcessor):
             result = TApplicationException(
                 TApplicationException.INTERNAL_ERROR, "Internal error"
             )
-        oprot.writeMessageBegin("bibigrid_available", msg_type, seqid)
+        oprot.writeMessageBegin("is_bibigrid_available", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -3508,9 +3462,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = detach_ip_from_server_result()
         try:
-            result.success = self._handler.detach_ip_from_server(
-                args.server_id, args.floating_ip
-            )
+            self._handler.detach_ip_from_server(args.server_id, args.floating_ip)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -3867,7 +3819,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_backend_result()
         try:
-            result.success = self._handler.delete_backend(args.id)
+            self._handler.delete_backend(args.id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4235,7 +4187,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = stop_server_result()
         try:
-            result.success = self._handler.stop_server(args.openstack_id)
+            self._handler.stop_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4383,7 +4335,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_image_result()
         try:
-            result.success = self._handler.delete_image(args.image_id)
+            self._handler.delete_image(args.image_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4411,7 +4363,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = detach_volume_result()
         try:
-            result.success = self._handler.detach_volume(args.volume_id, args.server_id)
+            self._handler.detach_volume(args.volume_id, args.server_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4445,7 +4397,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = delete_volume_result()
         try:
-            result.success = self._handler.delete_volume(args.volume_id)
+            self._handler.delete_volume(args.volume_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4537,7 +4489,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = resume_server_result()
         try:
-            result.success = self._handler.resume_server(args.openstack_id)
+            self._handler.resume_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4601,7 +4553,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = reboot_hard_server_result()
         try:
-            result.success = self._handler.reboot_hard_server(args.openstack_id)
+            self._handler.reboot_hard_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4632,7 +4584,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = reboot_soft_server_result()
         try:
-            result.success = self._handler.reboot_soft_server(args.openstack_id)
+            self._handler.reboot_soft_server(args.openstack_id)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4661,7 +4613,7 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
-class check_version_args(object):
+class is_version_args(object):
     """
     Attributes:
      - version
@@ -4703,7 +4655,7 @@ class check_version_args(object):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("check_version_args")
+        oprot.writeStructBegin("is_version_args")
         if self.version is not None:
             oprot.writeFieldBegin("version", TType.DOUBLE, 1)
             oprot.writeDouble(self.version)
@@ -4725,8 +4677,8 @@ class check_version_args(object):
         return not (self == other)
 
 
-all_structs.append(check_version_args)
-check_version_args.thrift_spec = (
+all_structs.append(is_version_args)
+is_version_args.thrift_spec = (
     None,  # 0
     (
         1,
@@ -4738,7 +4690,7 @@ check_version_args.thrift_spec = (
 )
 
 
-class check_version_result(object):
+class is_version_result(object):
     """
     Attributes:
      - success
@@ -4780,7 +4732,7 @@ class check_version_result(object):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("check_version_result")
+        oprot.writeStructBegin("is_version_result")
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.BOOL, 0)
             oprot.writeBool(self.success)
@@ -4802,8 +4754,8 @@ class check_version_result(object):
         return not (self == other)
 
 
-all_structs.append(check_version_result)
-check_version_result.thrift_spec = (
+all_structs.append(is_version_result)
+is_version_result.thrift_spec = (
     (
         0,
         TType.BOOL,
@@ -6800,17 +6752,14 @@ resize_volume_args.thrift_spec = (
 class resize_volume_result(object):
     """
     Attributes:
-     - success
      - v
 
     """
 
     def __init__(
         self,
-        success=None,
         v=None,
     ):
-        self.success = success
         self.v = v
 
     def read(self, iprot):
@@ -6826,12 +6775,7 @@ class resize_volume_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.v = VolumeNotFoundException.read(iprot)
                 else:
@@ -6848,10 +6792,6 @@ class resize_volume_result(object):
             )
             return
         oprot.writeStructBegin("resize_volume_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.v is not None:
             oprot.writeFieldBegin("v", TType.STRUCT, 1)
             self.v.write(oprot)
@@ -6875,13 +6815,7 @@ class resize_volume_result(object):
 
 all_structs.append(resize_volume_result)
 resize_volume_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -6980,7 +6914,6 @@ delete_server_args.thrift_spec = (
 class delete_server_result(object):
     """
     Attributes:
-     - success
      - e
      - c
 
@@ -6988,11 +6921,9 @@ class delete_server_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
 
@@ -7009,12 +6940,7 @@ class delete_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -7036,10 +6962,6 @@ class delete_server_result(object):
             )
             return
         oprot.writeStructBegin("delete_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -7067,13 +6989,7 @@ class delete_server_result(object):
 
 all_structs.append(delete_server_result)
 delete_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -7646,7 +7562,7 @@ start_server_result.thrift_spec = (
 )
 
 
-class bibigrid_available_args(object):
+class is_bibigrid_available_args(object):
     def read(self, iprot):
         if (
             iprot._fast_decode is not None
@@ -7671,7 +7587,7 @@ class bibigrid_available_args(object):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("bibigrid_available_args")
+        oprot.writeStructBegin("is_bibigrid_available_args")
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -7689,11 +7605,11 @@ class bibigrid_available_args(object):
         return not (self == other)
 
 
-all_structs.append(bibigrid_available_args)
-bibigrid_available_args.thrift_spec = ()
+all_structs.append(is_bibigrid_available_args)
+is_bibigrid_available_args.thrift_spec = ()
 
 
-class bibigrid_available_result(object):
+class is_bibigrid_available_result(object):
     """
     Attributes:
      - success
@@ -7735,7 +7651,7 @@ class bibigrid_available_result(object):
                 oprot._fast_encode(self, [self.__class__, self.thrift_spec])
             )
             return
-        oprot.writeStructBegin("bibigrid_available_result")
+        oprot.writeStructBegin("is_bibigrid_available_result")
         if self.success is not None:
             oprot.writeFieldBegin("success", TType.BOOL, 0)
             oprot.writeBool(self.success)
@@ -7757,8 +7673,8 @@ class bibigrid_available_result(object):
         return not (self == other)
 
 
-all_structs.append(bibigrid_available_result)
-bibigrid_available_result.thrift_spec = (
+all_structs.append(is_bibigrid_available_result)
+is_bibigrid_available_result.thrift_spec = (
     (
         0,
         TType.BOOL,
@@ -7884,17 +7800,14 @@ detach_ip_from_server_args.thrift_spec = (
 class detach_ip_from_server_result(object):
     """
     Attributes:
-     - success
      - s
 
     """
 
     def __init__(
         self,
-        success=None,
         s=None,
     ):
-        self.success = success
         self.s = s
 
     def read(self, iprot):
@@ -7910,12 +7823,7 @@ class detach_ip_from_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.s = ServerNotFoundException.read(iprot)
                 else:
@@ -7932,10 +7840,6 @@ class detach_ip_from_server_result(object):
             )
             return
         oprot.writeStructBegin("detach_ip_from_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.s is not None:
             oprot.writeFieldBegin("s", TType.STRUCT, 1)
             self.s.write(oprot)
@@ -7959,13 +7863,7 @@ class detach_ip_from_server_result(object):
 
 all_structs.append(detach_ip_from_server_result)
 detach_ip_from_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -10420,17 +10318,14 @@ delete_backend_args.thrift_spec = (
 class delete_backend_result(object):
     """
     Attributes:
-     - success
      - b
 
     """
 
     def __init__(
         self,
-        success=None,
         b=None,
     ):
-        self.success = success
         self.b = b
 
     def read(self, iprot):
@@ -10446,12 +10341,7 @@ class delete_backend_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.b = BackendNotFoundException.read(iprot)
                 else:
@@ -10468,10 +10358,6 @@ class delete_backend_result(object):
             )
             return
         oprot.writeStructBegin("delete_backend_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.b is not None:
             oprot.writeFieldBegin("b", TType.STRUCT, 1)
             self.b.write(oprot)
@@ -10495,13 +10381,7 @@ class delete_backend_result(object):
 
 all_structs.append(delete_backend_result)
 delete_backend_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -13163,7 +13043,6 @@ stop_server_args.thrift_spec = (
 class stop_server_result(object):
     """
     Attributes:
-     - success
      - e
      - c
 
@@ -13171,11 +13050,9 @@ class stop_server_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
 
@@ -13192,12 +13069,7 @@ class stop_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -13219,10 +13091,6 @@ class stop_server_result(object):
             )
             return
         oprot.writeStructBegin("stop_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -13250,13 +13118,7 @@ class stop_server_result(object):
 
 all_structs.append(stop_server_result)
 stop_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -14284,17 +14146,14 @@ delete_image_args.thrift_spec = (
 class delete_image_result(object):
     """
     Attributes:
-     - success
      - e
 
     """
 
     def __init__(
         self,
-        success=None,
         e=None,
     ):
-        self.success = success
         self.e = e
 
     def read(self, iprot):
@@ -14310,12 +14169,7 @@ class delete_image_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ImageNotFoundException.read(iprot)
                 else:
@@ -14332,10 +14186,6 @@ class delete_image_result(object):
             )
             return
         oprot.writeStructBegin("delete_image_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -14359,13 +14209,7 @@ class delete_image_result(object):
 
 all_structs.append(delete_image_result)
 delete_image_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -14491,7 +14335,6 @@ detach_volume_args.thrift_spec = (
 class detach_volume_result(object):
     """
     Attributes:
-     - success
      - e
      - c
      - v
@@ -14500,12 +14343,10 @@ class detach_volume_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
         v=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
         self.v = v
@@ -14523,12 +14364,7 @@ class detach_volume_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -14555,10 +14391,6 @@ class detach_volume_result(object):
             )
             return
         oprot.writeStructBegin("detach_volume_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -14590,13 +14422,7 @@ class detach_volume_result(object):
 
 all_structs.append(detach_volume_result)
 detach_volume_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -14709,7 +14535,6 @@ delete_volume_args.thrift_spec = (
 class delete_volume_result(object):
     """
     Attributes:
-     - success
      - c
      - v
 
@@ -14717,11 +14542,9 @@ class delete_volume_result(object):
 
     def __init__(
         self,
-        success=None,
         c=None,
         v=None,
     ):
-        self.success = success
         self.c = c
         self.v = v
 
@@ -14738,12 +14561,7 @@ class delete_volume_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.c = OpenStackConflictException.read(iprot)
                 else:
@@ -14765,10 +14583,6 @@ class delete_volume_result(object):
             )
             return
         oprot.writeStructBegin("delete_volume_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.c is not None:
             oprot.writeFieldBegin("c", TType.STRUCT, 1)
             self.c.write(oprot)
@@ -14796,13 +14610,7 @@ class delete_volume_result(object):
 
 all_structs.append(delete_volume_result)
 delete_volume_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -15337,7 +15145,6 @@ resume_server_args.thrift_spec = (
 class resume_server_result(object):
     """
     Attributes:
-     - success
      - e
      - c
 
@@ -15345,11 +15152,9 @@ class resume_server_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
 
@@ -15366,12 +15171,7 @@ class resume_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -15393,10 +15193,6 @@ class resume_server_result(object):
             )
             return
         oprot.writeStructBegin("resume_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -15424,13 +15220,7 @@ class resume_server_result(object):
 
 all_structs.append(resume_server_result)
 resume_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -15796,7 +15586,6 @@ reboot_hard_server_args.thrift_spec = (
 class reboot_hard_server_result(object):
     """
     Attributes:
-     - success
      - e
      - c
 
@@ -15804,11 +15593,9 @@ class reboot_hard_server_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
 
@@ -15825,12 +15612,7 @@ class reboot_hard_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -15852,10 +15634,6 @@ class reboot_hard_server_result(object):
             )
             return
         oprot.writeStructBegin("reboot_hard_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -15883,13 +15661,7 @@ class reboot_hard_server_result(object):
 
 all_structs.append(reboot_hard_server_result)
 reboot_hard_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
@@ -15995,7 +15767,6 @@ reboot_soft_server_args.thrift_spec = (
 class reboot_soft_server_result(object):
     """
     Attributes:
-     - success
      - e
      - c
 
@@ -16003,11 +15774,9 @@ class reboot_soft_server_result(object):
 
     def __init__(
         self,
-        success=None,
         e=None,
         c=None,
     ):
-        self.success = success
         self.e = e
         self.c = c
 
@@ -16024,12 +15793,7 @@ class reboot_soft_server_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 0:
-                if ftype == TType.BOOL:
-                    self.success = iprot.readBool()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 1:
+            if fid == 1:
                 if ftype == TType.STRUCT:
                     self.e = ServerNotFoundException.read(iprot)
                 else:
@@ -16051,10 +15815,6 @@ class reboot_soft_server_result(object):
             )
             return
         oprot.writeStructBegin("reboot_soft_server_result")
-        if self.success is not None:
-            oprot.writeFieldBegin("success", TType.BOOL, 0)
-            oprot.writeBool(self.success)
-            oprot.writeFieldEnd()
         if self.e is not None:
             oprot.writeFieldBegin("e", TType.STRUCT, 1)
             self.e.write(oprot)
@@ -16082,13 +15842,7 @@ class reboot_soft_server_result(object):
 
 all_structs.append(reboot_soft_server_result)
 reboot_soft_server_result.thrift_spec = (
-    (
-        0,
-        TType.BOOL,
-        "success",
-        None,
-        None,
-    ),  # 0
+    None,  # 0
     (
         1,
         TType.STRUCT,
