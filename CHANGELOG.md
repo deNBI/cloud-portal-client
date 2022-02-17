@@ -23,8 +23,8 @@
 
 #### Features
 
-* **Volume:** added resizing 
-* **mosh:**  playbook for installing mosh 
+* **Volume:** added resizing
+* **mosh:**  playbook for installing mosh
 
 ##  (2020-02-27)
 
@@ -206,7 +206,7 @@
 
 * **delete-vm:**
   *  deletes all security groups of server with the same name
-  
+
 ### Features
 
 * **bioconda:** init .bashrc and create alias for environment (#141)
@@ -283,6 +283,6 @@
 ### Features
 
 * **PR_TEMPLATE:**
-  * updated with changelog" 
+  * updated with changelog"
   * added comment checks
-* **pep:**  set line max length to 100 
+* **pep:**  set line max length to 100

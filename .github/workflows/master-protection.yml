@@ -20,5 +20,3 @@ jobs:
         run: |
           stringContain() { [ -z "$1" ] || { [ -z "${2##*$1*}" ] && [ -n "$2" ];};}
           if stringContain ${{github.head_ref}} 'staging' || stringContain ${{github.head_ref}} 'hotfix'; then  exit 0; else  exit 1; fi
-
-
