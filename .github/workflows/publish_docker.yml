@@ -34,5 +34,3 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: Dockerfile
           tags: ${{ steps.tag.outputs.TAG }}
-
-
