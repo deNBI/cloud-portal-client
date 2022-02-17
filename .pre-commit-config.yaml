@@ -32,7 +32,6 @@ repos:
       - id: autoflake
         args:
           - --in-place
-          - --remove-unused-variables
           - --remove-all-unused-imports
 
   - repo: https://github.com/PyCQA/flake8
