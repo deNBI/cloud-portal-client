@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import os
+
 from setuptools import find_packages, setup
 
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
@@ -18,7 +19,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     license="Apache License 2.0",
-    description="The Cloud Portal Client is a client written in Python which provides functions to create virtual machines in an OpenStack project..",
+    description="The Cloud Portal Client is a client written in Python "
+    "which provides functions to create virtual machines in an OpenStack project..",
     long_description=README,
     author="Sören Giller, David Weinholz",
     install_requires=requirements,
