@@ -400,13 +400,13 @@ class OpenStackConnector:
         self,
         openstack_id: str,
         name: str,
-        elixir_id: str,
+        username: str,
         base_tags: list[str],
         description: str,
     ) -> str:
 
         logger.info(
-            f"Create Snapshot from Instance {openstack_id} with name {name} for {elixir_id}"
+            f"Create Snapshot from Instance {openstack_id} with name {name} for {username}"
         )
 
         try:

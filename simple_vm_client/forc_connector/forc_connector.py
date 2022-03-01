@@ -84,7 +84,7 @@ class ForcConnector:
             else:
                 return [response.json()]
         except Timeout as e:
-            logger.info(msg="Get users for backend timed out. {0}".format(e))
+            logger.info(msg=f"Get users for backend timed out. {e}")
             return []
 
     def delete_user_from_backend(
@@ -107,13 +107,13 @@ class ForcConnector:
             data: dict[str, str] = response.json()
             return data
         except Timeout as e:
-            logger.info(msg="Delete user from backend timed out. {0}".format(e))
+            logger.info(msg=f"Delete user from backend timed out. {e}")
             return {"Error": "Timeout."}
         except Exception as e:
             logger.exception(e)
             raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
 
-    def delete_backend(self, backend_id: str) -> bool:
+    def delete_backend(self, backend_id: str) -> None:
         logger.info(f"Delete Backend {backend_id}")
         delete_url = f"{self.FORC_URL}/backends/{backend_id}"
         try:
@@ -137,13 +137,9 @@ class ForcConnector:
                         message=str(response.content), name_or_id=backend_id
                     )
 
-            elif response.status_code == 200:
-                return True
-            else:
-                return False
         except Timeout:
             logger.exception(msg="delete_backend timed out")
-            return False
+            raise DefaultException(message="delete_backend timed out")
 
     def add_user_to_backend(
         self, user_id: str, backend_id: str, owner: str
@@ -173,7 +169,7 @@ class ForcConnector:
                 raise BackendNotFoundException(message=str(e), name_or_id=backend_id)
             return data
         except Timeout as e:
-            logger.info(msg="add user to backend timed out. {0}".format(e))
+            logger.info(msg=f"add user to backend timed out. {e}")
             return {"Error": "Timeout."}
         except Exception as e:
             logger.exception(e)
@@ -230,7 +226,7 @@ class ForcConnector:
             return new_backend
 
         except Timeout as e:
-            logger.info(msg="create_backend timed out. {0}".format(e))
+            logger.info(msg=f"create_backend timed out. {e}")
             raise DefaultException(message=e)
 
         except Exception as e:
@@ -263,7 +259,7 @@ class ForcConnector:
                     )
                 return backends
         except Timeout as e:
-            logger.exception(msg="create_backend timed out. {0}".format(e))
+            logger.exception(msg=f"create_backend timed out. {e}")
             raise DefaultException(message=str(e))
 
     def get_backends_by_template(self, template: str) -> list[Backend]:
@@ -293,7 +289,7 @@ class ForcConnector:
                     )
                 return backends
         except Timeout as e:
-            logger.exception(msg="create_backend timed out. {0}".format(e))
+            logger.exception(msg=f"create_backend timed out. {e}")
             raise DefaultException(message=str(e))
 
     def get_backend_by_id(self, id: str) -> Backend:
@@ -320,7 +316,7 @@ class ForcConnector:
                 template_version=data["template_version"],
             )
         except Timeout as e:
-            logger.exception(msg="create_backend timed out. {0}".format(e))
+            logger.exception(msg=f"create_backend timed out. {e}")
             raise DefaultException(message=str(e))
 
     def get_backends_by_owner(self, owner: str) -> list[Backend]:
@@ -350,7 +346,7 @@ class ForcConnector:
                     )
                 return backends
         except Timeout as e:
-            logger.exception(msg="create_backend timed out. {0}".format(e))
+            logger.exception(msg=f"create_backend timed out. {e}")
             raise DefaultException(message=str(e))
 
     def has_forc(self) -> bool:

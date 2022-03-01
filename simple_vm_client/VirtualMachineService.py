@@ -238,12 +238,12 @@ class Iface(object):
     def get_forc_url(self):
         pass
 
-    def create_backend(self, elixir_id, user_key_url, template, upstream_url):
+    def create_backend(self, username, user_key_url, template, upstream_url):
         """
         Create a backend
 
         Parameters:
-         - elixir_id
+         - username
          - user_key_url
          - template
          - upstream_url
@@ -256,12 +256,12 @@ class Iface(object):
 
         """
 
-    def get_backends_by_owner(self, elixir_id):
+    def get_backends_by_owner(self, username):
         """
         Get all backends by owner
 
         Parameters:
-         - elixir_id
+         - username
 
         """
 
@@ -428,7 +428,7 @@ class Iface(object):
 
         """
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
+    def create_snapshot(self, openstack_id, name, username, base_tags, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -437,7 +437,7 @@ class Iface(object):
         Parameters:
          - openstack_id: Id of the server
          - name: Name of new Snapshot
-         - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+         - username: unique username of the user who requested creation of Snapshot
          - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
          - description: Description of the new snapshot
 
@@ -1543,24 +1543,24 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "get_forc_url failed: unknown result"
         )
 
-    def create_backend(self, elixir_id, user_key_url, template, upstream_url):
+    def create_backend(self, username, user_key_url, template, upstream_url):
         """
         Create a backend
 
         Parameters:
-         - elixir_id
+         - username
          - user_key_url
          - template
          - upstream_url
 
         """
-        self.send_create_backend(elixir_id, user_key_url, template, upstream_url)
+        self.send_create_backend(username, user_key_url, template, upstream_url)
         return self.recv_create_backend()
 
-    def send_create_backend(self, elixir_id, user_key_url, template, upstream_url):
+    def send_create_backend(self, username, user_key_url, template, upstream_url):
         self._oprot.writeMessageBegin("create_backend", TMessageType.CALL, self._seqid)
         args = create_backend_args()
-        args.elixir_id = elixir_id
+        args.username = username
         args.user_key_url = user_key_url
         args.template = template
         args.upstream_url = upstream_url
@@ -1624,23 +1624,23 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "get_backends failed: unknown result"
         )
 
-    def get_backends_by_owner(self, elixir_id):
+    def get_backends_by_owner(self, username):
         """
         Get all backends by owner
 
         Parameters:
-         - elixir_id
+         - username
 
         """
-        self.send_get_backends_by_owner(elixir_id)
+        self.send_get_backends_by_owner(username)
         return self.recv_get_backends_by_owner()
 
-    def send_get_backends_by_owner(self, elixir_id):
+    def send_get_backends_by_owner(self, username):
         self._oprot.writeMessageBegin(
             "get_backends_by_owner", TMessageType.CALL, self._seqid
         )
         args = get_backends_by_owner_args()
-        args.elixir_id = elixir_id
+        args.username = username
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -2352,7 +2352,7 @@ class Client(Iface):
             raise result.c
         return
 
-    def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
+    def create_snapshot(self, openstack_id, name, username, base_tags, description):
         """
         Create Snapshot.
         Returns: Id of new Snapshot
@@ -2361,22 +2361,22 @@ class Client(Iface):
         Parameters:
          - openstack_id: Id of the server
          - name: Name of new Snapshot
-         - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+         - username: unique username of the user who requested creation of Snapshot
          - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
          - description: Description of the new snapshot
 
         """
-        self.send_create_snapshot(openstack_id, name, elixir_id, base_tags, description)
+        self.send_create_snapshot(openstack_id, name, username, base_tags, description)
         return self.recv_create_snapshot()
 
     def send_create_snapshot(
-        self, openstack_id, name, elixir_id, base_tags, description
+        self, openstack_id, name, username, base_tags, description
     ):
         self._oprot.writeMessageBegin("create_snapshot", TMessageType.CALL, self._seqid)
         args = create_snapshot_args()
         args.openstack_id = openstack_id
         args.name = name
-        args.elixir_id = elixir_id
+        args.username = username
         args.base_tags = base_tags
         args.description = description
         args.write(self._oprot)
@@ -3672,7 +3672,7 @@ class Processor(Iface, TProcessor):
         result = create_backend_result()
         try:
             result.success = self._handler.create_backend(
-                args.elixir_id, args.user_key_url, args.template, args.upstream_url
+                args.username, args.user_key_url, args.template, args.upstream_url
             )
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
@@ -3732,7 +3732,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = get_backends_by_owner_result()
         try:
-            result.success = self._handler.get_backends_by_owner(args.elixir_id)
+            result.success = self._handler.get_backends_by_owner(args.username)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -4221,7 +4221,7 @@ class Processor(Iface, TProcessor):
             result.success = self._handler.create_snapshot(
                 args.openstack_id,
                 args.name,
-                args.elixir_id,
+                args.username,
                 args.base_tags,
                 args.description,
             )
@@ -9239,7 +9239,7 @@ get_forc_url_result.thrift_spec = (
 class create_backend_args(object):
     """
     Attributes:
-     - elixir_id
+     - username
      - user_key_url
      - template
      - upstream_url
@@ -9248,12 +9248,12 @@ class create_backend_args(object):
 
     def __init__(
         self,
-        elixir_id=None,
+        username=None,
         user_key_url=None,
         template=None,
         upstream_url=None,
     ):
-        self.elixir_id = elixir_id
+        self.username = username
         self.user_key_url = user_key_url
         self.template = template
         self.upstream_url = upstream_url
@@ -9273,7 +9273,7 @@ class create_backend_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.elixir_id = (
+                    self.username = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -9319,12 +9319,12 @@ class create_backend_args(object):
             )
             return
         oprot.writeStructBegin("create_backend_args")
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin("elixir_id", TType.STRING, 1)
+        if self.username is not None:
+            oprot.writeFieldBegin("username", TType.STRING, 1)
             oprot.writeString(
-                self.elixir_id.encode("utf-8")
+                self.username.encode("utf-8")
                 if sys.version_info[0] == 2
-                else self.elixir_id
+                else self.username
             )
             oprot.writeFieldEnd()
         if self.user_key_url is not None:
@@ -9374,7 +9374,7 @@ create_backend_args.thrift_spec = (
     (
         1,
         TType.STRING,
-        "elixir_id",
+        "username",
         "UTF8",
         None,
     ),  # 1
@@ -9671,15 +9671,15 @@ get_backends_result.thrift_spec = (
 class get_backends_by_owner_args(object):
     """
     Attributes:
-     - elixir_id
+     - username
 
     """
 
     def __init__(
         self,
-        elixir_id=None,
+        username=None,
     ):
-        self.elixir_id = elixir_id
+        self.username = username
 
     def read(self, iprot):
         if (
@@ -9696,7 +9696,7 @@ class get_backends_by_owner_args(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.elixir_id = (
+                    self.username = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -9715,12 +9715,12 @@ class get_backends_by_owner_args(object):
             )
             return
         oprot.writeStructBegin("get_backends_by_owner_args")
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin("elixir_id", TType.STRING, 1)
+        if self.username is not None:
+            oprot.writeFieldBegin("username", TType.STRING, 1)
             oprot.writeString(
-                self.elixir_id.encode("utf-8")
+                self.username.encode("utf-8")
                 if sys.version_info[0] == 2
-                else self.elixir_id
+                else self.username
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -9746,7 +9746,7 @@ get_backends_by_owner_args.thrift_spec = (
     (
         1,
         TType.STRING,
-        "elixir_id",
+        "username",
         "UTF8",
         None,
     ),  # 1
@@ -13141,7 +13141,7 @@ class create_snapshot_args(object):
     Attributes:
      - openstack_id: Id of the server
      - name: Name of new Snapshot
-     - elixir_id: Elixir-Id of the user who requested creation of Snapshot
+     - username: unique username of the user who requested creation of Snapshot
      - base_tags: Tags with which the servers image is also tagged ( for connection information at the webapp)
      - description: Description of the new snapshot
 
@@ -13151,13 +13151,13 @@ class create_snapshot_args(object):
         self,
         openstack_id=None,
         name=None,
-        elixir_id=None,
+        username=None,
         base_tags=None,
         description=None,
     ):
         self.openstack_id = openstack_id
         self.name = name
-        self.elixir_id = elixir_id
+        self.username = username
         self.base_tags = base_tags
         self.description = description
 
@@ -13194,7 +13194,7 @@ class create_snapshot_args(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.elixir_id = (
+                    self.username = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -13250,12 +13250,12 @@ class create_snapshot_args(object):
                 self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
             )
             oprot.writeFieldEnd()
-        if self.elixir_id is not None:
-            oprot.writeFieldBegin("elixir_id", TType.STRING, 3)
+        if self.username is not None:
+            oprot.writeFieldBegin("username", TType.STRING, 3)
             oprot.writeString(
-                self.elixir_id.encode("utf-8")
+                self.username.encode("utf-8")
                 if sys.version_info[0] == 2
-                else self.elixir_id
+                else self.username
             )
             oprot.writeFieldEnd()
         if self.base_tags is not None:
@@ -13312,7 +13312,7 @@ create_snapshot_args.thrift_spec = (
     (
         3,
         TType.STRING,
-        "elixir_id",
+        "username",
         "UTF8",
         None,
     ),  # 3

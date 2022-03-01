@@ -166,14 +166,14 @@ class VirtualMachineHandler(Iface):
         self,
         openstack_id: str,
         name: str,
-        elixir_id: str,
+        username: str,
         base_tags: list[str],
         description: str,
     ) -> str:
         return self.openstack_connector.create_snapshot(
             openstack_id=openstack_id,
             name=name,
-            elixir_id=elixir_id,
+            username=username,
             base_tags=base_tags,
             description=description,
         )
@@ -211,10 +211,10 @@ class VirtualMachineHandler(Iface):
         return self.openstack_connector.get_limits()
 
     def create_backend(
-        self, elixir_id: str, user_key_url: str, template: str, upstream_url: str
+        self, username: str, user_key_url: str, template: str, upstream_url: str
     ) -> Backend:
         return self.forc_connector.create_backend(
-            owner=elixir_id,
+            owner=username,
             user_key_url=user_key_url,
             template=template,
             upstream_url=upstream_url,
@@ -226,8 +226,8 @@ class VirtualMachineHandler(Iface):
     def get_backends(self) -> list[Backend]:
         return self.forc_connector.get_backends()
 
-    def get_backends_by_owner(self, elixir_id: str) -> list[Backend]:
-        return self.forc_connector.get_backends_by_owner(owner=elixir_id)
+    def get_backends_by_owner(self, username: str) -> list[Backend]:
+        return self.forc_connector.get_backends_by_owner(owner=username)
 
     def get_backends_by_template(self, template: str) -> list[Backend]:
         return self.forc_connector.get_backends_by_template(template=template)

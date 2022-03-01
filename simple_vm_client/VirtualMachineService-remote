@@ -59,10 +59,10 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  bool has_forc()")
     print("  string get_forc_url()")
     print(
-        "  Backend create_backend(string elixir_id, string user_key_url, string template, string upstream_url)"
+        "  Backend create_backend(string username, string user_key_url, string template, string upstream_url)"
     )
     print("   get_backends()")
-    print("   get_backends_by_owner(string elixir_id)")
+    print("   get_backends_by_owner(string username)")
     print("   get_backends_by_template(string template)")
     print("  Backend get_backend_by_id(i64 id)")
     print("  void delete_backend(i64 id)")
@@ -86,7 +86,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  VM get_server(string openstack_id)")
     print("  void stop_server(string openstack_id)")
     print(
-        "  string create_snapshot(string openstack_id, string name, string elixir_id,  base_tags, string description)"
+        "  string create_snapshot(string openstack_id, string name, string username,  base_tags, string description)"
     )
     print("   get_limits()")
     print(

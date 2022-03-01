@@ -407,7 +407,7 @@ service VirtualMachineService {
 
     /** Create a backend*/
     Backend create_backend(
-    1:string elixir_id,
+    1:string username,
     2:string user_key_url,
     3:string template,
     4:string upstream_url
@@ -418,7 +418,7 @@ service VirtualMachineService {
 
     /** Get all backends by owner*/
     list<Backend> get_backends_by_owner(
-    1:string elixir_id
+    1:string username
     )  throws(1:DefaultException d)
 
     /** Get all backends by template*/
@@ -527,8 +527,8 @@ service VirtualMachineService {
      /** Name of new Snapshot */
      2:string name,
 
-     /** Elixir-Id of the user who requested creation of Snapshot */
-     3: string elixir_id,
+     /** unique username of the user who requested creation of Snapshot */
+     3: string username,
 
      /** Tags with which the servers image is also tagged ( for connection information at the webapp) */
      4: list<string> base_tags,
