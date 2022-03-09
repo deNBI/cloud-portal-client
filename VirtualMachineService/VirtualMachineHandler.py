@@ -646,7 +646,7 @@ class VirtualMachineHandler(Iface):
             )
             return flav
 
-    def get_server(self, openstack_id:str) -> VM:
+    def get_server(self, openstack_id: str) -> VM:
         """
         Get a server.
 
@@ -657,12 +657,11 @@ class VirtualMachineHandler(Iface):
         fixed_ip = None
         LOG.info(f"Get Server {openstack_id}")
         try:
-            server:Server = self.conn.get_server_by_id(openstack_id)
+            server: Server = self.conn.get_server_by_id(openstack_id)
             return self.openstack_server_to_thrift_server(server=server)
         except Exception as e:
             LOG.exception(f"No Server found {openstack_id} | Error {e}")
             return VM(status=self.NOT_FOUND)
-
 
     def get_servers_by_ids(self, ids):
         servers = []
@@ -1690,7 +1689,7 @@ class VirtualMachineHandler(Iface):
             )
             return {"error": e}
 
-    def check_server_status(self, openstack_id:str) ->VM:
+    def check_server_status(self, openstack_id: str) -> VM:
         """
         Check status of server.
 
@@ -1767,7 +1766,7 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Check Status VM {openstack_id} error: {e}")
             return VM(status=self.ERROR)
 
-    def openstack_server_to_thrift_server(self, server:Server ) -> VM:
+    def openstack_server_to_thrift_server(self, server: Server) -> VM:
         LOG.info(f"Convert server {server} to thrift server")
         fixed_ip = None
         floating_ip = None
@@ -1781,7 +1780,6 @@ class VirtualMachineHandler(Iface):
                 ]
             except Exception as e:
                 LOG.exception(f"Could not found volume {volume_id}: {e}")
-
 
         flav = self.openstack_flav_to_thrift_flav(server["flavor"])
 
