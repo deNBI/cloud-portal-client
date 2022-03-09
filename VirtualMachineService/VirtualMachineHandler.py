@@ -66,6 +66,7 @@ from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
 from openstack.exceptions import ConflictException
+from openstack.compute.v2.server import Server
 from oslo_utils import encodeutils
 from requests.exceptions import Timeout
 
@@ -645,7 +646,7 @@ class VirtualMachineHandler(Iface):
             )
             return flav
 
-    def get_server(self, openstack_id):
+    def get_server(self, openstack_id:str) -> VM:
         """
         Get a server.
 
@@ -656,79 +657,12 @@ class VirtualMachineHandler(Iface):
         fixed_ip = None
         LOG.info(f"Get Server {openstack_id}")
         try:
-            server = self.conn.compute.get_server(openstack_id)
+            server:Server = self.conn.get_server_by_id(openstack_id)
+            return self.openstack_server_to_thrift_server(server=server)
         except Exception as e:
             LOG.exception(f"No Server found {openstack_id} | Error {e}")
             return VM(status=self.NOT_FOUND)
 
-        serv = server.to_dict()
-
-        if serv["attached_volumes"]:
-            volume_id = serv["attached_volumes"][0]["id"]
-            diskspace = self.conn.block_storage.get_volume(volume_id).to_dict()["size"]
-        else:
-
-            diskspace = 0
-        if serv["launched_at"]:
-            dt = datetime.datetime.strptime(
-                serv["launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
-            )
-            timestamp = time.mktime(dt.timetuple())
-        else:
-            timestamp = None
-
-        flav = self.openstack_flav_to_thrift_flav(serv["flavor"])
-
-        try:
-            img = self.get_Image_with_Tag(serv["image"]["id"])
-        except Exception as e:
-            LOG.exception(e)
-            img = None
-        for values in server.addresses.values():
-            for address in values:
-
-                if address["OS-EXT-IPS:type"] == "floating":
-                    floating_ip = address["addr"]
-                elif address["OS-EXT-IPS:type"] == "fixed":
-                    fixed_ip = address["addr"]
-        task = serv["task_state"]
-        if task:
-            status = task.upper().replace("-", "_")
-            LOG.info(f"{openstack_id} Task: {task}")
-
-        else:
-            status = serv["status"]
-
-        if floating_ip:
-            server = VM(
-                flav=flav,
-                img=img,
-                status=status,
-                metadata=serv["metadata"],
-                project_id=serv["project_id"],
-                keyname=serv["key_name"],
-                openstack_id=serv["id"],
-                name=serv["name"],
-                created_at=str(timestamp),
-                floating_ip=floating_ip,
-                fixed_ip=fixed_ip,
-                diskspace=diskspace,
-            )
-        else:
-            server = VM(
-                flav=flav,
-                img=img,
-                status=status,
-                metadata=serv["metadata"],
-                project_id=serv["project_id"],
-                keyname=serv["key_name"],
-                openstack_id=serv["id"],
-                name=serv["name"],
-                created_at=str(timestamp),
-                fixed_ip=fixed_ip,
-                diskspace=diskspace,
-            )
-        return server
 
     def get_servers_by_ids(self, ids):
         servers = []
@@ -1756,7 +1690,7 @@ class VirtualMachineHandler(Iface):
             )
             return {"error": e}
 
-    def check_server_status(self, openstack_id):
+    def check_server_status(self, openstack_id:str) ->VM:
         """
         Check status of server.
 
@@ -1833,7 +1767,7 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Check Status VM {openstack_id} error: {e}")
             return VM(status=self.ERROR)
 
-    def openstack_server_to_thrift_server(self, server):
+    def openstack_server_to_thrift_server(self, server:Server ) -> VM:
         LOG.info(f"Convert server {server} to thrift server")
         fixed_ip = None
         floating_ip = None
@@ -1848,13 +1782,7 @@ class VirtualMachineHandler(Iface):
             except Exception as e:
                 LOG.exception(f"Could not found volume {volume_id}: {e}")
 
-        if server["OS-SRV-USG:launched_at"]:
-            dt = datetime.datetime.strptime(
-                server["OS-SRV-USG:launched_at"][:-7], "%Y-%m-%dT%H:%M:%S"
-            )
-            timestamp = time.mktime(dt.timetuple())
-        else:
-            timestamp = None
+
         flav = self.openstack_flav_to_thrift_flav(server["flavor"])
 
         try:
@@ -1869,17 +1797,23 @@ class VirtualMachineHandler(Iface):
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
                     fixed_ip = address["addr"]
+        task = server.task_state
+        if task:
+            status = task.upper().replace("-", "_")
+            LOG.info(f"{server.id} Task: {task}")
 
+        else:
+            status = server.status
         server = VM(
             flav=flav,
             img=img,
-            status=server["status"],
-            metadata=server["metadata"],
-            project_id=server["project_id"],
-            keyname=server["key_name"],
-            openstack_id=server["id"],
-            name=server["name"],
-            created_at=str(timestamp),
+            status=status,
+            metadata=server.metadata,
+            project_id=server.project_id,
+            keyname=server.key_name,
+            openstack_id=server.id,
+            name=server.name,
+            created_at=server.created_at,
             fixed_ip=fixed_ip,
             floating_ip=floating_ip,
             diskspace=diskspace,
