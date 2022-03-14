@@ -8,7 +8,7 @@ import redis
 import ruamel.yaml
 from util.logger import setup_custom_logger
 
-BIOCONDA = "bioconda"
+CONDA = "conda"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
@@ -24,6 +24,7 @@ class Playbook(object):
         ip: str,
         port: int,
         playbooks_information: dict[str, dict[str, str]],
+        conda_packages: CondaPackages,
         osi_private_key: str,
         public_key: str,
         pool: redis.ConnectionPool,
@@ -117,9 +118,50 @@ class Playbook(object):
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
+    def copy_and_init_conda_packages(self) -> None:
+        site_specific_yml = "/{0}{1}.yml".format(CONDA, "-" + self.cloud_site)
+        playbook_name_local = CONDA
+        if os.path.isfile(self.playbooks_dir + site_specific_yml):
+            playbook_name_local = CONDA + "-" + self.cloud_site
+        playbook_yml = "/{0}.yml".format(playbook_name_local)
+        playbook_var_yml = "/{0}_vars_file.yml".format(CONDA)
+        try:
+            shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
+            try:
+                shutil.copy(self.playbooks_dir + playbook_var_yml, self.directory.name)
+                with open(
+                        self.directory.name + playbook_var_yml, mode="r"
+                ) as variables:
+                    data = self.yaml_exec.load(variables)
+                    if k == "packages":
+                        p_array = []
+                        p_dict = {}
+                        for p in (v.strip('"')).split():
+                            p_array.append(p.split("="))
+                        for p_l in p_array:
+                            p_dict.update(
+                                {p_l[0]: {"version": p_l[1], "build": p_l[2]}}
+                            )
+                        data[playbook_name + "_tools"][k] = p_dict
+                with open(
+                        self.directory.name + playbook_var_yml, mode="w"
+                ) as variables:
+                    self.yaml_exec.dump(data, variables)
+                self.add_to_playbook_lists(playbook_name_local, CONDA)
+            except shutil.Error as e:
+                logger.exception(e)
+                self.add_tasks_only(playbook_name_local)
+            except IOError as e:
+                logger.exception(e)
+                self.add_tasks_only(playbook_name_local)
+        except shutil.Error as e:
+            logger.exception(e)
+        except IOError as e:
+            logger.exception(e)
+
     def copy_and_init(self, playbook_name: str, playbook_vars: dict[str, str]) -> None:
         def load_vars() -> None:
-            if playbook_name == BIOCONDA:
+            if playbook_name == CONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
                         p_array = []

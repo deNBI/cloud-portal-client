@@ -14,6 +14,14 @@ struct Backend {
     5: string template_version
 }
 
+struct CondaPackage{
+1:optional string build,
+2:optional string build_number,
+3:optional string name,
+4:optional string version,
+5:optional string home
+}
+
 struct ClusterInfo {
 1:optional string launch_date,
 2:optional string group_id,
@@ -390,8 +398,9 @@ service VirtualMachineService {
     /** Create and deploy an anaconda ansible playbook*/
     int create_and_deploy_playbook(
     1:string public_key,
-    2:map<string, map<string,string>> playbooks_information
-    3:string openstack_id
+    2:map<string, map<string,string>> playbooks_information,
+    3:list<CondaPackage> conda_packages,
+    4:string openstack_id
     ) throws (1:ServerNotFoundException s)
 
     /** Get the logs from a playbook run*/
