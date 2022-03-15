@@ -17,8 +17,6 @@ ALL_TEMPLATES = [BIOCONDA]
 logger = setup_custom_logger(__name__)
 FORC_VERSIONS = "forc_versions"
 FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
-RE_BACKEND_URL = "https://proxy-dev.bi.denbi.de:5000"
-GITHUB_PLAYBOOKS_REPO = "https://api.github.com/repos/deNBI/resenvs/contents/"
 PORT = "port"
 SECURITYGROUP_NAME = "securitygroup_name"
 SECURITYGROUP_DESCRIPTION = "securitygroup_description"
@@ -179,6 +177,7 @@ class Template(object):
                         template_name = loaded_metadata[TEMPLATE_NAME]
                         if loaded_metadata["needs_forc_support"]:
                             if template_name in list(self._forc_allowed.keys()):
+
                                 research_environment_template = (
                                     ResearchEnvironmentTemplate(
                                         template_name=loaded_metadata["template_name"],
@@ -196,6 +195,17 @@ class Template(object):
                                         ],
                                     )
                                 )
+                                for (
+                                    k,
+                                    v,
+                                ) in (
+                                    research_environment_template.information_for_display.items()
+                                ):
+                                    research_environment_template.information_for_display[
+                                        k
+                                    ] = str(
+                                        v
+                                    )
                                 templates_metadata.append(research_environment_template)
                                 if template_name not in self._forc_allowed:
                                     ALL_TEMPLATES.append(template_name)
@@ -219,6 +229,15 @@ class Template(object):
                                     "information_for_display"
                                 ],
                             )
+                            for (
+                                k,
+                                v,
+                            ) in (
+                                research_environment_template.information_for_display.items()
+                            ):
+                                research_environment_template.information_for_display[
+                                    k
+                                ] = str(v)
                             templates_metadata.append(research_environment_template)
                             if template_name not in self._forc_allowed:
                                 ALL_TEMPLATES.append(template_name)
