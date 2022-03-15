@@ -1,9 +1,9 @@
 import logging
+import os
 import shlex
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-import os
 
 import redis
 import ruamel.yaml
@@ -154,12 +154,12 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
-        site_specific_yml = "/{0}{1}.yml".format(playbook_name, "-" + self.cloud_site)
+        site_specific_yml = f"/{playbook_name}{'-' + self.cloud_site}.yml"
         playbook_name_local = playbook_name
         if os.path.isfile(self.playbooks_dir + site_specific_yml):
             playbook_name_local = playbook_name + "-" + self.cloud_site
-        playbook_yml = "/{0}.yml".format(playbook_name_local)
-        playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)
+        playbook_yml = f"/{playbook_name_local}.yml"
+        playbook_var_yml = f"/{playbook_name}_vars_file.yml"
         try:
             shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
             try:
@@ -189,7 +189,7 @@ class Playbook(object):
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name_local),
+                name=f"Running {playbook_name_local} tasks",
                 import_tasks=playbook_name_local + ".yml",
             )
         )
@@ -205,7 +205,7 @@ class Playbook(object):
     def add_tasks_only(self, playbook_name):
         self.tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -214,7 +214,7 @@ class Playbook(object):
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.always_tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -222,7 +222,7 @@ class Playbook(object):
     def add_always_tasks_only(self, playbook_name):
         self.always_tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -243,20 +243,14 @@ class Playbook(object):
     def check_status(self, openstack_id):
         done = self.process.poll()
         if done is None:
-            LOG.info(
-                "Playbook for (openstack_id) {0} still in progress.".format(
-                    openstack_id
-                )
-            )
+            LOG.info(f"Playbook for (openstack_id) {openstack_id} still in progress.")
         elif done != 0:
-            LOG.info("Playbook for (openstack_id) {0} has failed.".format(openstack_id))
+            LOG.info(f"Playbook for (openstack_id) {openstack_id} has failed.")
             self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
             self.returncode = self.process.returncode
             self.process.wait()
         else:
-            LOG.info(
-                "Playbook for (openstack_id) {0} is successful.".format(openstack_id)
-            )
+            LOG.info(f"Playbook for (openstack_id) {openstack_id} is successful.")
             self.redis.hset(openstack_id, "status", self.ACTIVE)
             self.returncode = self.process.returncode
             self.process.wait()
@@ -281,5 +275,5 @@ class Playbook(object):
         self.process.terminate()
         rc, stdout, stderr = self.get_logs()
         logs_to_save = {"returncode": rc, "stdout": stdout, "stderr": stderr}
-        self.redis.hmset("pb_logs_{0}".format(openstack_id), logs_to_save)
+        self.redis.hmset(f"pb_logs_{openstack_id}", logs_to_save)
         self.cleanup(openstack_id)

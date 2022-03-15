@@ -32,7 +32,7 @@ function check_service {
 			  for ((n=1; n <=254; n++))
 				          {
 					   SSH_PORT=$((30000+$n))
-					  
+
 					   echo $n
 
 				           iptables -t nat -A PREROUTING -i ens3 -p tcp -m tcp --dport ${SSH_PORT} -j DNAT --to-destination ${LOCALNET}.${n}:22
