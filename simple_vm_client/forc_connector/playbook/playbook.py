@@ -6,9 +6,11 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 
 import redis
 import ruamel.yaml
+from ttypes import CondaPackage
 from util.logger import setup_custom_logger
+from util.state_enums import VmTaskStates
 
-CONDA = "conda"
+BIOCONDA = "bioconda"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
@@ -16,21 +18,17 @@ logger = setup_custom_logger(__name__)
 
 
 class Playbook(object):
-    ACTIVE = "ACTIVE"
-    PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
-
     def __init__(
         self,
         ip: str,
         port: int,
-        playbooks_information: dict[str, dict[str, str]],
-        conda_packages: CondaPackages,
+        # playbooks_information: dict[str, dict[str, str]],
+        conda_packages: list[CondaPackage],
         osi_private_key: str,
         public_key: str,
         pool: redis.ConnectionPool,
         loaded_metadata_keys: list[str],
         cloud_site: str,
-        playbooks_dir: str,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
         self.cloud_site: str = cloud_site
@@ -39,16 +37,18 @@ class Playbook(object):
         self.vars_files: list[str] = []  # _vars_file.yml to read
         self.tasks: list[dict[str, str]] = []  # task list
         self.always_tasks: list[dict[str, str]] = []
+        self.conda_packages = conda_packages
         self.process: subprocess.Popen = None  # type: ignore
         self.returncode: int = -1
         self.stdout: str = ""
         self.stderr: str = ""
         # init temporary directories and mandatory generic files
-        self.ancon_dir: str = os.path.dirname(
-            os.path.realpath(__file__)
-        )  # path to this directory
-        self.playbooks_dir: str = playbooks_dir
-        self.directory: TemporaryDirectory = TemporaryDirectory(dir=self.ancon_dir)
+        from forc_connector.template.template import Template
+
+        self.playbooks_dir: str = Template.get_playbook_dir()
+        self.directory: TemporaryDirectory = TemporaryDirectory(
+            dir=f"{self.playbooks_dir}"
+        )
         self.private_key = NamedTemporaryFile(
             mode="w+", dir=self.directory.name, delete=False, prefix="private_key_"
         )
@@ -64,7 +64,7 @@ class Playbook(object):
 
         # create the custom playbook and save its name
         self.playbook_exec_name: str = "generic_playbook.yml"
-        self.copy_playbooks_and_init(playbooks_information, public_key)
+        self.copy_playbooks_and_init(public_key)
 
         # create inventory
         self.inventory = NamedTemporaryFile(
@@ -79,12 +79,12 @@ class Playbook(object):
         self.inventory.write(inventory_string)
         self.inventory.close()
 
-    def copy_playbooks_and_init(
-        self, playbooks_information: dict[str, dict[str, str]], public_key: str
-    ) -> None:
+    def copy_playbooks_and_init(self, public_key: str) -> None:
         # go through every wanted playbook
-        for k, v in playbooks_information.items():
-            self.copy_and_init(k, v)
+        # start with conda packages
+        self.copy_and_init_conda_packages()
+        # for k, v in playbooks_information.items():
+        #    self.copy_and_init(k, v)
 
         # init yml to change public keys as last task
         shutil.copy(self.playbooks_dir + "/change_key.yml", self.directory.name)
@@ -119,35 +119,37 @@ class Playbook(object):
             self.yaml_exec.dump(data_gp, generic_playbook)
 
     def copy_and_init_conda_packages(self) -> None:
-        site_specific_yml = "/{0}{1}.yml".format(CONDA, "-" + self.cloud_site)
-        playbook_name_local = CONDA
+        site_specific_yml = f"/{BIOCONDA}{'-' + self.cloud_site}.yml"
+        playbook_name_local = BIOCONDA
         if os.path.isfile(self.playbooks_dir + site_specific_yml):
-            playbook_name_local = CONDA + "-" + self.cloud_site
-        playbook_yml = "/{0}.yml".format(playbook_name_local)
-        playbook_var_yml = "/{0}_vars_file.yml".format(CONDA)
+            playbook_name_local = BIOCONDA + "-" + self.cloud_site
+        playbook_yml = f"/{playbook_name_local}.yml"
+        playbook_var_yml = f"/{BIOCONDA}_vars_file.yml"
         try:
             shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
             try:
                 shutil.copy(self.playbooks_dir + playbook_var_yml, self.directory.name)
                 with open(
-                        self.directory.name + playbook_var_yml, mode="r"
+                    self.directory.name + playbook_var_yml, mode="r"
                 ) as variables:
                     data = self.yaml_exec.load(variables)
-                    if k == "packages":
-                        p_array = []
-                        p_dict = {}
-                        for p in (v.strip('"')).split():
-                            p_array.append(p.split("="))
-                        for p_l in p_array:
-                            p_dict.update(
-                                {p_l[0]: {"version": p_l[1], "build": p_l[2]}}
-                            )
-                        data[playbook_name + "_tools"][k] = p_dict
-                with open(
-                        self.directory.name + playbook_var_yml, mode="w"
-                ) as variables:
-                    self.yaml_exec.dump(data, variables)
-                self.add_to_playbook_lists(playbook_name_local, CONDA)
+                    p_dict = {}
+
+                    for conda_package in self.conda_packages:
+                        p_dict.update(
+                            {
+                                conda_package.name: {
+                                    "version": conda_package.version,
+                                    "build": conda_package.build,
+                                }
+                            }
+                        )
+                        data[BIOCONDA + "_tools"]["packages"] = p_dict
+                        with open(
+                            self.directory.name + playbook_var_yml, mode="w"
+                        ) as variables:
+                            self.yaml_exec.dump(data, variables)
+                        self.add_to_playbook_lists(playbook_name_local, BIOCONDA)
             except shutil.Error as e:
                 logger.exception(e)
                 self.add_tasks_only(playbook_name_local)
@@ -161,7 +163,7 @@ class Playbook(object):
 
     def copy_and_init(self, playbook_name: str, playbook_vars: dict[str, str]) -> None:
         def load_vars() -> None:
-            if playbook_name == CONDA:
+            if playbook_name == BIOCONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
                         p_array = []
@@ -184,12 +186,12 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
-        site_specific_yml = "/{0}{1}.yml".format(playbook_name, "-" + self.cloud_site)
+        site_specific_yml = f"/{playbook_name}{'-' + self.cloud_site}.yml"
         playbook_name_local = playbook_name
         if os.path.isfile(self.playbooks_dir + site_specific_yml):
             playbook_name_local = playbook_name + "-" + self.cloud_site
-        playbook_yml = "/{0}.yml".format(playbook_name_local)
-        playbook_var_yml = "/{0}_vars_file.yml".format(playbook_name)
+        playbook_yml = f"/{playbook_name_local}.yml"
+        playbook_var_yml = f"/{playbook_name}_vars_file.yml"
         try:
             shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
             try:
@@ -221,7 +223,7 @@ class Playbook(object):
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name_local),
+                name=f"Running {playbook_name_local} tasks",
                 import_tasks=playbook_name_local + ".yml",
             )
         )
@@ -237,7 +239,7 @@ class Playbook(object):
     def add_tasks_only(self, playbook_name: str) -> None:
         self.tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -246,7 +248,7 @@ class Playbook(object):
         self.vars_files.append(playbook_name + "_vars_file.yml")
         self.always_tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -254,7 +256,7 @@ class Playbook(object):
     def add_always_tasks_only(self, playbook_name: str) -> None:
         self.always_tasks.append(
             dict(
-                name="Running {0} tasks".format(playbook_name),
+                name=f"Running {playbook_name} tasks",
                 import_tasks=playbook_name + ".yml",
             )
         )
@@ -277,23 +279,19 @@ class Playbook(object):
 
         if done is None:
             logger.info(
-                "Playbook for (openstack_id) {0} still in progress.".format(
-                    openstack_id
-                )
+                f"Playbook for (openstack_id) {openstack_id} still in progress."
             )
             return 3
         elif done != 0:
-            logger.info(
-                "Playbook for (openstack_id) {0} has failed.".format(openstack_id)
-            )
-            self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
+            logger.info(f"Playbook for (openstack_id) {openstack_id} has failed.")
+            self.redis.hset(openstack_id, "status", VmTaskStates.PLAYBOOK_FAILED.value)
             self.returncode = self.process.returncode
             self.process.wait()
         else:
-            logger.info(
-                "Playbook for (openstack_id) {0} is successful.".format(openstack_id)
+            logger.info(f"Playbook for (openstack_id) {openstack_id} is successful.")
+            self.redis.hset(
+                openstack_id, "status", VmTaskStates.PLAYBOOK_SUCCESSFUL.value
             )
-            self.redis.hset(openstack_id, "status", self.ACTIVE)
             self.returncode = self.process.returncode
             self.process.wait()
         return done
@@ -317,5 +315,5 @@ class Playbook(object):
         self.process.terminate()
         rc, stdout, stderr = self.get_logs()
         logs_to_save = {"returncode": rc, "stdout": stdout, "stderr": stderr}
-        self.redis.hset(name="pb_logs_{0}".format(openstack_id), mapping=logs_to_save)  # type: ignore
+        self.redis.hset(name=f"pb_logs_{openstack_id}", mapping=logs_to_save)  # type: ignore
         self.cleanup(openstack_id)

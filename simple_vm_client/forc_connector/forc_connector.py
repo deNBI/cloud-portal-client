@@ -8,6 +8,7 @@ from openstack.compute.v2.server import Server
 from requests import Timeout
 from ttypes import (
     BackendNotFoundException,
+    CondaPackage,
     DefaultException,
     PlaybookNotFoundException,
     PlaybookResult,
@@ -63,7 +64,6 @@ class ForcConnector:
         self.redis_connection = redis.Redis(
             connection_pool=self.redis_pool, charset="utf-8"
         )
-
         if self.redis_connection.ping():
             logger.info("Redis connection created!")
         else:
@@ -362,62 +362,71 @@ class ForcConnector:
         self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
 
     def get_playbook_logs(self, openstack_id: str) -> PlaybookResult:
-        logger.info(f"Get Playbook logs {openstack_id}")
+        logger.warning(f"Get Playbook logs {openstack_id}")
         if (
             self.redis_connection.exists(openstack_id) == 1
             and openstack_id in self._active_playbooks
         ):
-            # key_name = self.redis_connection.hget(openstack_id, "name").decode("utf-8")
-            playbook = self._active_playbooks.pop(openstack_id)
+            playbook = self._active_playbooks.get(openstack_id)
+            logger.warning(f"playbook {playbook}")
             if not playbook:
                 raise PlaybookNotFoundException(
                     message=f"No active Playbook found for {openstack_id}!",
                     name_or_id=openstack_id,
                 )
             status, stdout, stderr = playbook.get_logs()
-            logger.info(f" Playbook logs{openstack_id} status: {status}")
+            logger.warning(f" Playbook logs {openstack_id} status: {status}")
 
             playbook.cleanup(openstack_id)
-            # todo get outside
-            # self.delete_keypair(key_name=key_name)
+            self._active_playbooks.pop(openstack_id)
+
             return PlaybookResult(status=status, stdout=stdout, stderr=stderr)
         else:
-            return PlaybookResult(status=2, stdout="", stderr="")
+            raise PlaybookNotFoundException(
+                message=f"No active Playbook found for {openstack_id}!",
+                name_or_id=openstack_id,
+            )
 
     def set_vm_wait_for_playbook(
         self, openstack_id: str, private_key: str, name: str
     ) -> None:
-        logger.info(f"Set vm {openstack_id}: {VmTaskStates.PREPARE_PLAYBOOK_BUILD} ")
-        self.redis_connection.hst(
+        logger.info(
+            f"Set vm {openstack_id}: {VmTaskStates.PREPARE_PLAYBOOK_BUILD.value} "
+        )
+        self.redis_connection.hset(
             name=openstack_id,
-            mapper=dict(
-                key=private_key, name=name, status=VmTaskStates.PREPARE_PLAYBOOK_BUILD
+            mapping=dict(
+                key=private_key,
+                name=name,
+                status=VmTaskStates.PREPARE_PLAYBOOK_BUILD.value,
             ),
         )
 
     def get_playbook_status(self, server: Server) -> Server:
-        openstack_id = server.openstack_id
-        logger.info(f"Get VM {openstack_id} Playbook status")
+        openstack_id = server.id
 
         if self.redis_connection.exists(openstack_id) == 1:
+            logger.info(f"Get VM {openstack_id} Playbook status")
+
             if openstack_id in self._active_playbooks:
                 logger.info(self._active_playbooks)
                 playbook = self._active_playbooks[openstack_id]
-                logger.info(playbook)
-
                 playbook.check_status(openstack_id)
             status = self.redis_connection.hget(openstack_id, "status").decode("utf-8")
-            if status == VmTaskStates.PREPARE_PLAYBOOK_BUILD:
-                server.task_state = VmTaskStates.PREPARE_PLAYBOOK_BUILD
-                return server
-            elif status == VmTaskStates.BUILD_PLAYBOOK:
-                server.task_state = VmTaskStates.BUILD_PLAYBOOK
-                return server
-            elif status == VmTaskStates.PLAYBOOK_FAILED:
-                server.task_state = VmTaskStates.PLAYBOOK_FAILED
-                return server
-            else:
-                return server
+            logger.info(f"VM {openstack_id} Playbook status -> {status}")
+
+            # Server needs to have no task state(so port is not closed)
+            if (
+                status == VmTaskStates.PREPARE_PLAYBOOK_BUILD.value
+                and not server.task_state
+            ):
+                server.task_state = VmTaskStates.PREPARE_PLAYBOOK_BUILD.value
+            elif status == VmTaskStates.BUILD_PLAYBOOK.value:
+                server.task_state = VmTaskStates.BUILD_PLAYBOOK.value
+            elif status == VmTaskStates.PLAYBOOK_FAILED.value:
+                server.task_state = VmTaskStates.PLAYBOOK_FAILED.value
+            elif status == VmTaskStates.PLAYBOOK_SUCCESSFUL.value:
+                server.task_state = VmTaskStates.PLAYBOOK_SUCCESSFUL.value
         return server
 
     def get_metadata_by_research_environment(
@@ -441,7 +450,8 @@ class ForcConnector:
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: dict[str, dict[str, str]],
+        # playbooks_information: dict[str, dict[str, str]],
+        conda_packages: list[CondaPackage],
         openstack_id: str,
         port: int,
         ip: str,
@@ -453,17 +463,19 @@ class ForcConnector:
         playbook = Playbook(
             ip=ip,
             port=port,
-            playbooks_information=playbooks_information,
+            # playbooks_information=playbooks_information,
             osi_private_key=key,
             public_key=public_key,
             pool=self.redis_pool,
+            conda_packages=conda_packages,
             loaded_metadata_keys=list(
                 self.template.get_loaded_resenv_metadata().keys()
             ),
             cloud_site=cloud_site,
-            playbooks_dir=Template.get_playbook_dir(),
         )
-        self.redis_connection.hset(openstack_id, "status", VmTaskStates.BUILD_PLAYBOOK)
+        self.redis_connection.hset(
+            openstack_id, "status", VmTaskStates.BUILD_PLAYBOOK.value
+        )
         playbook.run_it()
         self._active_playbooks[openstack_id] = playbook
         logger.info(f"Playbook for (openstack_id): {openstack_id} started!")

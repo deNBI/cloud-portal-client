@@ -20,6 +20,7 @@ if TYPE_CHECKING:
         Backend,
         ClusterInfo,
         ClusterInstance,
+        CondaPackage,
         Flavor,
         Image,
         PlaybookResult,
@@ -126,11 +127,9 @@ class VirtualMachineHandler(Iface):
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
 
     def get_server(self, openstack_id: str) -> VM:
-        server = thrift_converter.os_to_thrift_server(
-            openstack_server=self.openstack_connector.get_server(
-                openstack_id=openstack_id
-            )
-        )
+        server = self.openstack_connector.get_server(openstack_id=openstack_id)
+        server = self.forc_connector.get_playbook_status(server=server)
+        server = thrift_converter.os_to_thrift_server(openstack_server=server)
         return server
 
     def get_servers(self) -> list[VM]:
@@ -329,7 +328,8 @@ class VirtualMachineHandler(Iface):
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: dict[str, dict[str, str]],
+        # playbooks_information: dict[str, dict[str, str]],
+        conda_packages: list[CondaPackage],
         openstack_id: str,
     ) -> int:
         port = int(
@@ -339,7 +339,8 @@ class VirtualMachineHandler(Iface):
         cloud_site = self.openstack_connector.CLOUD_SITE
         return self.forc_connector.create_and_deploy_playbook(
             public_key=public_key,
-            playbooks_information=playbooks_information,
+            # playbooks_information=playbooks_information,
+            conda_packages=conda_packages,
             openstack_id=openstack_id,
             port=port,
             ip=gateway_ip,

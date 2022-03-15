@@ -1,0 +1,12 @@
+bioconda_tools:
+  packages:
+  env: "denbi"
+  timeout_length: "5m"
+
+bioconda_folders:
+  install_script: "/home/{{ bioconda_user.name }}/install_miniconda3.sh"
+  conda_dir: "/home/{{ bioconda_user.name }}/miniconda3"
+  conda_installer_url: "https://repo.anaconda.com/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh"
+
+bioconda_user:
+  name: "ubuntu"

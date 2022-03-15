@@ -398,9 +398,9 @@ service VirtualMachineService {
     /** Create and deploy an anaconda ansible playbook*/
     int create_and_deploy_playbook(
     1:string public_key,
-    2:map<string, map<string,string>> playbooks_information,
-    3:list<CondaPackage> conda_packages,
-    4:string openstack_id
+    #2:map<string, map<string,string>> playbooks_information,
+    2:list<CondaPackage> conda_packages,
+    3:string openstack_id
     ) throws (1:ServerNotFoundException s)
 
     /** Get the logs from a playbook run*/
@@ -604,16 +604,6 @@ service VirtualMachineService {
 
     throws (1:VolumeNotFoundException e, 2: OpenStackConflictException c),
 
-
-    /**
-     * Check status of server.
-     * Returns: server instance
-     */
-    VM check_server_status(
-    /** Id of the server */
-    1:string openstack_id)
-
-    throws (1:ServerNotFoundException e),
 
 
 

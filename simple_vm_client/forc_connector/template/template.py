@@ -135,10 +135,10 @@ class Template(object):
 
     @staticmethod
     def get_playbook_dir() -> str:
-        Path(f"{os.path.dirname(os.path.realpath(__file__))}/playbooks/").mkdir(
+        Path(f"{os.path.dirname(os.path.realpath(__file__))}/plays/").mkdir(
             parents=True, exist_ok=True
         )
-        dir_path = f"{os.path.dirname(os.path.realpath(__file__))}/playbooks/"
+        dir_path = f"{os.path.dirname(os.path.realpath(__file__))}/plays/"
         return dir_path
 
     @staticmethod
