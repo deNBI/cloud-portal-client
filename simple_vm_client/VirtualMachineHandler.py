@@ -24,6 +24,7 @@ if TYPE_CHECKING:
         Flavor,
         Image,
         PlaybookResult,
+        ResearchEnvironmentTemplate,
         Volume,
     )
 
@@ -251,15 +252,8 @@ class VirtualMachineHandler(Iface):
             user_id=user_id, backend_id=backend_id, owner=owner_id
         )
 
-    def get_allowed_templates(self) -> list[str]:
+    def get_allowed_templates(self) -> list[ResearchEnvironmentTemplate]:
         return self.forc_connector.template.get_allowed_templates()
-
-    def check_server_status(self, openstack_id: str) -> VM:
-        server = self.openstack_connector.check_server_status(openstack_id=openstack_id)
-        # Check if playbook in progress
-        server = self.forc_connector.get_playbook_status(server=server)
-
-        return thrift_converter.os_to_thrift_server(openstack_server=server)
 
     def start_server(
         self,

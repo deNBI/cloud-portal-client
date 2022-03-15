@@ -97,7 +97,6 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     print("  void detach_volume(string volume_id, string server_id)")
     print("  void delete_volume(string volume_id)")
     print("   attach_volume_to_server(string openstack_id, string volume_id)")
-    print("  VM check_server_status(string openstack_id)")
     print("  void resume_server(string openstack_id)")
     print("  Volume create_volume(string volume_name, int volume_storage,  metadata)")
     print("  void reboot_hard_server(string openstack_id)")
@@ -688,16 +687,6 @@ elif cmd == "attach_volume_to_server":
         client.attach_volume_to_server(
             args[0],
             args[1],
-        )
-    )
-
-elif cmd == "check_server_status":
-    if len(args) != 1:
-        print("check_server_status requires 1 args")
-        sys.exit(1)
-    pp.pprint(
-        client.check_server_status(
-            args[0],
         )
     )
 

@@ -8,7 +8,7 @@ import urllib.parse
 from contextlib import closing
 
 import yaml
-from forc_connector.template.template import ResenvMetadata
+from forc_connector.template.template import ResearchEnvironmentMetadata
 from openstack import connection
 from openstack.block_storage.v3.volume import Volume
 from openstack.compute.v2.flavor import Flavor
@@ -563,7 +563,7 @@ class OpenStackConnector:
         ssh: bool = True,
         udp: bool = False,
         description: str = "",
-        research_environment_metadata: ResenvMetadata = None,
+        research_environment_metadata: ResearchEnvironmentMetadata = None,
     ) -> SecurityGroup:
         logger.info(f"Create new security group {name}")
         sec: SecurityGroup = self.openstack_connection.get_security_group(
@@ -631,7 +631,9 @@ class OpenStackConnector:
         return new_security_group
 
     def prepare_security_groups_new_server(
-        self, research_environment_metadata: ResenvMetadata, servername: str
+        self,
+        research_environment_metadata: ResearchEnvironmentMetadata,
+        servername: str,
     ) -> list[str]:
         custom_security_groups = [
             self.create_security_group(
@@ -843,7 +845,7 @@ class OpenStackConnector:
         servername: str,
         metadata: dict[str, str],
         public_key: str,
-        research_environment_metadata: ResenvMetadata = None,
+        research_environment_metadata: ResearchEnvironmentMetadata = None,
         volume_ids_path_new: list[dict[str, str]] = None,  # type: ignore
         volume_ids_path_attach: list[dict[str, str]] = None,  # type: ignore
         additional_keys: list[str] = None,  # type: ignore

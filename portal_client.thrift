@@ -14,6 +14,18 @@ struct Backend {
     5: string template_version
 }
 
+
+struct ResearchEnvironmentTemplate{
+1:optional string template_name,
+2:optional string title,
+3:optional string description,
+4:optional string logo_url,
+5:optional string info_url,
+6:optional i32 port,
+7: optional list<string> incompatible_versions,
+8: optional bool is_maintained,
+9: optional map<string,string> information_for_display
+}
 struct CondaPackage{
 1:optional string build,
 2:optional string build_number,
@@ -467,7 +479,7 @@ service VirtualMachineService {
     ) throws (1:BackendNotFoundException b)
 
 
-    list<string> get_allowed_templates()
+    list<ResearchEnvironmentTemplate> get_allowed_templates()
 
 
     /**
