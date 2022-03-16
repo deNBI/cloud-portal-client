@@ -635,11 +635,7 @@ class OpenStackConnector:
         research_environment_metadata: ResearchEnvironmentMetadata,
         servername: str,
     ) -> list[str]:
-        custom_security_groups = [
-            self.create_security_group(
-                name=servername + "_ssh", description="Only SSH"
-            ).name
-        ]
+        custom_security_groups = []
 
         if research_environment_metadata:
             custom_security_groups.append(
@@ -919,7 +915,7 @@ class OpenStackConnector:
         image_name: str,
         servername: str,
         metadata: dict[str, str],
-        research_environment_metadata: dict[str, str],
+        research_environment_metadata: ResearchEnvironmentMetadata,
         volume_ids_path_new: list[dict[str, str]] = None,  # type: ignore
         volume_ids_path_attach: list[dict[str, str]] = None,  # type: ignore
         additional_keys: list[str] = None,  # type: ignore

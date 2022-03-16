@@ -61,6 +61,6 @@ bibigrid:
 forc:
   forc_url: https://proxy-dev.bi.denbi.de:5000/
   github_playbooks_repo: https://api.github.com/repos/deNBI/resenvs/contents/?ref=staging
-  forc_security_group_id: forc_security_group_id
+  forc_security_group_id: 9a08eecc-d9a5-405b-aeda-9d4180fc94d6
 
 cloud_site: bielefeld

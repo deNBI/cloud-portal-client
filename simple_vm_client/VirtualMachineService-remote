@@ -53,13 +53,13 @@ if len(sys.argv) <= 1 or sys.argv[1] == "--help":
     )
     print("  bool exist_server(string name)")
     print(
-        "  int create_and_deploy_playbook(string public_key,  conda_packages, string openstack_id)"
+        "  int create_and_deploy_playbook(string public_key, string openstack_id,  conda_packages, string research_environment_template, bool create_only_backend)"
     )
     print("  PlaybookResult get_playbook_logs(string openstack_id)")
     print("  bool has_forc()")
     print("  string get_forc_url()")
     print(
-        "  Backend create_backend(string username, string user_key_url, string template, string upstream_url)"
+        "  Backend create_backend(string username, string user_path, string template, string upstream_url)"
     )
     print("   get_backends()")
     print("   get_backends_by_owner(string username)")
@@ -373,14 +373,16 @@ elif cmd == "exist_server":
     )
 
 elif cmd == "create_and_deploy_playbook":
-    if len(args) != 3:
-        print("create_and_deploy_playbook requires 3 args")
+    if len(args) != 5:
+        print("create_and_deploy_playbook requires 5 args")
         sys.exit(1)
     pp.pprint(
         client.create_and_deploy_playbook(
             args[0],
-            eval(args[1]),
-            args[2],
+            args[1],
+            eval(args[2]),
+            args[3],
+            eval(args[4]),
         )
     )
 

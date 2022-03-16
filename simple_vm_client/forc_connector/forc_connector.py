@@ -7,6 +7,7 @@ import yaml
 from openstack.compute.v2.server import Server
 from requests import Timeout
 from ttypes import (
+    Backend,
     BackendNotFoundException,
     CondaPackage,
     DefaultException,
@@ -17,9 +18,8 @@ from ttypes import (
 from util.logger import setup_custom_logger
 from util.state_enums import VmTaskStates
 
-from .backend.backend import Backend
 from .playbook.playbook import Playbook
-from .template.template import Template
+from .template.template import ResearchEnvironmentMetadata, Template
 
 logger = setup_custom_logger(__name__)
 BIOCONDA = "bioconda"
@@ -431,12 +431,12 @@ class ForcConnector:
 
     def get_metadata_by_research_environment(
         self, research_environment: str
-    ) -> dict[str, str]:
+    ) -> ResearchEnvironmentMetadata:
         logger.info(f"Get Metadata Research environment: {research_environment}")
         if research_environment in self.template.get_loaded_resenv_metadata():
-            resenv_metadata: dict[
-                str, str
-            ] = self.template.get_loaded_resenv_metadata()[research_environment]
+            resenv_metadata = self.template.get_loaded_resenv_metadata()[
+                research_environment
+            ]
             return resenv_metadata
         elif (
             research_environment != "user_key_url" and research_environment != BIOCONDA
@@ -444,13 +444,14 @@ class ForcConnector:
             logger.error(
                 f"Failure to load metadata of reasearch enviroment: {research_environment}"
             )
-            return {}
-        return {}
+            return None
+        return None
 
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        # playbooks_information: dict[str, dict[str, str]],
+        research_environment_template: str,
+        create_only_backend: bool,
         conda_packages: list[CondaPackage],
         openstack_id: str,
         port: int,
@@ -463,7 +464,11 @@ class ForcConnector:
         playbook = Playbook(
             ip=ip,
             port=port,
-            # playbooks_information=playbooks_information,
+            research_environment_template=research_environment_template,
+            research_environment_template_version=self.template.get_template_version_for(
+                template=research_environment_template
+            ),
+            create_only_backend=create_only_backend,
             osi_private_key=key,
             public_key=public_key,
             pool=self.redis_pool,

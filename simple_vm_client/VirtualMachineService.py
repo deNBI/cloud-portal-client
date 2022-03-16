@@ -207,14 +207,23 @@ class Iface(object):
 
         """
 
-    def create_and_deploy_playbook(self, public_key, conda_packages, openstack_id):
+    def create_and_deploy_playbook(
+        self,
+        public_key,
+        openstack_id,
+        conda_packages,
+        research_environment_template,
+        create_only_backend,
+    ):
         """
         Create and deploy an anaconda ansible playbook
 
         Parameters:
          - public_key
-         - conda_packages
          - openstack_id
+         - conda_packages
+         - research_environment_template
+         - create_only_backend
 
         """
 
@@ -236,13 +245,13 @@ class Iface(object):
     def get_forc_url(self):
         pass
 
-    def create_backend(self, username, user_key_url, template, upstream_url):
+    def create_backend(self, username, user_path, template, upstream_url):
         """
         Create a backend
 
         Parameters:
          - username
-         - user_key_url
+         - user_path
          - template
          - upstream_url
 
@@ -1379,27 +1388,51 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "exist_server failed: unknown result"
         )
 
-    def create_and_deploy_playbook(self, public_key, conda_packages, openstack_id):
+    def create_and_deploy_playbook(
+        self,
+        public_key,
+        openstack_id,
+        conda_packages,
+        research_environment_template,
+        create_only_backend,
+    ):
         """
         Create and deploy an anaconda ansible playbook
 
         Parameters:
          - public_key
-         - conda_packages
          - openstack_id
+         - conda_packages
+         - research_environment_template
+         - create_only_backend
 
         """
-        self.send_create_and_deploy_playbook(public_key, conda_packages, openstack_id)
+        self.send_create_and_deploy_playbook(
+            public_key,
+            openstack_id,
+            conda_packages,
+            research_environment_template,
+            create_only_backend,
+        )
         return self.recv_create_and_deploy_playbook()
 
-    def send_create_and_deploy_playbook(self, public_key, conda_packages, openstack_id):
+    def send_create_and_deploy_playbook(
+        self,
+        public_key,
+        openstack_id,
+        conda_packages,
+        research_environment_template,
+        create_only_backend,
+    ):
         self._oprot.writeMessageBegin(
             "create_and_deploy_playbook", TMessageType.CALL, self._seqid
         )
         args = create_and_deploy_playbook_args()
         args.public_key = public_key
-        args.conda_packages = conda_packages
         args.openstack_id = openstack_id
+        args.conda_packages = conda_packages
+        args.research_environment_template = research_environment_template
+        args.create_only_backend = create_only_backend
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -1525,25 +1558,25 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "get_forc_url failed: unknown result"
         )
 
-    def create_backend(self, username, user_key_url, template, upstream_url):
+    def create_backend(self, username, user_path, template, upstream_url):
         """
         Create a backend
 
         Parameters:
          - username
-         - user_key_url
+         - user_path
          - template
          - upstream_url
 
         """
-        self.send_create_backend(username, user_key_url, template, upstream_url)
+        self.send_create_backend(username, user_path, template, upstream_url)
         return self.recv_create_backend()
 
-    def send_create_backend(self, username, user_key_url, template, upstream_url):
+    def send_create_backend(self, username, user_path, template, upstream_url):
         self._oprot.writeMessageBegin("create_backend", TMessageType.CALL, self._seqid)
         args = create_backend_args()
         args.username = username
-        args.user_key_url = user_key_url
+        args.user_path = user_path
         args.template = template
         args.upstream_url = upstream_url
         args.write(self._oprot)
@@ -3503,7 +3536,11 @@ class Processor(Iface, TProcessor):
         result = create_and_deploy_playbook_result()
         try:
             result.success = self._handler.create_and_deploy_playbook(
-                args.public_key, args.conda_packages, args.openstack_id
+                args.public_key,
+                args.openstack_id,
+                args.conda_packages,
+                args.research_environment_template,
+                args.create_only_backend,
             )
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
@@ -3611,7 +3648,7 @@ class Processor(Iface, TProcessor):
         result = create_backend_result()
         try:
             result.success = self._handler.create_backend(
-                args.username, args.user_key_url, args.template, args.upstream_url
+                args.username, args.user_path, args.template, args.upstream_url
             )
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
@@ -8440,20 +8477,26 @@ class create_and_deploy_playbook_args(object):
     """
     Attributes:
      - public_key
-     - conda_packages
      - openstack_id
+     - conda_packages
+     - research_environment_template
+     - create_only_backend
 
     """
 
     def __init__(
         self,
         public_key=None,
-        conda_packages=None,
         openstack_id=None,
+        conda_packages=None,
+        research_environment_template=None,
+        create_only_backend=None,
     ):
         self.public_key = public_key
-        self.conda_packages = conda_packages
         self.openstack_id = openstack_id
+        self.conda_packages = conda_packages
+        self.research_environment_template = research_environment_template
+        self.create_only_backend = create_only_backend
 
     def read(self, iprot):
         if (
@@ -8478,6 +8521,15 @@ class create_and_deploy_playbook_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
+                if ftype == TType.STRING:
+                    self.openstack_id = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
                 if ftype == TType.LIST:
                     self.conda_packages = []
                     (_etype193, _size190) = iprot.readListBegin()
@@ -8488,13 +8540,18 @@ class create_and_deploy_playbook_args(object):
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
-            elif fid == 3:
+            elif fid == 4:
                 if ftype == TType.STRING:
-                    self.openstack_id = (
+                    self.research_environment_template = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
                     )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.BOOL:
+                    self.create_only_backend = iprot.readBool()
                 else:
                     iprot.skip(ftype)
             else:
@@ -8517,20 +8574,32 @@ class create_and_deploy_playbook_args(object):
                 else self.public_key
             )
             oprot.writeFieldEnd()
-        if self.conda_packages is not None:
-            oprot.writeFieldBegin("conda_packages", TType.LIST, 2)
-            oprot.writeListBegin(TType.STRUCT, len(self.conda_packages))
-            for iter196 in self.conda_packages:
-                iter196.write(oprot)
-            oprot.writeListEnd()
-            oprot.writeFieldEnd()
         if self.openstack_id is not None:
-            oprot.writeFieldBegin("openstack_id", TType.STRING, 3)
+            oprot.writeFieldBegin("openstack_id", TType.STRING, 2)
             oprot.writeString(
                 self.openstack_id.encode("utf-8")
                 if sys.version_info[0] == 2
                 else self.openstack_id
             )
+            oprot.writeFieldEnd()
+        if self.conda_packages is not None:
+            oprot.writeFieldBegin("conda_packages", TType.LIST, 3)
+            oprot.writeListBegin(TType.STRUCT, len(self.conda_packages))
+            for iter196 in self.conda_packages:
+                iter196.write(oprot)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.research_environment_template is not None:
+            oprot.writeFieldBegin("research_environment_template", TType.STRING, 4)
+            oprot.writeString(
+                self.research_environment_template.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.research_environment_template
+            )
+            oprot.writeFieldEnd()
+        if self.create_only_backend is not None:
+            oprot.writeFieldBegin("create_only_backend", TType.BOOL, 5)
+            oprot.writeBool(self.create_only_backend)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -8561,18 +8630,32 @@ create_and_deploy_playbook_args.thrift_spec = (
     ),  # 1
     (
         2,
-        TType.LIST,
-        "conda_packages",
-        (TType.STRUCT, [CondaPackage, None], False),
-        None,
-    ),  # 2
-    (
-        3,
         TType.STRING,
         "openstack_id",
         "UTF8",
         None,
+    ),  # 2
+    (
+        3,
+        TType.LIST,
+        "conda_packages",
+        (TType.STRUCT, [CondaPackage, None], False),
+        None,
     ),  # 3
+    (
+        4,
+        TType.STRING,
+        "research_environment_template",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.BOOL,
+        "create_only_backend",
+        None,
+        None,
+    ),  # 5
 )
 
 
@@ -9110,7 +9193,7 @@ class create_backend_args(object):
     """
     Attributes:
      - username
-     - user_key_url
+     - user_path
      - template
      - upstream_url
 
@@ -9119,12 +9202,12 @@ class create_backend_args(object):
     def __init__(
         self,
         username=None,
-        user_key_url=None,
+        user_path=None,
         template=None,
         upstream_url=None,
     ):
         self.username = username
-        self.user_key_url = user_key_url
+        self.user_path = user_path
         self.template = template
         self.upstream_url = upstream_url
 
@@ -9152,7 +9235,7 @@ class create_backend_args(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.user_key_url = (
+                    self.user_path = (
                         iprot.readString().decode("utf-8", errors="replace")
                         if sys.version_info[0] == 2
                         else iprot.readString()
@@ -9197,12 +9280,12 @@ class create_backend_args(object):
                 else self.username
             )
             oprot.writeFieldEnd()
-        if self.user_key_url is not None:
-            oprot.writeFieldBegin("user_key_url", TType.STRING, 2)
+        if self.user_path is not None:
+            oprot.writeFieldBegin("user_path", TType.STRING, 2)
             oprot.writeString(
-                self.user_key_url.encode("utf-8")
+                self.user_path.encode("utf-8")
                 if sys.version_info[0] == 2
-                else self.user_key_url
+                else self.user_path
             )
             oprot.writeFieldEnd()
         if self.template is not None:
@@ -9251,7 +9334,7 @@ create_backend_args.thrift_spec = (
     (
         2,
         TType.STRING,
-        "user_key_url",
+        "user_path",
         "UTF8",
         None,
     ),  # 2

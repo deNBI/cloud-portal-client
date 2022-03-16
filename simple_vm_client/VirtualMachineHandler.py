@@ -322,9 +322,10 @@ class VirtualMachineHandler(Iface):
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        # playbooks_information: dict[str, dict[str, str]],
-        conda_packages: list[CondaPackage],
         openstack_id: str,
+        conda_packages: list[CondaPackage],
+        research_environment_template: str,
+        create_only_backend: bool,
     ) -> int:
         port = int(
             self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
@@ -333,7 +334,8 @@ class VirtualMachineHandler(Iface):
         cloud_site = self.openstack_connector.CLOUD_SITE
         return self.forc_connector.create_and_deploy_playbook(
             public_key=public_key,
-            # playbooks_information=playbooks_information,
+            research_environment_template=research_environment_template,
+            create_only_backend=create_only_backend,
             conda_packages=conda_packages,
             openstack_id=openstack_id,
             port=port,
