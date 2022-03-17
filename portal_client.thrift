@@ -14,6 +14,26 @@ struct Backend {
     5: string template_version
 }
 
+
+struct ResearchEnvironmentTemplate{
+1:optional string template_name,
+2:optional string title,
+3:optional string description,
+4:optional string logo_url,
+5:optional string info_url,
+6:optional i32 port,
+7: optional list<string> incompatible_versions,
+8: optional bool is_maintained,
+9: optional map<string,string> information_for_display
+}
+struct CondaPackage{
+1:optional string build,
+2:optional string build_number,
+3:optional string name,
+4:optional string version,
+5:optional string home
+}
+
 struct ClusterInfo {
 1:optional string launch_date,
 2:optional string group_id,
@@ -375,7 +395,7 @@ service VirtualMachineService {
     4:map<string,string> metadata,
 
 
-    5:string research_environment,
+    5:optional string research_environment,
     6:list<map<string,string>> volume_ids_path_new,
      7:list<map<string,string>> volume_ids_path_attach)
 
@@ -390,8 +410,11 @@ service VirtualMachineService {
     /** Create and deploy an anaconda ansible playbook*/
     int create_and_deploy_playbook(
     1:string public_key,
-    2:map<string, map<string,string>> playbooks_information
-    3:string openstack_id
+     2:string openstack_id
+    3:list<CondaPackage> conda_packages,
+    4:string  research_environment_template,
+    5:bool        create_only_backend,
+
     ) throws (1:ServerNotFoundException s)
 
     /** Get the logs from a playbook run*/
@@ -408,7 +431,7 @@ service VirtualMachineService {
     /** Create a backend*/
     Backend create_backend(
     1:string username,
-    2:string user_key_url,
+    2:string user_path,
     3:string template,
     4:string upstream_url
     ) throws(1: TemplateNotFoundException e,2:DefaultException d)
@@ -458,7 +481,7 @@ service VirtualMachineService {
     ) throws (1:BackendNotFoundException b)
 
 
-    list<string> get_allowed_templates()
+    list<ResearchEnvironmentTemplate> get_allowed_templates()
 
 
     /**
@@ -595,16 +618,6 @@ service VirtualMachineService {
 
     throws (1:VolumeNotFoundException e, 2: OpenStackConflictException c),
 
-
-    /**
-     * Check status of server.
-     * Returns: server instance
-     */
-    VM check_server_status(
-    /** Id of the server */
-    1:string openstack_id)
-
-    throws (1:ServerNotFoundException e),
 
 
 

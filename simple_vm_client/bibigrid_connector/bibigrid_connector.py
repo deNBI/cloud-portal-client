@@ -106,7 +106,7 @@ class BibigridConnector:
         infos: list[dict[str, str]] = response.json()["info"]
         return infos
 
-    def bibigrid_available(self) -> bool:
+    def is_bibigrid_available(self) -> bool:
         logger.info("Checking if Bibigrid is available")
         if not self._BIBIGRID_EP:
             logger.info("Bibigrid Url is not set")

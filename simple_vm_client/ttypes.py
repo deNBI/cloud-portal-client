@@ -158,6 +158,388 @@ class Backend(object):
         return not (self == other)
 
 
+class ResearchEnvironmentTemplate(object):
+    """
+    Attributes:
+     - template_name
+     - title
+     - description
+     - logo_url
+     - info_url
+     - port
+     - incompatible_versions
+     - is_maintained
+     - information_for_display
+
+    """
+
+    def __init__(
+        self,
+        template_name=None,
+        title=None,
+        description=None,
+        logo_url=None,
+        info_url=None,
+        port=None,
+        incompatible_versions=None,
+        is_maintained=None,
+        information_for_display=None,
+    ):
+        self.template_name = template_name
+        self.title = title
+        self.description = description
+        self.logo_url = logo_url
+        self.info_url = info_url
+        self.port = port
+        self.incompatible_versions = incompatible_versions
+        self.is_maintained = is_maintained
+        self.information_for_display = information_for_display
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.template_name = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.title = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.description = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.logo_url = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.info_url = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 6:
+                if ftype == TType.I32:
+                    self.port = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 7:
+                if ftype == TType.LIST:
+                    self.incompatible_versions = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = (
+                            iprot.readString().decode("utf-8", errors="replace")
+                            if sys.version_info[0] == 2
+                            else iprot.readString()
+                        )
+                        self.incompatible_versions.append(_elem5)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 8:
+                if ftype == TType.BOOL:
+                    self.is_maintained = iprot.readBool()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 9:
+                if ftype == TType.MAP:
+                    self.information_for_display = {}
+                    (_ktype7, _vtype8, _size6) = iprot.readMapBegin()
+                    for _i10 in range(_size6):
+                        _key11 = (
+                            iprot.readString().decode("utf-8", errors="replace")
+                            if sys.version_info[0] == 2
+                            else iprot.readString()
+                        )
+                        _val12 = (
+                            iprot.readString().decode("utf-8", errors="replace")
+                            if sys.version_info[0] == 2
+                            else iprot.readString()
+                        )
+                        self.information_for_display[_key11] = _val12
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("ResearchEnvironmentTemplate")
+        if self.template_name is not None:
+            oprot.writeFieldBegin("template_name", TType.STRING, 1)
+            oprot.writeString(
+                self.template_name.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.template_name
+            )
+            oprot.writeFieldEnd()
+        if self.title is not None:
+            oprot.writeFieldBegin("title", TType.STRING, 2)
+            oprot.writeString(
+                self.title.encode("utf-8") if sys.version_info[0] == 2 else self.title
+            )
+            oprot.writeFieldEnd()
+        if self.description is not None:
+            oprot.writeFieldBegin("description", TType.STRING, 3)
+            oprot.writeString(
+                self.description.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.description
+            )
+            oprot.writeFieldEnd()
+        if self.logo_url is not None:
+            oprot.writeFieldBegin("logo_url", TType.STRING, 4)
+            oprot.writeString(
+                self.logo_url.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.logo_url
+            )
+            oprot.writeFieldEnd()
+        if self.info_url is not None:
+            oprot.writeFieldBegin("info_url", TType.STRING, 5)
+            oprot.writeString(
+                self.info_url.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.info_url
+            )
+            oprot.writeFieldEnd()
+        if self.port is not None:
+            oprot.writeFieldBegin("port", TType.I32, 6)
+            oprot.writeI32(self.port)
+            oprot.writeFieldEnd()
+        if self.incompatible_versions is not None:
+            oprot.writeFieldBegin("incompatible_versions", TType.LIST, 7)
+            oprot.writeListBegin(TType.STRING, len(self.incompatible_versions))
+            for iter13 in self.incompatible_versions:
+                oprot.writeString(
+                    iter13.encode("utf-8") if sys.version_info[0] == 2 else iter13
+                )
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.is_maintained is not None:
+            oprot.writeFieldBegin("is_maintained", TType.BOOL, 8)
+            oprot.writeBool(self.is_maintained)
+            oprot.writeFieldEnd()
+        if self.information_for_display is not None:
+            oprot.writeFieldBegin("information_for_display", TType.MAP, 9)
+            oprot.writeMapBegin(
+                TType.STRING, TType.STRING, len(self.information_for_display)
+            )
+            for kiter14, viter15 in self.information_for_display.items():
+                oprot.writeString(
+                    kiter14.encode("utf-8") if sys.version_info[0] == 2 else kiter14
+                )
+                oprot.writeString(
+                    viter15.encode("utf-8") if sys.version_info[0] == 2 else viter15
+                )
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class CondaPackage(object):
+    """
+    Attributes:
+     - build
+     - build_number
+     - name
+     - version
+     - home
+
+    """
+
+    def __init__(
+        self,
+        build=None,
+        build_number=None,
+        name=None,
+        version=None,
+        home=None,
+    ):
+        self.build = build
+        self.build_number = build_number
+        self.name = name
+        self.version = version
+        self.home = home
+
+    def read(self, iprot):
+        if (
+            iprot._fast_decode is not None
+            and isinstance(iprot.trans, TTransport.CReadableTransport)
+            and self.thrift_spec is not None
+        ):
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.build = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRING:
+                    self.build_number = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.STRING:
+                    self.name = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.STRING:
+                    self.version = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            elif fid == 5:
+                if ftype == TType.STRING:
+                    self.home = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(
+                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
+            )
+            return
+        oprot.writeStructBegin("CondaPackage")
+        if self.build is not None:
+            oprot.writeFieldBegin("build", TType.STRING, 1)
+            oprot.writeString(
+                self.build.encode("utf-8") if sys.version_info[0] == 2 else self.build
+            )
+            oprot.writeFieldEnd()
+        if self.build_number is not None:
+            oprot.writeFieldBegin("build_number", TType.STRING, 2)
+            oprot.writeString(
+                self.build_number.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.build_number
+            )
+            oprot.writeFieldEnd()
+        if self.name is not None:
+            oprot.writeFieldBegin("name", TType.STRING, 3)
+            oprot.writeString(
+                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
+            )
+            oprot.writeFieldEnd()
+        if self.version is not None:
+            oprot.writeFieldBegin("version", TType.STRING, 4)
+            oprot.writeString(
+                self.version.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.version
+            )
+            oprot.writeFieldEnd()
+        if self.home is not None:
+            oprot.writeFieldBegin("home", TType.STRING, 5)
+            oprot.writeString(
+                self.home.encode("utf-8") if sys.version_info[0] == 2 else self.home
+            )
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return f"{self.__class__.__name__}({', '.join(L)})"
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class ClusterInfo(object):
     """
     Attributes:
@@ -826,14 +1208,14 @@ class Image(object):
             elif fid == 9:
                 if ftype == TType.LIST:
                     self.tags = []
-                    (_etype3, _size0) = iprot.readListBegin()
-                    for _i4 in range(_size0):
-                        _elem5 = (
+                    (_etype19, _size16) = iprot.readListBegin()
+                    for _i20 in range(_size16):
+                        _elem21 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        self.tags.append(_elem5)
+                        self.tags.append(_elem21)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -909,9 +1291,9 @@ class Image(object):
         if self.tags is not None:
             oprot.writeFieldBegin("tags", TType.LIST, 9)
             oprot.writeListBegin(TType.STRING, len(self.tags))
-            for iter6 in self.tags:
+            for iter22 in self.tags:
                 oprot.writeString(
-                    iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
+                    iter22.encode("utf-8") if sys.version_info[0] == 2 else iter22
                 )
             oprot.writeListEnd()
             oprot.writeFieldEnd()
@@ -1039,19 +1421,19 @@ class VM(object):
             elif fid == 4:
                 if ftype == TType.MAP:
                     self.metadata = {}
-                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
-                    for _i11 in range(_size7):
-                        _key12 = (
+                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
+                    for _i27 in range(_size23):
+                        _key28 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        _val13 = (
+                        _val29 = (
                             iprot.readString().decode("utf-8", errors="replace")
                             if sys.version_info[0] == 2
                             else iprot.readString()
                         )
-                        self.metadata[_key12] = _val13
+                        self.metadata[_key28] = _val29
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -1170,12 +1552,12 @@ class VM(object):
         if self.metadata is not None:
             oprot.writeFieldBegin("metadata", TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
-            for kiter14, viter15 in self.metadata.items():
+            for kiter30, viter31 in self.metadata.items():
                 oprot.writeString(
-                    kiter14.encode("utf-8") if sys.version_info[0] == 2 else kiter14
+                    kiter30.encode("utf-8") if sys.version_info[0] == 2 else kiter30
                 )
                 oprot.writeString(
-                    viter15.encode("utf-8") if sys.version_info[0] == 2 else viter15
+                    viter31.encode("utf-8") if sys.version_info[0] == 2 else viter31
                 )
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
@@ -2972,6 +3354,112 @@ Backend.thrift_spec = (
         5,
         TType.STRING,
         "template_version",
+        "UTF8",
+        None,
+    ),  # 5
+)
+all_structs.append(ResearchEnvironmentTemplate)
+ResearchEnvironmentTemplate.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "template_name",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "title",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "description",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "logo_url",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "info_url",
+        "UTF8",
+        None,
+    ),  # 5
+    (
+        6,
+        TType.I32,
+        "port",
+        None,
+        None,
+    ),  # 6
+    (
+        7,
+        TType.LIST,
+        "incompatible_versions",
+        (TType.STRING, "UTF8", False),
+        None,
+    ),  # 7
+    (
+        8,
+        TType.BOOL,
+        "is_maintained",
+        None,
+        None,
+    ),  # 8
+    (
+        9,
+        TType.MAP,
+        "information_for_display",
+        (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
+        None,
+    ),  # 9
+)
+all_structs.append(CondaPackage)
+CondaPackage.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "build",
+        "UTF8",
+        None,
+    ),  # 1
+    (
+        2,
+        TType.STRING,
+        "build_number",
+        "UTF8",
+        None,
+    ),  # 2
+    (
+        3,
+        TType.STRING,
+        "name",
+        "UTF8",
+        None,
+    ),  # 3
+    (
+        4,
+        TType.STRING,
+        "version",
+        "UTF8",
+        None,
+    ),  # 4
+    (
+        5,
+        TType.STRING,
+        "home",
         "UTF8",
         None,
     ),  # 5

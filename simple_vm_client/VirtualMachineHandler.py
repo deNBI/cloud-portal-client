@@ -20,9 +20,11 @@ if TYPE_CHECKING:
         Backend,
         ClusterInfo,
         ClusterInstance,
+        CondaPackage,
         Flavor,
         Image,
         PlaybookResult,
+        ResearchEnvironmentTemplate,
         Volume,
     )
 
@@ -126,11 +128,9 @@ class VirtualMachineHandler(Iface):
         return self.openstack_connector.resume_server(openstack_id=openstack_id)
 
     def get_server(self, openstack_id: str) -> VM:
-        server = thrift_converter.os_to_thrift_server(
-            openstack_server=self.openstack_connector.get_server(
-                openstack_id=openstack_id
-            )
-        )
+        server = self.openstack_connector.get_server(openstack_id=openstack_id)
+        server = self.forc_connector.get_playbook_status(server=server)
+        server = thrift_converter.os_to_thrift_server(openstack_server=server)
         return server
 
     def get_servers(self) -> list[VM]:
@@ -252,15 +252,8 @@ class VirtualMachineHandler(Iface):
             user_id=user_id, backend_id=backend_id, owner=owner_id
         )
 
-    def get_allowed_templates(self) -> list[str]:
+    def get_allowed_templates(self) -> list[ResearchEnvironmentTemplate]:
         return self.forc_connector.template.get_allowed_templates()
-
-    def check_server_status(self, openstack_id: str) -> VM:
-        server = self.openstack_connector.check_server_status(openstack_id=openstack_id)
-        # Check if playbook in progress
-        server = self.forc_connector.get_playbook_status(server=server)
-
-        return thrift_converter.os_to_thrift_server(openstack_server=server)
 
     def start_server(
         self,
@@ -329,8 +322,10 @@ class VirtualMachineHandler(Iface):
     def create_and_deploy_playbook(
         self,
         public_key: str,
-        playbooks_information: dict[str, dict[str, str]],
         openstack_id: str,
+        conda_packages: list[CondaPackage],
+        research_environment_template: str,
+        create_only_backend: bool,
     ) -> int:
         port = int(
             self.openstack_connector.get_vm_ports(openstack_id=openstack_id)["port"]
@@ -339,7 +334,9 @@ class VirtualMachineHandler(Iface):
         cloud_site = self.openstack_connector.CLOUD_SITE
         return self.forc_connector.create_and_deploy_playbook(
             public_key=public_key,
-            playbooks_information=playbooks_information,
+            research_environment_template=research_environment_template,
+            create_only_backend=create_only_backend,
+            conda_packages=conda_packages,
             openstack_id=openstack_id,
             port=port,
             ip=gateway_ip,

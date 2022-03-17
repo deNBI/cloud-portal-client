@@ -6,6 +6,7 @@ from pathlib import Path
 import requests
 import yaml
 from requests import Timeout
+from ttypes import ResearchEnvironmentTemplate
 from util.logger import setup_custom_logger
 
 # from resenv.backend.Backend import Backend
@@ -16,8 +17,6 @@ ALL_TEMPLATES = [BIOCONDA]
 logger = setup_custom_logger(__name__)
 FORC_VERSIONS = "forc_versions"
 FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
-RE_BACKEND_URL = "https://proxy-dev.bi.denbi.de:5000"
-GITHUB_PLAYBOOKS_REPO = "https://api.github.com/repos/deNBI/resenvs/contents/"
 PORT = "port"
 SECURITYGROUP_NAME = "securitygroup_name"
 SECURITYGROUP_DESCRIPTION = "securitygroup_description"
@@ -27,7 +26,7 @@ PROTOCOL = "protocol"
 INFORMATION_FOR_DISPLAY = "information_for_display"
 
 
-class ResenvMetadata:
+class ResearchEnvironmentMetadata:
     def __init__(
         self,
         name: str,
@@ -56,10 +55,10 @@ class Template(object):
         self.FORC_API_KEY = forc_api_key
         self._forc_allowed: dict[str, list[str]] = {}
         self._all_templates = [BIOCONDA]
-        self._loaded_resenv_metadata: dict[str, ResenvMetadata] = {}
+        self._loaded_resenv_metadata: dict[str, ResearchEnvironmentMetadata] = {}
         self.update_playbooks()
 
-    def get_loaded_resenv_metadata(self) -> dict[str, ResenvMetadata]:
+    def get_loaded_resenv_metadata(self) -> dict[str, ResearchEnvironmentMetadata]:
         return self._loaded_resenv_metadata
 
     def update_playbooks(self) -> None:
@@ -78,7 +77,7 @@ class Template(object):
         templates_metadata: list[dict[str, str]] = Template.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
-                metadata = ResenvMetadata(
+                metadata = ResearchEnvironmentMetadata(
                     template_metadata[TEMPLATE_NAME],
                     template_metadata[PORT],
                     template_metadata[SECURITYGROUP_NAME],
@@ -135,10 +134,10 @@ class Template(object):
 
     @staticmethod
     def get_playbook_dir() -> str:
-        Path(f"{os.path.dirname(os.path.realpath(__file__))}/playbooks/").mkdir(
+        Path(f"{os.path.dirname(os.path.realpath(__file__))}/plays/").mkdir(
             parents=True, exist_ok=True
         )
-        dir_path = f"{os.path.dirname(os.path.realpath(__file__))}/playbooks/"
+        dir_path = f"{os.path.dirname(os.path.realpath(__file__))}/plays/"
         return dir_path
 
     @staticmethod
@@ -166,8 +165,8 @@ class Template(object):
             return template_versions[0]
         return ""
 
-    def get_allowed_templates(self) -> list[str]:
-        templates_metada = []
+    def get_allowed_templates(self) -> list[ResearchEnvironmentTemplate]:
+        templates_metadata = []
         for file in os.listdir(Template.get_playbook_dir()):
             if "_metadata.yml" in file:
                 with open(Template.get_playbook_dir() + file) as template_metadata:
@@ -178,7 +177,36 @@ class Template(object):
                         template_name = loaded_metadata[TEMPLATE_NAME]
                         if loaded_metadata["needs_forc_support"]:
                             if template_name in list(self._forc_allowed.keys()):
-                                templates_metada.append(json.dumps(loaded_metadata))
+
+                                research_environment_template = (
+                                    ResearchEnvironmentTemplate(
+                                        template_name=loaded_metadata["template_name"],
+                                        title=loaded_metadata["title"],
+                                        description=loaded_metadata["description"],
+                                        logo_url=loaded_metadata["logo_url"],
+                                        info_url=loaded_metadata["info_url"],
+                                        port=int(loaded_metadata["port"]),
+                                        incompatible_versions=loaded_metadata[
+                                            "incompatible_versions"
+                                        ],
+                                        is_maintained=loaded_metadata["is_maintained"],
+                                        information_for_display=loaded_metadata[
+                                            "information_for_display"
+                                        ],
+                                    )
+                                )
+                                for (
+                                    k,
+                                    v,
+                                ) in (
+                                    research_environment_template.information_for_display.items()
+                                ):
+                                    research_environment_template.information_for_display[
+                                        k
+                                    ] = str(
+                                        v
+                                    )
+                                templates_metadata.append(research_environment_template)
                                 if template_name not in self._forc_allowed:
                                     ALL_TEMPLATES.append(template_name)
                             else:
@@ -186,7 +214,31 @@ class Template(object):
                                     f"Failed to find supporting FORC file for {template_name}"
                                 )
                         else:
-                            templates_metada.append(json.dumps(loaded_metadata))
+                            research_environment_template = ResearchEnvironmentTemplate(
+                                template_name=loaded_metadata["template_name"],
+                                title=loaded_metadata["title"],
+                                description=loaded_metadata["description"],
+                                logo_url=loaded_metadata["logo_url"],
+                                info_url=loaded_metadata["info_url"],
+                                port=int(loaded_metadata["port"]),
+                                incompatible_versions=loaded_metadata[
+                                    "incompatible_versions"
+                                ],
+                                is_maintained=loaded_metadata["is_maintained"],
+                                information_for_display=loaded_metadata[
+                                    "information_for_display"
+                                ],
+                            )
+                            for (
+                                k,
+                                v,
+                            ) in (
+                                research_environment_template.information_for_display.items()
+                            ):
+                                research_environment_template.information_for_display[
+                                    k
+                                ] = str(v)
+                            templates_metadata.append(research_environment_template)
                             if template_name not in self._forc_allowed:
                                 ALL_TEMPLATES.append(template_name)
 
@@ -194,7 +246,7 @@ class Template(object):
                         logger.exception(
                             "Failed to parse Metadata yml: " + file + "\n" + str(e)
                         )
-        return templates_metada
+        return templates_metadata
 
     def update_forc_allowed(self, template_metadata: dict[str, str]) -> None:
         if template_metadata["needs_forc_support"]:
