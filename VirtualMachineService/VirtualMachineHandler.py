@@ -2611,10 +2611,7 @@ class VirtualMachineHandler(Iface):
                 security_group_id=new_security_group["id"],
             )
         for research_enviroment in resenv:
-            if (
-                research_enviroment in self.loaded_resenv_metadata
-                
-            ):
+            if research_enviroment in self.loaded_resenv_metadata:
                 LOG.info(
                     "Add " + research_enviroment + f" rule to security group {name}"
                 )
