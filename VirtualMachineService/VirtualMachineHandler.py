@@ -2611,10 +2611,9 @@ class VirtualMachineHandler(Iface):
                 security_group_id=new_security_group["id"],
             )
         for research_enviroment in resenv:
-            # as MOSH is persisted as "optional" in resenv
             if (
                 research_enviroment in self.loaded_resenv_metadata
-                and not research_enviroment == "optional"
+                
             ):
                 LOG.info(
                     "Add " + research_enviroment + f" rule to security group {name}"
@@ -2628,7 +2627,9 @@ class VirtualMachineHandler(Iface):
                     security_group_id=new_security_group["id"],
                     remote_group_id=self.FORC_REMOTE_ID,
                 )
-            elif research_enviroment != "user_key_url":
+            # as MOSH is persisted as "optional" in resenv
+
+            elif research_enviroment not in ["user_key_url","optional"]:
                 # Todo add mail for this logging as this should not happen
                 LOG.error(
                     "Error: Could not find metadata for research enviroment: "
