@@ -1951,7 +1951,6 @@ class VirtualMachineHandler(Iface):
         response = req.get(
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
-        LOG.info(f"Cluster {cluster_id} status: {response.content} ")
         json_resp = response.json(strict=False)
         json_resp["log"] = str(json_resp.get("log", ""))
         json_resp["msg"] = str(json_resp.get("msg", ""))
@@ -2711,6 +2710,7 @@ class VirtualMachineHandler(Iface):
                     + "\n"
                     + str(e)
                 )
+        LOG.info(self.loaded_resenv_metadata)
 
     def load_resenv_metadata(self):
         templates_metada = []
