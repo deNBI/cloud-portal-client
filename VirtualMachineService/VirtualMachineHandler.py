@@ -2612,7 +2612,10 @@ class VirtualMachineHandler(Iface):
             )
         for research_enviroment in resenv:
             # as MOSH is persisted as "optional" in resenv
-            if research_enviroment in self.loaded_resenv_metadata and not research_enviroment == "optional":
+            if (
+                research_enviroment in self.loaded_resenv_metadata
+                and not research_enviroment == "optional"
+            ):
                 LOG.info(
                     "Add " + research_enviroment + f" rule to security group {name}"
                 )
