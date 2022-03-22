@@ -2625,7 +2625,7 @@ class VirtualMachineHandler(Iface):
                 )
             # as MOSH is persisted as "optional" in resenv
 
-            elif research_enviroment not in ["user_key_url","optional"]:
+            elif research_enviroment not in ["user_key_url", "optional"]:
                 # Todo add mail for this logging as this should not happen
                 LOG.error(
                     "Error: Could not find metadata for research enviroment: "
