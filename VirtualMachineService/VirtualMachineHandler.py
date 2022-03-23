@@ -949,7 +949,7 @@ class VirtualMachineHandler(Iface):
                         ssh=resenv_metadata.security_group_ssh,
                     ).name
                 )
-            elif research_enviroment != "user_key_url":
+            elif research_enviroment not in ["user_key_url", "optional"]:
                 LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
                     + research_enviroment
