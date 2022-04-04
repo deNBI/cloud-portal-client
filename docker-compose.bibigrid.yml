@@ -25,7 +25,7 @@ services:
 
   bibigrid:
     container_name: bibigrid
-    image: bibiserv/bibigrid:bibigrid-rest-2.3
+    image: bibiserv/bibigrid:${BIBIGRID_TAG}
     volumes:
       - ./scripts/bibigrid/clear_keys_cron:/etc/crontabs/root
     env_file:
