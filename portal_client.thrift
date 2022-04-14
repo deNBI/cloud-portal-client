@@ -24,6 +24,7 @@ struct ClusterInfo {
 7:optional int inst_counter,
 8:optional string cluster_id,
 9:optional string key_name,
+10:optional string pub_key,
 }
 
 struct Volume{
@@ -608,8 +609,18 @@ service VirtualMachineService {
                           5:list<string>names,6:int start_idx,7:int batch_idx)
 
 
-    string add_cluster_machine(1:string cluster_id,2:string cluster_user,3:string cluster_group_id,4:string image,5: string flavor,6: string name,7: string key_name,8: int batch_idx,
-                            9:int worker_idx)
+    string add_cluster_machine(
+        1:string cluster_id,
+        2:string cluster_user,
+        3:string cluster_group_id,
+        4:string image,
+        5:string flavor,
+        6:string name,
+        7:string key_name,
+        8:int batch_idx,
+        9:int worker_idx,
+        10:string pub_key
+    )
 
 	ClusterInfo get_cluster_info(1:string cluster_id)
 
