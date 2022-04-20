@@ -1,2 +1,3 @@
 - import_playbook: plays/setup_basics.yml
 - import_playbook: plays/setup_client.yml
+- import_playbook: plays/aftercare.yml

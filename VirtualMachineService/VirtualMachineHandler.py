@@ -52,7 +52,6 @@ import json
 import logging
 import os
 import socket
-import time
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
@@ -65,8 +64,8 @@ from keystoneauth1 import session
 from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
-from openstack.exceptions import ConflictException
 from openstack.compute.v2.server import Server
+from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
 from requests.exceptions import Timeout
 
@@ -653,8 +652,8 @@ class VirtualMachineHandler(Iface):
         :param openstack_id: Id of the server
         :return: Server instance
         """
-        floating_ip = None
-        fixed_ip = None
+        floating_ip = None  # noqa
+        fixed_ip = None  # noqa
         LOG.info(f"Get Server {openstack_id}")
         try:
             server: Server = self.conn.get_server_by_id(openstack_id)
@@ -2028,6 +2027,7 @@ class VirtualMachineHandler(Iface):
         key_name,
         batch_idx,
         worker_idx,
+        pub_key,
     ):
         LOG.info(f"Add machine to {cluster_id} - {key_name}")
         image = self.get_image(image=image)
@@ -2056,6 +2056,9 @@ class VirtualMachineHandler(Iface):
             "name": name or "",
             "worker-index": str(worker_idx),
         }
+
+        if not self.conn.compute.find_keypair(key_name):
+            self.conn.compute.create_keypair(name=key_name, public_key=pub_key)
 
         server = self.conn.create_server(
             name=name,
@@ -2135,6 +2138,9 @@ class VirtualMachineHandler(Iface):
             LOG.info(info["cluster-id"])
             LOG.info(cluster_id == info["cluster-id"])
             if info["cluster-id"] == cluster_id:
+                pub_key = self.conn.compute.find_keypair(info["key name"])
+                if pub_key:
+                    pub_key = pub_key.public_key
                 cluster_info = ClusterInfo(
                     launch_date=info["launch date"],
                     group_id=info["group-id"],
@@ -2145,6 +2151,7 @@ class VirtualMachineHandler(Iface):
                     inst_counter=info["# inst"],
                     cluster_id=info["cluster-id"],
                     key_name=info["key name"],
+                    pub_key=pub_key,
                 )
                 LOG.info(f"CLuster info : {cluster_info}")
                 return cluster_info

@@ -1,0 +1,17 @@
+- name: Finish setup
+  hosts: all
+  become: yes
+
+
+  tasks:
+    - name: Prune everything (including non-dangling images)
+      docker_prune:
+        containers: false
+        images: yes
+        images_filters:
+          dangling: false
+        networks: yes
+        volumes: yes
+        builder_cache: yes
+      tags: always
+
