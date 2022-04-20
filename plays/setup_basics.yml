@@ -26,7 +26,7 @@
   tasks:
     - name: Checkout cloud-portal-client repository
       git:
-        repo: "git@github.com:deNBI/cloud-portal-client.git"
+        repo: "https://github.com/deNBI/cloud-portal-client.git"
         dest: "{{ client.REPO_PATH }}"
         accept_hostkey: yes
         force: yes
