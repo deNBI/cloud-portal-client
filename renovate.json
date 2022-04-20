@@ -22,13 +22,10 @@
       "addLabels": ["pin"]
     }
    ],
-<<<<<<< HEAD
    "vulnerabilityAlerts": {
     "labels": ["security"]
   },
-=======
 
->>>>>>> staging
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
   "labels": ["dependencies"],
