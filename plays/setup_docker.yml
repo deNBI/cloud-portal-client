@@ -1,0 +1,34 @@
+- name: Setup and install Basics
+  hosts: all
+  become: yes
+  vars_files:
+    - general_variables.yml
+
+  roles:
+    - role: geerlingguy.docker
+      tags: always
+
+
+  pre_tasks:
+    - name: Verify Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        msg: >
+          "You must update Ansible to at least 2.7"L
+      tags: always
+
+    - name: Update cache
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
+      tags: always
+
+
+  tasks:
+
+    - name: Install docker-compose with pip
+      pip:
+        name: docker-compose
+      tags: always
+

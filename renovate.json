@@ -22,6 +22,9 @@
       "addLabels": ["pin"]
     }
    ],
+   "vulnerabilityAlerts": {
+    "labels": ["security"]
+  },
 
   "baseBranches": ["dev"],
   "reviewers": ["team:portal-dev"],
@@ -29,6 +32,7 @@
   "assignees": ["team:portal-dev"],
   "branchPrefix": "deps/",
   "bumpVersion": "minor",
+  "rebaseWhen": "behind-base-branch",
   "commitBodyTable": "true",
   "commitMessagePrefix": "feat(Dependencies):"
 }
