@@ -5,9 +5,6 @@
     - general_variables.yml
 
 
-  roles:
-    - role: geerlingguy.docker
-      tags: always
 
 
   pre_tasks:
