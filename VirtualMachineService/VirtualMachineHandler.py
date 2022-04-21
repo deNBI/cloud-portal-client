@@ -111,6 +111,11 @@ class VirtualMachineHandler(Iface):
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
+    TEMPLATES_URL = "templates"
+    BACKENDS_URL = "backends"
+    BACKENDS_BY_OWNER_URL = f"{BACKENDS_URL}/byOwner"
+    BACKENDS_BY_TEMPLATE_URL = f"{BACKENDS_URL}/byTemplate"
+    USERS_URL = "users"
     ALL_TEMPLATES = ALL_TEMPLATES
     loaded_resenv_metadata = {}
 
@@ -1233,7 +1238,7 @@ class VirtualMachineHandler(Iface):
             return f"https:{url[1]}/"
 
     def cross_check_forc_image(self, tags):
-        get_url = f"{self.RE_BACKEND_URL}templates/"
+        get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}"
         try:
             response = req.get(
                 get_url,
@@ -1267,7 +1272,7 @@ class VirtualMachineHandler(Iface):
             )
             return {}
         try:
-            post_url = f"{self.RE_BACKEND_URL}backends/"
+            post_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_URL}"
             backend_info = {
                 "owner": elixir_id,
                 "user_key_url": user_key_url,
@@ -1307,7 +1312,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def get_backends(self):
-        get_url = f"{self.RE_BACKEND_URL}/backends/"
+        get_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_URL}"
         try:
             response = req.get(
                 get_url,
@@ -1335,7 +1340,7 @@ class VirtualMachineHandler(Iface):
             return None
 
     def get_backends_by_owner(self, elixir_id):
-        get_url = f"{self.RE_BACKEND_URL}/backends/byOwner/{elixir_id}"
+        get_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_BY_OWNER_URL}/{elixir_id}"
         try:
             response = req.get(
                 get_url,
@@ -1363,7 +1368,7 @@ class VirtualMachineHandler(Iface):
             return None
 
     def get_backends_by_template(self, template):
-        get_url = f"{self.RE_BACKEND_URL}/backends/byTemplate/{template}"
+        get_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_BY_TEMPLATE_URL}/{template}"
         try:
             response = req.get(
                 get_url,
@@ -1391,7 +1396,7 @@ class VirtualMachineHandler(Iface):
             return None
 
     def get_backend_by_id(self, id):
-        get_url = f"{self.RE_BACKEND_URL}/backends/{id}"
+        get_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_URL}/{id}"
         try:
             response = req.get(
                 get_url,
@@ -1416,7 +1421,7 @@ class VirtualMachineHandler(Iface):
             return None
 
     def delete_backend(self, id):
-        delete_url = f"{self.RE_BACKEND_URL}/backends/{id}"
+        delete_url = f"{self.RE_BACKEND_URL}{self.BACKENDS_URL}/{id}"
         try:
             response = req.delete(
                 delete_url,
@@ -1440,7 +1445,7 @@ class VirtualMachineHandler(Iface):
 
     def add_user_to_backend(self, backend_id, owner_id, user_id):
         try:
-            post_url = f"{self.RE_BACKEND_URL}users/{backend_id}"
+            post_url = f"{self.RE_BACKEND_URL}{self.USERS_URL}/{backend_id}"
             user_info = {
                 "owner": owner_id,
                 "user": user_id,
@@ -1470,7 +1475,7 @@ class VirtualMachineHandler(Iface):
             return {"Error": "An error occured."}
 
     def get_users_from_backend(self, backend_id):
-        get_url = f"{self.RE_BACKEND_URL}/users/{backend_id}"
+        get_url = f"{self.RE_BACKEND_URL}{self.USERS_URL}/{backend_id}"
         try:
             response = req.get(
                 get_url,
@@ -1487,7 +1492,7 @@ class VirtualMachineHandler(Iface):
             return []
 
     def delete_user_from_backend(self, backend_id, owner_id, user_id):
-        delete_url = f"{self.RE_BACKEND_URL}/users/{backend_id}"
+        delete_url = f"{self.RE_BACKEND_URL}{self.USERS_URL}/{backend_id}"
         user_info = {
             "owner": owner_id,
             "user": user_id,
@@ -1554,7 +1559,7 @@ class VirtualMachineHandler(Iface):
         return templates_metada
 
     def get_templates_by_template(self, template_name):
-        get_url = f"{self.RE_BACKEND_URL}/templates/{template_name}"
+        get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}/{template_name}"
         try:
             response = req.get(
                 get_url,
@@ -1571,7 +1576,7 @@ class VirtualMachineHandler(Iface):
             return None
 
     def check_template(self, template_name, template_version):
-        get_url = f"{self.RE_BACKEND_URL}/templates/{template_name}/{template_version}"
+        get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}/{template_name}/{template_version}"
         try:
             response = req.get(
                 get_url,
@@ -2744,7 +2749,9 @@ class VirtualMachineHandler(Iface):
             name = template_metadata[TEMPLATE_NAME]
             allowed_versions = []
             for forc_version in template_metadata[FORC_VERSIONS]:
-                get_url = f"{self.RE_BACKEND_URL}/templates/{name}/{forc_version}"
+                get_url = (
+                    f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}/{name}/{forc_version}"
+                )
                 try:
                     response = req.get(
                         get_url,
