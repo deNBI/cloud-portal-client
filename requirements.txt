@@ -3,11 +3,10 @@ thrift==0.16.0
 python-keystoneclient
 openstacksdk ==0.61.0
 deprecated == 1.2.13
-ansible==5.6.0
+ansible==5.7.0
 Click==8.1.2
-ansible==5.2.0
 flake8==4.0.1
-paramiko==2.10.3
+paramiko==2.10.4
 ruamel.yaml==0.17.21
 pyvim==3.0.2
 redis==4.2.2
