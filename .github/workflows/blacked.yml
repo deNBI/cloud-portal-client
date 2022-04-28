@@ -4,7 +4,7 @@ jobs:
     format:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2.4.2
+            - uses: actions/checkout@v3.0.2
             - name: Checking out Branch
               run: git checkout "${GITHUB_REF:11}"
             - name: black
