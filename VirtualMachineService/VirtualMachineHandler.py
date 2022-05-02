@@ -2190,6 +2190,7 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
+            "ansibleGalaxyRoles": [{"name": "autoscaling", "git": "https://github.com/patricS4/autoscaling-config-ansible"}]
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
