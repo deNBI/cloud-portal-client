@@ -40,6 +40,7 @@ bibigrid:
   # Url for Bibigrid API
     port: 8080
     host: bibigrid
+    region: Bielefeld
     https: False
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
