@@ -141,7 +141,7 @@ class Playbook(object):
                         for p in (v.strip('"')).split():
                             p_array.append(p.split("="))
                         for p in p_array:
-                            p_dict.update({p[0]: {"version": p[1], "build": p[2]}})
+                            p_dict.update({p[0]: {"version": p[1]}})
                         data[playbook_name + "_tools"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
