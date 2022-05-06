@@ -73,7 +73,7 @@
 
 - name: Install chosen packages
   become_user: "{{ bioconda_user.name }}"
-  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env | quote}} && conda install --yes {{ item.key }}={{ item.value.version }}={{ item.value.build }}'"
+  shell: "timeout {{ bioconda_tools.timeout_length }} bash -c 'source {{ bioconda_folders.conda_dir }}/bin/activate && conda activate {{ bioconda_tools.env | quote}} && conda install --yes {{ item.key }}={{ item.value.version }}'"
   args:
     executable: /bin/bash
   loop: "{{ q('dict', bioconda_tools.packages) }}"
