@@ -31,7 +31,6 @@ CLOUD_SITE = ""
 
 
 class Playbook(object):
-
     ACTIVE = "ACTIVE"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
@@ -57,6 +56,9 @@ class Playbook(object):
             None  # init process, returncode, standard output, standard error output
         )
         self.returncode = -1
+        self.playbooks_information = playbooks_information
+        LOG.exception(self.playbooks_information)
+
         self.stdout = ""
         self.stderr = ""
         # init temporary directories and mandatory generic files
@@ -145,10 +147,14 @@ class Playbook(object):
                         data[playbook_name + "_tools"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
+                    LOG.info(playbook_vars)
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
                         data[playbook_name + "_vars"][k] = v
+                    if k == "base_url":
+                        data[playbook_name + "_vars"][k] = v
+
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
                     if k == MOSH:
