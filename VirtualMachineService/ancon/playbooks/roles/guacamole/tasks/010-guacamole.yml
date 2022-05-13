@@ -4,39 +4,42 @@
   apt:
     name:
       - make
-      - libssh2-1-dev
-      - libtelnet-dev
-      - libpango1.0-dev
-      - libossp-uuid-dev
-      - libcairo2-dev
-      - libpng-dev
-      - freerdp-x11
-      - libssh2-1
-      - libvncserver-dev
-      - libfreerdp-dev
-      - libvorbis-dev
-      - libssl1.0.0
       - gcc
-      - libssh-dev
-      - libpulse-dev
-      - tomcat8
-      - tomcat8-admin
-      - tomcat8-docs
-      - ghostscript
-      - libwebp-dev
+      - vim
+      - curl
+      - wget
+      - g++
+      - libcairo2-dev
+      - libjpeg-turbo8-dev
+      - libpng-dev
+      - libtool-bin
+      - libossp-uuid-dev
       - libavcodec-dev
       - libavutil-dev
       - libswscale-dev
+      - build-essential
+      - libpango1.0-dev
+      - libssh2-1-dev
+      - libvncserver-dev
+      - libtelnet-dev
+      - freerdp2-dev
+      - libwebsockets-dev
+      - libssl-dev
+      - libvorbis-dev
+      - libwebp-dev
+      - tomcat9
+      - tomcat9-admin
+      - tomcat9-user
     state: latest
 
 - name: Download guacamole src
   get_url:
-    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/source/guacamole-server-1.0.0.tar.gz
+    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.4.0/source/guacamole-server-1.4.0.tar.gz
     dest: /usr/share/guacamole.tar.gz
 
 - name: Download guacamole war file
   get_url:
-    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.0.0/binary/guacamole-1.0.0.war
+    url: http://apache.org/dyn/closer.cgi?action=download&filename=guacamole/1.4.0/binary/guacamole-1.4.0.war
     dest: /usr/share/guacamole.war
 
 - name: Prepare build directory
@@ -53,22 +56,22 @@
 - name: Configure systemd unit
   shell: "./configure --with-systemd-dir=/etc/systemd/system"
   args:
-    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
-    creates: /usr/share/guacamole/guacamole-server-1.0.0/Makefile
+    chdir: /usr/share/guacamole/guacamole-server-1.4.0/
+    creates: /usr/share/guacamole/guacamole-server-1.4.0/Makefile
 
 - name: Compile guacamole
   make:
-    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+    chdir: /usr/share/guacamole/guacamole-server-1.4.0/
 
 - name: Make install
   make:
-    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+    chdir: /usr/share/guacamole/guacamole-server-1.4.0/
     target: install
 
 - name: Link libraries
   shell: ldconfig
   args:
-    chdir: /usr/share/guacamole/guacamole-server-1.0.0/
+    chdir: /usr/share/guacamole/guacamole-server-1.4.0/
 
 - name: Enable guacamole daemon
   systemd:
@@ -102,12 +105,12 @@
   copy:
     remote_src: yes
     src: /usr/share/guacamole.war
-    dest: /var/lib/tomcat8/webapps/guacamole.war
+    dest: /var/lib/tomcat9/webapps/guacamole.war
   notify: Restart Tomcat
 
 - name: Link configuration directory to tomcat
   file:
     state: link
     src: /etc/guacamole
-    dest: /usr/share/tomcat8/.guacamole
+    dest: /usr/share/tomcat9/.guacamole
   notify: Reload systemd
