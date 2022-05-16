@@ -35,15 +35,15 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self,
-        ip,
-        port,
-        playbooks_information,
-        osi_private_key,
-        public_key,
-        pool,
-        loaded_metadata_keys,
-        cloud_site,
+            self,
+            ip,
+            port,
+            playbooks_information,
+            osi_private_key,
+            public_key,
+            pool,
+            loaded_metadata_keys,
+            cloud_site,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
         self.cloud_site = cloud_site
@@ -88,10 +88,10 @@ class Playbook(object):
         )
 
         inventory_string = (
-            "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu "
-            "ansible_ssh_private_key_file="
-            + self.private_key.name
-            + " ansible_python_interpreter=/usr/bin/python3"
+                "[vm]\n" + ip + ":" + port + " ansible_user=ubuntu "
+                                             "ansible_ssh_private_key_file="
+                + self.private_key.name
+                + " ansible_python_interpreter=/usr/bin/python3"
         )
         self.inventory.write(inventory_string)
         self.inventory.close()
@@ -107,12 +107,12 @@ class Playbook(object):
             self.playbooks_dir + "/change_key_vars_file.yml", self.directory.name
         )
         with open(
-            self.directory.name + "/change_key_vars_file.yml", mode="r"
+                self.directory.name + "/change_key_vars_file.yml", mode="r"
         ) as key_file:
             data_ck = self.yaml_exec.load(key_file)
             data_ck["change_key_vars"]["key"] = public_key.strip('"')
         with open(
-            self.directory.name + "/change_key_vars_file.yml", mode="w"
+                self.directory.name + "/change_key_vars_file.yml", mode="w"
         ) as key_file:
             self.yaml_exec.dump(data_ck, key_file)
         self.add_to_playbook_always_lists("change_key")
@@ -122,14 +122,14 @@ class Playbook(object):
             self.playbooks_dir + "/" + self.playbook_exec_name, self.directory.name
         )
         with open(
-            self.directory.name + "/" + self.playbook_exec_name, mode="r"
+                self.directory.name + "/" + self.playbook_exec_name, mode="r"
         ) as generic_playbook:
             data_gp = self.yaml_exec.load(generic_playbook)
             data_gp[0]["vars_files"] = self.vars_files
             data_gp[0]["tasks"][0]["block"] = self.tasks
             data_gp[0]["tasks"][0]["always"] = self.always_tasks
         with open(
-            self.directory.name + "/" + self.playbook_exec_name, mode="w"
+                self.directory.name + "/" + self.playbook_exec_name, mode="w"
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
@@ -160,36 +160,32 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
+        # copy whole directory
+        shutil.copytree(f"{self.playbooks_dir}/{playbook_name}",  self.directory.name,dirs_exist_ok=True)
+
         site_specific_yml = f"/{playbook_name}{'-' + self.cloud_site}.yml"
         playbook_name_local = playbook_name
-        if os.path.isfile(self.playbooks_dir + site_specific_yml):
+        if os.path.isfile(self.directory.name + site_specific_yml):
             playbook_name_local = playbook_name + "-" + self.cloud_site
-        playbook_yml = f"/{playbook_name_local}.yml"
         playbook_var_yml = f"/{playbook_name}_vars_file.yml"
+
         try:
-            shutil.copy(self.playbooks_dir + playbook_yml, self.directory.name)
-            try:
-                shutil.copy(self.playbooks_dir + playbook_var_yml, self.directory.name)
-                with open(
+            with open(
                     self.directory.name + playbook_var_yml, mode="r"
-                ) as variables:
-                    data = self.yaml_exec.load(variables)
-                    load_vars()
-                with open(
+            ) as variables:
+                data = self.yaml_exec.load(variables)
+                load_vars()
+            with open(
                     self.directory.name + playbook_var_yml, mode="w"
-                ) as variables:
-                    self.yaml_exec.dump(data, variables)
-                self.add_to_playbook_lists(playbook_name_local, playbook_name)
-            except shutil.Error as e:
-                LOG.exception(e)
-                self.add_tasks_only(playbook_name_local)
-            except IOError as e:
-                LOG.exception(e)
-                self.add_tasks_only(playbook_name_local)
+            ) as variables:
+                self.yaml_exec.dump(data, variables)
+            self.add_to_playbook_lists(playbook_name_local, playbook_name)
         except shutil.Error as e:
             LOG.exception(e)
+            self.add_tasks_only(playbook_name_local)
         except IOError as e:
             LOG.exception(e)
+            self.add_tasks_only(playbook_name_local)
 
     def add_to_playbook_lists(self, playbook_name_local, playbook_name):
         self.vars_files.append(playbook_name + "_vars_file.yml")
