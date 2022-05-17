@@ -8,11 +8,11 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory
 import redis
 import ruamel.yaml
 
-BIOCONDA = "bioconda"
+CONDA = "conda"
 OPTIONAL = "optional"
 MOSH = "mosh"
 
-ALL_TEMPLATES = [BIOCONDA]
+ALL_TEMPLATES = [CONDA]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
@@ -135,7 +135,7 @@ class Playbook(object):
 
     def copy_and_init(self, playbook_name, playbook_vars):
         def load_vars():
-            if playbook_name == BIOCONDA:
+            if playbook_name == CONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
                         p_array = []
@@ -144,7 +144,7 @@ class Playbook(object):
                             p_array.append(p.split("="))
                         for p in p_array:
                             p_dict.update({p[0]: {"version": p[1]}})
-                        data[playbook_name + "_tools"][k] = p_dict
+                        data[playbook_name + "_vars"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
                     LOG.info(playbook_vars)

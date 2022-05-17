@@ -98,6 +98,7 @@ DIRECTION = "direction"
 PROTOCOL = "protocol"
 TEMPLATE_NAME = "template_name"
 INFORMATION_FOR_DISPLAY = "information_for_display"
+NEEDS_FORC_SUPPORT = "needs_forc_support"
 FORC_VERSIONS = "forc_versions"
 
 
@@ -1213,7 +1214,7 @@ class VirtualMachineHandler(Iface):
             self, public_key, playbooks_information, openstack_id
     ):
         global active_playbooks
-        LOG.info(msg=f"Starting Playbook for (openstack_id): {openstack_id}")
+        LOG.info(msg=f"Starting Playbook for (openstack_id): {openstack_id} --> {playbooks_information}")
         port = self.get_vm_ports(openstack_id=openstack_id)
         key = self.redis.hget(openstack_id, "key").decode("utf-8")
         playbook = Playbook(
@@ -1532,7 +1533,8 @@ class VirtualMachineHandler(Iface):
     def get_allowed_templates(self):
         templates_metadata = []
         for key, value in self.loaded_resenv_metadata.items():
-            templates_metadata.append(value.json_string)
+            if value.needs_forc_support:
+                templates_metadata.append(value.json_string)
         return templates_metadata
 
     def get_templates_by_template(self, template_name):
@@ -2685,23 +2687,25 @@ class VirtualMachineHandler(Iface):
         templates_metadata = self.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
-                metadata = ResenvMetadata(
-                    template_metadata[TEMPLATE_NAME],
-                    template_metadata[PORT],
-                    template_metadata[SECURITYGROUP_NAME],
-                    template_metadata[SECURITYGROUP_DESCRIPTION],
-                    template_metadata[SECURITYGROUP_SSH],
-                    template_metadata[DIRECTION],
-                    template_metadata[PROTOCOL],
-                    template_metadata[INFORMATION_FOR_DISPLAY],
-                    json_string=json.dumps(template_metadata)
-                )
-                self.update_forc_allowed(template_metadata)
-                if metadata.name not in list(self.loaded_resenv_metadata.keys()):
-                    self.loaded_resenv_metadata[metadata.name] = metadata
-                else:
-                    if self.loaded_resenv_metadata[metadata.name] != metadata:
+                if template_metadata.get(NEEDS_FORC_SUPPORT, False):
+                    metadata = ResenvMetadata(
+                        template_metadata[TEMPLATE_NAME],
+                        template_metadata[PORT],
+                        template_metadata[SECURITYGROUP_NAME],
+                        template_metadata[SECURITYGROUP_DESCRIPTION],
+                        template_metadata[SECURITYGROUP_SSH],
+                        template_metadata[DIRECTION],
+                        template_metadata[PROTOCOL],
+                        template_metadata[INFORMATION_FOR_DISPLAY],
+                        needs_forc_support=template_metadata.get(NEEDS_FORC_SUPPORT, False),
+                        json_string=json.dumps(template_metadata)
+                    )
+                    self.update_forc_allowed(template_metadata)
+                    if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                         self.loaded_resenv_metadata[metadata.name] = metadata
+                    else:
+                        if self.loaded_resenv_metadata[metadata.name] != metadata:
+                            self.loaded_resenv_metadata[metadata.name] = metadata
 
             except Exception as e:
                 LOG.exception(
@@ -2770,6 +2774,7 @@ class ResenvMetadata:
             direction,
             protocol,
             information_for_display,
+            needs_forc_support,
             json_string
     ):
         self.name = name
@@ -2781,3 +2786,4 @@ class ResenvMetadata:
         self.protocol = protocol
         self.information_for_display = information_for_display
         self.json_string = json_string
+        self.needs_forc_support = needs_forc_support
