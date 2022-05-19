@@ -2726,14 +2726,12 @@ class VirtualMachineHandler(Iface):
                         loaded_metadata = yaml.load(
                             template_metadata, Loader=yaml.FullLoader
                         )
-                        template_name = loaded_metadata[TEMPLATE_NAME]
 
                         templates_metada.append(loaded_metadata)
-                        if template_name not in self.ALL_TEMPLATES:
-                            ALL_TEMPLATES.append(template_name)
+
                     except Exception as e:
                         LOG.exception(
-                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
+                            "Failed to parse Metadata yml: " + template_metadata + "\n" + str(e)
                         )
             except Exception as e:
                 LOG.exception(f"No Metadatafile found for {template} - {e}")
