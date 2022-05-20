@@ -2747,7 +2747,10 @@ class VirtualMachineHandler(Iface):
 
                     except Exception as e:
                         LOG.exception(
-                            "Failed to parse Metadata yml: " + template_metadata + "\n" + str(e)
+                            "Failed to parse Metadata yml: "
+                            + template_metadata
+                            + "\n"
+                            + str(e)
                         )
             except Exception as e:
                 LOG.exception(f"No Metadatafile found for {template} - {e}")
