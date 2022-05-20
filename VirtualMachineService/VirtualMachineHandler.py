@@ -6,6 +6,9 @@ Which can be used for the PortalClient.
 import math
 import sys
 from uuid import uuid4
+from pathlib import Path
+import zipfile
+import shutil
 
 try:
     from ancon.Playbook import ALL_TEMPLATES, Playbook
@@ -55,7 +58,8 @@ import socket
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
-
+import glob
+import shutil
 import redis
 import requests as req
 import yaml
@@ -94,6 +98,7 @@ DIRECTION = "direction"
 PROTOCOL = "protocol"
 TEMPLATE_NAME = "template_name"
 INFORMATION_FOR_DISPLAY = "information_for_display"
+NEEDS_FORC_SUPPORT = "needs_forc_support"
 FORC_VERSIONS = "forc_versions"
 
 
@@ -1209,7 +1214,9 @@ class VirtualMachineHandler(Iface):
         self, public_key, playbooks_information, openstack_id
     ):
         global active_playbooks
-        LOG.info(msg=f"Starting Playbook for (openstack_id): {openstack_id}")
+        LOG.info(
+            msg=f"Starting Playbook for (openstack_id): {openstack_id} --> {playbooks_information}"
+        )
         port = self.get_vm_ports(openstack_id=openstack_id)
         key = self.redis.hget(openstack_id, "key").decode("utf-8")
         playbook = Playbook(
@@ -1525,38 +1532,12 @@ class VirtualMachineHandler(Iface):
     def get_templates(self):
         return []
 
-    # Todo test this method
     def get_allowed_templates(self):
-        templates_metada = []
-        # Todo load Metadata from multiple folders
-        for file in os.listdir(PLAYBOOKS_DIR):
-            if "_metadata.yml" in file:
-                with open(PLAYBOOKS_DIR + file) as template_metadata:
-                    try:
-                        loaded_metadata = yaml.load(
-                            template_metadata, Loader=yaml.FullLoader
-                        )
-                        template_name = loaded_metadata[TEMPLATE_NAME]
-                        if loaded_metadata["needs_forc_support"]:
-                            if template_name in list(self.FORC_ALLOWED.keys()):
-                                templates_metada.append(json.dumps(loaded_metadata))
-                                if template_name not in self.ALL_TEMPLATES:
-                                    ALL_TEMPLATES.append(template_name)
-                            else:
-                                LOG.info(
-                                    "Failed to find supporting FORC file for "
-                                    + str(template_name)
-                                )
-                        else:
-                            templates_metada.append(json.dumps(loaded_metadata))
-                            if template_name not in self.ALL_TEMPLATES:
-                                ALL_TEMPLATES.append(template_name)
-
-                    except Exception as e:
-                        LOG.exception(
-                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
-                        )
-        return templates_metada
+        templates_metadata = []
+        for key, value in self.loaded_resenv_metadata.items():
+            if value.needs_forc_support:
+                templates_metadata.append(value.json_string)
+        return templates_metadata
 
     def get_templates_by_template(self, template_name):
         get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}/{template_name}"
@@ -2677,6 +2658,14 @@ class VirtualMachineHandler(Iface):
             "totalGigabytesUsed": str(limits["totalGigabytesUsed"]),
         }
 
+    def install_ansible_galaxy_requirements(self):
+        LOG.info("Installing Ansible galaxy requirements..")
+        stream = os.popen(
+            f"ansible-galaxy install -r {PLAYBOOKS_DIR}/packer/requirements.yml"
+        )
+        output = stream.read()
+        LOG.info(output)
+
     def update_playbooks(self):
         if self.GITHUB_PLAYBOOKS_REPO is None:
             LOG.info(
@@ -2685,35 +2674,52 @@ class VirtualMachineHandler(Iface):
             return
         LOG.info(f"STARTED update of playbooks from - {self.GITHUB_PLAYBOOKS_REPO}")
         r = req.get(self.GITHUB_PLAYBOOKS_REPO)
-        contents = json.loads(r.content)
-        # Todo maybe clone entire direcotry
-        for f in contents:
-            if f["name"] != "LICENSE":
-                LOG.info("started download of " + f["name"])
-                download_link = f["download_url"]
-                file_request = req.get(download_link)
-                filename = "/code/VirtualMachineService/ancon/playbooks/" + f["name"]
-                with open(filename, "w") as playbook_file:
-                    playbook_file.write(file_request.content.decode("utf-8"))
+        filename = "resenv_repo"
+        with open(filename, "wb") as output_file:
+            output_file.write(r.content)
+        LOG.info("Downloading Completed")
+        with zipfile.ZipFile(filename, "r") as zip_ref:
+            zip_ref.extractall(PLAYBOOKS_DIR)
+
+        resenvs_unziped_dir = next(
+            filter(
+                lambda f: os.path.isdir(f) and "resenvs" in f,
+                glob.glob(PLAYBOOKS_DIR + "*"),
+            )
+        )
+        shutil.copytree(resenvs_unziped_dir, PLAYBOOKS_DIR, dirs_exist_ok=True)
+        shutil.rmtree(resenvs_unziped_dir, ignore_errors=True)
+        self.ALL_TEMPLATES = [
+            name
+            for name in os.listdir(PLAYBOOKS_DIR)
+            if name != "packer" and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
+        ]
+        LOG.info(self.ALL_TEMPLATES)
+
         templates_metadata = self.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
-                metadata = ResenvMetadata(
-                    template_metadata[TEMPLATE_NAME],
-                    template_metadata[PORT],
-                    template_metadata[SECURITYGROUP_NAME],
-                    template_metadata[SECURITYGROUP_DESCRIPTION],
-                    template_metadata[SECURITYGROUP_SSH],
-                    template_metadata[DIRECTION],
-                    template_metadata[PROTOCOL],
-                    template_metadata[INFORMATION_FOR_DISPLAY],
-                )
-                self.update_forc_allowed(template_metadata)
-                if metadata.name not in list(self.loaded_resenv_metadata.keys()):
-                    self.loaded_resenv_metadata[metadata.name] = metadata
-                else:
-                    if self.loaded_resenv_metadata[metadata.name] != metadata:
+                if template_metadata.get(NEEDS_FORC_SUPPORT, False):
+                    metadata = ResenvMetadata(
+                        template_metadata[TEMPLATE_NAME],
+                        template_metadata[PORT],
+                        template_metadata[SECURITYGROUP_NAME],
+                        template_metadata[SECURITYGROUP_DESCRIPTION],
+                        template_metadata[SECURITYGROUP_SSH],
+                        template_metadata[DIRECTION],
+                        template_metadata[PROTOCOL],
+                        template_metadata[INFORMATION_FOR_DISPLAY],
+                        needs_forc_support=template_metadata.get(
+                            NEEDS_FORC_SUPPORT, False
+                        ),
+                        json_string=json.dumps(template_metadata),
+                    )
+                    self.update_forc_allowed(template_metadata)
+                    if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                         self.loaded_resenv_metadata[metadata.name] = metadata
+                    else:
+                        if self.loaded_resenv_metadata[metadata.name] != metadata:
+                            self.loaded_resenv_metadata[metadata.name] = metadata
 
             except Exception as e:
                 LOG.exception(
@@ -2722,26 +2728,29 @@ class VirtualMachineHandler(Iface):
                     + "\n"
                     + str(e)
                 )
+        self.install_ansible_galaxy_requirements()
         LOG.info(self.loaded_resenv_metadata)
 
     def load_resenv_metadata(self):
         templates_metada = []
-        for file in os.listdir(PLAYBOOKS_DIR):
-            if "_metadata.yml" in file:
-                with open(PLAYBOOKS_DIR + file) as template_metadata:
+        for template in self.ALL_TEMPLATES:
+            try:
+                with open(
+                    f"{PLAYBOOKS_DIR}{template}/{template}_metadata.yml"
+                ) as template_metadata:
                     try:
                         loaded_metadata = yaml.load(
                             template_metadata, Loader=yaml.FullLoader
                         )
-                        template_name = loaded_metadata[TEMPLATE_NAME]
 
                         templates_metada.append(loaded_metadata)
-                        if template_name not in self.ALL_TEMPLATES:
-                            ALL_TEMPLATES.append(template_name)
+
                     except Exception as e:
                         LOG.exception(
-                            "Failed to parse Metadata yml: " + file + "\n" + str(e)
+                            "Failed to parse Metadata yml: " + template_metadata + "\n" + str(e)
                         )
+            except Exception as e:
+                LOG.exception(f"No Metadatafile found for {template} - {e}")
         return templates_metada
 
     def update_forc_allowed(self, template_metadata):
@@ -2779,6 +2788,8 @@ class ResenvMetadata:
         direction,
         protocol,
         information_for_display,
+        needs_forc_support,
+        json_string,
     ):
         self.name = name
         self.port = port
@@ -2788,3 +2799,5 @@ class ResenvMetadata:
         self.direction = direction
         self.protocol = protocol
         self.information_for_display = information_for_display
+        self.json_string = json_string
+        self.needs_forc_support = needs_forc_support
