@@ -4,3 +4,9 @@ roles:
 
   - name: oefenweb.latest_r
     version: v3.1.1
+
+
+  - name: andrewrothstein.miniconda
+    version: v6.1.5
+
+  - name: andrewrothstein.conda-env
