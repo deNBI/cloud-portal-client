@@ -1490,11 +1490,12 @@ class VirtualMachineHandler(Iface):
                 headers={"X-API-KEY": self.FORC_API_KEY},
                 verify=True,
             )
-            logging.error(response.content.decode())
             if response.status_code == 401:
                 return ["Error: 401"]
             else:
-                return json.loads(response.content.decode())
+                response_string = str(response.content, 'UTF-8')
+                return response_string
+
         except Timeout as e:
             LOG.info(msg=f"Get users for backend timed out. {e}")
             return []
