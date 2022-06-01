@@ -1493,7 +1493,7 @@ class VirtualMachineHandler(Iface):
             if response.status_code == 401:
                 return ["Error: 401"]
             else:
-                response_string = str(response.content, 'UTF-8')
+                response_string = str(response.content, "UTF-8")
                 return response_string
 
         except Timeout as e:
