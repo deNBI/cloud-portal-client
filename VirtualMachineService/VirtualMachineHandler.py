@@ -5,10 +5,8 @@ Which can be used for the PortalClient.
 """
 import math
 import sys
-from uuid import uuid4
-from pathlib import Path
 import zipfile
-import shutil
+from uuid import uuid4
 
 try:
     from ancon.Playbook import ALL_TEMPLATES, Playbook
@@ -51,15 +49,16 @@ except Exception:
     )
 
 import datetime
+import glob
 import json
 import logging
 import os
+import shutil
 import socket
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
-import glob
-import shutil
+
 import redis
 import requests as req
 import yaml
@@ -393,16 +392,19 @@ class VirtualMachineHandler(Iface):
                 self.conn.list_images(),
             ):
 
-                metadata = img["metadata"]
-                description = metadata.get("description")
-                tags = img.get("tags")
+                properties = img.get("properties")
+                if not properties:
+                    properties = {}
+                    LOG.warning(f"Could not get properties for img: {img}")
+                description = properties.get("description", "")
+                tags = img.get("tags", [])
                 LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
                 if len(
                     set(self.ALL_TEMPLATES).intersection(tags)
                 ) > 0 and not self.cross_check_forc_image(tags):
                     LOG.info(f"Resenv check: Skipping {img['name']}.")
                     continue
-                image_type = img.get("image_type", "image")
+                image_type = properties.get("image_type", "image")
                 if description is None:
                     LOG.warning("No Description and  for " + img["name"])
 
@@ -429,16 +431,19 @@ class VirtualMachineHandler(Iface):
 
     def prepare_image(self, img):
         try:
-            metadata = img["metadata"]
-            description = metadata.get("description")
-            tags = img.get("tags")
+            properties = img.get("properties")
+            if not properties:
+                properties = {}
+                LOG.warning(f"No properties found in image: {img}")
+            description = properties.get("description", "")
+            tags = img.get("tags", [])
             LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
             if len(
                 set(self.ALL_TEMPLATES).intersection(tags)
             ) > 0 and not self.cross_check_forc_image(tags):
                 LOG.info(f"Resenv check: Skipping {img['name']}.")
                 return None
-            image_type = img.get("image_type", "image")
+            image_type = properties.get("image_type", "image")
             if description is None:
                 LOG.warning("No Description for " + img["name"])
 
@@ -524,9 +529,12 @@ class VirtualMachineHandler(Iface):
             img = self.conn.get_image(name_or_id=id)
             if not img:
                 return Image()
-            metadata = img["metadata"]
-            description = metadata.get("description")
-            tags = img.get("tags")
+            properties = img.get("properties")
+            if not properties:
+                properties = {}
+                LOG.warning(f"Could not get properties for image: {img}")
+            description = properties.get("description", "")
+            tags = img.get("tags", [])
             image = Image(
                 name=img["name"],
                 min_disk=img["min_disk"],
@@ -558,15 +566,18 @@ class VirtualMachineHandler(Iface):
                 and x["status"] == "active",
                 self.conn.list_images(),
             ):
-                tags = img.get("tags")
+                tags = img.get("tags", [])
                 if "resenv" in filter_list:
                     modes = filter_list["resenv"].split(",")
                     LOG.info(modes)
                     if "resenv" in tags and not self.cross_check_forc_image(tags):
                         continue
-                metadata = img["metadata"]
-                description = metadata.get("description")
-                image_type = img.get("image_type", "image")
+                properties = img.get("properties")
+                if not properties:
+                    properties = {}
+                    LOG.warning(f"Could not get properties for img: {img}")
+                description = properties.get("description", "")
+                image_type = properties.get("image_type", "image")
                 if description is None:
                     LOG.warning(f"No Description for {img['name']}")
 
@@ -625,23 +636,22 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Import Keypair {keyname} error:{e}")
             return None
 
-    def openstack_flav_to_thrift_flav(self, flavor):
+    @staticmethod
+    def openstack_flav_to_thrift_flav(flavor):
         try:
-            if "id" in flavor:
-                flavor = self.conn.compute.get_flavor(flavor["id"]).to_dict()
+            if "name" in flavor:
                 name = flavor["name"]
-                openstack_id = flavor["id"]
-            else:
-                # Giessen
+            elif "original_name" in flavor:
                 name = flavor["original_name"]
-                openstack_id = None
+            else:
+                name = "NoNameFound"
 
             flav = Flavor(
                 vcpus=flavor["vcpus"],
                 ram=flavor["ram"],
                 disk=flavor["disk"],
                 name=name,
-                openstack_id=openstack_id,
+                openstack_id=None,
             )
             return flav
         except Exception as e:
@@ -1623,7 +1633,7 @@ class VirtualMachineHandler(Iface):
             os_volume = self.conn.get_volume_by_id(id=volume_id)
             LOG.info(os_volume)
             if os_volume.attachments:
-                device = os_volume.attachments[0].device
+                device = os_volume.attachments[0]["device"]
             else:
                 device = None
 
@@ -1765,7 +1775,6 @@ class VirtualMachineHandler(Iface):
                 ]
             except Exception as e:
                 LOG.exception(f"Could not found volume {volume_id}: {e}")
-
         flav = self.openstack_flav_to_thrift_flav(server["flavor"])
 
         try:
@@ -2356,12 +2365,12 @@ class VirtualMachineHandler(Iface):
             security_groups = [
                 sec
                 for sec in security_groups
-                if sec.name != self.DEFAULT_SECURITY_GROUP_NAME
-                and "bibigrid" not in sec.name
+                if sec["name"] != self.DEFAULT_SECURITY_GROUP_NAME
+                and "bibigrid" not in sec["name"]
             ]
             if security_groups is not None:
                 for sg in security_groups:
-                    LOG.info(f"Delete security group {sg.name}")
+                    LOG.info(f"Delete security group {sg['name']}")
                     self.conn.compute.remove_security_group_from_server(
                         server=server, security_group=sg
                     )
@@ -2642,7 +2651,8 @@ class VirtualMachineHandler(Iface):
                 'totalInstancesUsed': totalFlInstancesUsed}
         """
         LOG.info("Get Limits")
-        limits = self.conn.get_compute_limits()
+        limits = {}
+        limits.update(self.conn.get_compute_limits())
         limits.update(self.conn.get_volume_limits()["absolute"])
 
         return {
