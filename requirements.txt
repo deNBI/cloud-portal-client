@@ -9,6 +9,6 @@ flake8==4.0.1
 paramiko==2.11.0
 ruamel.yaml==0.17.21
 pyvim==3.0.3
-redis==4.3.2
+redis==4.3.3
 requests==2.27.1
 pyyaml==6.0
