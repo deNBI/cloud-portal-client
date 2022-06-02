@@ -1491,7 +1491,7 @@ class VirtualMachineHandler(Iface):
                 verify=True,
             )
             if response.status_code == 401:
-                return ["Error: 401"]
+                return [{"Error": "401"}]
             else:
                 return response.json()
         except Timeout as e:
