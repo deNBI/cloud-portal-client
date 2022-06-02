@@ -1508,7 +1508,7 @@ class VirtualMachineHandler(Iface):
                 for user in users:
                     if user.get("user", None):
                         user_list.append(user["user"])
-                    return user_list
+                return user_list
         except Timeout as e:
             LOG.info(msg=f"Get users for backend timed out. {e}")
             return []
