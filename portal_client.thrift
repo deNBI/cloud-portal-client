@@ -550,7 +550,7 @@ service VirtualMachineService {
     )
 
     /** Get users from a backend*/
-    list<string> get_users_from_backend(
+    list<map<string,string>> get_users_from_backend(
     1:i64 backend_id
     )
 
