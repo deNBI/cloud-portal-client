@@ -1493,7 +1493,12 @@ class VirtualMachineHandler(Iface):
             if response.status_code == 401:
                 return ["Error: 401"]
             else:
-                return response.json()
+                user_list = []
+                users = response.json()
+                for user in users:
+                    if user.get("user", None):
+                        user_list.append(user["user"])
+                    return user_list
         except Timeout as e:
             LOG.info(msg=f"Get users for backend timed out. {e}")
             return []
