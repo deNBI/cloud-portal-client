@@ -1550,7 +1550,7 @@ class VirtualMachineHandler(Iface):
     def get_allowed_templates(self):
         templates_metadata = []
         for key, value in self.loaded_resenv_metadata.items():
-            if value.needs_forc_support:
+            if value.visible:
                 templates_metadata.append(value.json_string)
         return templates_metadata
 
@@ -2707,14 +2707,14 @@ class VirtualMachineHandler(Iface):
         self.ALL_TEMPLATES = [
             name
             for name in os.listdir(PLAYBOOKS_DIR)
-            if name != "packer" and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
+            if name not in ["optional","packer"] and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
         ]
-        LOG.info(self.ALL_TEMPLATES)
+        LOG.info(f"All Templates {self.ALL_TEMPLATES}")
 
         templates_metadata = self.load_resenv_metadata()
         for template_metadata in templates_metadata:
             try:
-                if template_metadata.get(NEEDS_FORC_SUPPORT, False):
+                if template_metadata.get("visible", True):
                     metadata = ResenvMetadata(
                         template_metadata[TEMPLATE_NAME],
                         template_metadata[PORT],
@@ -2727,6 +2727,7 @@ class VirtualMachineHandler(Iface):
                         needs_forc_support=template_metadata.get(
                             NEEDS_FORC_SUPPORT, False
                         ),
+                        visible=template_metadata.get("visible", True),
                         json_string=json.dumps(template_metadata),
                     )
                     self.update_forc_allowed(template_metadata)
@@ -2807,6 +2808,7 @@ class ResenvMetadata:
         protocol,
         information_for_display,
         needs_forc_support,
+            visible,
         json_string,
     ):
         self.name = name
@@ -2818,4 +2820,5 @@ class ResenvMetadata:
         self.protocol = protocol
         self.information_for_display = information_for_display
         self.json_string = json_string
+        self.visible=visible
         self.needs_forc_support = needs_forc_support

@@ -57,7 +57,6 @@ class Playbook(object):
         )
         self.returncode = -1
         self.playbooks_information = playbooks_information
-        LOG.exception(self.playbooks_information)
 
         self.stdout = ""
         self.stderr = ""
@@ -148,12 +147,7 @@ class Playbook(object):
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
                     LOG.info(playbook_vars)
-                    if k == "template_version":
-                        data[playbook_name + "_vars"][k] = v
-                    if k == "create_only_backend":
-                        data[playbook_name + "_vars"][k] = v
-                    if k == "base_url":
-                        data[playbook_name + "_vars"][k] = v
+                    data[playbook_name + "_vars"][k] = v
 
             if playbook_name == OPTIONAL:
                 for k, v in playbook_vars.items():
