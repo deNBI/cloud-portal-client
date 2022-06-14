@@ -2707,7 +2707,8 @@ class VirtualMachineHandler(Iface):
         self.ALL_TEMPLATES = [
             name
             for name in os.listdir(PLAYBOOKS_DIR)
-            if name not in ["optional","packer"] and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
+            if name not in ["optional", "packer"]
+            and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
         ]
         LOG.info(f"All Templates {self.ALL_TEMPLATES}")
 
@@ -2808,7 +2809,7 @@ class ResenvMetadata:
         protocol,
         information_for_display,
         needs_forc_support,
-            visible,
+        visible,
         json_string,
     ):
         self.name = name
@@ -2820,5 +2821,5 @@ class ResenvMetadata:
         self.protocol = protocol
         self.information_for_display = information_for_display
         self.json_string = json_string
-        self.visible=visible
+        self.visible = visible
         self.needs_forc_support = needs_forc_support
