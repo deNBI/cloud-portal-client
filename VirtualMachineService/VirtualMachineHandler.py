@@ -2179,7 +2179,7 @@ class VirtualMachineHandler(Iface):
             "ansibleGalaxyRoles": [
                 {
                     "name": "autoscaling",
-                    "hosts": "all",
+                    "hosts": "master",
                     "git": "https://github.com/patricS4/autoscaling-config-ansible",
                 }
             ],
