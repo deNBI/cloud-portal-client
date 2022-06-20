@@ -1460,11 +1460,10 @@ class VirtualMachineHandler(Iface):
             LOG.exception(e)
             return str(-1)
 
-    def add_user_to_backend(self, backend_id, owner_id, user_id):
+    def add_user_to_backend(self, backend_id, user_id):
         try:
             post_url = f"{self.RE_BACKEND_URL}{self.USERS_URL}/{backend_id}"
             user_info = {
-                "owner": owner_id,
                 "user": user_id,
             }
         except Exception as e:
@@ -1513,10 +1512,9 @@ class VirtualMachineHandler(Iface):
             LOG.info(msg=f"Get users for backend timed out. {e}")
             return []
 
-    def delete_user_from_backend(self, backend_id, owner_id, user_id):
+    def delete_user_from_backend(self, backend_id, user_id):
         delete_url = f"{self.RE_BACKEND_URL}{self.USERS_URL}/{backend_id}"
         user_info = {
-            "owner": owner_id,
             "user": user_id,
         }
         try:
@@ -2185,6 +2183,13 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
+            "ansibleGalaxyRoles": [
+                {
+                    "name": "autoscaling",
+                    "hosts": "master",
+                    "git": "https://github.com/patricS4/autoscaling-config-ansible",
+                }
+            ],
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
