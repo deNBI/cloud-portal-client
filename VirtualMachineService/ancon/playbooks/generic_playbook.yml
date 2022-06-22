@@ -1,10 +1,57 @@
 - name: Setting up your virtual machine
-  hosts: all
+  hosts: vm
   become: yes
-  connection: paramiko_ssh
   gather_facts: yes
   vars_files:
+  pre_tasks:
+    - name: PRE_TASK Disable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "0";'
+        create: yes
+    - name: PRE_TASK Stop apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
+        - apt-daily-upgrade
+        - apt-daily-upgrade.timer
+
+    - name:  PRE_TASK   Wait for automatic system updates 1
+      shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
+
+    - name: PRE_TASK  Wait for automatic system updates 2
+      shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
+
+    - name:  PRE_TASK   Update apt cache
+      become: true
+      apt:
+        upgrade: true
+        update_cache: true
+        autoremove: true
+        autoclean: true
+
   tasks:
     - name: Setting up your virtual machine
       block:
       always:
+
+  post_tasks:
+    - name: POST_TASK  enable unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/10periodic
+        regexp: "^APT::Periodic::Unattended-Upgrade"
+        line: 'APT::Periodic::Unattended-Upgrade "1";'
+        create: yes
+    - name:  POST_TASK Start apt-daily.* systemd services
+      service:
+        name: "{{ item }}"
+        state: started
+      with_items:
+        - unattended-upgrades
+        - apt-daily
+        - apt-daily.timer
