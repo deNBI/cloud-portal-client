@@ -178,6 +178,8 @@ class Playbook(object):
             playbook_name_local = playbook_name + "-" + self.cloud_site
         original_playbook_var_yml=f"{self.playbooks_dir}/{playbook_name}/{playbook_name}_vars_file.yml"
         playbook_var_yml = f"/{playbook_name}_vars_file.yml"
+        LOG.info("Remove copy of vars file")
+        os.remove(self.directory.name + playbook_var_yml)
 
         try:
             with open(original_playbook_var_yml, mode="r") as original_vars_yml:
