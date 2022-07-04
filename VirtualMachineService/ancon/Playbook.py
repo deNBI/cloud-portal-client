@@ -148,7 +148,11 @@ class Playbook(object):
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
-                        data[playbook_name + "_vars"][k] = v
+                        if data[playbook_name + "_vars"][k] in ["false", "False"]:
+                            data[playbook_name + "_vars"][k] = False
+                        elif data[playbook_name + "_vars"][k] in ["true", "True"]:
+                            data[playbook_name + "_vars"][k] = True
+
                     if k == "base_url":
                         data[playbook_name + "_vars"][k] = v
 
