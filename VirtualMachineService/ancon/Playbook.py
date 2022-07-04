@@ -35,15 +35,15 @@ class Playbook(object):
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
 
     def __init__(
-        self,
-        ip,
-        port,
-        playbooks_information,
-        osi_private_key,
-        public_key,
-        pool,
-        loaded_metadata_keys,
-        cloud_site,
+            self,
+            ip,
+            port,
+            playbooks_information,
+            osi_private_key,
+            public_key,
+            pool,
+            loaded_metadata_keys,
+            cloud_site,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
         self.cloud_site = cloud_site
@@ -57,8 +57,6 @@ class Playbook(object):
         )
         self.returncode = -1
         self.playbooks_information = playbooks_information
-        LOG.exception(self.playbooks_information)
-
         self.stdout = ""
         self.stderr = ""
         # init temporary directories and mandatory generic files
@@ -72,10 +70,10 @@ class Playbook(object):
         self.private_key.close()
 
         self.log_file_stdout = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False,prefix="log_stdout"
+            mode="w+", dir=self.directory.name, delete=False, prefix="log_stdout"
         )
         self.log_file_stderr = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False,prefix="log_err"
+            mode="w+", dir=self.directory.name, delete=False, prefix="log_err"
         )
 
         # create the custom playbook and save its name
@@ -84,7 +82,7 @@ class Playbook(object):
 
         # create inventory
         self.inventory = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False,prefix="inventory_"
+            mode="w+", dir=self.directory.name, delete=False, prefix="inventory_"
         )
 
         inventory_string = (
@@ -106,12 +104,12 @@ class Playbook(object):
             self.playbooks_dir + "/change_key_vars_file.yml", self.directory.name
         )
         with open(
-            self.directory.name + "/change_key_vars_file.yml", mode="r"
+                self.directory.name + "/change_key_vars_file.yml", mode="r"
         ) as key_file:
             data_ck = self.yaml_exec.load(key_file)
             data_ck["change_key_vars"]["key"] = public_key.strip('"')
         with open(
-            self.directory.name + "/change_key_vars_file.yml", mode="w"
+                self.directory.name + "/change_key_vars_file.yml", mode="w"
         ) as key_file:
             self.yaml_exec.dump(data_ck, key_file)
         self.add_to_playbook_always_lists("change_key")
@@ -121,19 +119,21 @@ class Playbook(object):
             self.playbooks_dir + "/" + self.playbook_exec_name, self.directory.name
         )
         with open(
-            self.directory.name + "/" + self.playbook_exec_name, mode="r"
+                self.directory.name + "/" + self.playbook_exec_name, mode="r"
         ) as generic_playbook:
             data_gp = self.yaml_exec.load(generic_playbook)
             data_gp[0]["vars_files"] = self.vars_files
             data_gp[0]["tasks"][0]["block"] = self.tasks
             data_gp[0]["tasks"][0]["always"] = self.always_tasks
         with open(
-            self.directory.name + "/" + self.playbook_exec_name, mode="w"
+                self.directory.name + "/" + self.playbook_exec_name, mode="w"
         ) as generic_playbook:
             self.yaml_exec.dump(data_gp, generic_playbook)
 
     def copy_and_init(self, playbook_name, playbook_vars):
         def load_vars():
+            LOG.info(f"Playbook vars: {playbook_vars}")
+
             if playbook_name == CONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
@@ -146,16 +146,16 @@ class Playbook(object):
                         data[playbook_name + "_vars"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
-                    LOG.info(playbook_vars)
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
-                    if k == "create_only_backend":
-                        if data[playbook_name + "_vars"][k] in ["false", "False"]:
+                    elif k == "create_only_backend":
+                        create_only_backend = data[playbook_name + "_vars"][k]
+                        if create_only_backend in ["false", "False"]:
                             data[playbook_name + "_vars"][k] = False
-                        elif data[playbook_name + "_vars"][k] in ["true", "True"]:
+                        elif create_only_backend in ["true", "True"]:
                             data[playbook_name + "_vars"][k] = True
 
-                    if k == "base_url":
+                    elif k == "base_url":
                         data[playbook_name + "_vars"][k] = v
 
             if playbook_name == OPTIONAL:
@@ -163,7 +163,7 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
-            LOG.info(f"fPlaybook Data - {data}")
+            LOG.info(f"Playbook Data - {data}")
 
         # copy whole directory
         shutil.copytree(
@@ -176,7 +176,7 @@ class Playbook(object):
         playbook_name_local = playbook_name
         if os.path.isfile(self.directory.name + site_specific_yml):
             playbook_name_local = playbook_name + "-" + self.cloud_site
-        original_playbook_var_yml=f"{self.playbooks_dir}/{playbook_name}/{playbook_name}_vars_file.yml"
+        original_playbook_var_yml = f"{self.playbooks_dir}/{playbook_name}/{playbook_name}_vars_file.yml"
         playbook_var_yml = f"/{playbook_name}_vars_file.yml"
         LOG.info("Remove copy of vars file")
         os.remove(self.directory.name + playbook_var_yml)
