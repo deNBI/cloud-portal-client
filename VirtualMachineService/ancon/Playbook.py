@@ -66,16 +66,16 @@ class Playbook(object):
         self.playbooks_dir = self.ancon_dir + "/playbooks"  # path to source playbooks
         self.directory = TemporaryDirectory(dir=self.ancon_dir)
         self.private_key = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False
+            mode="w+", dir=self.directory.name, delete=False, prefix="key_"
         )
         self.private_key.write(osi_private_key)
         self.private_key.close()
 
         self.log_file_stdout = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False
+            mode="w+", dir=self.directory.name, delete=False,prefix="log_stdout"
         )
         self.log_file_stderr = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False
+            mode="w+", dir=self.directory.name, delete=False,prefix="log_err"
         )
 
         # create the custom playbook and save its name
@@ -84,7 +84,7 @@ class Playbook(object):
 
         # create inventory
         self.inventory = NamedTemporaryFile(
-            mode="w+", dir=self.directory.name, delete=False
+            mode="w+", dir=self.directory.name, delete=False,prefix="inventory_"
         )
 
         inventory_string = (
@@ -163,6 +163,8 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
+            LOG.info(f"fPlaybook Data - {data}")
+
         # copy whole directory
         shutil.copytree(
             f"{self.playbooks_dir}/{playbook_name}",
@@ -174,14 +176,15 @@ class Playbook(object):
         playbook_name_local = playbook_name
         if os.path.isfile(self.directory.name + site_specific_yml):
             playbook_name_local = playbook_name + "-" + self.cloud_site
+        original_playbook_var_yml=f"{self.playbooks_dir}/{playbook_name}/{playbook_name}_vars_file.yml"
         playbook_var_yml = f"/{playbook_name}_vars_file.yml"
 
         try:
-            with open(self.directory.name + playbook_var_yml, mode="r") as variables:
-                data = self.yaml_exec.load(variables)
+            with open(original_playbook_var_yml, mode="r") as original_vars_yml:
+                data = self.yaml_exec.load(original_vars_yml)
                 load_vars()
-            with open(self.directory.name + playbook_var_yml, mode="w") as variables:
-                self.yaml_exec.dump(data, variables)
+            with open(self.directory.name + playbook_var_yml, mode="w") as playbook_variables_yml:
+                self.yaml_exec.dump(data, playbook_variables_yml)
             self.add_to_playbook_lists(playbook_name_local, playbook_name)
         except shutil.Error as e:
             LOG.exception(e)
