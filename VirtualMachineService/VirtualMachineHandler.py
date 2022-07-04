@@ -2032,7 +2032,7 @@ class VirtualMachineHandler(Iface):
         if not image:
             raise imageNotFoundException(Reason=(f"No Image {image} found!"))
         if image and image.status != "active":
-            LOG.info(image <<)
+            LOG.info(image)
             image_os_version = image.get("os_version", None)
             image_os_distro = image.get("os_distro", None)
             if not image_os_distro or not image_os_version:
