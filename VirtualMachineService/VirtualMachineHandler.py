@@ -2068,7 +2068,9 @@ class VirtualMachineHandler(Iface):
         }
 
         if not self.conn.compute.find_keypair(key_name):
-            self.conn.compute.create_keypair(name=name, public_key=pub_key)
+            new_key_name = f"{key_name}{str(uuid4())[0:3]}".replace('-', '')
+
+            self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
         server = self.conn.create_server(
             name=name,
@@ -2083,7 +2085,7 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info(f"Created cluster machine:{server['id']}")
 
-        self.delete_keypair(name)
+        self.delete_keypair(new_key_name)
 
         return server["id"]
 
