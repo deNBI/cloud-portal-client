@@ -2056,10 +2056,9 @@ class VirtualMachineHandler(Iface):
             "worker-index": str(worker_idx),
         }
 
-        if not self.conn.compute.find_keypair(key_name):
-            new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
+        new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
 
-            self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
+        self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
         server = self.conn.create_server(
             name=name,
@@ -2067,7 +2066,7 @@ class VirtualMachineHandler(Iface):
             flavor=flavor.id,
             network=[network.id],
             userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
-            key_name=key_name,
+            key_name=new_key_name,
             meta=metadata,
             availability_zone=self.AVAIALABILITY_ZONE,
             security_groups=cluster_group_id,
