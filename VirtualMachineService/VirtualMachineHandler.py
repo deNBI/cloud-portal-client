@@ -1951,7 +1951,6 @@ class VirtualMachineHandler(Iface):
         json_resp = response.json(strict=False)
         json_resp["log"] = str(json_resp.get("log", ""))
         json_resp["msg"] = str(json_resp.get("msg", ""))
-
         return json_resp
 
     def bibigrid_available(self):
@@ -2069,7 +2068,7 @@ class VirtualMachineHandler(Iface):
         }
 
         if not self.conn.compute.find_keypair(key_name):
-            self.conn.compute.create_keypair(name=key_name, public_key=pub_key)
+            self.conn.compute.create_keypair(name=name, public_key=pub_key)
 
         server = self.conn.create_server(
             name=name,
@@ -2084,7 +2083,7 @@ class VirtualMachineHandler(Iface):
         )
         LOG.info(f"Created cluster machine:{server['id']}")
 
-        self.delete_keypair(key_name)
+        self.delete_keypair(name)
 
         return server["id"]
 
