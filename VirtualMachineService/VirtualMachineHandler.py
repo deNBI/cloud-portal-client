@@ -1989,19 +1989,23 @@ class VirtualMachineHandler(Iface):
         LOG.info(f"Get active Image by os-version: {os_version}")
         images = self.conn.list_images()
         for image in images:
-            metadata = image["metadata"]
-            image_os_version = metadata.get("os_version", None)
-            image_os_distro = metadata.get("os_distro", None)
-            base_image_ref = metadata.get("base_image_ref", None)
-            if (
-                    os_version == image_os_version
-                    and image.status == "active"
-                    and base_image_ref is None
-            ):
-                if os_distro and os_distro == image_os_distro:
-                    return image
-                elif os_distro is None:
-                    return image
+            if image and image.status == "active":
+                image_os_version = image.get("os_version", None)
+                image_os_distro = image.get("os_distro", None)
+                metadata = image.get("metadata", {})
+                base_image_ref = metadata.get("base_image_ref", None)
+
+                if not image_os_distro or not image_os_version:
+                    image_os_version = metadata.get("os_version", None)
+                    image_os_distro = metadata.get("os_distro", None)
+                if (
+                        os_version == image_os_version
+                        and base_image_ref is None
+                ):
+                    if os_distro and os_distro == image_os_distro:
+                        return image
+                    elif os_distro is None:
+                        return image
         return None
 
     def create_deactivate_update_script(self):
