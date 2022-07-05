@@ -1992,12 +1992,14 @@ class VirtualMachineHandler(Iface):
             if image and image.status == "active":
                 image_os_version = image.get("os_version", None)
                 image_os_distro = image.get("os_distro", None)
-                metadata = image.get("metadata", {})
-                base_image_ref = metadata.get("base_image_ref", None)
+                metadata = image.get("metadata", None)
+                base_image_ref = None
+                if metadata:
+                    base_image_ref = metadata.get("base_image_ref", None)
 
-                if not image_os_distro or not image_os_version:
-                    image_os_version = metadata.get("os_version", None)
-                    image_os_distro = metadata.get("os_distro", None)
+                    if not image_os_distro or not image_os_version:
+                        image_os_version = metadata.get("os_version", None)
+                        image_os_distro = metadata.get("os_distro", None)
                 if (
                         os_version == image_os_version
                         and base_image_ref is None
@@ -2040,9 +2042,13 @@ class VirtualMachineHandler(Iface):
             image_os_version = image.get("os_version", None)
             image_os_distro = image.get("os_distro", None)
             if not image_os_distro or not image_os_version:
-                metadata = image.get("metadata", {})
-                image_os_version = metadata.get("os_version", "ubuntu")
-                image_os_distro = metadata.get("os_distro", "1804")
+                metadata = image.get("metadata", None)
+                if metadata:
+                    image_os_version = metadata.get("os_version", "ubuntu")
+                    image_os_distro = metadata.get("os_distro", "1804")
+                else:
+                    image_os_version = "ubuntu"
+                    image_os_distro = "1804"
             image = self.get_active_image_by_os_version(
                 os_version=image_os_version, os_distro=image_os_distro
             )
