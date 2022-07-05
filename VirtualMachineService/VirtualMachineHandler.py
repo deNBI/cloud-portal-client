@@ -2057,7 +2057,7 @@ class VirtualMachineHandler(Iface):
         }
 
         if not self.conn.compute.find_keypair(key_name):
-            new_key_name = f"{key_name}{str(uuid4())[0:3]}".replace('-', '')
+            new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
 
             self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
