@@ -35,6 +35,14 @@
         autoremove: true
         autoclean: true
 
+    - name: PRE_TASK   Update apt cache force apt for fix
+      become: true
+      apt:
+        upgrade: true
+        update_cache: true
+        autoremove: true
+        autoclean: true
+        force_apt_get: true
   tasks:
     - name: Setting up your virtual machine
       block:
