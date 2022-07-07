@@ -57,8 +57,6 @@ class Playbook(object):
         )
         self.returncode = -1
         self.playbooks_information = playbooks_information
-        LOG.exception(self.playbooks_information)
-
         self.stdout = ""
         self.stderr = ""
         # init temporary directories and mandatory generic files

@@ -4,6 +4,9 @@
   gather_facts: yes
   vars_files:
   pre_tasks:
+    - name: PRE_TASKWait for cloud-init / user-data to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
     - name: PRE_TASK Disable unattended upgrades
       lineinfile:
         path: /etc/apt/apt.conf.d/10periodic
@@ -21,13 +24,13 @@
         - apt-daily-upgrade
         - apt-daily-upgrade.timer
 
-    - name:  PRE_TASK   Wait for automatic system updates 1
+    - name: PRE_TASK   Wait for automatic system updates 1
       shell: while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1; done;
 
     - name: PRE_TASK  Wait for automatic system updates 2
       shell: while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done;
 
-    - name:  PRE_TASK   Update apt cache
+    - name: PRE_TASK   Update apt cache
       become: true
       apt:
         upgrade: true
@@ -35,14 +38,6 @@
         autoremove: true
         autoclean: true
 
-    - name: PRE_TASK   Update apt cache force apt for fix
-      become: true
-      apt:
-        upgrade: true
-        update_cache: true
-        autoremove: true
-        autoclean: true
-        force_apt_get: true
   tasks:
     - name: Setting up your virtual machine
       block:
@@ -55,7 +50,7 @@
         regexp: "^APT::Periodic::Unattended-Upgrade"
         line: 'APT::Periodic::Unattended-Upgrade "1";'
         create: yes
-    - name:  POST_TASK Start apt-daily.* systemd services
+    - name: POST_TASK Start apt-daily.* systemd services
       service:
         name: "{{ item }}"
         state: started
