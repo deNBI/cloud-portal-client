@@ -1,5 +1,5 @@
 - name: Echo Public Key to set
-  run: echo "${{ change_key_vars.key  }}"
+  ansible.builtin.command: echo "${{ change_key_vars.key  }}"
 
 - name: Set user public Key and remove created public Key
   authorized_key:
