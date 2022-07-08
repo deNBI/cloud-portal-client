@@ -22,12 +22,6 @@
       delay: 10
       when: bielefeld_mirror_service_exist
 
-
-    - name: Stop service Apt-Mirror-Bielefeld, if started
-      ansible.builtin.service:
-        name: de.NBI_Bielefeld_environment
-        state: stopped
-      when: bielefeld_mirror_service_exist
     - name: PRE_TASK Disable unattended upgrades
       lineinfile:
         path: /etc/apt/apt.conf.d/10periodic
