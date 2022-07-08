@@ -13,7 +13,14 @@
 
     - name: Set if APT-Mirror Service Exists
       set_fact:
-        bielefeld_mirror_service_exist:  "'de.NBI_Bielefeld_environment' in services"
+        bielefeld_mirror_service_exist: "'de.NBI_Bielefeld_environment' in services"
+
+    - name: Wait till Apt_Mirror de.NBI Bielefeld Service is done
+      ansible.builtin.service_facts:
+      until: services['de.NBI_Bielefeld_environment.service'].state == 'stopped'
+      retries: 25
+      delay: 10
+      when: bielefeld_mirror_service_exist
 
 
     - name: Stop service Apt-Mirror-Bielefeld, if started
@@ -58,12 +65,6 @@
       always:
 
   post_tasks:
-    - name: Start service Apt-Mirror-Bielefeld
-      ansible.builtin.service:
-        name: de.NBI_Bielefeld_environment
-        state: started
-      when: bielefeld_mirror_service_exist
-
     - name: POST_TASK  enable unattended upgrades
       lineinfile:
         path: /etc/apt/apt.conf.d/10periodic
