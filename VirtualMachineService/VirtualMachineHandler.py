@@ -102,6 +102,8 @@ NEEDS_FORC_SUPPORT = "needs_forc_support"
 FORC_VERSIONS = "forc_versions"
 
 openstack.enable_logging(debug=False)
+
+
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
@@ -123,7 +125,6 @@ class VirtualMachineHandler(Iface):
     USERS_URL = "users"
     ALL_TEMPLATES = ALL_TEMPLATES
     loaded_resenv_metadata = {}
-
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
