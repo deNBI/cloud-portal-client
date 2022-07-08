@@ -67,6 +67,7 @@ from keystoneauth1 import session
 from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 from openstack import connection
+import openstack
 from openstack.compute.v2.server import Server
 from openstack.exceptions import ConflictException
 from oslo_utils import encodeutils
@@ -100,7 +101,7 @@ INFORMATION_FOR_DISPLAY = "information_for_display"
 NEEDS_FORC_SUPPORT = "needs_forc_support"
 FORC_VERSIONS = "forc_versions"
 
-
+openstack.enable_logging(debug=False)
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
@@ -122,6 +123,7 @@ class VirtualMachineHandler(Iface):
     USERS_URL = "users"
     ALL_TEMPLATES = ALL_TEMPLATES
     loaded_resenv_metadata = {}
+
 
     def keyboard_interrupt_handler_playbooks(self):
         global active_playbooks
