@@ -44,6 +44,11 @@ bibigrid:
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
       -   slurm
+    ansibleGalaxyRoles:
+                   - name: autoscaling,
+                     hosts: master,
+                     git: https://github.com/patricS4/autoscaling-config-ansible
+
 
 forc:
   forc_url:

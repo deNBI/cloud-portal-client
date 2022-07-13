@@ -604,8 +604,10 @@ service VirtualMachineService {
 	list<VM> get_servers_by_bibigrid_id(1:string bibigrid_id)
 
 	map<string,list<string>> scale_up_cluster(1: string cluster_id,2: string image,3:string flavor,4:int count,
-                          5:list<string>names,6:int start_idx,7:int batch_idx)
+                          5:list<string>names,6:int start_idx,7:int batch_idx,8: string lifescience_id,): string project_name,10: int project_id)
 
+
+    void add_server_metadata(1:string server_id,2: map<string,string> metadata) 	 throws (1:serverNotFoundException e),
 
     string add_cluster_machine(
         1:string cluster_id,
