@@ -58,7 +58,7 @@ import socket
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
-
+import typing
 import redis
 import requests as req
 import yaml
@@ -231,6 +231,7 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT = (
                     self.create_deactivate_update_script()
                 )
+                self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get("ansibleGalaxyRoles", [])
 
                 LOG.info(msg=f"Bibigrd url loaded: {self.BIBIGRID_URL}")
             except Exception as e:
@@ -1895,6 +1896,18 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+    def add_server_metadata(self, server_id, metadata) -> None:
+        LOG.info(f"Add metadata - {metadata} to server - {server_id}")
+        server = self.conn.get_server(name_or_id=server_id)
+        if server is None:
+            LOG.exception(f"Instance {server_id} not found")
+            raise serverNotFoundException
+        existing_metadata: Dict[string, any] = server.metadata
+        if not existing_metadata:
+            existing_metadata = {}
+        existing_metadata.update(metadata)
+        self.conn.set_server_metadata(server_id, metadata)
+
     def detach_ip_from_server(self, server_id, floating_ip):
         LOG.info(f"Detaching floating ip {floating_ip} from server {server_id}")
         try:
@@ -2017,17 +2030,20 @@ class VirtualMachineHandler(Iface):
         return deactivate_update_script
 
     def add_cluster_machine(
-        self,
-        cluster_id,
-        cluster_user,
-        cluster_group_id,
-        image,
-        flavor,
-        name,
-        key_name,
-        batch_idx,
-        worker_idx,
-        pub_key,
+
+            self,
+            cluster_id,
+            cluster_user,
+            cluster_group_id,
+            image,
+            flavor,
+            name,
+            key_name,
+            batch_idx,
+            worker_idx,
+            pub_key,
+            project_name,
+            project_id
     ):
         LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
         image = self.get_image(image=image)
@@ -2054,9 +2070,14 @@ class VirtualMachineHandler(Iface):
             "worker-batch": str(batch_idx),
             "name": name or "",
             "worker-index": str(worker_idx),
+            "project_name": project_name,
+            "project_id": project_id
         }
 
-        new_key_name = f"{str(uuid4())[0:10]}".replace("-", "")
+
+
+
+        new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
 
         self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
@@ -2077,60 +2098,6 @@ class VirtualMachineHandler(Iface):
 
         return server["id"]
 
-    def scale_up_cluster(
-        self, cluster_id, image, flavor, count, names, start_idx, batch_index
-    ):
-        cluster_info = self.get_cluster_info(cluster_id=cluster_id)
-        image = self.get_image(image=image)
-        if not image:
-            raise imageNotFoundException(Reason=(f"No Image {image} found!"))
-        if image and image.status != "active":
-            LOG.info(image.keys())
-            metadata = image.get("metadata", None)
-            image_os_version = metadata.get("os_version", None)
-            image_os_distro = metadata.get("os_distro", None)
-            image = self.get_active_image_by_os_version(
-                os_version=image_os_version, os_distro=image_os_distro
-            )
-            if not image:
-                raise imageNotFoundException(
-                    Reason=(
-                        f"No active Image with os_version {image_os_version} found!"
-                    )
-                )
-
-        flavor = self.get_flavor(flavor=flavor)
-        network = self.get_network()
-
-        openstack_ids = []
-        for i in range(count):
-            metadata = {
-                "bibigrid-id": cluster_info.cluster_id,
-                "user": cluster_info.user,
-                "worker-batch": str(batch_index),
-                "name": names[i],
-                "worker-index": str(start_idx + i),
-            }
-
-            LOG.info(f"Create cluster machine: {metadata}")
-
-            server = self.conn.create_server(
-                name=names[i],
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
-                userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
-                key_name=cluster_info.key_name,
-                meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
-                security_groups=cluster_info.group_id,
-            )
-            LOG.info(f"Created cluster machine:{server['id']}")
-
-            openstack_ids.append(server["id"])
-            LOG.info(openstack_ids)
-
-        return {"openstack_ids": openstack_ids}
 
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
@@ -2187,13 +2154,7 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
-            "ansibleGalaxyRoles": [
-                {
-                    "name": "autoscaling",
-                    "hosts": "master",
-                    "git": "https://github.com/patricS4/autoscaling-config-ansible",
-                }
-            ],
+            "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
