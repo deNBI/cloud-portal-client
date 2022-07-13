@@ -2044,6 +2044,8 @@ class VirtualMachineHandler(Iface):
             batch_idx,
             worker_idx,
             pub_key,
+            project_name,
+            project_id
     ):
         LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
         image = self.get_image(image=image)
@@ -2070,7 +2072,11 @@ class VirtualMachineHandler(Iface):
             "worker-batch": str(batch_idx),
             "name": name or "",
             "worker-index": str(worker_idx),
+            "project_name": project_name,
+            "project_id": project_id
         }
+
+
 
         new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
 
@@ -2093,62 +2099,6 @@ class VirtualMachineHandler(Iface):
 
         return server["id"]
 
-    def scale_up_cluster(
-            self, cluster_id, image, flavor, count, names, start_idx, batch_index, lifescience_id, project_name, project_id
-    ):
-        cluster_info = self.get_cluster_info(cluster_id=cluster_id)
-        image = self.get_image(image=image)
-        if not image:
-            raise imageNotFoundException(Reason=(f"No Image {image} found!"))
-        if image and image.status != "active":
-            LOG.info(image.keys())
-            metadata = image.get("metadata", None)
-            image_os_version = metadata.get("os_version", None)
-            image_os_distro = metadata.get("os_distro", None)
-            image = self.get_active_image_by_os_version(
-                os_version=image_os_version, os_distro=image_os_distro
-            )
-            if not image:
-                raise imageNotFoundException(
-                    Reason=(
-                        f"No active Image with os_version {image_os_version} found!"
-                    )
-                )
-
-        flavor = self.get_flavor(flavor=flavor)
-        network = self.get_network()
-
-        openstack_ids = []
-        for i in range(count):
-            metadata = {
-                "bibigrid-id": cluster_info.cluster_id,
-                "user": lifescience_id,
-                "worker-batch": str(batch_index),
-                "name": names[i],
-                "worker-index": str(start_idx + i),
-                "project_name": project_name,
-                "project_id": project_id
-            }
-
-            LOG.info(f"Create cluster machine: {metadata}")
-
-            server = self.conn.create_server(
-                name=names[i],
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
-                userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
-                key_name=cluster_info.key_name,
-                meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
-                security_groups=cluster_info.group_id,
-            )
-            LOG.info(f"Created cluster machine:{server['id']}")
-
-            openstack_ids.append(server["id"])
-            LOG.info(openstack_ids)
-
-        return {"openstack_ids": openstack_ids}
 
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
