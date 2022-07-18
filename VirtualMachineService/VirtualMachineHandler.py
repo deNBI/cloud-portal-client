@@ -181,7 +181,9 @@ class VirtualMachineHandler(Iface):
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
             self.DEFAULT_SECURITY_GROUP_NAME = "defaultSimpleVM"
             self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
-            self.GATEWAY_SECURITY_GROUP_ID = cfg["openstack_connection"]["gateway_security_group_id"]
+            self.GATEWAY_SECURITY_GROUP_ID = cfg["openstack_connection"][
+                "gateway_security_group_id"
+            ]
 
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
@@ -2076,8 +2078,7 @@ class VirtualMachineHandler(Iface):
             "project_id": project_id,
         }
 
-
-        new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
+        new_key_name = f"{str(uuid4())[0:10]}".replace("-", "")
 
         self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
@@ -2496,7 +2497,11 @@ class VirtualMachineHandler(Iface):
         if not sec:
             LOG.info("Default SimpleVM SSH Security group not found... Creating")
 
-            self.create_security_group(name=self.DEFAULT_SECURITY_GROUP_NAME, ssh=True, description="Default SSH SimpleVM Security Group")
+            self.create_security_group(
+                name=self.DEFAULT_SECURITY_GROUP_NAME,
+                ssh=True,
+                description="Default SSH SimpleVM Security Group",
+            )
 
     def create_security_group(
         self,
@@ -2525,7 +2530,6 @@ class VirtualMachineHandler(Iface):
                 port_range_max=80,
                 port_range_min=80,
                 security_group_id=new_security_group["id"],
-
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2567,8 +2571,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
-                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
-
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2577,8 +2580,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
-                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
-
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
         if ssh:
             LOG.info(f"Add ssh rule to security group {name}")
@@ -2589,8 +2591,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
-                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
-
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2599,8 +2600,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
-                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
-
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
@@ -2695,7 +2695,6 @@ class VirtualMachineHandler(Iface):
             for name in os.listdir(PLAYBOOKS_DIR)
             if name not in ["optional", "packer", ".github"]
             and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
-
         ]
         LOG.info(self.ALL_TEMPLATES)
 
