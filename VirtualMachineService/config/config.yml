@@ -4,7 +4,8 @@ redis:
   password: ""
 
 openstack_connection:
-  default_simple_vm_security_group_name: "defaultSimpleVM"
+  gateway_security_group_id: e75f0abb-bd9d-4bda-afc7-cef1ad459eee
+
   threads: 30
   host: 0.0.0.0
   # Client Port
