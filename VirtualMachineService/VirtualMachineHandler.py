@@ -231,7 +231,9 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT = (
                     self.create_deactivate_update_script()
                 )
-                self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get("ansibleGalaxyRoles", [])
+                self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
+                    "ansibleGalaxyRoles", []
+                )
 
                 LOG.info(msg=f"Bibigrd url loaded: {self.BIBIGRID_URL}")
             except Exception as e:
@@ -2031,20 +2033,19 @@ class VirtualMachineHandler(Iface):
         return deactivate_update_script
 
     def add_cluster_machine(
-
-            self,
-            cluster_id,
-            cluster_user,
-            cluster_group_id,
-            image,
-            flavor,
-            name,
-            key_name,
-            batch_idx,
-            worker_idx,
-            pub_key,
-            project_name,
-            project_id
+        self,
+        cluster_id,
+        cluster_user,
+        cluster_group_id,
+        image,
+        flavor,
+        name,
+        key_name,
+        batch_idx,
+        worker_idx,
+        pub_key,
+        project_name,
+        project_id,
     ):
         LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
         image = self.get_image(image=image)
@@ -2072,10 +2073,11 @@ class VirtualMachineHandler(Iface):
             "name": name or "",
             "worker-index": str(worker_idx),
             "project_name": project_name,
-            "project_id": project_id
+            "project_id": project_id,
         }
 
         new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
+
 
         self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
@@ -2151,7 +2153,7 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
-            "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES
+            "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
