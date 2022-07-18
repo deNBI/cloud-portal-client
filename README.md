@@ -35,9 +35,11 @@ fill in the missing parameters.
 When starting with commandline you will need to export some of them manually.
 
 #### Security Groups
-The config file contains a name for the default SimpleVM security group.
-It can be configured via the `default_simple_vm_security_group_name` key.
-The client will set this group for every SimpleVM machine.
+The config file contains two ids for security groups:
+
+`gateway_security_group_id:` ID of the security group which allows the access to the gateway and thus the forwarding to the instances. Every other security group which gets created will only be accessible from this security group.
+
+`forc_remote_id:` ID of the security group from the forc gateway, every forc resenv will only be accessible from this security group 
 
 ##### Gateway
 
