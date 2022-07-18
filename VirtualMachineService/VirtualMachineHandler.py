@@ -179,10 +179,10 @@ class VirtualMachineHandler(Iface):
 
         with open(config, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-            self.DEFAULT_SECURITY_GROUP_NAME = cfg["openstack_connection"][
-                "default_simple_vm_security_group_name"
-            ]
+            self.DEFAULT_SECURITY_GROUP_NAME = "defaultSimpleVM"
             self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
+            self.GATEWAY_SECURITY_GROUP_ID = cfg["openstack_connection"]["gateway_security_group_id"]
+
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
@@ -283,6 +283,7 @@ class VirtualMachineHandler(Iface):
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
         self.update_playbooks()
         self.conn = self.create_connection()
+        self.create_or_get_default_ssh_security_group()
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
@@ -2075,7 +2076,7 @@ class VirtualMachineHandler(Iface):
             "project_id": project_id,
         }
 
-        new_key_name = f"{str(uuid4())[0:10]}".replace("-", "")
+        new_key_name = f"{str(uuid4())[0:10]}".replace('-', '')
 
         self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
@@ -2488,6 +2489,14 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Resume Server {openstack_id} error:")
             return False
 
+    def create_or_get_default_ssh_security_group(self):
+        LOG.info("Get default SimpleVM SSH Security Group")
+        sec = self.conn.get_security_group(name_or_id=self.DEFAULT_SECURITY_GROUP_NAME)
+        if not sec:
+            LOG.info("Default SimpleVM SSH Security group not found... Creating")
+
+            self.create_security_group(name=self.DEFAULT_SECURITY_GROUP_NAME, ssh=True, description="Default SSH SimpleVM Security Group")
+
     def create_security_group(
         self,
         name,
@@ -2515,6 +2524,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=80,
                 port_range_min=80,
                 security_group_id=new_security_group["id"],
+
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2556,6 +2566,8 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
+
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2564,6 +2576,8 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
+
             )
         if ssh:
             LOG.info(f"Add ssh rule to security group {name}")
@@ -2574,6 +2588,8 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
+
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2582,6 +2598,8 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID
+
             )
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
