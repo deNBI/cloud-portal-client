@@ -58,7 +58,7 @@ import socket
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
-
+import typing
 import redis
 import requests as req
 import yaml
@@ -179,10 +179,12 @@ class VirtualMachineHandler(Iface):
 
         with open(config, "r") as ymlfile:
             cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-            self.DEFAULT_SECURITY_GROUP_NAME = cfg["openstack_connection"][
-                "default_simple_vm_security_group_name"
-            ]
+            self.DEFAULT_SECURITY_GROUP_NAME = "defaultSimpleVM"
             self.DEFAULT_SECURITY_GROUPS = [self.DEFAULT_SECURITY_GROUP_NAME]
+            self.GATEWAY_SECURITY_GROUP_ID = cfg["openstack_connection"][
+                "gateway_security_group_id"
+            ]
+
             self.USE_GATEWAY = cfg["openstack_connection"]["use_gateway"]
             self.NETWORK = cfg["openstack_connection"]["network"]
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
@@ -230,6 +232,9 @@ class VirtualMachineHandler(Iface):
                     )
                 self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT = (
                     self.create_deactivate_update_script()
+                )
+                self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
+                    "ansibleGalaxyRoles", []
                 )
 
                 LOG.info(msg=f"Bibigrd url loaded: {self.BIBIGRID_URL}")
@@ -280,6 +285,7 @@ class VirtualMachineHandler(Iface):
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
         self.update_playbooks()
         self.conn = self.create_connection()
+        self.create_or_get_default_ssh_security_group()
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
@@ -1895,6 +1901,18 @@ class VirtualMachineHandler(Iface):
 
         return True
 
+    def add_server_metadata(self, server_id, metadata) -> None:
+        LOG.info(f"Add metadata - {metadata} to server - {server_id}")
+        server = self.conn.get_server(name_or_id=server_id)
+        if server is None:
+            LOG.exception(f"Instance {server_id} not found")
+            raise serverNotFoundException
+        existing_metadata: Dict[string, any] = server.metadata
+        if not existing_metadata:
+            existing_metadata = {}
+        existing_metadata.update(metadata)
+        self.conn.set_server_metadata(server_id, metadata)
+
     def detach_ip_from_server(self, server_id, floating_ip):
         LOG.info(f"Detaching floating ip {floating_ip} from server {server_id}")
         try:
@@ -2028,6 +2046,9 @@ class VirtualMachineHandler(Iface):
         batch_idx,
         worker_idx,
         pub_key,
+        project_name,
+        project_id,
+
     ):
         LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
         image = self.get_image(image=image)
@@ -2054,6 +2075,8 @@ class VirtualMachineHandler(Iface):
             "worker-batch": str(batch_idx),
             "name": name or "",
             "worker-index": str(worker_idx),
+            "project_name": project_name,
+            "project_id": project_id,
         }
 
         new_key_name = f"{str(uuid4())[0:10]}".replace("-", "")
@@ -2076,61 +2099,6 @@ class VirtualMachineHandler(Iface):
         self.delete_keypair(new_key_name)
 
         return server["id"]
-
-    def scale_up_cluster(
-        self, cluster_id, image, flavor, count, names, start_idx, batch_index
-    ):
-        cluster_info = self.get_cluster_info(cluster_id=cluster_id)
-        image = self.get_image(image=image)
-        if not image:
-            raise imageNotFoundException(Reason=(f"No Image {image} found!"))
-        if image and image.status != "active":
-            LOG.info(image.keys())
-            metadata = image.get("metadata", None)
-            image_os_version = metadata.get("os_version", None)
-            image_os_distro = metadata.get("os_distro", None)
-            image = self.get_active_image_by_os_version(
-                os_version=image_os_version, os_distro=image_os_distro
-            )
-            if not image:
-                raise imageNotFoundException(
-                    Reason=(
-                        f"No active Image with os_version {image_os_version} found!"
-                    )
-                )
-
-        flavor = self.get_flavor(flavor=flavor)
-        network = self.get_network()
-
-        openstack_ids = []
-        for i in range(count):
-            metadata = {
-                "bibigrid-id": cluster_info.cluster_id,
-                "user": cluster_info.user,
-                "worker-batch": str(batch_index),
-                "name": names[i],
-                "worker-index": str(start_idx + i),
-            }
-
-            LOG.info(f"Create cluster machine: {metadata}")
-
-            server = self.conn.create_server(
-                name=names[i],
-                image=image.id,
-                flavor=flavor.id,
-                network=[network.id],
-                userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
-                key_name=cluster_info.key_name,
-                meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
-                security_groups=cluster_info.group_id,
-            )
-            LOG.info(f"Created cluster machine:{server['id']}")
-
-            openstack_ids.append(server["id"])
-            LOG.info(openstack_ids)
-
-        return {"openstack_ids": openstack_ids}
 
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
@@ -2187,13 +2155,7 @@ class VirtualMachineHandler(Iface):
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
-            "ansibleGalaxyRoles": [
-                {
-                    "name": "autoscaling",
-                    "hosts": "master",
-                    "git": "https://github.com/patricS4/autoscaling-config-ansible",
-                }
-            ],
+            "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
@@ -2530,6 +2492,18 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Resume Server {openstack_id} error:")
             return False
 
+    def create_or_get_default_ssh_security_group(self):
+        LOG.info("Get default SimpleVM SSH Security Group")
+        sec = self.conn.get_security_group(name_or_id=self.DEFAULT_SECURITY_GROUP_NAME)
+        if not sec:
+            LOG.info("Default SimpleVM SSH Security group not found... Creating")
+
+            self.create_security_group(
+                name=self.DEFAULT_SECURITY_GROUP_NAME,
+                ssh=True,
+                description="Default SSH SimpleVM Security Group",
+            )
+
     def create_security_group(
         self,
         name,
@@ -2598,6 +2572,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2606,6 +2581,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=udp_port_start + 9,
                 port_range_min=udp_port_start,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
         if ssh:
             LOG.info(f"Add ssh rule to security group {name}")
@@ -2616,6 +2592,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
             self.conn.network.create_security_group_rule(
                 direction="ingress",
@@ -2624,6 +2601,7 @@ class VirtualMachineHandler(Iface):
                 port_range_max=22,
                 port_range_min=22,
                 security_group_id=new_security_group["id"],
+                remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
         for research_enviroment in resenv:
             if research_enviroment in self.loaded_resenv_metadata:
