@@ -2048,6 +2048,7 @@ class VirtualMachineHandler(Iface):
         pub_key,
         project_name,
         project_id,
+
     ):
         LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
         image = self.get_image(image=image)
