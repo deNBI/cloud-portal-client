@@ -17,7 +17,7 @@ services:
 
   client_redis:
     container_name: client_redis
-    image: redis:7.0.2
+    image: redis:7.0.3
     expose:
       - "6379"
     networks:
