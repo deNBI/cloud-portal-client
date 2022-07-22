@@ -2616,7 +2616,7 @@ class VirtualMachineHandler(Iface):
                     direction=resenv_metadata.direction,
                     protocol=resenv_metadata.protocol,
                     port_range_max=resenv_metadata.port,
-                    port_range_miflavorn=resenv_metadata.port,
+                    port_range_min=resenv_metadata.port,
                     security_group_id=new_security_group["id"],
                     remote_group_id=self.FORC_REMOTE_ID,
                 )
