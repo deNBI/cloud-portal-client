@@ -5,10 +5,6 @@
   vars_files:
   pre_tasks:
 
-    - name: PRE_TASK Wait for cloud-init / user-data to finish
-      ansible.builtin.command: cloud-init status --wait
-      changed_when: false
-
     - name: Populate service facts
       ansible.builtin.service_facts:
 
