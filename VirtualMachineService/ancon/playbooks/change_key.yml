@@ -1,9 +1,12 @@
 - name: Echo Public Key to set
   ansible.builtin.command: echo "${{ change_key_vars.key  }}"
-
+  tags:
+  - always
 - name: Set user public Key and remove created public Key
   authorized_key:
     user: ubuntu
     key: "{{ change_key_vars.key }}"
     state: present
     exclusive: True
+  tags:
+  - always
