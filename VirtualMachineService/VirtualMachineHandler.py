@@ -58,7 +58,6 @@ import socket
 import urllib
 from contextlib import closing
 from distutils.version import LooseVersion
-import typing
 import redis
 import requests as req
 import yaml
