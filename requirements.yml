@@ -7,6 +7,6 @@ roles:
 
 
   - name: andrewrothstein.miniconda
-    version: v6.1.5
+    version: v6.1.6
 
   - name: andrewrothstein.conda-env
