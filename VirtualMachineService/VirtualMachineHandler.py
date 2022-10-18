@@ -2186,9 +2186,14 @@ class VirtualMachineHandler(Iface):
             )
         )
 
+        server=self.conn.get_server_by_id(openstack_id)
+        LOG.info(server)
+        if server is None:
+            LOG.exception(f"Instance {openstack_id} not found")
+            raise serverNotFoundException
         try:
             snapshot_munch = self.conn.create_image_snapshot(
-                server=openstack_id, name=name
+                server=server, name=name
             )
         except ConflictException as e:
             LOG.exception(f"Create snapshot {openstack_id} error: {e}")
