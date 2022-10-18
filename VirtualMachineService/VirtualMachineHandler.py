@@ -711,7 +711,6 @@ class VirtualMachineHandler(Iface):
     def check_server_task_state(self, openstack_id):
         LOG.info(f"Checking Task State: {openstack_id}")
         server = self.conn.get_server_by_id(openstack_id)
-        LOG.info(server)
         if not server:
             return "No server found"
         task_state = server.get("task_state", None)
