@@ -424,6 +424,8 @@ class VirtualMachineHandler(Iface):
                     min_disk=img["min_disk"],
                     min_ram=img["min_ram"],
                     status=img["status"],
+                    os_version=img.get("os_version", ""),
+                    os_distro=img.get("os_distro", ""),
                     created_at=img["created_at"],
                     updated_at=img["updated_at"],
                     openstack_id=img["id"],
@@ -463,6 +465,8 @@ class VirtualMachineHandler(Iface):
                 min_disk=img["min_disk"],
                 min_ram=img["min_ram"],
                 status=img["status"],
+                os_version=img.get("os_version", ""),
+                os_distro=img.get("os_distro", ""),
                 created_at=img["created_at"],
                 updated_at=img["updated_at"],
                 openstack_id=img["id"],
@@ -551,6 +555,8 @@ class VirtualMachineHandler(Iface):
                 min_disk=img["min_disk"],
                 min_ram=img["min_ram"],
                 status=img["status"],
+                os_version=img.get("os_version", ""),
+                os_distro=img.get("os_distro", ""),
                 created_at=img["created_at"],
                 updated_at=img["updated_at"],
                 openstack_id=img["id"],
@@ -599,6 +605,8 @@ class VirtualMachineHandler(Iface):
                     status=img["status"],
                     created_at=img["created_at"],
                     updated_at=img["updated_at"],
+                    os_version=img.get("os_version", ""),
+                    os_distro=img.get("os_distro", ""),
                     openstack_id=img["id"],
                     description=description,
                     tag=tags,
@@ -2185,15 +2193,13 @@ class VirtualMachineHandler(Iface):
             )
         )
 
-        server=self.conn.get_server_by_id(openstack_id)
+        server = self.conn.get_server_by_id(openstack_id)
         LOG.info(server)
         if server is None:
             LOG.exception(f"Instance {openstack_id} not found")
             raise serverNotFoundException
         try:
-            snapshot_munch = self.conn.create_image_snapshot(
-                server=server, name=name
-            )
+            snapshot_munch = self.conn.create_image_snapshot(server=server, name=name)
         except ConflictException as e:
             LOG.exception(f"Create snapshot {openstack_id} error: {e}")
 
