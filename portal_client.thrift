@@ -99,6 +99,10 @@ struct Image{
 
 	/** If the Image is a snapshot*/
 	10:optional bool is_snapshot
+
+	11:optional string os_version
+		12:optional string os_distro
+
 }
 /**
  * This Struct defines a VirtualMachine.
