@@ -2073,7 +2073,9 @@ class VirtualMachineHandler(Iface):
 
                 if version in image:
                     version_to_check = version.replace(".", "")
-                    LOG.info(f"Version {version} in {image}!\Checking for image {version_to_check}...")
+                    LOG.info(
+                        f"Version {version} in {image}!\Checking for image {version_to_check}..."
+                    )
                     openstack_image = self.get_active_image_by_os_version(
                         os_version=version_to_check, os_distro="ubuntu"
                     )
