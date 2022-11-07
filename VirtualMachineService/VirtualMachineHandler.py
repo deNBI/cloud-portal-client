@@ -2061,10 +2061,14 @@ class VirtualMachineHandler(Iface):
             project_name,
             project_id,
     ):
-        LOG.info(f"Add machine to [{name}] {cluster_id} - {key_name}")
-        openstack_image = self.get_image(image=image)
-        if not openstack_image:
+        LOG.info(f"Add machine to [{name}] {cluster_id} - [Image: {image}] - {key_name}")
+        try:
+            openstack_image = self.get_image(image=image)
+        except imageNotFoundException:
+            openstack_image = None
             for version in ["18.04", "20.04", "22.04"]:
+                LOG.info(f"Checking if {version} in {image}")
+
                 if version in image:
                     openstack_image = self.get_active_image_by_os_version(
                         os_version=version.replace(".", ""), os_distro="ubuntu"
@@ -2072,6 +2076,7 @@ class VirtualMachineHandler(Iface):
                 break
             if not openstack_image:
                 raise imageNotFoundException(Reason=(f"No Image {image} found!"))
+
         if openstack_image and openstack_image.status != "active":
             LOG.info(openstack_image)
             image_os_version = openstack_image.get("os_version", "ubuntu")
