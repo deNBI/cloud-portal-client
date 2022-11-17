@@ -1162,11 +1162,13 @@ class VirtualMachineHandler(Iface):
         if server is None:
             LOG.exception(f"Instance {server_id} not found")
             raise serverNotFoundException
-        resenv_security_group = self.conn.get_security_group(name_or_id=server.name + f'_{resenv_template}')
+        resenv_metadata = self.loaded_resenv_metadata[resenv_template]
+        resenv_security_group = self.conn.get_security_group(name_or_id=server.name + resenv_metadata.security_group_name)
         if not resenv_security_group:
-            resenv_security_group = self.prepare_security_groups_new_server(
+            self.prepare_security_groups_new_server(
                 resenv=[resenv_template], servername=server.name
             )
+            resenv_security_group = self.conn.get_security_group(name_or_id=server.name + resenv_metadata.security_group_name)
         if resenv_security_group:
             server_security_groups = self.conn.list_server_security_groups(server)
             for sg in server_security_groups:
@@ -2208,7 +2210,7 @@ class VirtualMachineHandler(Iface):
         headers = {"content-Type": "application/json"}
         body = {
             "mode": "openstack",
-            "network": self.NETWORK
+            "subnet": self.SUB_NETWORK,
             "sshPublicKeys": [public_key],
             "user": user,
             "sshUser": "ubuntu",
