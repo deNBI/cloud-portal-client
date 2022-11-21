@@ -7,6 +7,7 @@ import math
 import sys
 import zipfile
 from uuid import uuid4
+from typing import List
 
 try:
     from ancon.Playbook import ALL_TEMPLATES, Playbook
@@ -962,7 +963,13 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
-    def prepare_security_groups_new_server(self, resenv, servername, http, https):
+    def prepare_security_groups_new_server(
+        self,
+        resenv: List[str],
+        servername: str,
+        http: bool = False,
+        https: bool = False,
+    ):
         custom_security_groups = []
 
         if http or https:
@@ -1152,6 +1159,51 @@ class VirtualMachineHandler(Iface):
                 self.conn.network.delete_security_group(security_group)
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
+
+    def create_resenv_security_group_and_attach_to_server(
+        self, server_id: str, resenv_template: str
+    ):
+        LOG.info(f"Create {resenv_template} Security Group for Instance: {server_id}")
+
+        server = self.conn.get_server(name_or_id=server_id)
+
+        if server is None:
+            LOG.exception(f"Instance {server_id} not found")
+            raise serverNotFoundException
+        resenv_metadata = self.loaded_resenv_metadata[resenv_template]
+        resenv_security_group = self.conn.get_security_group(
+            name_or_id=server.name + resenv_metadata.security_group_name
+        )
+        if not resenv_security_group:
+            self.prepare_security_groups_new_server(
+                resenv=[resenv_template], servername=server.name
+            )
+            resenv_security_group = self.conn.get_security_group(
+                name_or_id=server.name + resenv_metadata.security_group_name
+            )
+        if resenv_security_group:
+            server_security_groups = self.conn.list_server_security_groups(server)
+            for sg in server_security_groups:
+                if sg["name"] == resenv_security_group.name:
+                    return
+            LOG.info(
+                f"Add {resenv_security_group} Security Groups to Instance: {server_id}"
+            )
+
+            self.conn.compute.add_security_group_to_server(
+                server=server_id, security_group=resenv_security_group
+            )
+
+    def create_resenv_security_group(self, resenv_template: str):
+        if resenv_template in self.loaded_resenv_metadata:
+            resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+
+            return self.create_security_group(
+                name=servername + resenv_metadata.security_group_name,
+                resenv=resenv,
+                description=resenv_metadata.security_group_description,
+                ssh=resenv_metadata.security_group_ssh,
+            )
 
     def start_server_with_custom_key(
         self,
