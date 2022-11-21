@@ -611,6 +611,7 @@ service VirtualMachineService {
 
 
     void add_server_metadata(1:string server_id,2: map<string,string> metadata) 	 throws (1:serverNotFoundException e),
+    void create_resenv_security_group_and_attach_to_server(1:string server_id,2:string resenv_template) throws (1:serverNotFoundException e),
 
     string add_cluster_machine(
         1:string cluster_id,
@@ -748,6 +749,9 @@ service VirtualMachineService {
     1:string openstack_id)
 
     throws (1:serverNotFoundException e,2:ressourceException r),
+
+
+
 
 
     /**
