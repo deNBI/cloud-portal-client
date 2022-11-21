@@ -2778,7 +2778,7 @@ class VirtualMachineHandler(Iface):
         self.ALL_TEMPLATES = [
             name
             for name in os.listdir(PLAYBOOKS_DIR)
-            if name not in ["optional", "packer", ".github"]
+            if name not in ["optional", "packer", ".github","cluster"]
             and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
         ]
         LOG.info(self.ALL_TEMPLATES)
