@@ -1790,7 +1790,9 @@ class VirtualMachineHandler(Iface):
                 if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
+                    ip_base= serv_cop.fixed_ip.split(".")[-2]
                     x = int(server_base)  # noqa F841
+                    y = int(ip_base)  # noqa F841
                     host = str(self.GATEWAY_IP)
                     port = eval(self.SSH_FORMULAR)
                 elif self.get_server(openstack_id).floating_ip is None:
@@ -2005,7 +2007,9 @@ class VirtualMachineHandler(Iface):
         LOG.info(f"Get IP and PORT for server {openstack_id}")
         server = self.get_server(openstack_id)
         server_base = server.fixed_ip.split(".")[-1]
+        ip_base = serv_cop.fixed_ip.split(".")[-2]
         x = int(server_base)  # noqa F841
+        y = int(ip_base)  # noqa F841
         port = eval(self.SSH_FORMULAR)
         udp_port_start = eval(self.UDP_FORMULAR)
         return {"port": str(port), "udp": str(udp_port_start)}
