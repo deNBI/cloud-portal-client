@@ -21,11 +21,11 @@ function check_service {
 			  #enable ip forwarding
 			  echo "1" > /proc/sys/net/ipv4/ip_forward
 
-      	for ((base=0; base <=2; base++))
+      	for ((base=0; base <=8; base++))
       			  {
       			    			  for ((n=1; n <=254; n++))
 				          {
-					   SSH_PORT=$((30000+$n + base *10000))
+					   SSH_PORT=$((30000+$n + base *256))
 
 					   echo $n
 					   echo $SSH_PORT

@@ -34,8 +34,8 @@ openstack_connection:
   use_ssl: True
 
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
-  ssh_port_calc_formular: 30000 + x + y * 10000
-  udp_port_calc_formular: x * 10 +  30000 + y * 10000
+  ssh_port_calc_formular: 30000 + x + y * 256
+  udp_port_calc_formular: 30000 + x + y * 256
 
 bibigrid:
   # Url for Bibigrid API

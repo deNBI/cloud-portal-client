@@ -2007,7 +2007,7 @@ class VirtualMachineHandler(Iface):
         LOG.info(f"Get IP and PORT for server {openstack_id}")
         server = self.get_server(openstack_id)
         server_base = server.fixed_ip.split(".")[-1]
-        ip_base = serv_cop.fixed_ip.split(".")[-2]
+        ip_base = server.fixed_ip.split(".")[-2]
         x = int(server_base)  # noqa F841
         y = int(ip_base)  # noqa F841
         port = eval(self.SSH_FORMULAR)
