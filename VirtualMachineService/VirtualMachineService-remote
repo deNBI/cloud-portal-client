@@ -74,6 +74,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  string check_server_task_state(string openstack_id)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
     print('  void add_server_metadata(string server_id,  metadata)')
+    print('  void create_resenv_security_group_and_attach_to_server(string server_id, string resenv_template)')
     print('  string add_cluster_machine(string cluster_id, string cluster_user, string cluster_group_id, string image, string flavor, string name, string key_name, int batch_idx, int worker_idx, string pub_key, string project_name, string project_id)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
     print('   get_cluster_status(string cluster_id)')
@@ -470,6 +471,12 @@ elif cmd == 'add_server_metadata':
         print('add_server_metadata requires 2 args')
         sys.exit(1)
     pp.pprint(client.add_server_metadata(args[0], eval(args[1]),))
+
+elif cmd == 'create_resenv_security_group_and_attach_to_server':
+    if len(args) != 2:
+        print('create_resenv_security_group_and_attach_to_server requires 2 args')
+        sys.exit(1)
+    pp.pprint(client.create_resenv_security_group_and_attach_to_server(args[0], args[1],))
 
 elif cmd == 'add_cluster_machine':
     if len(args) != 12:

@@ -7,6 +7,7 @@ import math
 import sys
 import zipfile
 from uuid import uuid4
+from typing import List
 
 try:
     from ancon.Playbook import ALL_TEMPLATES, Playbook
@@ -47,7 +48,7 @@ except Exception:
         Playbook,
         ALL_TEMPLATES,
     )
-
+import time
 import datetime
 import glob
 import json
@@ -287,7 +288,9 @@ class VirtualMachineHandler(Iface):
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
         self.update_playbooks()
         self.conn = self.create_connection()
+        self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
+
 
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
@@ -962,7 +965,13 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
-    def prepare_security_groups_new_server(self, resenv, servername, http, https):
+    def prepare_security_groups_new_server(
+            self,
+            resenv: List[str],
+            servername: str,
+            http: bool = False,
+            https: bool = False,
+    ):
         custom_security_groups = []
 
         if http or https:
@@ -1152,6 +1161,51 @@ class VirtualMachineHandler(Iface):
                 self.conn.network.delete_security_group(security_group)
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
+
+    def create_resenv_security_group_and_attach_to_server(
+            self, server_id: str, resenv_template: str
+    ):
+        LOG.info(f"Create {resenv_template} Security Group for Instance: {server_id}")
+
+        server = self.conn.get_server(name_or_id=server_id)
+
+        if server is None:
+            LOG.exception(f"Instance {server_id} not found")
+            raise serverNotFoundException
+        resenv_metadata = self.loaded_resenv_metadata[resenv_template]
+        resenv_security_group = self.conn.get_security_group(
+            name_or_id=server.name + resenv_metadata.security_group_name
+        )
+        if not resenv_security_group:
+            self.prepare_security_groups_new_server(
+                resenv=[resenv_template], servername=server.name
+            )
+            resenv_security_group = self.conn.get_security_group(
+                name_or_id=server.name + resenv_metadata.security_group_name
+            )
+        if resenv_security_group:
+            server_security_groups = self.conn.list_server_security_groups(server)
+            for sg in server_security_groups:
+                if sg["name"] == resenv_security_group.name:
+                    return
+            LOG.info(
+                f"Add {resenv_security_group} Security Groups to Instance: {server_id}"
+            )
+
+            self.conn.compute.add_security_group_to_server(
+                server=server_id, security_group=resenv_security_group
+            )
+
+    def create_resenv_security_group(self, resenv_template: str):
+        if resenv_template in self.loaded_resenv_metadata:
+            resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
+
+            return self.create_security_group(
+                name=servername + resenv_metadata.security_group_name,
+                resenv=resenv,
+                description=resenv_metadata.security_group_description,
+                ssh=resenv_metadata.security_group_ssh,
+            )
 
     def start_server_with_custom_key(
             self,
@@ -1738,7 +1792,9 @@ class VirtualMachineHandler(Iface):
                 if self.USE_GATEWAY:
                     serv_cop = self.get_server(openstack_id)
                     server_base = serv_cop.fixed_ip.split(".")[-1]
+                    ip_base = serv_cop.fixed_ip.split(".")[-2]
                     x = int(server_base)  # noqa F841
+                    y = int(ip_base)  # noqa F841
                     host = str(self.GATEWAY_IP)
                     port = eval(self.SSH_FORMULAR)
                 elif self.get_server(openstack_id).floating_ip is None:
@@ -1885,17 +1941,15 @@ class VirtualMachineHandler(Iface):
 
             return True
 
-        ip_base = (
-            list(self.conn.compute.server_ips(server=server_id))[0]
-            .to_dict()["address"]
-            .split(".")[-1]
-        )
-        x = int(ip_base)  # noqa F841
-        udp_port_start = eval(self.UDP_FORMULAR)
-
+        server = self.get_server(server_id)
+        server_base = server.fixed_ip.split(".")[-1]
+        ip_base = server.fixed_ip.split(".")[-2]
+        x = int(server_base)  # noqa F841
+        y = int(ip_base)  # noqa F841
+        udp_port = eval(self.UDP_FORMULAR)
         security_group = self.create_security_group(
             name=server.name + "_udp",
-            udp_port_start=udp_port_start,
+            udp_port=udp_port,
             udp=True,
             ssh=False,
             https=False,
@@ -1953,10 +2007,12 @@ class VirtualMachineHandler(Iface):
         LOG.info(f"Get IP and PORT for server {openstack_id}")
         server = self.get_server(openstack_id)
         server_base = server.fixed_ip.split(".")[-1]
+        ip_base = server.fixed_ip.split(".")[-2]
         x = int(server_base)  # noqa F841
+        y = int(ip_base)  # noqa F841
         port = eval(self.SSH_FORMULAR)
-        udp_port_start = eval(self.UDP_FORMULAR)
-        return {"port": str(port), "udp": str(udp_port_start)}
+        udp_port = eval(self.UDP_FORMULAR)
+        return {"port": str(port), "udp": str(udp_port)}
 
     def terminate_cluster(self, cluster_id):
         headers = {"content-Type": "application/json"}
@@ -2061,7 +2117,9 @@ class VirtualMachineHandler(Iface):
             project_name,
             project_id,
     ):
-        LOG.info(f"Add machine to [{name}] {cluster_id} - [Image: {image}] - {key_name}")
+        LOG.info(
+            f"Add machine to [{name}] {cluster_id} - [Image: {image}] - {key_name}"
+        )
         try:
             openstack_image = self.get_image(image=image)
         except imageNotFoundException:
@@ -2071,7 +2129,9 @@ class VirtualMachineHandler(Iface):
 
                 if version in image:
                     version_to_check = version.replace(".", "")
-                    LOG.info(f"Version {version} in {image}!\Checking for image {version_to_check}...")
+                    LOG.info(
+                        f"Version {version} in {image}!\Checking for image {version_to_check}..."
+                    )
                     openstack_image = self.get_active_image_by_os_version(
                         os_version=version_to_check, os_distro="ubuntu"
                     )
@@ -2520,6 +2580,14 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Resume Server {openstack_id} error:")
             return False
 
+    def validate_gateway_security_group(self):
+        LOG.info(f"Check if gateway security group exists {self.GATEWAY_SECURITY_GROUP_ID}")
+        gateway_security_id=self.conn.get_security_group(self.GATEWAY_SECURITY_GROUP_ID)
+        if not gateway_security_id:
+            LOG.error(f"Gateway Security Group ID {self.GATEWAY_SECURITY_GROUP_ID} does not exist!")
+            sys.exit(1)
+        else:
+            LOG.info(f"Gateway Security Group ID {self.GATEWAY_SECURITY_GROUP_ID} found")
     def create_or_get_default_ssh_security_group(self):
         LOG.info("Get default SimpleVM SSH Security Group")
         sec = self.conn.get_security_group(name_or_id=self.DEFAULT_SECURITY_GROUP_NAME)
@@ -2535,7 +2603,7 @@ class VirtualMachineHandler(Iface):
     def create_security_group(
             self,
             name,
-            udp_port_start=None,
+            udp_port=None,
             ssh=True,
             http=False,
             https=False,
@@ -2551,6 +2619,7 @@ class VirtualMachineHandler(Iface):
         new_security_group = self.conn.create_security_group(
             name=name, description=description
         )
+        LOG.info(new_security_group)
         if http:
             LOG.info(f"Add http rule to security group {name}")
             self.conn.network.create_security_group_rule(
@@ -2589,16 +2658,16 @@ class VirtualMachineHandler(Iface):
             )
         if udp:
             LOG.info(
-                "Add udp rule ports {} - {} to security group {}".format(
-                    udp_port_start, udp_port_start + 9, name
+                "Add udp rule port {} to security group {} ({})".format(
+                    udp_port, name,new_security_group["id"],
                 )
             )
 
             self.conn.network.create_security_group_rule(
                 direction="ingress",
                 protocol="udp",
-                port_range_max=udp_port_start + 9,
-                port_range_min=udp_port_start,
+                port_range_max=udp_port,
+                port_range_min=udp_port,
                 security_group_id=new_security_group["id"],
                 remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
@@ -2606,8 +2675,8 @@ class VirtualMachineHandler(Iface):
                 direction="ingress",
                 ether_type="IPv6",
                 protocol="udp",
-                port_range_max=udp_port_start + 9,
-                port_range_min=udp_port_start,
+                port_range_max=udp_port,
+                port_range_min=udp_port,
                 security_group_id=new_security_group["id"],
                 remote_group_id=self.GATEWAY_SECURITY_GROUP_ID,
             )
@@ -2722,7 +2791,7 @@ class VirtualMachineHandler(Iface):
         self.ALL_TEMPLATES = [
             name
             for name in os.listdir(PLAYBOOKS_DIR)
-            if name not in ["optional", "packer", ".github"]
+            if name not in ["optional", "packer", ".github", "cluster"]
                and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
         ]
         LOG.info(self.ALL_TEMPLATES)
