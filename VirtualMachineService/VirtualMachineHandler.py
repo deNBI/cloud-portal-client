@@ -48,7 +48,6 @@ except Exception:
         Playbook,
         ALL_TEMPLATES,
     )
-import time
 import datetime
 import glob
 import json
@@ -1205,6 +1204,7 @@ class VirtualMachineHandler(Iface):
                 description=resenv_metadata.security_group_description,
                 ssh=resenv_metadata.security_group_ssh,
             )
+        return None
 
     def start_server_with_custom_key(
         self,
