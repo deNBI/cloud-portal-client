@@ -2123,16 +2123,15 @@ class VirtualMachineHandler(Iface):
             openstack_image = self.get_image(image=image)
         except imageNotFoundException:
             openstack_image = None
-            for version in ["18.04", "20.04", "22.04"]:
+            for version in ["18.04", "20.04", "22.04","1804","2004","2204"]:
                 LOG.info(f"Checking if [{version}] in [{image}]")
 
                 if version in image:
-                    version_to_check = version.replace(".", "")
                     LOG.info(
-                        f"Version {version} in {image}!\Checking for image {version_to_check}..."
+                        f"Version {version} in {image}!\Checking for image ..."
                     )
                     openstack_image = self.get_active_image_by_os_version(
-                        os_version=version_to_check, os_distro="ubuntu"
+                        os_version=version, os_distro="ubuntu"
                     )
                     break
             if not openstack_image:
