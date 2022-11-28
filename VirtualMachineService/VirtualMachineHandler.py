@@ -290,7 +290,6 @@ class VirtualMachineHandler(Iface):
         self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
 
-
     @deprecated(version="1.0.0", reason="Not supported at the moment")
     def setUserPassword(self, user, password):
         """
@@ -2124,7 +2123,7 @@ class VirtualMachineHandler(Iface):
             openstack_image = self.get_image(image=image)
         except imageNotFoundException:
             openstack_image = None
-            for version in ["18.04", "20.04", "22.04","1804","2004","2204"]:
+            for version in ["18.04", "20.04", "22.04", "1804", "2004", "2204"]:
                 LOG.info(f"Checking if [{version}] in [{image}]")
 
                 if version in image:
@@ -2167,19 +2166,23 @@ class VirtualMachineHandler(Iface):
 
         self.conn.compute.create_keypair(name=new_key_name, public_key=pub_key)
 
-        server = self.conn.create_server(
-            name=name,
-            image=openstack_image.id,
-            flavor=flavor.id,
-            network=[network.id],
-            userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
-            key_name=new_key_name,
-            meta=metadata,
-            availability_zone=self.AVAIALABILITY_ZONE,
-            security_groups=cluster_group_id,
-        )
-        LOG.info(f"Created cluster machine:{server['id']}")
-
+        try:
+            server = self.conn.create_server(
+                name=name,
+                image=openstack_image.id,
+                flavor=flavor.id,
+                network=[network.id],
+                userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
+                key_name=new_key_name,
+                meta=metadata,
+                availability_zone=self.AVAIALABILITY_ZONE,
+                security_groups=cluster_group_id,
+            )
+            LOG.info(f"Created cluster machine:{server['id']}")
+        except Exception as e:
+            LOG.exception(f"Could no create cluster machine - {name}")
+            self.delete_keypair(new_key_name)
+            raise otherException(Reason=str(e))
         self.delete_keypair(new_key_name)
 
         return server["id"]
@@ -2581,12 +2584,13 @@ class VirtualMachineHandler(Iface):
 
     def validate_gateway_security_group(self):
         LOG.info(f"Check if gateway security group exists {self.GATEWAY_SECURITY_GROUP_ID}")
-        gateway_security_id=self.conn.get_security_group(self.GATEWAY_SECURITY_GROUP_ID)
+        gateway_security_id = self.conn.get_security_group(self.GATEWAY_SECURITY_GROUP_ID)
         if not gateway_security_id:
             LOG.error(f"Gateway Security Group ID {self.GATEWAY_SECURITY_GROUP_ID} does not exist!")
             sys.exit(1)
         else:
             LOG.info(f"Gateway Security Group ID {self.GATEWAY_SECURITY_GROUP_ID} found")
+
     def create_or_get_default_ssh_security_group(self):
         LOG.info("Get default SimpleVM SSH Security Group")
         sec = self.conn.get_security_group(name_or_id=self.DEFAULT_SECURITY_GROUP_NAME)
@@ -2658,7 +2662,7 @@ class VirtualMachineHandler(Iface):
         if udp:
             LOG.info(
                 "Add udp rule port {} to security group {} ({})".format(
-                    udp_port, name,new_security_group["id"],
+                    udp_port, name, new_security_group["id"],
                 )
             )
 
