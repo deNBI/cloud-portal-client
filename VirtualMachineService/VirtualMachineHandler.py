@@ -1058,17 +1058,22 @@ class VirtualMachineHandler(Iface):
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
             )
+            unlock_ubuntu_user_script = "\npasswd -u ubuntu\n"
+            unlock_ubuntu_user_script=encodeutils.safe_encode(unlock_ubuntu_user_script.encode("utf-8"))
             if additional_keys:
                 if init_script:
                     add_key_script = self.create_add_keys_script(keys=additional_keys)
                     init_script = (
                             add_key_script
                             + encodeutils.safe_encode("\n".encode("utf-8"))
+                            + unlock_ubuntu_user_script
                             + init_script
+
                     )
 
                 else:
-                    init_script = self.create_add_keys_script(keys=additional_keys)
+                    init_script = self.create_add_keys_script(keys=additional_keys) + encodeutils.safe_encode(
+                        "\n".encode("utf-8")) + unlock_ubuntu_user_script
 
             server = self.conn.create_server(
                 name=servername,
