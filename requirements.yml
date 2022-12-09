@@ -1,6 +1,6 @@
 roles:
   - name: oefenweb.rstudio_server
-    version: v2.7.1
+    version: v3.0.2
 
   - name: oefenweb.latest_r
     version: v3.1.1
