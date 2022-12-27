@@ -2477,7 +2477,7 @@ class VirtualMachineHandler(Iface):
                 if instance_id == server_id:
                     LOG.info(f"Delete Volume Attachment  {volume_attachment_id}")
                     self.conn.compute.delete_volume_attachment(
-                        volume_attachment=volume_attachment_id, server=server_id
+                        volume_id=volume_attachment_id, server=server_id
                     )
             return True
         except ConflictException:
