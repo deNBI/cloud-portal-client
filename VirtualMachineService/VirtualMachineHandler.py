@@ -33,18 +33,18 @@ try:
     from VirtualMachineService import Iface
 
 except Exception:
-    from .VirtualMachineService import Iface
-    from .ttypes import serverNotFoundException
-    from .ttypes import imageNotFoundException
-    from .ttypes import networkNotFoundException
-    from .ttypes import authenticationException
-    from .ttypes import otherException
-    from .ttypes import flavorNotFoundException
-    from .ttypes import ressourceException
-    from .ttypes import conflictException
-    from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
-    from .constants import VERSION
-    from .ancon.Playbook import (
+    from VirtualMachineService import Iface
+    from ttypes import serverNotFoundException
+    from ttypes import imageNotFoundException
+    from ttypes import networkNotFoundException
+    from ttypes import authenticationException
+    from ttypes import otherException
+    from ttypes import flavorNotFoundException
+    from ttypes import ressourceException
+    from ttypes import conflictException
+    from ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
+    from constants import VERSION
+    from ancon.Playbook import (
         Playbook,
         ALL_TEMPLATES,
     )
