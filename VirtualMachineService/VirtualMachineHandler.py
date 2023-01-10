@@ -2470,24 +2470,19 @@ class VirtualMachineHandler(Iface):
         :return: True if deleted, False if not
         """
         try:
-            attachments = self.conn.block_storage.get_volume(volume_id).attachments
-            for attachment in attachments:
-                volume_attachment_id = attachment["id"]
-                instance_id = attachment["server_id"]
-                if instance_id == server_id:
-                    LOG.info(f"Delete Volume Attachment  {volume_attachment_id}")
-                    self.conn.compute.delete_volume_attachment(
-                        volume_attachment=volume_attachment_id, server=server_id
-                    )
+            LOG.info(f"Detach volume {volume_id}")
+            self.conn.compute.delete_volume_attachment(
+                volume=volume_id, server=server_id
+            )
             return True
         except ConflictException:
             LOG.exception(
-                f"Delete volume attachment (server: {server_id} volume: {volume_id}) error"
+                f"Detachment of volume (server: {server_id} volume: {volume_id}) error"
             )
 
             raise conflictException(Reason="409")
         except Exception:
-            LOG.exception(f"Delete Volume Attachment  {volume_attachment_id} error")
+            LOG.exception(f"Detachment of volume {volume_id} error")
             return False
 
     def delete_volume(self, volume_id):
