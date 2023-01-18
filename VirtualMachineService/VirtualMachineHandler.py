@@ -196,9 +196,10 @@ class VirtualMachineHandler(Iface):
                     "APPLICATION_CREDENTIAL_SECRET"
                 ]
             except KeyError:
-                LOG.error("Usage of Application Credentials enabled - but no credential id or/and secret provided in env!")
+                LOG.error(
+                    "Usage of Application Credentials enabled - but no credential id or/and secret provided in env!"
+                )
                 sys.exit(1)
-
 
         self.SSH_PORT = 22
 
@@ -261,7 +262,9 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
                     "ansibleGalaxyRoles", []
                 )
-                self.BIBIGRID_LOCAL_DNS_LOOKUP = cfg["bibigrid"].get('localDnsLookup', False)
+                self.BIBIGRID_LOCAL_DNS_LOOKUP = cfg["bibigrid"].get(
+                    "localDnsLookup", False
+                )
                 LOG.info(
                     f"Loaded Ansible Galaxy Roles for Bibigrid:\n {self.BIBIGRID_ANSIBLE_ROLES}"
                 )
@@ -2277,7 +2280,7 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
             "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
-            "localDNSLookup": self.BIBIGRID_LOCAL_DNS_LOOKUP
+            "localDNSLookup": self.BIBIGRID_LOCAL_DNS_LOOKUP,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
