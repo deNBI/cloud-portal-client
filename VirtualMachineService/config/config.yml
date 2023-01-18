@@ -42,6 +42,7 @@ bibigrid:
     port: 8080
     host: bibigrid
     https: False
+    localDnsLookup: False
     sub_network: portalexternalsubnetwork
     bibigrid_modes:
       -   slurm

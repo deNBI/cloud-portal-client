@@ -153,7 +153,6 @@ class VirtualMachineHandler(Iface):
             else:
                 LOG.info("Using User Credentials for OpenStack Connection")
 
-
                 conn = connection.Connection(
                     username=self.USERNAME,
                     password=self.PASSWORD,
@@ -188,11 +187,13 @@ class VirtualMachineHandler(Iface):
         self.PROJECT_DOMAIN_ID = os.environ["OS_PROJECT_DOMAIN_ID"]
         self.USE_APPLICATION_CREDENTIALS = os.environ.get("USE_APPLICATION_CREDENTIALS", False)
         if self.USE_APPLICATION_CREDENTIALS:
+            LOG.info("APPLICATION CREDENTIALS will be used!")
             try:
                 self.APPLICATION_CREDENTIAL_ID = os.environ["APPLICATION_CREDENTIAL_ID"]
                 self.APPLICATION_CREDENTIAL_SECRET = os.environ["APPLICATION_CREDENTIAL_SECRET"]
             except KeyError:
                 LOG.error("Usage of Application Credentials enabled - but no credential id or/and secret provided in env!")
+                sys.exit(1)
 
         self.SSH_PORT = 22
 
@@ -255,6 +256,7 @@ class VirtualMachineHandler(Iface):
                 self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
                     "ansibleGalaxyRoles", []
                 )
+                self.BIBIGRID_LOCAL_DNS_LOOKUP = cfg["bibigrid"].get('localDnsLookup', False)
                 LOG.info(
                     f"Loaded Ansible Galaxy Roles for Bibigrid:\n {self.BIBIGRID_ANSIBLE_ROLES}"
                 )
@@ -2270,6 +2272,7 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
             "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
+            "localDNSLookup": self.BIBIGRID_LOCAL_DNS_LOOKUP
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
