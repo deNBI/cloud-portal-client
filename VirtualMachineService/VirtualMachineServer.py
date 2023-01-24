@@ -72,7 +72,10 @@ def startServer(config):
         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_context.load_cert_chain(CERTFILE)
         ssl_context.check_hostname = False
-        ssl_context.load_verify_locations(CA_CERTS_PATH)
+        try:
+            ssl_context.load_verify_locations(CA_CERTS_PATH)
+        except Exception as e:
+            click.echo(f"Could nto validate ca  -{e}")
 
         transport = TSSLSocket.TSSLServerSocket(
             host=HOST, port=PORT, ssl_context=ssl_context, ssl_version=ssl.PROTOCOL_TLS_SERVER
