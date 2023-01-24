@@ -10,6 +10,7 @@ services:
     volumes:
       -  ${client_PERSISTENT_PATH}/config.yml:/code/VirtualMachineService/config.yml
       -  ${client_PERSISTENT_PATH}/server.pem:/code/VirtualMachineService/keys/server.pem
+      -  ${client_PERSISTENT_PATH}/server.pem:/code/VirtualMachineService/keys/CA.pem
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:

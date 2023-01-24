@@ -31,6 +31,7 @@ openstack_connection:
   availability_zone: default
   # If you use docker-compose this path needs to be the path you mount the server.pem into
   certfile: /code/VirtualMachineService/keys/server.pem
+  ca_certs_path: /code/VirtualMachineService/keys/CA.pem
   use_ssl: True
 
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
