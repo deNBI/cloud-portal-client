@@ -62,7 +62,7 @@ def startServer(config):
         USE_SSL = cfg["openstack_connection"].get("use_ssl", True)
         if USE_SSL:
             CERTFILE = cfg["openstack_connection"]["certfile"]
-            CA_CERTS_PATH = cfg["openstack_connection"]["ca_certs_path"]
+            CA_CERTS_PATH = cfg["openstack_connection"].get("ca_certs_path",None)
         THREADS = cfg["openstack_connection"]["threads"]
     click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
@@ -71,9 +71,9 @@ def startServer(config):
         click.echo("Use SSL")
         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_context.load_cert_chain(CERTFILE)
-        ssl_context.check_hostname = False
-
-        ssl_context.load_verify_locations(CA_CERTS_PATH)
+        if CA_CERTS_PATH:
+            click.echo(f"CA Certs present. Verify...")
+            ssl_context.load_verify_locations(CA_CERTS_PATH)
 
         transport = TSSLSocket.TSSLServerSocket(
             host=HOST, port=PORT, ssl_context=ssl_context
