@@ -142,14 +142,25 @@ class VirtualMachineHandler(Iface):
         """
         try:
 
-            conn = connection.Connection(
-                username=self.USERNAME,
-                password=self.PASSWORD,
-                auth_url=self.AUTH_URL,
-                project_name=self.PROJECT_NAME,
-                user_domain_name=self.USER_DOMAIN_NAME,
-                project_domain_id=self.PROJECT_DOMAIN_ID,
-            )
+            if self.USE_APPLICATION_CREDENTIALS:
+                LOG.info("Using Application Credentials for OpenStack Connection")
+                conn = connection.Connection(
+                    auth_url=self.AUTH_URL,
+                    application_credential_id=self.APPLICATION_CREDENTIAL_ID,
+                    application_credential_secret=self.APPLICATION_CREDENTIAL_SECRET,
+                    auth_type="v3applicationcredential",
+                )
+            else:
+                LOG.info("Using User Credentials for OpenStack Connection")
+
+                conn = connection.Connection(
+                    username=self.USERNAME,
+                    password=self.PASSWORD,
+                    auth_url=self.AUTH_URL,
+                    project_name=self.PROJECT_NAME,
+                    user_domain_name=self.USER_DOMAIN_NAME,
+                    project_domain_id=self.PROJECT_DOMAIN_ID,
+                )
             conn.authorize()
         except Exception as e:
             LOG.exception("Client failed authentication at Openstack : {0}", e)
@@ -174,6 +185,22 @@ class VirtualMachineHandler(Iface):
         self.USER_DOMAIN_NAME = os.environ["OS_USER_DOMAIN_NAME"]
         self.AUTH_URL = os.environ["OS_AUTH_URL"]
         self.PROJECT_DOMAIN_ID = os.environ["OS_PROJECT_DOMAIN_ID"]
+        self.USE_APPLICATION_CREDENTIALS = os.environ.get(
+            "USE_APPLICATION_CREDENTIALS", False
+        )
+        if self.USE_APPLICATION_CREDENTIALS:
+            LOG.info("APPLICATION CREDENTIALS will be used!")
+            try:
+                self.APPLICATION_CREDENTIAL_ID = os.environ["APPLICATION_CREDENTIAL_ID"]
+                self.APPLICATION_CREDENTIAL_SECRET = os.environ[
+                    "APPLICATION_CREDENTIAL_SECRET"
+                ]
+            except KeyError:
+                LOG.error(
+                    "Usage of Application Credentials enabled - but no credential id or/and secret provided in env!"
+                )
+                sys.exit(1)
+
         self.SSH_PORT = 22
 
         with open(config, "r") as ymlfile:
@@ -234,6 +261,9 @@ class VirtualMachineHandler(Iface):
                 )
                 self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
                     "ansibleGalaxyRoles", []
+                )
+                self.BIBIGRID_LOCAL_DNS_LOOKUP = cfg["bibigrid"].get(
+                    "localDnsLookup", False
                 )
                 LOG.info(
                     f"Loaded Ansible Galaxy Roles for Bibigrid:\n {self.BIBIGRID_ANSIBLE_ROLES}"
@@ -2250,6 +2280,7 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
             "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
+            "localDNSLookup": self.BIBIGRID_LOCAL_DNS_LOOKUP,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
