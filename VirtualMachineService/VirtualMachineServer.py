@@ -62,7 +62,7 @@ def startServer(config):
         USE_SSL = cfg["openstack_connection"].get("use_ssl", True)
         if USE_SSL:
             CERTFILE = cfg["openstack_connection"]["certfile"]
-            CA_CERTS_PATH = cfg["openstack_connection"].get("ca_certs_path",None)
+            CA_CERTS_PATH = cfg["openstack_connection"].get("ca_certs_path", None)
         THREADS = cfg["openstack_connection"]["threads"]
     click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
