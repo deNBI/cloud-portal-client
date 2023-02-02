@@ -144,7 +144,6 @@ class VirtualMachineHandler(Iface):
         :return: OpenStack connection instance
         """
         try:
-
             if self.USE_APPLICATION_CREDENTIALS:
                 LOG.info("Using Application Credentials for OpenStack Connection")
                 conn = connection.Connection(
@@ -437,7 +436,6 @@ class VirtualMachineHandler(Iface):
                 and x["status"] == "active",
                 self.conn.list_images(),
             ):
-
                 properties = img.get("properties")
                 if not properties:
                     properties = {}
@@ -973,7 +971,6 @@ class VirtualMachineHandler(Iface):
             research_environment_names=resenv
         )
         try:
-
             server = self.conn.create_server(
                 name=servername,
                 image=image.id,
@@ -1239,7 +1236,6 @@ class VirtualMachineHandler(Iface):
         volume_ids_path_new=None,
         volume_ids_path_attach=None,
     ):
-
         """
         Start a new Server.
 
@@ -1723,7 +1719,6 @@ class VirtualMachineHandler(Iface):
     def get_volume(self, volume_id):
         LOG.info(f"Get Volume {volume_id}")
         try:
-
             os_volume = self.conn.get_volume_by_id(id=volume_id)
             LOG.info(os_volume)
             if os_volume.attachments:
@@ -1880,7 +1875,6 @@ class VirtualMachineHandler(Iface):
             img = None
         for values in server.addresses.values():
             for address in values:
-
                 if address["OS-EXT-IPS:type"] == "floating":
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
@@ -2073,7 +2067,6 @@ class VirtualMachineHandler(Iface):
                 return True
 
             else:
-
                 LOG.exception("Bibigrid is offline")
                 return False
 
@@ -2107,7 +2100,6 @@ class VirtualMachineHandler(Iface):
                     if os_distro and os_distro == image_os_distro:
                         return image
                     elif os_distro is None:
-
                         return image
         return None
 
@@ -2363,7 +2355,6 @@ class VirtualMachineHandler(Iface):
         :return: The floating ip
         """
         try:
-
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
                 LOG.exception(f"Instance {openstack_id} not found")
