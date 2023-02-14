@@ -141,15 +141,25 @@ class VirtualMachineHandler(Iface):
         :return: OpenStack connection instance
         """
         try:
+            if self.USE_APPLICATION_CREDENTIALS:
+                LOG.info("Using Application Credentials for OpenStack Connection")
+                conn = connection.Connection(
+                    auth_url=self.AUTH_URL,
+                    application_credential_id=self.APPLICATION_CREDENTIAL_ID,
+                    application_credential_secret=self.APPLICATION_CREDENTIAL_SECRET,
+                    auth_type="v3applicationcredential",
+                )
+            else:
+                LOG.info("Using User Credentials for OpenStack Connection")
 
-            conn = connection.Connection(
-                username=self.USERNAME,
-                password=self.PASSWORD,
-                auth_url=self.AUTH_URL,
-                project_name=self.PROJECT_NAME,
-                user_domain_name=self.USER_DOMAIN_NAME,
-                project_domain_id=self.PROJECT_DOMAIN_ID,
-            )
+                conn = connection.Connection(
+                    username=self.USERNAME,
+                    password=self.PASSWORD,
+                    auth_url=self.AUTH_URL,
+                    project_name=self.PROJECT_NAME,
+                    user_domain_name=self.USER_DOMAIN_NAME,
+                    project_domain_id=self.PROJECT_DOMAIN_ID,
+                )
             conn.authorize()
         except Exception as e:
             LOG.exception("Client failed authentication at Openstack : {0}", e)
@@ -174,6 +184,22 @@ class VirtualMachineHandler(Iface):
         self.USER_DOMAIN_NAME = os.environ["OS_USER_DOMAIN_NAME"]
         self.AUTH_URL = os.environ["OS_AUTH_URL"]
         self.PROJECT_DOMAIN_ID = os.environ["OS_PROJECT_DOMAIN_ID"]
+        self.USE_APPLICATION_CREDENTIALS = os.environ.get(
+            "USE_APPLICATION_CREDENTIALS", False
+        )
+        if self.USE_APPLICATION_CREDENTIALS:
+            LOG.info("APPLICATION CREDENTIALS will be used!")
+            try:
+                self.APPLICATION_CREDENTIAL_ID = os.environ["APPLICATION_CREDENTIAL_ID"]
+                self.APPLICATION_CREDENTIAL_SECRET = os.environ[
+                    "APPLICATION_CREDENTIAL_SECRET"
+                ]
+            except KeyError:
+                LOG.error(
+                    "Usage of Application Credentials enabled - but no credential id or/and secret provided in env!"
+                )
+                sys.exit(1)
+
         self.SSH_PORT = 22
 
         with open(config, "r") as ymlfile:
@@ -234,6 +260,9 @@ class VirtualMachineHandler(Iface):
                 )
                 self.BIBIGRID_ANSIBLE_ROLES = cfg["bibigrid"].get(
                     "ansibleGalaxyRoles", []
+                )
+                self.BIBIGRID_LOCAL_DNS_LOOKUP = cfg["bibigrid"].get(
+                    "localDnsLookup", False
                 )
                 LOG.info(
                     f"Loaded Ansible Galaxy Roles for Bibigrid:\n {self.BIBIGRID_ANSIBLE_ROLES}"
@@ -403,7 +432,6 @@ class VirtualMachineHandler(Iface):
                 and x["status"] == "active",
                 self.conn.list_images(),
             ):
-
                 properties = img.get("properties")
                 if not properties:
                     properties = {}
@@ -939,7 +967,6 @@ class VirtualMachineHandler(Iface):
             resenv=resenv, servername=servername, http=http, https=https
         )
         try:
-
             server = self.conn.create_server(
                 name=servername,
                 image=image.id,
@@ -1058,17 +1085,26 @@ class VirtualMachineHandler(Iface):
                 volume_ids_path_new=volume_ids_path_new,
                 volume_ids_path_attach=volume_ids_path_attach,
             )
+            unlock_ubuntu_user_script = "\npasswd -u ubuntu\n"
+            unlock_ubuntu_user_script = encodeutils.safe_encode(
+                unlock_ubuntu_user_script.encode("utf-8")
+            )
             if additional_keys:
                 if init_script:
                     add_key_script = self.create_add_keys_script(keys=additional_keys)
                     init_script = (
                         add_key_script
                         + encodeutils.safe_encode("\n".encode("utf-8"))
+                        + unlock_ubuntu_user_script
                         + init_script
                     )
 
                 else:
-                    init_script = self.create_add_keys_script(keys=additional_keys)
+                    init_script = (
+                        self.create_add_keys_script(keys=additional_keys)
+                        + encodeutils.safe_encode("\n".encode("utf-8"))
+                        + unlock_ubuntu_user_script
+                    )
 
             server = self.conn.create_server(
                 name=servername,
@@ -1218,7 +1254,6 @@ class VirtualMachineHandler(Iface):
         volume_ids_path_new=None,
         volume_ids_path_attach=None,
     ):
-
         """
         Start a new Server.
 
@@ -1703,7 +1738,6 @@ class VirtualMachineHandler(Iface):
     def get_volume(self, volume_id):
         LOG.info(f"Get Volume {volume_id}")
         try:
-
             os_volume = self.conn.get_volume_by_id(id=volume_id)
             LOG.info(os_volume)
             if os_volume.attachments:
@@ -1860,7 +1894,6 @@ class VirtualMachineHandler(Iface):
             img = None
         for values in server.addresses.values():
             for address in values:
-
                 if address["OS-EXT-IPS:type"] == "floating":
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
@@ -2053,7 +2086,6 @@ class VirtualMachineHandler(Iface):
                 return True
 
             else:
-
                 LOG.exception("Bibigrid is offline")
                 return False
 
@@ -2087,7 +2119,6 @@ class VirtualMachineHandler(Iface):
                     if os_distro and os_distro == image_os_distro:
                         return image
                     elif os_distro is None:
-
                         return image
         return None
 
@@ -2241,6 +2272,7 @@ class VirtualMachineHandler(Iface):
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
             "ansibleGalaxyRoles": self.BIBIGRID_ANSIBLE_ROLES,
+            "localDNSLookup": self.BIBIGRID_LOCAL_DNS_LOOKUP,
         }
         for mode in self.BIBIGRID_MODES:
             body.update({mode: True})
@@ -2342,7 +2374,6 @@ class VirtualMachineHandler(Iface):
         :return: The floating ip
         """
         try:
-
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
                 LOG.exception(f"Instance {openstack_id} not found")
@@ -2461,24 +2492,19 @@ class VirtualMachineHandler(Iface):
         :return: True if deleted, False if not
         """
         try:
-            attachments = self.conn.block_storage.get_volume(volume_id).attachments
-            for attachment in attachments:
-                volume_attachment_id = attachment["id"]
-                instance_id = attachment["server_id"]
-                if instance_id == server_id:
-                    LOG.info(f"Delete Volume Attachment  {volume_attachment_id}")
-                    self.conn.compute.delete_volume_attachment(
-                        volume_attachment=volume_attachment_id, server=server_id
-                    )
+            LOG.info(f"Detach volume {volume_id}")
+            self.conn.compute.delete_volume_attachment(
+                volume=volume_id, server=server_id
+            )
             return True
         except ConflictException:
             LOG.exception(
-                f"Delete volume attachment (server: {server_id} volume: {volume_id}) error"
+                f"Detachment of volume (server: {server_id} volume: {volume_id}) error"
             )
 
             raise conflictException(Reason="409")
         except Exception:
-            LOG.exception(f"Delete Volume Attachment  {volume_attachment_id} error")
+            LOG.exception(f"Detachment of volume {volume_id} error")
             return False
 
     def delete_volume(self, volume_id):

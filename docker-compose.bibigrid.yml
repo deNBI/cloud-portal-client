@@ -10,6 +10,7 @@ services:
     volumes:
       -  ${client_PERSISTENT_PATH}/config.yml:/code/VirtualMachineService/config.yml
       -  ${client_PERSISTENT_PATH}/server.pem:/code/VirtualMachineService/keys/server.pem
+      -  ${client_PERSISTENT_PATH}/CA.pem:/code/VirtualMachineService/keys/CA.pem
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
@@ -17,7 +18,7 @@ services:
 
   client_redis:
     container_name: client_redis
-    image: redis:7.0.5
+    image: redis:7.0.8
     expose:
       - "6379"
     networks:
@@ -40,7 +41,7 @@ services:
 
   # filebeat
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.5.3
+    image: docker.elastic.co/beats/filebeat:8.6.1
     env_file:
       - .env
     volumes:
