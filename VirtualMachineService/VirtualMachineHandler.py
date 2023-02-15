@@ -999,10 +999,10 @@ class VirtualMachineHandler(Iface):
                 research_environment_metadata = self.loaded_resenv_metadata[research_environment]
                 security_group = self.get_or_create_research_environment_security_group(resenv_metadata=research_environment_metadata)
                 custom_security_groups.append(security_group)
-            elif research_environment not in ["user_key_url", "optional"]:
+            elif research_environment not in ["user_key_url", "optional","mosh"]:
                 LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
-                    + research_enviroment
+                    + research_environment
                 )
         return custom_security_groups
 
