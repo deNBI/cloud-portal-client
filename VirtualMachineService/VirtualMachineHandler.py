@@ -144,7 +144,6 @@ class VirtualMachineHandler(Iface):
         :return: OpenStack connection instance
         """
         try:
-
             if self.USE_APPLICATION_CREDENTIALS:
                 LOG.info("Using Application Credentials for OpenStack Connection")
                 conn = connection.Connection(
@@ -219,7 +218,6 @@ class VirtualMachineHandler(Iface):
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
                 "floating_ip_network"
             ]
-            self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
             # connection to redis. Uses a pool with 10 connections.
@@ -437,7 +435,6 @@ class VirtualMachineHandler(Iface):
                               and x["status"] == "active",
                     self.conn.list_images(),
             ):
-
                 properties = img.get("properties")
                 if not properties:
                     properties = {}
@@ -973,7 +970,6 @@ class VirtualMachineHandler(Iface):
             research_environment_names=resenv
         )
         try:
-
             server = self.conn.create_server(
                 name=servername,
                 image=image.id,
@@ -982,7 +978,6 @@ class VirtualMachineHandler(Iface):
                 key_name=key_pair.name,
                 meta=metadata,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
             openstack_id = server["id"]
@@ -1098,7 +1093,7 @@ class VirtualMachineHandler(Iface):
                 meta=metadata,
                 volumes=volumes,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1160,7 +1155,7 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1233,7 +1228,6 @@ class VirtualMachineHandler(Iface):
             volume_ids_path_new=None,
             volume_ids_path_attach=None,
     ):
-
         """
         Start a new Server.
 
@@ -1286,7 +1280,7 @@ class VirtualMachineHandler(Iface):
                 userdata=init_script,
                 volumes=volumes,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1717,7 +1711,6 @@ class VirtualMachineHandler(Iface):
     def get_volume(self, volume_id):
         LOG.info(f"Get Volume {volume_id}")
         try:
-
             os_volume = self.conn.get_volume_by_id(id=volume_id)
             LOG.info(os_volume)
             if os_volume.attachments:
@@ -1874,7 +1867,6 @@ class VirtualMachineHandler(Iface):
             img = None
         for values in server.addresses.values():
             for address in values:
-
                 if address["OS-EXT-IPS:type"] == "floating":
                     floating_ip = address["addr"]
                 elif address["OS-EXT-IPS:type"] == "fixed":
@@ -2067,7 +2059,6 @@ class VirtualMachineHandler(Iface):
                 return True
 
             else:
-
                 LOG.exception("Bibigrid is offline")
                 return False
 
@@ -2101,7 +2092,6 @@ class VirtualMachineHandler(Iface):
                     if os_distro and os_distro == image_os_distro:
                         return image
                     elif os_distro is None:
-
                         return image
         return None
 
@@ -2187,7 +2177,7 @@ class VirtualMachineHandler(Iface):
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=new_key_name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=cluster_group_id,
             )
             LOG.info(f"Created cluster machine:{server['id']}")
@@ -2250,7 +2240,6 @@ class VirtualMachineHandler(Iface):
             "sshPublicKeys": [public_key],
             "user": user,
             "sshUser": "ubuntu",
-            "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
@@ -2357,7 +2346,6 @@ class VirtualMachineHandler(Iface):
         :return: The floating ip
         """
         try:
-
             server = self.conn.compute.get_server(openstack_id)
             if server is None:
                 LOG.exception(f"Instance {openstack_id} not found")
