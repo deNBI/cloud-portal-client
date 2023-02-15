@@ -215,7 +215,6 @@ class VirtualMachineHandler(Iface):
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
                 "floating_ip_network"
             ]
-            self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
             # connection to redis. Uses a pool with 10 connections.
@@ -975,7 +974,6 @@ class VirtualMachineHandler(Iface):
                 key_name=key_pair.name,
                 meta=metadata,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
             openstack_id = server["id"]
@@ -1115,7 +1113,7 @@ class VirtualMachineHandler(Iface):
                 meta=metadata,
                 volumes=volumes,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1180,7 +1178,7 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1306,7 +1304,7 @@ class VirtualMachineHandler(Iface):
                 userdata=init_script,
                 volumes=volumes,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -2204,7 +2202,7 @@ class VirtualMachineHandler(Iface):
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=new_key_name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
+
                 security_groups=cluster_group_id,
             )
             LOG.info(f"Created cluster machine:{server['id']}")
@@ -2267,7 +2265,6 @@ class VirtualMachineHandler(Iface):
             "sshPublicKeys": [public_key],
             "user": user,
             "sshUser": "ubuntu",
-            "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,

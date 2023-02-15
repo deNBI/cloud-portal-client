@@ -27,8 +27,6 @@ openstack_connection:
 
 
   floating_ip_network: external
-  # The name of the availability zone the server should be placed.
-  availability_zone: default
   # If you use docker-compose this path needs to be the path you mount the server.pem into
   certfile: /code/VirtualMachineService/keys/server.pem
   ca_certs_path: /code/VirtualMachineService/keys/CA.pem
