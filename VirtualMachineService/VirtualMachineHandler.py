@@ -1113,7 +1113,6 @@ class VirtualMachineHandler(Iface):
                 meta=metadata,
                 volumes=volumes,
                 userdata=init_script,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1178,7 +1177,6 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1304,7 +1302,6 @@ class VirtualMachineHandler(Iface):
                 userdata=init_script,
                 volumes=volumes,
                 meta=metadata,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -2202,7 +2199,6 @@ class VirtualMachineHandler(Iface):
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=new_key_name,
                 meta=metadata,
-
                 security_groups=cluster_group_id,
             )
             LOG.info(f"Created cluster machine:{server['id']}")
