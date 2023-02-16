@@ -1932,6 +1932,12 @@ class VirtualMachineHandler(Iface):
         # LOG.info(server_list)
         return server_list
 
+    def get_server_openstack_ids(self):
+        LOG.info("Get all server ids")
+        server_ids = [server.id for server in self.conn.list_servers()]
+
+        return server_ids
+
     def add_udp_security_group(self, server_id):
         """
         Adds the default simple vm security group to the vm.
