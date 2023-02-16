@@ -596,6 +596,12 @@ service VirtualMachineService {
 	list<VM> get_servers(),
 
 	/**
+	* Get all server ids.
+	* Returns: List of server ids.
+    */
+	list<string> get_server_openstack_ids(),
+
+	/**
 	* Get list of servers by ids
     **/
 	list<VM> get_servers_by_ids(1:list<string> server_ids)
