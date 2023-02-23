@@ -997,17 +997,17 @@ class VirtualMachineHandler(Iface):
 
     def get_or_create_project_security_group(self, project_name, project_id):
         security_group_name = f"{project_name}_{project_id}"
-        logger.info(f"Check if Security Group for project - [{project_name}-{project_id}] exists... ")
-        sec = self.openstack_connection.get_security_group(name_or_id=security_group_name)
+        LOG.info(f"Check if Security Group for project - [{project_name}-{project_id}] exists... ")
+        sec = self.conn.get_security_group(name_or_id=security_group_name)
         if sec:
-            logger.info(f"Security group [{project_name}-{project_id}]  already exists.")
+            LOG.info(f"Security group [{project_name}-{project_id}]  already exists.")
             return sec["id"]
 
-        logger.info(f"No security Group for [{project_name}-{project_id}]  exists. Creating.. ")
-        new_security_group = self.openstack_connection.create_security_group(
+        LOG.info(f"No security Group for [{project_name}-{project_id}]  exists. Creating.. ")
+        new_security_group = self.conn.create_security_group(
             name=security_group_name, description=f"{project_name} Security Group"
         )
-        self.openstack_connection.network.create_security_group_rule(
+        self.conn.network.create_security_group_rule(
             direction="ingress",
             protocol="tcp",
             port_range_max=22,
