@@ -969,6 +969,10 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.get_research_environment_security_groups(
             research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(self.get_or_create_project_security_group(project_name=project_name, project_id=project_id))
         try:
             server = self.conn.create_server(
                 name=servername,
@@ -991,6 +995,27 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
+    def get_or_create_project_security_group(self, project_name, project_id):
+        security_group_name = f"{project_name}_{project_id}"
+        LOG.info(f"Check if Security Group for project - [{project_name}-{project_id}] exists... ")
+        sec = self.conn.get_security_group(name_or_id=security_group_name)
+        if sec:
+            LOG.info(f"Security group [{project_name}-{project_id}]  already exists.")
+            return sec["id"]
+
+        LOG.info(f"No security Group for [{project_name}-{project_id}]  exists. Creating.. ")
+        new_security_group = self.conn.create_security_group(
+            name=security_group_name, description=f"{project_name} Security Group"
+        )
+        self.conn.network.create_security_group_rule(
+            direction="ingress",
+            protocol="tcp",
+            port_range_max=22,
+            port_range_min=22,
+            security_group_id=new_security_group["id"],
+            remote_group_id=new_security_group["id"],
+        )
+        return new_security_group["id"]
     def get_research_environment_security_groups(self, research_environment_names: list[str]):
         custom_security_groups = []
 
@@ -1039,6 +1064,10 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.get_research_environment_security_groups(
             research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(self.get_or_create_project_security_group(project_name=project_name, project_id=project_id))
         key_name = None
         try:
             image = self.get_image(image=image)
@@ -1093,7 +1122,6 @@ class VirtualMachineHandler(Iface):
                 meta=metadata,
                 volumes=volumes,
                 userdata=init_script,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1139,6 +1167,10 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.get_research_environment_security_groups(
             research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(self.get_or_create_project_security_group(project_name=project_name, project_id=project_id))
         key_name = None
         try:
             image = self.get_image(image=image)
@@ -1155,7 +1187,6 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1244,6 +1275,10 @@ class VirtualMachineHandler(Iface):
         custom_security_groups = self.get_research_environment_security_groups(
             research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(self.get_or_create_project_security_group(project_name=project_name, project_id=project_id))
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -1280,7 +1315,6 @@ class VirtualMachineHandler(Iface):
                 userdata=init_script,
                 volumes=volumes,
                 meta=metadata,
-
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1910,6 +1944,12 @@ class VirtualMachineHandler(Iface):
         # LOG.info(server_list)
         return server_list
 
+    def get_server_openstack_ids(self):
+        LOG.info("Get all server ids")
+        server_ids = [server.id for server in self.conn.list_servers()]
+
+        return server_ids
+
     def add_udp_security_group(self, server_id):
         """
         Adds the default simple vm security group to the vm.
@@ -2177,7 +2217,6 @@ class VirtualMachineHandler(Iface):
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=new_key_name,
                 meta=metadata,
-
                 security_groups=cluster_group_id,
             )
             LOG.info(f"Created cluster machine:{server['id']}")
