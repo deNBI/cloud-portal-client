@@ -1016,6 +1016,7 @@ class VirtualMachineHandler(Iface):
             remote_group_id=new_security_group["id"],
         )
         return new_security_group["id"]
+
     def get_research_environment_security_groups(self, research_environment_names: list[str]):
         custom_security_groups = []
 
@@ -1024,7 +1025,7 @@ class VirtualMachineHandler(Iface):
                 research_environment_metadata = self.loaded_resenv_metadata[research_environment]
                 security_group = self.get_or_create_research_environment_security_group(resenv_metadata=research_environment_metadata)
                 custom_security_groups.append(security_group)
-            elif research_environment not in ["user_key_url", "optional","mosh"]:
+            elif research_environment not in ["user_key_url", "optional", "mosh"]:
                 LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
                     + research_environment
@@ -2468,11 +2469,11 @@ class VirtualMachineHandler(Iface):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
             LOG.info(security_groups)
+            # only udp must be deleted
             security_groups = [
                 sec
                 for sec in security_groups
-                if sec["name"] != self.DEFAULT_SECURITY_GROUP_NAME
-                   and "bibigrid" not in sec["name"]
+                if "udp" in sec["name"]
             ]
             if security_groups is not None:
                 for sg in security_groups:
