@@ -1,16 +1,16 @@
 class ResearchEnvironmentMetadata:
     def __init__(
-            self,
-            name,
-            port,
-            security_group_name,
-            security_group_description,
-            security_group_ssh,
-            direction,
-            protocol,
-            information_for_display,
-            needs_forc_support,
-            json_string,
+        self,
+        name,
+        port,
+        security_group_name,
+        security_group_description,
+        security_group_ssh,
+        direction,
+        protocol,
+        information_for_display,
+        needs_forc_support,
+        json_string,
     ):
         self.name = name
         self.port = port
