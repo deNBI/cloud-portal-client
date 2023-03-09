@@ -1016,6 +1016,7 @@ class VirtualMachineHandler(Iface):
             remote_group_id=new_security_group["id"],
         )
         return new_security_group["id"]
+
     def get_research_environment_security_groups(self, research_environment_names: list[str]):
         custom_security_groups = []
 
@@ -1024,7 +1025,7 @@ class VirtualMachineHandler(Iface):
                 research_environment_metadata = self.loaded_resenv_metadata[research_environment]
                 security_group = self.get_or_create_research_environment_security_group(resenv_metadata=research_environment_metadata)
                 custom_security_groups.append(security_group)
-            elif research_environment not in ["user_key_url", "optional","mosh"]:
+            elif research_environment not in ["user_key_url", "optional", "mosh"]:
                 LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
                     + research_environment
@@ -2443,6 +2444,39 @@ class VirtualMachineHandler(Iface):
             else:
                 return False
 
+    def is_security_group_in_use(self, security_group_id):
+        LOG.info(f"Checking if security group [{security_group_id}] is in use")
+
+        """
+        Checks if a security group is still in use.
+
+        :param conn: An instance of `openstack.connection.Connection`.
+        :param security_group_id: The ID of the security group to check.
+        :returns: True if the security group is still in use, False otherwise.
+        """
+        # First, get a list of all instances using the security group
+        instances = self.conn.compute.servers(details=True, search_opts={
+            'all_tenants': True,
+            'security_group': security_group_id
+        })
+
+        # If any instances are using the security group, return True
+        if instances:
+            return True
+
+        # Otherwise, check if the security group is still associated with any ports
+        ports = self.conn.network.ports(security_group_id=security_group_id)
+        if ports:
+            return True
+
+        # Finally, check if the security group is still associated with any load balancers
+        load_balancers = self.conn.network.load_balancers(security_group_id=security_group_id)
+        if load_balancers:
+            return True
+
+        # If none of the above are true, the security group is no longer in use
+        return False
+
     def delete_server(self, openstack_id):
         """
         Delete Server.
@@ -2467,20 +2501,19 @@ class VirtualMachineHandler(Iface):
             ):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
-            LOG.info(security_groups)
-            security_groups = [
-                sec
-                for sec in security_groups
-                if sec["name"] != self.DEFAULT_SECURITY_GROUP_NAME
-                   and "bibigrid" not in sec["name"]
-            ]
+
             if security_groups is not None:
                 for sg in security_groups:
-                    LOG.info(f"Delete security group {sg['name']}")
+
                     self.conn.compute.remove_security_group_from_server(
                         server=server, security_group=sg
                     )
-                    self.conn.network.delete_security_group(sg)
+
+                    if sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME and "bibigrid" not in sg[
+                        "name"] and not self.is_security_group_in_use(security_group_id=sg["id"]):
+                        LOG.info(f"Delete security group {sg['name']}")
+
+                        self.conn.delete_security_group(name_or_id=sg)
                 self.conn.compute.delete_server(server)
             else:
                 return False
