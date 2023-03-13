@@ -1026,7 +1026,11 @@ class VirtualMachineHandler(Iface):
         return new_security_group["id"]
 
     def get_research_environment_security_groups(
+<<<<<<< HEAD
+            self, research_environment_names: list[str]
+=======
         self, research_environment_names: list[str]
+>>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
     ):
         custom_security_groups = []
 
@@ -1257,18 +1261,6 @@ class VirtualMachineHandler(Iface):
             self.conn.compute.add_security_group_to_server(
                 server=server_id, security_group=resenv_security_group
             )
-
-    def create_resenv_security_group(self, resenv_template: str):
-        if resenv_template in self.loaded_resenv_metadata:
-            resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
-
-            return self.create_security_group(
-                name=servername + resenv_metadata.security_group_name,
-                resenv=resenv,
-                description=resenv_metadata.security_group_description,
-                ssh=resenv_metadata.security_group_ssh,
-            )
-        return None
 
     def start_server_with_custom_key(
         self,
@@ -2544,11 +2536,19 @@ class VirtualMachineHandler(Iface):
                     )
 
                     if (
+<<<<<<< HEAD
+                            sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
+                            and "bibigrid" not in sg["name"]
+                            and not self.is_security_group_in_use(
+                        security_group_id=sg["id"]
+                    )
+=======
                         sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
                         and "bibigrid" not in sg["name"]
                         and not self.is_security_group_in_use(
                             security_group_id=sg["id"]
                         )
+>>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
                     ):
                         LOG.info(f"Delete security group {sg['name']}")
 
@@ -2941,6 +2941,10 @@ class VirtualMachineHandler(Iface):
                     self.update_forc_allowed(template_metadata)
                     if metadata.name not in list(self.loaded_resenv_metadata.keys()):
                         self.loaded_resenv_metadata[metadata.name] = metadata
+
+                        self.get_or_create_research_environment_security_group(
+                            resenv_metadata=metadata
+                        )
                     else:
                         if self.loaded_resenv_metadata[metadata.name] != metadata:
                             self.loaded_resenv_metadata[metadata.name] = metadata
@@ -2981,7 +2985,11 @@ class VirtualMachineHandler(Iface):
         return templates_metada
 
     def get_or_create_research_environment_security_group(
+<<<<<<< HEAD
+            self, resenv_metadata: ResearchEnvironmentMetadata
+=======
         self, resenv_metadata: ResearchEnvironmentMetadata
+>>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
     ):
         if not resenv_metadata.needs_forc_support:
             return None
