@@ -1,7 +1,7 @@
-setuptools==67.4.0
+setuptools==67.6.0
 thrift==0.16.0
 python-keystoneclient==5.0.1
-openstacksdk ==0.103.0
+openstacksdk ==1.0.1
 deprecated == 1.2.13
 ansible==7.2.0
 Click==8.1.3
