@@ -1025,7 +1025,9 @@ class VirtualMachineHandler(Iface):
         )
         return new_security_group["id"]
 
-    def get_research_environment_security_groups(self, research_environment_names: list[str]):
+    def get_research_environment_security_groups(
+        self, research_environment_names: list[str]
+    ):
         custom_security_groups = []
 
         for research_environment in research_environment_names:
@@ -2479,10 +2481,10 @@ class VirtualMachineHandler(Iface):
         :returns: True if the security group is still in use, False otherwise.
         """
         # First, get a list of all instances using the security group
-        instances = self.conn.compute.servers(details=True, search_opts={
-            'all_tenants': True,
-            'security_group': security_group_id
-        })
+        instances = self.conn.compute.servers(
+            details=True,
+            search_opts={"all_tenants": True, "security_group": security_group_id},
+        )
 
         # If any instances are using the security group, return True
         if instances:
@@ -2494,7 +2496,9 @@ class VirtualMachineHandler(Iface):
             return True
 
         # Finally, check if the security group is still associated with any load balancers
-        load_balancers = self.conn.network.load_balancers(security_group_id=security_group_id)
+        load_balancers = self.conn.network.load_balancers(
+            security_group_id=security_group_id
+        )
         if load_balancers:
             return True
 
@@ -2528,13 +2532,17 @@ class VirtualMachineHandler(Iface):
 
             if security_groups is not None:
                 for sg in security_groups:
-
                     self.conn.compute.remove_security_group_from_server(
                         server=server, security_group=sg
                     )
 
-                    if sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME and "bibigrid" not in sg[
-                        "name"] and not self.is_security_group_in_use(security_group_id=sg["id"]):
+                    if (
+                        sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
+                        and "bibigrid" not in sg["name"]
+                        and not self.is_security_group_in_use(
+                            security_group_id=sg["id"]
+                        )
+                    ):
                         LOG.info(f"Delete security group {sg['name']}")
 
                         self.conn.delete_security_group(name_or_id=sg)
