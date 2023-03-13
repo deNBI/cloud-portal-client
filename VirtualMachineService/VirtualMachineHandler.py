@@ -11,6 +11,8 @@ from typing import List
 
 try:
     from ancon.Playbook import ALL_TEMPLATES, Playbook
+    from ancon.ResearchEnvironmentMetadata import ResearchEnvironmentMetadata
+
     from constants import VERSION
     from ttypes import (
         VM,
@@ -44,6 +46,7 @@ except Exception:
     from .ttypes import conflictException
     from .ttypes import Flavor, Image, VM, PlaybookResult, Backend, ClusterInfo, Volume
     from .constants import VERSION
+    from .ancon.ResearchEnvironmentMetadata import ResearchEnvironmentMetadata
     from .ancon.Playbook import (
         Playbook,
         ALL_TEMPLATES,
@@ -215,7 +218,6 @@ class VirtualMachineHandler(Iface):
             self.FLOATING_IP_NETWORK = cfg["openstack_connection"][
                 "floating_ip_network"
             ]
-            self.AVAIALABILITY_ZONE = cfg["openstack_connection"]["availability_zone"]
             self.PRODUCTION = cfg["openstack_connection"]["production"]
             self.CLOUD_SITE = cfg["cloud_site"]
             # connection to redis. Uses a pool with 10 connections.
@@ -314,8 +316,9 @@ class VirtualMachineHandler(Iface):
                 ]
 
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
-        self.update_playbooks()
         self.conn = self.create_connection()
+
+        self.update_playbooks()
         self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
 
@@ -963,9 +966,17 @@ class VirtualMachineHandler(Iface):
             volume_ids_path_new=volume_ids_path_new,
             volume_ids_path_attach=volume_ids_path_attach,
         )
-        custom_security_groups = self.prepare_security_groups_new_server(
-            resenv=resenv, servername=servername, http=http, https=https
+        custom_security_groups = self.get_research_environment_security_groups(
+            research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(
+                self.get_or_create_project_security_group(
+                    project_name=project_name, project_id=project_id
+                )
+            )
         try:
             server = self.conn.create_server(
                 name=servername,
@@ -975,7 +986,6 @@ class VirtualMachineHandler(Iface):
                 key_name=key_pair.name,
                 meta=metadata,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
             openstack_id = server["id"]
@@ -985,47 +995,55 @@ class VirtualMachineHandler(Iface):
 
         except Exception as e:
             self.delete_keypair(key_name)
-            for security_group in custom_security_groups:
-                self.conn.network.delete_security_group(security_group)
+
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
-    def prepare_security_groups_new_server(
-        self,
-        resenv: List[str],
-        servername: str,
-        http: bool = False,
-        https: bool = False,
+    def get_or_create_project_security_group(self, project_name, project_id):
+        security_group_name = f"{project_name}_{project_id}"
+        LOG.info(
+            f"Check if Security Group for project - [{project_name}-{project_id}] exists... "
+        )
+        sec = self.conn.get_security_group(name_or_id=security_group_name)
+        if sec:
+            LOG.info(f"Security group [{project_name}-{project_id}]  already exists.")
+            return sec["id"]
+
+        LOG.info(
+            f"No security Group for [{project_name}-{project_id}]  exists. Creating.. "
+        )
+        new_security_group = self.conn.create_security_group(
+            name=security_group_name, description=f"{project_name} Security Group"
+        )
+        self.conn.network.create_security_group_rule(
+            direction="ingress",
+            protocol="tcp",
+            port_range_max=22,
+            port_range_min=22,
+            security_group_id=new_security_group["id"],
+            remote_group_id=new_security_group["id"],
+        )
+        return new_security_group["id"]
+
+    def get_research_environment_security_groups(
+        self, research_environment_names: list[str]
     ):
         custom_security_groups = []
 
-        if http or https:
-            custom_security_groups.append(
-                self.create_security_group(
-                    name=servername + "_https",
-                    http=http,
-                    https=https,
-                    description="Http/Https",
-                ).name
-            )
-
-        for research_enviroment in resenv:
-            if research_enviroment in self.loaded_resenv_metadata:
-                resenv_metadata = self.loaded_resenv_metadata[research_enviroment]
-                custom_security_groups.append(
-                    self.create_security_group(
-                        name=servername + resenv_metadata.security_group_name,
-                        resenv=resenv,
-                        description=resenv_metadata.security_group_description,
-                        ssh=resenv_metadata.security_group_ssh,
-                    ).name
+        for research_environment in research_environment_names:
+            if research_environment in self.loaded_resenv_metadata:
+                research_environment_metadata = self.loaded_resenv_metadata[
+                    research_environment
+                ]
+                security_group = self.get_or_create_research_environment_security_group(
+                    resenv_metadata=research_environment_metadata
                 )
-            elif research_enviroment not in ["user_key_url", "optional"]:
+                custom_security_groups.append(security_group)
+            elif research_environment not in ["user_key_url", "optional", "mosh"]:
                 LOG.error(
                     "Failure to load metadata  of reasearch enviroment: "
-                    + research_enviroment
+                    + research_environment
                 )
-
         return custom_security_groups
 
     def start_server_without_playbook(
@@ -1058,9 +1076,17 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         LOG.info(f"Start Server {servername}")
-        custom_security_groups = self.prepare_security_groups_new_server(
-            resenv=resenv, servername=servername, http=http, https=https
+        custom_security_groups = self.get_research_environment_security_groups(
+            research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(
+                self.get_or_create_project_security_group(
+                    project_name=project_name, project_id=project_id
+                )
+            )
         key_name = None
         try:
             image = self.get_image(image=image)
@@ -1115,7 +1141,6 @@ class VirtualMachineHandler(Iface):
                 meta=metadata,
                 volumes=volumes,
                 userdata=init_script,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1126,9 +1151,6 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             if key_name:
                 self.delete_keypair(key_name)
-
-            for security_group in custom_security_groups:
-                self.conn.network.delete_security_group(security_group)
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
@@ -1161,9 +1183,17 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         LOG.info(f"Start Server {servername}")
-        custom_security_groups = self.prepare_security_groups_new_server(
-            resenv=resenv, servername=servername, http=http, https=https
+        custom_security_groups = self.get_research_environment_security_groups(
+            research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(
+                self.get_or_create_project_security_group(
+                    project_name=project_name, project_id=project_id
+                )
+            )
         key_name = None
         try:
             image = self.get_image(image=image)
@@ -1180,7 +1210,6 @@ class VirtualMachineHandler(Iface):
                 network=[network.id],
                 key_name=key_pair.name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1191,8 +1220,7 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             if key_name:
                 self.delete_keypair(key_name)
-            for security_group in custom_security_groups:
-                self.conn.network.delete_security_group(security_group)
+
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
@@ -1267,9 +1295,17 @@ class VirtualMachineHandler(Iface):
         :return: {'openstackid': serverId, 'volumeId': volumeId}
         """
         LOG.info(f"Start Server {servername} with custom key")
-        custom_security_groups = self.prepare_security_groups_new_server(
-            resenv=resenv, servername=servername, http=http, https=https
+        custom_security_groups = self.get_research_environment_security_groups(
+            research_environment_names=resenv
         )
+        project_name = metadata.get("project_name")
+        project_id = metadata.get("project_id")
+        if project_name and project_id:
+            custom_security_groups.append(
+                self.get_or_create_project_security_group(
+                    project_name=project_name, project_id=project_id
+                )
+            )
         try:
             image = self.get_image(image=image)
             flavor = self.get_flavor(flavor=flavor)
@@ -1306,7 +1342,6 @@ class VirtualMachineHandler(Iface):
                 userdata=init_script,
                 volumes=volumes,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=self.DEFAULT_SECURITY_GROUPS + custom_security_groups,
             )
 
@@ -1321,8 +1356,7 @@ class VirtualMachineHandler(Iface):
             return {"openstackid": openstack_id, "private_key": private_key}
         except Exception as e:
             self.delete_keypair(key_name=servername)
-            for security_group in custom_security_groups:
-                self.conn.network.delete_security_group(security_group)
+
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
@@ -1937,6 +1971,12 @@ class VirtualMachineHandler(Iface):
         # LOG.info(server_list)
         return server_list
 
+    def get_server_openstack_ids(self):
+        LOG.info("Get all server ids")
+        server_ids = [server.id for server in self.conn.list_servers()]
+
+        return server_ids
+
     def add_udp_security_group(self, server_id):
         """
         Adds the default simple vm security group to the vm.
@@ -2204,7 +2244,6 @@ class VirtualMachineHandler(Iface):
                 userdata=self.BIBIGRID_DEACTIVATE_UPRADES_SCRIPT,
                 key_name=new_key_name,
                 meta=metadata,
-                availability_zone=self.AVAIALABILITY_ZONE,
                 security_groups=cluster_group_id,
             )
             LOG.info(f"Created cluster machine:{server['id']}")
@@ -2267,7 +2306,6 @@ class VirtualMachineHandler(Iface):
             "sshPublicKeys": [public_key],
             "user": user,
             "sshUser": "ubuntu",
-            "availabilityZone": self.AVAIALABILITY_ZONE,
             "masterInstance": master_instance,
             "workerInstances": wI,
             "useMasterWithPublicIp": False,
@@ -2432,6 +2470,41 @@ class VirtualMachineHandler(Iface):
             else:
                 return False
 
+    def is_security_group_in_use(self, security_group_id):
+        LOG.info(f"Checking if security group [{security_group_id}] is in use")
+
+        """
+        Checks if a security group is still in use.
+
+        :param conn: An instance of `openstack.connection.Connection`.
+        :param security_group_id: The ID of the security group to check.
+        :returns: True if the security group is still in use, False otherwise.
+        """
+        # First, get a list of all instances using the security group
+        instances = self.conn.compute.servers(
+            details=True,
+            search_opts={"all_tenants": True, "security_group": security_group_id},
+        )
+
+        # If any instances are using the security group, return True
+        if instances:
+            return True
+
+        # Otherwise, check if the security group is still associated with any ports
+        ports = self.conn.network.ports(security_group_id=security_group_id)
+        if ports:
+            return True
+
+        # Finally, check if the security group is still associated with any load balancers
+        load_balancers = self.conn.network.load_balancers(
+            security_group_id=security_group_id
+        )
+        if load_balancers:
+            return True
+
+        # If none of the above are true, the security group is no longer in use
+        return False
+
     def delete_server(self, openstack_id):
         """
         Delete Server.
@@ -2456,20 +2529,23 @@ class VirtualMachineHandler(Iface):
             ):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
-            LOG.info(security_groups)
-            security_groups = [
-                sec
-                for sec in security_groups
-                if sec["name"] != self.DEFAULT_SECURITY_GROUP_NAME
-                and "bibigrid" not in sec["name"]
-            ]
+
             if security_groups is not None:
                 for sg in security_groups:
-                    LOG.info(f"Delete security group {sg['name']}")
                     self.conn.compute.remove_security_group_from_server(
                         server=server, security_group=sg
                     )
-                    self.conn.network.delete_security_group(sg)
+
+                    if (
+                        sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
+                        and "bibigrid" not in sg["name"]
+                        and not self.is_security_group_in_use(
+                            security_group_id=sg["id"]
+                        )
+                    ):
+                        LOG.info(f"Delete security group {sg['name']}")
+
+                        self.conn.delete_security_group(name_or_id=sg)
                 self.conn.compute.delete_server(server)
             else:
                 return False
@@ -2837,15 +2913,19 @@ class VirtualMachineHandler(Iface):
         for template_metadata in templates_metadata:
             try:
                 if template_metadata.get(NEEDS_FORC_SUPPORT, False):
-                    metadata = ResenvMetadata(
-                        template_metadata[TEMPLATE_NAME],
-                        template_metadata[PORT],
-                        template_metadata[SECURITYGROUP_NAME],
-                        template_metadata[SECURITYGROUP_DESCRIPTION],
-                        template_metadata[SECURITYGROUP_SSH],
-                        template_metadata[DIRECTION],
-                        template_metadata[PROTOCOL],
-                        template_metadata[INFORMATION_FOR_DISPLAY],
+                    metadata = ResearchEnvironmentMetadata(
+                        name=template_metadata[TEMPLATE_NAME],
+                        port=template_metadata[PORT],
+                        security_group_name=template_metadata[SECURITYGROUP_NAME],
+                        security_group_description=template_metadata[
+                            SECURITYGROUP_DESCRIPTION
+                        ],
+                        security_group_ssh=template_metadata[SECURITYGROUP_SSH],
+                        direction=template_metadata[DIRECTION],
+                        protocol=template_metadata[PROTOCOL],
+                        information_for_display=template_metadata[
+                            INFORMATION_FOR_DISPLAY
+                        ],
                         needs_forc_support=template_metadata.get(
                             NEEDS_FORC_SUPPORT, False
                         ),
@@ -2893,6 +2973,39 @@ class VirtualMachineHandler(Iface):
                 LOG.exception(f"No Metadatafile found for {template} - {e}")
         return templates_metada
 
+    def get_or_create_research_environment_security_group(
+        self, resenv_metadata: ResearchEnvironmentMetadata
+    ):
+        if not resenv_metadata.needs_forc_support:
+            return None
+        LOG.info(
+            f"Check if Security Group for resenv - {resenv_metadata.security_group_name} exists... "
+        )
+        sec = self.conn.get_security_group(
+            name_or_id=resenv_metadata.security_group_name
+        )
+        if sec:
+            LOG.info(
+                f"Security group {resenv_metadata.security_group_name} already exists."
+            )
+            return sec["id"]
+
+        LOG.info(
+            f"No security Group for {resenv_metadata.security_group_name} exists. Creating.. "
+        )
+        new_security_group = self.conn.create_security_group(
+            name=resenv_metadata.security_group_name, description=resenv_metadata.name
+        )
+        self.conn.network.create_security_group_rule(
+            direction=resenv_metadata.direction,
+            protocol=resenv_metadata.protocol,
+            port_range_max=resenv_metadata.port,
+            port_range_min=resenv_metadata.port,
+            security_group_id=new_security_group["id"],
+            remote_group_id=self.FORC_REMOTE_ID,
+        )
+        return new_security_group["id"]
+
     def update_forc_allowed(self, template_metadata):
         if template_metadata["needs_forc_support"]:
             name = template_metadata[TEMPLATE_NAME]
@@ -2910,34 +3023,9 @@ class VirtualMachineHandler(Iface):
                     )
                     if response.status_code == 200:
                         allowed_versions.append(forc_version)
+
                 except Timeout as e:
                     LOG.info(msg=f"checking template/version timed out. {e}")
             allowed_versions.sort(key=LooseVersion)
             allowed_versions.reverse()
             self.FORC_ALLOWED[name] = allowed_versions
-
-
-class ResenvMetadata:
-    def __init__(
-        self,
-        name,
-        port,
-        security_group_name,
-        security_group_description,
-        security_group_ssh,
-        direction,
-        protocol,
-        information_for_display,
-        needs_forc_support,
-        json_string,
-    ):
-        self.name = name
-        self.port = port
-        self.security_group_name = security_group_name
-        self.security_group_description = security_group_description
-        self.security_group_ssh = security_group_ssh
-        self.direction = direction
-        self.protocol = protocol
-        self.information_for_display = information_for_display
-        self.json_string = json_string
-        self.needs_forc_support = needs_forc_support
