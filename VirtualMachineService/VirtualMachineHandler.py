@@ -1974,7 +1974,12 @@ class VirtualMachineHandler(Iface):
     def get_server_openstack_ids(self, filter_tag):
         LOG.info("Get all server ids")
         if filter_tag:
-            server_ids = [server.id for server in self.conn.list_servers(filters={"not-tag-any": filter_tag})]
+            server_ids = [
+                server.id
+                for server in self.conn.list_servers(
+                    filters={"not-tag-any": filter_tag}
+                )
+            ]
         else:
             server_ids = [server.id for server in self.conn.list_servers()]
         return server_ids
