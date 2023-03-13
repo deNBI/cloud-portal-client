@@ -1971,10 +1971,12 @@ class VirtualMachineHandler(Iface):
         # LOG.info(server_list)
         return server_list
 
-    def get_server_openstack_ids(self):
+    def get_server_openstack_ids(self, filter_tag):
         LOG.info("Get all server ids")
-        server_ids = [server.id for server in self.conn.list_servers()]
-
+        if filter_tag:
+            server_ids = [server.id for server in self.conn.list_servers(filters={"not-tag-any": filter_tag})]
+        else:
+            server_ids = [server.id for server in self.conn.list_servers()]
         return server_ids
 
     def add_udp_security_group(self, server_id):
