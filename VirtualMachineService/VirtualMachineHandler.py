@@ -1026,11 +1026,8 @@ class VirtualMachineHandler(Iface):
         return new_security_group["id"]
 
     def get_research_environment_security_groups(
-<<<<<<< HEAD
-            self, research_environment_names: list[str]
-=======
+
         self, research_environment_names: list[str]
->>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
     ):
         custom_security_groups = []
 
@@ -2536,19 +2533,11 @@ class VirtualMachineHandler(Iface):
                     )
 
                     if (
-<<<<<<< HEAD
-                            sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
-                            and "bibigrid" not in sg["name"]
-                            and not self.is_security_group_in_use(
-                        security_group_id=sg["id"]
-                    )
-=======
                         sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
                         and "bibigrid" not in sg["name"]
                         and not self.is_security_group_in_use(
                             security_group_id=sg["id"]
                         )
->>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
                     ):
                         LOG.info(f"Delete security group {sg['name']}")
 
@@ -2985,11 +2974,8 @@ class VirtualMachineHandler(Iface):
         return templates_metada
 
     def get_or_create_research_environment_security_group(
-<<<<<<< HEAD
             self, resenv_metadata: ResearchEnvironmentMetadata
-=======
-        self, resenv_metadata: ResearchEnvironmentMetadata
->>>>>>> 0e065f7c12eb58cf8770e31a064dc89d1f29ba20
+
     ):
         if not resenv_metadata.needs_forc_support:
             return None
