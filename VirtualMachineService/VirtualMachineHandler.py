@@ -1026,7 +1026,6 @@ class VirtualMachineHandler(Iface):
         return new_security_group["id"]
 
     def get_research_environment_security_groups(
-
         self, research_environment_names: list[str]
     ):
         custom_security_groups = []
@@ -2974,8 +2973,7 @@ class VirtualMachineHandler(Iface):
         return templates_metada
 
     def get_or_create_research_environment_security_group(
-            self, resenv_metadata: ResearchEnvironmentMetadata
-
+        self, resenv_metadata: ResearchEnvironmentMetadata
     ):
         if not resenv_metadata.needs_forc_support:
             return None
