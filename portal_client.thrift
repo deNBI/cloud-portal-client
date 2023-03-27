@@ -599,7 +599,9 @@ service VirtualMachineService {
 	* Get all server ids.
 	* Returns: List of server ids.
     */
-	list<string> get_server_openstack_ids(),
+	list<string> get_server_openstack_ids(
+	    1: string filter_tag
+	),
 
 	/**
 	* Get list of servers by ids
