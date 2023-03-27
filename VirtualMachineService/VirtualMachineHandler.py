@@ -279,18 +279,22 @@ class VirtualMachineHandler(Iface):
 
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
+                backend_url_host = self.RE_BACKEND_URL.split(":")
+                self.FORC_URL = cfg["forc"].get("openresty_url", None) or f"https:{backend_url_host[1]}/"
+
                 self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
                 self.FORC_ALLOWED = {}
-                self.FORC_HTTPS= cfg["forc"].get("forc_https", True)
+                self.FORC_HTTPS = cfg["forc"].get("forc_https", True)
                 self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
-                    not self.RE_BACKEND_URL
-                    or not self.FORC_API_KEY
-                    or not self.GITHUB_PLAYBOOKS_REPO
+                        not self.RE_BACKEND_URL
+                        or not self.FORC_API_KEY
+                        or not self.GITHUB_PLAYBOOKS_REPO
                 ):
                     raise ValueError
                 LOG.info(msg=f"Forc-Backend url loaded: {self.RE_BACKEND_URL}")
+                LOG.info(msg=f"Forc-Frontend Url loaded: {self.FORC_URL}")
             except ValueError as ve:
                 LOG.exception(ve)
                 LOG.info(
@@ -318,7 +322,7 @@ class VirtualMachineHandler(Iface):
 
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
         self.conn = self.create_connection()
-
+        self._validate_forc_security_group()
         self.update_playbooks()
         self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
@@ -431,10 +435,10 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                lambda x: "tags" in x
-                and len(x["tags"]) > 0
-                and x["status"] == "active",
-                self.conn.list_images(),
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active",
+                    self.conn.list_images(),
             ):
                 properties = img.get("properties")
                 if not properties:
@@ -444,7 +448,7 @@ class VirtualMachineHandler(Iface):
                 tags = img.get("tags", [])
                 LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
                 if len(
-                    set(self.ALL_TEMPLATES).intersection(tags)
+                        set(self.ALL_TEMPLATES).intersection(tags)
                 ) > 0 and not self.cross_check_forc_image(tags):
                     LOG.info(f"Resenv check: Skipping {img['name']}.")
                     continue
@@ -485,7 +489,7 @@ class VirtualMachineHandler(Iface):
             tags = img.get("tags", [])
             LOG.info(set(self.ALL_TEMPLATES).intersection(tags))
             if len(
-                set(self.ALL_TEMPLATES).intersection(tags)
+                    set(self.ALL_TEMPLATES).intersection(tags)
             ) > 0 and not self.cross_check_forc_image(tags):
                 LOG.info(f"Resenv check: Skipping {img['name']}.")
                 return None
@@ -523,11 +527,11 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                lambda x: "tags" in x
-                and len(x["tags"]) > 0
-                and x["status"] == "active"
-                and x["visibility"] == "public",
-                self.conn.list_images(),
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active"
+                              and x["visibility"] == "public",
+                    self.conn.list_images(),
             ):
                 image = self.prepare_image(img)
                 if image is None:
@@ -549,11 +553,11 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                lambda x: "tags" in x
-                and len(x["tags"]) > 0
-                and x["status"] == "active"
-                and x["visibility"] == "private",
-                self.conn.list_images(),
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active"
+                              and x["visibility"] == "private",
+                    self.conn.list_images(),
             ):
                 image = self.prepare_image(img)
                 if image is None:
@@ -611,10 +615,10 @@ class VirtualMachineHandler(Iface):
         images = list()
         try:
             for img in filter(
-                lambda x: "tags" in x
-                and len(x["tags"]) > 0
-                and x["status"] == "active",
-                self.conn.list_images(),
+                    lambda x: "tags" in x
+                              and len(x["tags"]) > 0
+                              and x["status"] == "active",
+                    self.conn.list_images(),
             ):
                 tags = img.get("tags", [])
                 if "resenv" in filter_list:
@@ -800,7 +804,7 @@ class VirtualMachineHandler(Iface):
         return key_script
 
     def create_mount_init_script(
-        self, volume_ids_path_new=None, volume_ids_path_attach=None
+            self, volume_ids_path_new=None, volume_ids_path_attach=None
     ):
         LOG.info(f"create init script for volume ids:{volume_ids_path_new}")
         if not volume_ids_path_new and not volume_ids_path_attach:
@@ -945,17 +949,17 @@ class VirtualMachineHandler(Iface):
             raise ressourceException(Reason=str(e))
 
     def volume_ids(
-        self,
-        flavor,
-        image,
-        public_key,
-        servername,
-        metadata,
-        https,
-        http,
-        resenv,
-        volume_ids_path_new,
-        volume_ids_path_attach,
+            self,
+            flavor,
+            image,
+            public_key,
+            servername,
+            metadata,
+            https,
+            http,
+            resenv,
+            volume_ids_path_new,
+            volume_ids_path_attach,
     ):
         image = self.get_image(image=image)
         flavor = self.get_flavor(flavor=flavor)
@@ -1000,6 +1004,15 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
+    def _validate_forc_security_group(self):
+        LOG.info(
+            f"Validate Forc Security Group..."
+        )
+        sec = self.conn.get_security_group(name_or_id=self.FORC_REMOTE_ID)
+        if not sec:
+            LOG.exception(f"Forc Security Group - [{self.FORC_REMOTE_ID}] not found!")
+            sys.exit(1)
+
     def get_or_create_project_security_group(self, project_name, project_id):
         security_group_name = f"{project_name}_{project_id}"
         LOG.info(
@@ -1016,6 +1029,7 @@ class VirtualMachineHandler(Iface):
         new_security_group = self.conn.create_security_group(
             name=security_group_name, description=f"{project_name} Security Group"
         )
+
         self.conn.network.create_security_group_rule(
             direction="ingress",
             protocol="tcp",
@@ -1027,7 +1041,7 @@ class VirtualMachineHandler(Iface):
         return new_security_group["id"]
 
     def get_research_environment_security_groups(
-        self, research_environment_names: list[str]
+            self, research_environment_names: list[str]
     ):
         custom_security_groups = []
 
@@ -1048,18 +1062,18 @@ class VirtualMachineHandler(Iface):
         return custom_security_groups
 
     def start_server_without_playbook(
-        self,
-        flavor,
-        image,
-        public_key,
-        servername,
-        metadata,
-        https,
-        http,
-        resenv,
-        volume_ids_path_new=None,
-        volume_ids_path_attach=None,
-        additional_keys=None,
+            self,
+            flavor,
+            image,
+            public_key,
+            servername,
+            metadata,
+            https,
+            http,
+            resenv,
+            volume_ids_path_new=None,
+            volume_ids_path_attach=None,
+            additional_keys=None,
     ):
         """
         Start a new Server.
@@ -1120,17 +1134,17 @@ class VirtualMachineHandler(Iface):
                 if init_script:
                     add_key_script = self.create_add_keys_script(keys=additional_keys)
                     init_script = (
-                        add_key_script
-                        + encodeutils.safe_encode("\n".encode("utf-8"))
-                        + unlock_ubuntu_user_script
-                        + init_script
+                            add_key_script
+                            + encodeutils.safe_encode("\n".encode("utf-8"))
+                            + unlock_ubuntu_user_script
+                            + init_script
                     )
 
                 else:
                     init_script = (
-                        self.create_add_keys_script(keys=additional_keys)
-                        + encodeutils.safe_encode("\n".encode("utf-8"))
-                        + unlock_ubuntu_user_script
+                            self.create_add_keys_script(keys=additional_keys)
+                            + encodeutils.safe_encode("\n".encode("utf-8"))
+                            + unlock_ubuntu_user_script
                     )
 
             server = self.conn.create_server(
@@ -1156,17 +1170,17 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def start_server(
-        self,
-        flavor,
-        image,
-        public_key,
-        servername,
-        metadata,
-        diskspace,
-        volumename,
-        https,
-        http,
-        resenv,
+            self,
+            flavor,
+            image,
+            public_key,
+            servername,
+            metadata,
+            diskspace,
+            volumename,
+            https,
+            http,
+            resenv,
     ):
         """
         Start a new Server.
@@ -1226,7 +1240,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_resenv_security_group_and_attach_to_server(
-        self, server_id: str, resenv_template: str
+            self, server_id: str, resenv_template: str
     ):
         LOG.info(f"Create {resenv_template} Security Group for Instance: {server_id}")
 
@@ -1260,16 +1274,16 @@ class VirtualMachineHandler(Iface):
             )
 
     def start_server_with_custom_key(
-        self,
-        flavor,
-        image,
-        servername,
-        metadata,
-        http,
-        https,
-        resenv,
-        volume_ids_path_new=None,
-        volume_ids_path_attach=None,
+            self,
+            flavor,
+            image,
+            servername,
+            metadata,
+            http,
+            https,
+            resenv,
+            volume_ids_path_new=None,
+            volume_ids_path_attach=None,
     ):
         """
         Start a new Server.
@@ -1350,7 +1364,7 @@ class VirtualMachineHandler(Iface):
             return {}
 
     def create_and_deploy_playbook(
-        self, public_key, playbooks_information, openstack_id
+            self, public_key, playbooks_information, openstack_id
     ):
         global active_playbooks
         LOG.info(
@@ -1376,12 +1390,15 @@ class VirtualMachineHandler(Iface):
     def has_forc(self):
         return self.RE_BACKEND_URL is not None
 
-    def get_forc_url(self):
+    def set_forc_url(self):
         if self.RE_BACKEND_URL is None:
             return ""
         else:
             url = self.RE_BACKEND_URL.split(":")
             return f"https:{url[1]}/"
+
+    def get_forc_url(self):
+        return self.FORC_URL
 
     def cross_check_forc_image(self, tags):
         get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}"
@@ -1401,8 +1418,8 @@ class VirtualMachineHandler(Iface):
         cross_tags = list(set(self.ALL_TEMPLATES).intersection(tags))
         for template_dict in templates:
             if (
-                template_dict["name"] in self.FORC_ALLOWED
-                and template_dict["name"] in cross_tags
+                    template_dict["name"] in self.FORC_ALLOWED
+                    and template_dict["name"] in cross_tags
             ):
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
@@ -2169,19 +2186,19 @@ class VirtualMachineHandler(Iface):
         return deactivate_update_script
 
     def add_cluster_machine(
-        self,
-        cluster_id,
-        cluster_user,
-        cluster_group_id,
-        image,
-        flavor,
-        name,
-        key_name,
-        batch_idx,
-        worker_idx,
-        pub_key,
-        project_name,
-        project_id,
+            self,
+            cluster_id,
+            cluster_user,
+            cluster_group_id,
+            image,
+            flavor,
+            name,
+            key_name,
+            batch_idx,
+            worker_idx,
+            pub_key,
+            project_name,
+            project_id,
     ):
         LOG.info(
             f"Add machine to [{name}] {cluster_id} - [Image: {image}] - {key_name}"
@@ -2519,9 +2536,9 @@ class VirtualMachineHandler(Iface):
                     return False
             task_state = self.check_server_task_state(openstack_id)
             if (
-                task_state == "image_snapshot"
-                or task_state == "image_pending_upload"
-                or task_state == "image_uploading"
+                    task_state == "image_snapshot"
+                    or task_state == "image_pending_upload"
+                    or task_state == "image_uploading"
             ):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
@@ -2532,11 +2549,11 @@ class VirtualMachineHandler(Iface):
                     )
 
                     if (
-                        sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
-                        and "bibigrid" not in sg["name"]
-                        and not self.is_security_group_in_use(
-                            security_group_id=sg["id"]
-                        )
+                            sg["name"] != self.DEFAULT_SECURITY_GROUP_NAME
+                            and "bibigrid" not in sg["name"]
+                            and not self.is_security_group_in_use(
+                        security_group_id=sg["id"]
+                    )
                     ):
                         LOG.info(f"Delete security group {sg['name']}")
 
@@ -2707,15 +2724,15 @@ class VirtualMachineHandler(Iface):
             )
 
     def create_security_group(
-        self,
-        name,
-        udp_port=None,
-        ssh=True,
-        http=False,
-        https=False,
-        udp=False,
-        description=None,
-        resenv=[],
+            self,
+            name,
+            udp_port=None,
+            ssh=True,
+            http=False,
+            https=False,
+            udp=False,
+            description=None,
+            resenv=[],
     ):
         LOG.info(f"Create new security group {name}")
         sec = self.conn.get_security_group(name_or_id=name)
@@ -2900,7 +2917,7 @@ class VirtualMachineHandler(Iface):
             name
             for name in os.listdir(PLAYBOOKS_DIR)
             if name not in ["optional", "packer", ".github", "cluster"]
-            and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
+               and os.path.isdir(os.path.join(PLAYBOOKS_DIR, name))
         ]
         LOG.info(self.ALL_TEMPLATES)
 
@@ -2952,7 +2969,7 @@ class VirtualMachineHandler(Iface):
         for template in self.ALL_TEMPLATES:
             try:
                 with open(
-                    f"{PLAYBOOKS_DIR}{template}/{template}_metadata.yml"
+                        f"{PLAYBOOKS_DIR}{template}/{template}_metadata.yml"
                 ) as template_metadata:
                     try:
                         loaded_metadata = yaml.load(
@@ -2973,7 +2990,7 @@ class VirtualMachineHandler(Iface):
         return templates_metada
 
     def get_or_create_research_environment_security_group(
-        self, resenv_metadata: ResearchEnvironmentMetadata
+            self, resenv_metadata: ResearchEnvironmentMetadata
     ):
         if not resenv_metadata.needs_forc_support:
             return None
@@ -2992,9 +3009,11 @@ class VirtualMachineHandler(Iface):
         LOG.info(
             f"No security Group for {resenv_metadata.security_group_name} exists. Creating.. "
         )
+
         new_security_group = self.conn.create_security_group(
             name=resenv_metadata.security_group_name, description=resenv_metadata.name
         )
+
         self.conn.network.create_security_group_rule(
             direction=resenv_metadata.direction,
             protocol=resenv_metadata.protocol,
