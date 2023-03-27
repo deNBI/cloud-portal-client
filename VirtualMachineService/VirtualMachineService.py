@@ -529,10 +529,13 @@ class Iface(object):
         """
         pass
 
-    def get_server_openstack_ids(self):
+    def get_server_openstack_ids(self, filter_tag):
         """
         Get all server ids.
         Returns: List of server ids.
+
+        Parameters:
+         - filter_tag
 
         """
         pass
@@ -2815,20 +2818,24 @@ class Client(Iface):
             TApplicationException.MISSING_RESULT, "get_servers failed: unknown result"
         )
 
-    def get_server_openstack_ids(self):
+    def get_server_openstack_ids(self, filter_tag):
         """
         Get all server ids.
         Returns: List of server ids.
 
+        Parameters:
+         - filter_tag
+
         """
-        self.send_get_server_openstack_ids()
+        self.send_get_server_openstack_ids(filter_tag)
         return self.recv_get_server_openstack_ids()
 
-    def send_get_server_openstack_ids(self):
+    def send_get_server_openstack_ids(self, filter_tag):
         self._oprot.writeMessageBegin(
             "get_server_openstack_ids", TMessageType.CALL, self._seqid
         )
         args = get_server_openstack_ids_args()
+        args.filter_tag = filter_tag
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -5330,7 +5337,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = get_server_openstack_ids_result()
         try:
-            result.success = self._handler.get_server_openstack_ids()
+            result.success = self._handler.get_server_openstack_ids(args.filter_tag)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -15740,6 +15747,18 @@ get_servers_result.thrift_spec = (
 
 
 class get_server_openstack_ids_args(object):
+    """
+    Attributes:
+     - filter_tag
+
+    """
+
+    def __init__(
+        self,
+        filter_tag=None,
+    ):
+        self.filter_tag = filter_tag
+
     def read(self, iprot):
         if (
             iprot._fast_decode is not None
@@ -15753,6 +15772,15 @@ class get_server_openstack_ids_args(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
+            if fid == 1:
+                if ftype == TType.STRING:
+                    self.filter_tag = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -15765,6 +15793,14 @@ class get_server_openstack_ids_args(object):
             )
             return
         oprot.writeStructBegin("get_server_openstack_ids_args")
+        if self.filter_tag is not None:
+            oprot.writeFieldBegin("filter_tag", TType.STRING, 1)
+            oprot.writeString(
+                self.filter_tag.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.filter_tag
+            )
+            oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -15783,7 +15819,16 @@ class get_server_openstack_ids_args(object):
 
 
 all_structs.append(get_server_openstack_ids_args)
-get_server_openstack_ids_args.thrift_spec = ()
+get_server_openstack_ids_args.thrift_spec = (
+    None,  # 0
+    (
+        1,
+        TType.STRING,
+        "filter_tag",
+        "UTF8",
+        None,
+    ),  # 1
+)
 
 
 class get_server_openstack_ids_result(object):

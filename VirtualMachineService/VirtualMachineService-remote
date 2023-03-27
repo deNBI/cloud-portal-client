@@ -70,7 +70,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   check_template(string template_name, string template_version)')
     print('  bool add_udp_security_group(string server_id)')
     print('   get_servers()')
-    print('   get_server_openstack_ids()')
+    print('   get_server_openstack_ids(string filter_tag)')
     print('   get_servers_by_ids( server_ids)')
     print('  string check_server_task_state(string openstack_id)')
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
@@ -450,10 +450,10 @@ elif cmd == 'get_servers':
     pp.pprint(client.get_servers())
 
 elif cmd == 'get_server_openstack_ids':
-    if len(args) != 0:
-        print('get_server_openstack_ids requires 0 args')
+    if len(args) != 1:
+        print('get_server_openstack_ids requires 1 args')
         sys.exit(1)
-    pp.pprint(client.get_server_openstack_ids())
+    pp.pprint(client.get_server_openstack_ids(args[0],))
 
 elif cmd == 'get_servers_by_ids':
     if len(args) != 1:
