@@ -283,6 +283,7 @@ class VirtualMachineHandler(Iface):
                 self.FORC_ALLOWED = {}
                 self.FORC_HTTPS = cfg["forc"].get("forc_https", True)
                 self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
+                self._validate_forc_security_group()
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
                         not self.RE_BACKEND_URL
@@ -1000,6 +1001,15 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Start Server {servername} error:{e}")
             return {}
 
+    def _validate_forc_security_group(self):
+        LOG.info(
+            f"Validate Forc Security Group..."
+        )
+        sec = self.conn.get_security_group(name_or_id=self.FORC_REMOTE_ID)
+        if not sec:
+            LOG.exception(f"Forc Security Group - [{self.FORC_REMOTE_ID}] not found!")
+            sys.exit(1)
+
     def get_or_create_project_security_group(self, project_name, project_id):
         security_group_name = f"{project_name}_{project_id}"
         LOG.info(
@@ -1016,23 +1026,16 @@ class VirtualMachineHandler(Iface):
         new_security_group = self.conn.create_security_group(
             name=security_group_name, description=f"{project_name} Security Group"
         )
-        for i in range(10):
-            new_security_group_created = self.conn.get_security_group(new_security_group["id"])
-            if new_security_group_created:
-                self.conn.network.create_security_group_rule(
-                    direction="ingress",
-                    protocol="tcp",
-                    port_range_max=22,
-                    port_range_min=22,
-                    security_group_id=new_security_group_created["id"],
-                    remote_group_id=new_security_group_created["id"],
-                )
-                return new_security_group_created["id"]
-            if i == 9:
-                LOG.exception(f"Timeout: Security group {new_security_group} not found")
-                #   raise Exception("Timeout waiting for security group to become available")
-            time.sleep(1)
 
+        self.conn.network.create_security_group_rule(
+            direction="ingress",
+            protocol="tcp",
+            port_range_max=22,
+            port_range_min=22,
+            security_group_id=new_security_group["id"],
+            remote_group_id=new_security_group["id"],
+        )
+        return new_security_group["id"]
 
     def get_research_environment_security_groups(
             self, research_environment_names: list[str]
@@ -3004,23 +3007,16 @@ class VirtualMachineHandler(Iface):
         new_security_group = self.conn.create_security_group(
             name=resenv_metadata.security_group_name, description=resenv_metadata.name
         )
-        # Wait for the new security group to become available
-        for i in range(10):
-            new_security_group_created = self.conn.get_security_group(new_security_group["id"])
-            if new_security_group_created:
-                self.conn.network.create_security_group_rule(
-                    direction=resenv_metadata.direction,
-                    protocol=resenv_metadata.protocol,
-                    port_range_max=resenv_metadata.port,
-                    port_range_min=resenv_metadata.port,
-                    security_group_id=new_security_group_created["id"],
-                    remote_group_id=self.FORC_REMOTE_ID,
-                )
-                return new_security_group["id"]
-            if i == 9:
-                LOG.exception(f"Timeout: Security group {new_security_group} not found")
-                #   raise Exception("Timeout waiting for security group to become available")
-            time.sleep(1)
+
+        self.conn.network.create_security_group_rule(
+            direction=resenv_metadata.direction,
+            protocol=resenv_metadata.protocol,
+            port_range_max=resenv_metadata.port,
+            port_range_min=resenv_metadata.port,
+            security_group_id=new_security_group_created["id"],
+            remote_group_id=self.FORC_REMOTE_ID,
+        )
+        return new_security_group["id"]
 
     def update_forc_allowed(self, template_metadata):
         if template_metadata["needs_forc_support"]:
