@@ -281,6 +281,7 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
                 self.FORC_ALLOWED = {}
+                self.FORC_HTTPS= cfg["forc"].get("forc_https", True)
                 self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
@@ -1389,7 +1390,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code != 200:
                 return ()
@@ -1434,7 +1435,7 @@ class VirtualMachineHandler(Iface):
                 json=backend_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             try:
                 data = response.json()
@@ -1463,7 +1464,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1491,7 +1492,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1519,7 +1520,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1547,7 +1548,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             try:
                 data = response.json()
@@ -1572,7 +1573,7 @@ class VirtualMachineHandler(Iface):
                 delete_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code != 200:
                 try:
@@ -1603,7 +1604,7 @@ class VirtualMachineHandler(Iface):
                 json=user_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             try:
                 data = response.json()
@@ -1625,7 +1626,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return ["Error: 401"]
@@ -1651,7 +1652,7 @@ class VirtualMachineHandler(Iface):
                 json=user_info,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             return response.json()
         except Timeout as e:
@@ -1687,7 +1688,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -1704,7 +1705,7 @@ class VirtualMachineHandler(Iface):
                 get_url,
                 timeout=(30, 30),
                 headers={"X-API-KEY": self.FORC_API_KEY},
-                verify=True,
+                verify=self.FORC_HTTPS,
             )
             if response.status_code == 401:
                 return [response.json()]
@@ -3017,7 +3018,7 @@ class VirtualMachineHandler(Iface):
                         get_url,
                         timeout=(30, 30),
                         headers={"X-API-KEY": self.FORC_API_KEY},
-                        verify=True,
+                        verify=self.FORC_HTTPS,
                     )
                     if response.status_code == 200:
                         allowed_versions.append(forc_version)

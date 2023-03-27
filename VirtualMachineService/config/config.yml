@@ -53,6 +53,7 @@ bibigrid:
 
 forc:
   forc_url:
+  forc_https: True
   github_playbooks_repo:
   forc_remote_id:
 
