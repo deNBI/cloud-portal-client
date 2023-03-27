@@ -279,6 +279,9 @@ class VirtualMachineHandler(Iface):
 
             try:
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
+                backend_url_host = self.RE_BACKEND_URL.split(":")
+                self.FORC_URL = cfg["forc"].get("openresty_url", None) or f"https:{backend_url_host[1]}/"
+
                 self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
                 self.FORC_ALLOWED = {}
                 self.FORC_HTTPS = cfg["forc"].get("forc_https", True)
@@ -291,6 +294,7 @@ class VirtualMachineHandler(Iface):
                 ):
                     raise ValueError
                 LOG.info(msg=f"Forc-Backend url loaded: {self.RE_BACKEND_URL}")
+                LOG.info(msg=f"Forc-Frontend Url loaded: {self.FORC_URL}")
             except ValueError as ve:
                 LOG.exception(ve)
                 LOG.info(
@@ -1386,12 +1390,15 @@ class VirtualMachineHandler(Iface):
     def has_forc(self):
         return self.RE_BACKEND_URL is not None
 
-    def get_forc_url(self):
+    def set_forc_url(self):
         if self.RE_BACKEND_URL is None:
             return ""
         else:
             url = self.RE_BACKEND_URL.split(":")
             return f"https:{url[1]}/"
+
+    def get_forc_url(self):
+        return self.FORC_URL
 
     def cross_check_forc_image(self, tags):
         get_url = f"{self.RE_BACKEND_URL}{self.TEMPLATES_URL}"
