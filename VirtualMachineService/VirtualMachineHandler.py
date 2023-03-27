@@ -318,10 +318,8 @@ class VirtualMachineHandler(Iface):
 
                 LOG.info(f"Gateway IP is {self.GATEWAY_IP}")
         self.conn = self.create_connection()
-
-        self.update_playbooks()
         self._validate_forc_security_group()
-
+        self.update_playbooks()
         self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
 
