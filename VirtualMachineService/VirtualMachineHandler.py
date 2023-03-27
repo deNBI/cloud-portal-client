@@ -283,7 +283,6 @@ class VirtualMachineHandler(Iface):
                 self.FORC_ALLOWED = {}
                 self.FORC_HTTPS = cfg["forc"].get("forc_https", True)
                 self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
-                self._validate_forc_security_group()
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
                         not self.RE_BACKEND_URL
@@ -321,6 +320,8 @@ class VirtualMachineHandler(Iface):
         self.conn = self.create_connection()
 
         self.update_playbooks()
+        self._validate_forc_security_group()
+
         self.validate_gateway_security_group()
         self.create_or_get_default_ssh_security_group()
 
