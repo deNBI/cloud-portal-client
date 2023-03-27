@@ -22,6 +22,12 @@
       register: stat_client_pem
       tags: always
 
+    - name: Check if ca pem file exists already
+      stat:
+        path: "{{ client.PERSISTENT_PATH }}/CA.pem"
+      register: stat_ca_pem
+      tags: always
+
     - name: Setup filebeat data directory
       file:
         path: "{{ client.REPO_PATH }}/{{ client.FILEBEAT_DATA_APPEND }}"
@@ -54,11 +60,11 @@
       when: client_server_pem is defined
       tags: always
 
-    - name: Copy specified server pem file to remote machine persistent from default path
+    - name: Copy specified CA pem file to remote machine persistent
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src:  "{{client.CERT_FILE_PATH}}", dest: "{{ client.PERSISTENT_PATH }}/server.pem" }
-      when: client_server_pem is not defined and stat_client_pem.stat.exists == False
+        - { src: "{{client_ca_pem}}", dest: "{{ client.PERSISTENT_PATH }}/CA.pem" }
+      when: client_ca_pem is defined
       tags: always
 
     # Copy envs
