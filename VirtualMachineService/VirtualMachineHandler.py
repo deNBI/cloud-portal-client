@@ -2524,7 +2524,6 @@ class VirtualMachineHandler(Iface):
             ):
                 raise ConflictException("task_state in image creating")
             security_groups = self.conn.list_server_security_groups(server=server)
-
             if security_groups is not None:
                 for sg in security_groups:
                     self.conn.compute.remove_security_group_from_server(
