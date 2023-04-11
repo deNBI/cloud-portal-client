@@ -281,7 +281,7 @@ class VirtualMachineHandler(Iface):
                 self.RE_BACKEND_URL = cfg["forc"]["forc_url"]
                 self.FORC_API_KEY = os.environ.get("FORC_API_KEY", None)
                 self.FORC_ALLOWED = {}
-                self.FORC_HTTPS= cfg["forc"].get("forc_https", True)
+                self.FORC_HTTPS = cfg["forc"].get("forc_https", True)
                 self.FORC_REMOTE_ID = cfg["forc"]["forc_remote_id"]
                 self.GITHUB_PLAYBOOKS_REPO = cfg["forc"]["github_playbooks_repo"]
                 if (
