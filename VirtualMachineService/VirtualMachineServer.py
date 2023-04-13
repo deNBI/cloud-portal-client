@@ -18,7 +18,7 @@ import ssl
 import click
 import yaml
 from thrift.protocol import TBinaryProtocol
-from thrift.server import TServer
+from thrift.server import TServer, THttpServer
 from thrift.transport import TSocket, TSSLSocket, TTransport
 
 USERNAME = "OS_USERNAME"
@@ -81,15 +81,15 @@ def startServer(config):
     else:
         click.echo("Does not use SSL")
         transport = TSocket.TServerSocket(host=HOST, port=PORT)
-    tfactory = TTransport.TBufferedTransportFactory()
-    pfactory = TBinaryProtocol.TBinaryProtocolFactory()
-    server = TServer.TThreadPoolServer(
-        processor, transport, tfactory, pfactory, daemon=True
-    )
-    server.setNumThreads(THREADS)
-    click.echo(f"Started with {THREADS} threads!")
+    transport = THttpServer.THttpServer(
+        processor=processor,
+        server_address=(HOST, PORT),
+        inputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+        outputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+        ssl_context=ssl_context,
 
-    server.serve()
+    )
+    transport.serve()
 
 
 def check_environment_variables(envs):
