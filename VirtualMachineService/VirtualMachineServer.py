@@ -40,6 +40,22 @@ environment_variables = [
     PROJECT_DOMAIN_ID,
     FORC_API_KEY,
 ]
+os.environ['PYTHONHTTPSVERIFY'] = 'debug'
+
+
+def _load_ssl_context(CERTFILE, CAFILE):
+    click.echo("Use SSL - Loading SSL_Context")
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH,cafile=CAFILE)
+    ssl_context.load_cert_chain(CERTFILE)
+
+
+
+    click.echo(ssl_context.get_ca_certs())
+
+    ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
+    ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+    return ssl_context
 
 
 @click.command()
@@ -57,39 +73,62 @@ def startServer(config):
     CONFIG_FILE = config
     with open(CONFIG_FILE, "r") as ymlfile:
         cfg = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-        HOST = cfg["openstack_connection"]["host"]
-        PORT = cfg["openstack_connection"]["port"]
-        USE_SSL = cfg["openstack_connection"].get("use_ssl", True)
+        HOST = cfg["server"]["host"]
+        PORT = cfg["server"]["port"]
+        USE_SSL = cfg["server"].get("use_ssl", True)
+        USE_HTTP = cfg["server"].get("use_http", False)
         if USE_SSL:
-            CERTFILE = cfg["openstack_connection"]["certfile"]
-            CA_CERTS_PATH = cfg["openstack_connection"].get("ca_certs_path", None)
-        THREADS = cfg["openstack_connection"]["threads"]
+            CERTFILE = cfg["server"]["certfile"]
+
+            CAFILE = cfg["server"]['cafile']
+        THREADS = cfg["server"]["threads"]
     click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
-    if USE_SSL:
-        click.echo("Use SSL")
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain(CERTFILE)
-        if CA_CERTS_PATH:
-            click.echo(f"CA Certs present. Verify...")
-            ssl_context.load_verify_locations(CA_CERTS_PATH)
 
-        transport = TSSLSocket.TSSLServerSocket(
-            host=HOST, port=PORT, ssl_context=ssl_context
-        )
+    if USE_HTTP:
+        if USE_SSL:
+            click.echo("Using HTTPS Server")
+            server = THttpServer.THttpServer(
+                processor=processor,
+                server_address=(HOST, PORT),
+                inputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+                outputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+            )
+            ssl_context = _load_ssl_context(CERTFILE=CERTFILE, CAFILE=CAFILE)
+
+            server.httpd.socket = ssl_context.wrap_socket(server.httpd.socket, server_side=True)
+        else:
+            click.echo("Using HTTP Server")
+            server = THttpServer.THttpServer(
+                processor=processor,
+                server_address=(HOST, PORT),
+                inputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+                outputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
+            )
+        click.echo("Server started")
+        server.serve()
+
+
     else:
-        click.echo("Does not use SSL")
-        transport = TSocket.TServerSocket(host=HOST, port=PORT)
-    transport = THttpServer.THttpServer(
-        processor=processor,
-        server_address=(HOST, PORT),
-        inputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
-        outputProtocolFactory=TBinaryProtocol.TBinaryProtocolFactory(),
-        ssl_context=ssl_context,
-
-    )
-    transport.serve()
+        click.echo("Using TCP Server")
+        if USE_SSL:
+            ssl_context = _load_ssl_context(CERTFILE=CERTFILE, CAFILE=CAFILE)
+            click.echo(ssl_context.get_ca_certs())
+            transport = TSSLSocket.TSSLServerSocket(
+                host=HOST, port=PORT, ssl_context=ssl_context
+            )
+        else:
+            click.echo("Does not use SSL")
+            transport = TSocket.TServerSocket(host=HOST, port=PORT)
+        tfactory = TTransport.TBufferedTransportFactory()
+        pfactory = TBinaryProtocol.TBinaryProtocolFactory()
+        server = TServer.TThreadPoolServer(
+            processor, transport, tfactory, pfactory, daemon=True
+        )
+        server.setNumThreads(THREADS)
+        click.echo(f"Started with {THREADS} threads!")
+        server.serve()
 
 
 def check_environment_variables(envs):

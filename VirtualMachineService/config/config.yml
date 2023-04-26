@@ -3,13 +3,19 @@ redis:
   port: 6379
   password: ""
 
+server:
+  threads: 30
+  host: 0.0.0.0
+  port: 9090
+  use_ssl: True
+  # If you use docker-compose this path needs to be the path you mount the server.pem into
+  certfile: /code/VirtualMachineService/keys/server.pem
+  cafile: /code/VirtualMachineService/keys/CA.pem
+  use_http: True
+
 openstack_connection:
   gateway_security_group_id: e75f0abb-bd9d-4bda-afc7-cef1ad459eee
 
-  threads: 30
-  host: 0.0.0.0
-  # Client Port
-  port: 9090
   # Gateway IP
   gateway_ip: 129.70.51.75
   # If set to True the client will use a Gateway instead of providing floating IPs for each instance.
@@ -28,9 +34,6 @@ openstack_connection:
 
   floating_ip_network: external
   # If you use docker-compose this path needs to be the path you mount the server.pem into
-  certfile: /code/VirtualMachineService/keys/server.pem
-  ca_certs_path: /code/VirtualMachineService/keys/CA.pem
-  use_ssl: True
 
   # Used for gateway port calculation , x is always the last octet of the fixed ip (example : (x + 3) *3 ) )
   ssh_port_calc_formular: 30000 + x + y * 256
@@ -38,22 +41,22 @@ openstack_connection:
 
 bibigrid:
   # Url for Bibigrid API
-    port: 8080
-    host: bibigrid
-    https: False
-    localDnsLookup: False
-    sub_network: portalexternalsubnetwork
-    bibigrid_modes:
-      -   slurm
-    ansibleGalaxyRoles:
-                   - name: autoscaling
-                     hosts: master
-                     git: https://github.com/patricS4/autoscaling-config-ansible
+  port: 8080
+  host: bibigrid
+  https: False
+  localDnsLookup: False
+  sub_network: portalexternalsubnetwork
+  bibigrid_modes:
+    - slurm
+  ansibleGalaxyRoles:
+    - name: autoscaling
+      hosts: master
+      git: https://github.com/patricS4/autoscaling-config-ansible
 
 
 forc:
   forc_url:
-  openresty_url: 
+  openresty_url:
   forc_https: True
   github_playbooks_repo:
   forc_remote_id:

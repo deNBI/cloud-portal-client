@@ -11,7 +11,7 @@ services:
       - .env
     volumes:
       - ./VirtualMachineService/config/config_local.yml:/code/VirtualMachineService/config.yml
-      - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
+      - ./VirtualMachineService/keys/localhost:/code/VirtualMachineService/keys
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
     networks:
       - portal
