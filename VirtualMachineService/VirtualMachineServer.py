@@ -43,17 +43,41 @@ environment_variables = [
 os.environ['PYTHONHTTPSVERIFY'] = 'debug'
 
 
-def _load_ssl_context(CERTFILE, CAFILE):
+def load_trusted_fingerprints(file_path):
+    """
+    Load trusted fingerprints from a file.
+    """
+    try:
+        with open(file_path, 'r') as f:
+            return f.read().strip().split('\n')
+    except FileNotFoundError:
+        click.echo(f"Trusted fingerprint file '{file_path}' not found.")
+        return []
+
+def verify_cert_fingerprint(cert, trusted_fingerprints):
+    """
+    Verify server certificate fingerprint against a list of trusted fingerprints.
+    """
+    der_cert = cert.public_bytes(encoding=serialization.Encoding.DER)
+    cert_sha256 = hashlib.sha256(der_cert).hexdigest()
+    return cert_sha256 in trusted_fingerprints
+
+
+def _load_ssl_context(CERTFILE, CAFILE, fingerprint_file):
     click.echo("Use SSL - Loading SSL_Context")
-    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH,cafile=CAFILE)
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=CAFILE)
     ssl_context.load_cert_chain(CERTFILE)
 
-
-
-    click.echo(ssl_context.get_ca_certs())
-
+    # Set SSL minimum version and enable certificate validation
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
     ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+    # Load trusted fingerprints from file
+    trusted_fingerprints = load_trusted_fingerprints(fingerprint_file)
+
+    # Set SSL verification flags and callback function
+    ssl_context.verify_flags = ssl.VERIFY_CUSTOM
+    ssl_context.custom_verify_callback = lambda cert, _unused: verify_cert_fingerprint(cert, trusted_fingerprints)
 
     return ssl_context
 
