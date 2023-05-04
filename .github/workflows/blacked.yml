@@ -4,9 +4,19 @@ jobs:
     format:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3.5.0
-            - name: Checking out Branch
-              run: git checkout "${GITHUB_REF:11}"
+            - uses: actions/checkout@v3
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+            - name: Extract branch name
+              shell: bash
+              run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+              id: extract_branch
+            - name: Set tag
+              run: sed 's/\//-/g'  <<< "::set-output name=TAG::${{ steps.extract_branch.outputs.branch }}"
+              id: tag
+            - name: Get tag
+              run: echo "The selected tag is ${{ steps.tag.outputs.TAG }}"
+              
             - name: black
               uses: lgeiger/black-action@master
               with:
@@ -17,7 +27,7 @@ jobs:
             - name: Create Pull Request
               if: steps.git-check.outputs.modified == 'true'
               id: cpr
-              uses: peter-evans/create-pull-request@v4.2.4
+              uses: peter-evans/create-pull-request@v5.0.1
               with:
                token: ${{ secrets.GITHUB_TOKEN }}
                commit-message: fix(Linting):blacked code
@@ -30,7 +40,7 @@ jobs:
                         [1]: https://github.com/peter-evans/create-pull-request
                labels: automated,linting
                reviewers: ${{github.actor}}
-               branch: fix(linting)_${{github.ref}}
+               branch: fix(linting)_${{ steps.tag.outputs.TAG }}
             - name: Check outputs
               run: |
                       echo "Pull Request Number - ${{ env.PULL_REQUEST_NUMBER }}"
