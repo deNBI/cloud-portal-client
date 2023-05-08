@@ -40,15 +40,13 @@ environment_variables = [
     PROJECT_DOMAIN_ID,
     FORC_API_KEY,
 ]
-os.environ['PYTHONHTTPSVERIFY'] = 'debug'
+os.environ["PYTHONHTTPSVERIFY"] = "debug"
 
 
 def _load_ssl_context(CERTFILE, CAFILE):
     click.echo("Use SSL - Loading SSL_Context")
-    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH,cafile=CAFILE)
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=CAFILE)
     ssl_context.load_cert_chain(CERTFILE)
-
-
 
     click.echo(ssl_context.get_ca_certs())
 
@@ -80,7 +78,7 @@ def startServer(config):
         if USE_SSL:
             CERTFILE = cfg["server"]["certfile"]
 
-            CAFILE = cfg["server"]['cafile']
+            CAFILE = cfg["server"]["cafile"]
         THREADS = cfg["server"]["threads"]
     click.echo(f"Server is running on port {PORT}")
     handler = VirtualMachineHandler(CONFIG_FILE)
@@ -97,7 +95,9 @@ def startServer(config):
             )
             ssl_context = _load_ssl_context(CERTFILE=CERTFILE, CAFILE=CAFILE)
 
-            server.httpd.socket = ssl_context.wrap_socket(server.httpd.socket, server_side=True)
+            server.httpd.socket = ssl_context.wrap_socket(
+                server.httpd.socket, server_side=True
+            )
         else:
             click.echo("Using HTTP Server")
             server = THttpServer.THttpServer(
@@ -108,7 +108,6 @@ def startServer(config):
             )
         click.echo("Server started")
         server.serve()
-
 
     else:
         click.echo("Using TCP Server")
