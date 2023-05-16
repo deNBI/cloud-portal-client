@@ -71,7 +71,7 @@ from keystoneclient.v3 import client
 from openstack import connection
 import openstack
 from openstack.compute.v2.server import Server
-from openstack.exceptions import ConflictException
+from openstack.exceptions import ConflictException, ResourceNotFound
 from oslo_utils import encodeutils
 from requests.exceptions import Timeout
 
@@ -2531,10 +2531,18 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(name_or_id=openstack_id)
 
             if server is None:
-                server = self.conn.compute.get_server(openstack_id)
-                if server is None:
-                    LOG.error(f"Instance {openstack_id} not found")
-                    return False
+                try:
+                    server = self.conn.compute.get_server(openstack_id)
+                    if server is None:
+                        LOG.error(
+                            f"Instance {openstack_id} not found - so already deleted"
+                        )
+                        return True
+                except ResourceNotFound:
+                    LOG.exception(
+                        f"Instance {openstack_id} not found - so already deleted"
+                    )
+                    return True
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
