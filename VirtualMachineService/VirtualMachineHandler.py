@@ -2534,10 +2534,14 @@ class VirtualMachineHandler(Iface):
                 try:
                     server = self.conn.compute.get_server(openstack_id)
                     if server is None:
-                        LOG.error(f"Instance {openstack_id} not found - so already deleted")
+                        LOG.error(
+                            f"Instance {openstack_id} not found - so already deleted"
+                        )
                         return True
                 except ResourceNotFound:
-                    LOG.exception(f"Instance {openstack_id} not found - so already deleted")
+                    LOG.exception(
+                        f"Instance {openstack_id} not found - so already deleted"
+                    )
                     return True
             task_state = self.check_server_task_state(openstack_id)
             if (
