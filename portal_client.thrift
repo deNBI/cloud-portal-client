@@ -698,7 +698,7 @@ service VirtualMachineService {
      */
     map<string,string> get_limits()
 
-     map<string,string> start_cluster(1:string public_key,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instance,4:string user)
+     map<string,string> start_cluster(1:list<string> public_keys,2: ClusterInstance master_instance,3:list<ClusterInstance> worker_instance,4:string user)
 
      map<string,string> terminate_cluster(1:string cluster_id)
 

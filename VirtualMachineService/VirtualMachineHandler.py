@@ -71,7 +71,7 @@ from keystoneclient.v3 import client
 from openstack import connection
 import openstack
 from openstack.compute.v2.server import Server
-from openstack.exceptions import ConflictException
+from openstack.exceptions import ConflictException, ResourceNotFound
 from oslo_utils import encodeutils
 from requests.exceptions import Timeout
 
@@ -2306,7 +2306,7 @@ class VirtualMachineHandler(Iface):
     def get_gateway_ip(self):
         return {"gateway_ip": self.GATEWAY_IP}
 
-    def start_cluster(self, public_key, master_instance, worker_instances, user):
+    def start_cluster(self, public_keys, master_instance, worker_instances, user):
         master_instance = master_instance.__dict__
         del master_instance["count"]
         wI = []
@@ -2317,7 +2317,7 @@ class VirtualMachineHandler(Iface):
         body = {
             "mode": "openstack",
             "subnet": self.SUB_NETWORK,
-            "sshPublicKeys": [public_key],
+            "sshPublicKeys": public_keys,
             "user": user,
             "sshUser": "ubuntu",
             "masterInstance": master_instance,
@@ -2531,10 +2531,18 @@ class VirtualMachineHandler(Iface):
             server = self.conn.get_server(name_or_id=openstack_id)
 
             if server is None:
-                server = self.conn.compute.get_server(openstack_id)
-                if server is None:
-                    LOG.error(f"Instance {openstack_id} not found")
-                    return False
+                try:
+                    server = self.conn.compute.get_server(openstack_id)
+                    if server is None:
+                        LOG.error(
+                            f"Instance {openstack_id} not found - so already deleted"
+                        )
+                        return True
+                except ResourceNotFound:
+                    LOG.exception(
+                        f"Instance {openstack_id} not found - so already deleted"
+                    )
+                    return True
             task_state = self.check_server_task_state(openstack_id)
             if (
                 task_state == "image_snapshot"
