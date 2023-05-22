@@ -36,8 +36,10 @@ services:
       - server.enableHttp=true
     expose:
       - "8080"
+    command: ["/bin/sh","-c","java -Dlight-4j-config-dir=/config -Dlogback.configurationFile=/config/logback.xml -jar /server.jar -v"]
     networks:
       - portal
+
 
   # filebeat
   filebeat:
