@@ -3,23 +3,50 @@
     "config:base",
      ":automergePatch"
   ],
-  "packageRules": [
-    {
-      "updateTypes": ["major"],
-      "addLabels": ["major"]
-    },
-    {
-      "updateTypes": ["minor"],
-      "addLabels": ["minor"]
-    },
-     {
-      "updateTypes": ["patch"],
-      "addLabels": ["patch"]
-    },
-    {
-      "updateTypes": ["pin"],
-      "addLabels": ["pin"]
-    }
+  "packageRules":[
+      {
+         "matchPackagePatterns":[
+            "*"
+         ],
+         "matchUpdateTypes":[
+            "minor",
+            "patch"
+         ],
+         "groupName":"all non-major dependencies",
+         "groupSlug":"all-minor-patch"
+      },
+      {
+         "updateTypes":[
+            "major"
+         ],
+         "addLabels":[
+            "major"
+         ]
+      },
+      {
+         "updateTypes":[
+            "minor"
+         ],
+         "addLabels":[
+            "minor"
+         ]
+      },
+      {
+         "updateTypes":[
+            "patch"
+         ],
+         "addLabels":[
+            "patch"
+         ]
+      },
+      {
+         "updateTypes":[
+            "pin"
+         ],
+         "addLabels":[
+            "pin"
+         ]
+      }
    ],
    "vulnerabilityAlerts": {
     "labels": ["security"]
