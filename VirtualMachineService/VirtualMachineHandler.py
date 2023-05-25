@@ -1251,8 +1251,11 @@ class VirtualMachineHandler(Iface):
             LOG.exception(f"Instance {server_id} not found")
             raise serverNotFoundException
         resenv_metadata = self.loaded_resenv_metadata[resenv_template]
-        resenv_security_group = self.get_or_create_research_environment_security_group(
+        resenv_security_group_id = self.get_or_create_research_environment_security_group(
             resenv_metadata=resenv_metadata
+        )
+        resenv_security_group = self.conn.get_security_group(
+            name_or_id=resenv_security_group_id
         )
 
         LOG.info(
