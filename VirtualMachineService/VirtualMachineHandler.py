@@ -95,7 +95,6 @@ openstack.enable_logging(debug=False)
 import yaml
 
 
-
 class VirtualMachineHandler(Iface):
     """Handler which the PortalClient uses."""
 
@@ -215,7 +214,9 @@ class VirtualMachineHandler(Iface):
             self.REDIS_HOST = cfg["redis"]["host"]
             self.REDIS_PORT = cfg["redis"]["port"]
             self.REDIS_PASSWORD = cfg["redis"].get("password", None)
-            self.LOG.info(f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}..")
+            self.LOG.info(
+                f"Connecting to Redis at {self.REDIS_HOST}:{self.REDIS_PORT}.."
+            )
             self.pool = redis.ConnectionPool(
                 host=self.REDIS_HOST, port=self.REDIS_PORT, password=self.REDIS_PASSWORD
             )
@@ -1004,7 +1005,9 @@ class VirtualMachineHandler(Iface):
         self.LOG.info(f"Validate Forc Security Group...")
         sec = self.conn.get_security_group(name_or_id=self.FORC_REMOTE_ID)
         if not sec:
-            self.LOG.exception(f"Forc Security Group - [{self.FORC_REMOTE_ID}] not found!")
+            self.LOG.exception(
+                f"Forc Security Group - [{self.FORC_REMOTE_ID}] not found!"
+            )
             sys.exit(1)
 
     def get_or_create_project_security_group(self, project_name, project_id):
@@ -1014,7 +1017,9 @@ class VirtualMachineHandler(Iface):
         )
         sec = self.conn.get_security_group(name_or_id=security_group_name)
         if sec:
-            self.LOG.info(f"Security group [{project_name}-{project_id}]  already exists.")
+            self.LOG.info(
+                f"Security group [{project_name}-{project_id}]  already exists."
+            )
             return sec["id"]
 
         self.LOG.info(
@@ -1236,7 +1241,9 @@ class VirtualMachineHandler(Iface):
     def create_resenv_security_group_and_attach_to_server(
         self, server_id: str, resenv_template: str
     ):
-        self.LOG.info(f"Create {resenv_template} Security Group for Instance: {server_id}")
+        self.LOG.info(
+            f"Create {resenv_template} Security Group for Instance: {server_id}"
+        )
 
         server = self.conn.get_server(name_or_id=server_id)
 
@@ -1369,7 +1376,7 @@ class VirtualMachineHandler(Iface):
             pool=self.pool,
             loaded_metadata_keys=list(self.loaded_resenv_metadata.keys()),
             cloud_site=self.CLOUD_SITE,
-            logger=self.LOG
+            logger=self.LOG,
         )
         self.redis.hset(openstack_id, "status", self.BUILD_PLAYBOOK)
         playbook.run_it()
@@ -1736,7 +1743,6 @@ class VirtualMachineHandler(Iface):
         else:
             return PlaybookResult(status=-2, stdout="", stderr="")
 
-
     def get_volumes_by_ids(self, volume_ids):
         self.LOG.info(f"Get Volumes {volume_ids}")
 
@@ -1765,7 +1771,6 @@ class VirtualMachineHandler(Iface):
 
         return volumes
 
-
     def get_volume(self, volume_id):
         self.LOG.info(f"Get Volume {volume_id}")
         try:
@@ -1789,7 +1794,6 @@ class VirtualMachineHandler(Iface):
         except Exception:
             self.LOG.exception(f"Could not find volume {id}")
             return Volume(status=self.NOT_FOUND)
-
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -1823,7 +1827,6 @@ class VirtualMachineHandler(Iface):
                 exc_info=True,
             )
             return {"error": e}
-
 
     def check_server_status(self, openstack_id: str) -> VM:
         """
@@ -1904,7 +1907,6 @@ class VirtualMachineHandler(Iface):
             self.LOG.exception(f"Check Status VM {openstack_id} error: {e}")
             return VM(status=self.ERROR)
 
-
     def openstack_server_to_thrift_server(self, server: Server) -> VM:
         self.LOG.info(f"Convert server {server} to thrift server")
         fixed_ip = None
@@ -1955,7 +1957,6 @@ class VirtualMachineHandler(Iface):
         )
         return server
 
-
     def get_servers(self):
         self.LOG.info("Get all servers")
         servers = self.conn.list_servers()
@@ -1972,7 +1973,6 @@ class VirtualMachineHandler(Iface):
         # self.LOG.info(server_list)
         return server_list
 
-
     def get_server_openstack_ids(self, filter_tag):
         self.LOG.info("Get all server ids")
         if filter_tag:
@@ -1985,7 +1985,6 @@ class VirtualMachineHandler(Iface):
         else:
             server_ids = [server.id for server in self.conn.list_servers()]
         return server_ids
-
 
     def add_udp_security_group(self, server_id):
         """
@@ -2046,7 +2045,6 @@ class VirtualMachineHandler(Iface):
 
         return True
 
-
     def add_server_metadata(self, server_id, metadata) -> None:
         self.LOG.info(f"Add metadata - {metadata} to server - {server_id}")
         server = self.conn.get_server(name_or_id=server_id)
@@ -2058,7 +2056,6 @@ class VirtualMachineHandler(Iface):
             existing_metadata = {}
         existing_metadata.update(metadata)
         self.conn.set_server_metadata(server_id, metadata)
-
 
     def detach_ip_from_server(self, server_id, floating_ip):
         self.LOG.info(f"Detaching floating ip {floating_ip} from server {server_id}")
@@ -2073,7 +2070,6 @@ class VirtualMachineHandler(Iface):
             )
             return False
 
-
     def get_servers_by_bibigrid_id(self, bibigrid_id):
         filters = {"bibigrid_id": bibigrid_id, "name": bibigrid_id}
         servers = self.conn.list_servers(filters=filters)
@@ -2081,7 +2077,6 @@ class VirtualMachineHandler(Iface):
         for server in servers:
             thrift_servers.append(self.openstack_server_to_thrift_server(server))
         return thrift_servers
-
 
     def get_vm_ports(self, openstack_id):
         """
@@ -2100,7 +2095,6 @@ class VirtualMachineHandler(Iface):
         udp_port = eval(self.UDP_FORMULAR)
         return {"port": str(port), "udp": str(udp_port)}
 
-
     def terminate_cluster(self, cluster_id):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -2112,7 +2106,6 @@ class VirtualMachineHandler(Iface):
         )
         self.LOG.info(response.json())
         return response.json()
-
 
     def get_cluster_status(self, cluster_id):
         self.LOG.info(f"Get Cluster {cluster_id} status")
@@ -2129,7 +2122,6 @@ class VirtualMachineHandler(Iface):
         info = json_resp.get("info", "")
         self.LOG.info(f"Cluster {cluster_id} status: - {msg} | {info}")
         return json_resp
-
 
     def bibigrid_available(self):
         self.LOG.info("Checking if Bibigrid is available")
@@ -2150,7 +2142,6 @@ class VirtualMachineHandler(Iface):
             self.LOG.exception("Bibigrid is offline")
             return False
 
-
     def get_clusters_info(self):
         headers = {"content-Type": "application/json"}
         body = {"mode": "openstack"}
@@ -2161,7 +2152,6 @@ class VirtualMachineHandler(Iface):
         self.LOG.info(response.json())
         infos = response.json()["info"]
         return infos
-
 
     def get_active_image_by_os_version(self, os_version, os_distro):
         self.LOG.info(f"Get active Image by os-version: {os_version}")
@@ -2181,8 +2171,9 @@ class VirtualMachineHandler(Iface):
                         return image
         return None
 
-
-    def get_active_image_by_os_version_and_slurm_version(self, os_version, os_distro, slurm_version):
+    def get_active_image_by_os_version_and_slurm_version(
+        self, os_version, os_distro, slurm_version
+    ):
         self.LOG.info(f"Get active Image by os-version: {os_version}")
         images = self.conn.list_images()
         for image in images:
@@ -2199,7 +2190,6 @@ class VirtualMachineHandler(Iface):
                             return image
         return None
 
-
     def create_deactivate_update_script(self):
         fileDir = os.path.dirname(os.path.abspath(__file__))
         deactivate_update_script_file = os.path.join(fileDir, "scripts/bash/mount.sh")
@@ -2209,7 +2199,6 @@ class VirtualMachineHandler(Iface):
                 deactivate_update_script.encode("utf-8")
             )
         return deactivate_update_script
-
 
     def add_cluster_machine(
         self,
@@ -2237,9 +2226,15 @@ class VirtualMachineHandler(Iface):
                 self.LOG.info(f"Checking if [{version}] in [{image}]")
 
                 if version in image:
-                    self.LOG.info(f"Version {version} in {image}!\Checking for image ...")
-                    openstack_image = self.get_active_image_by_os_version_and_slurm_version(
-                        os_version=version, os_distro="ubuntu", slurm_version=slurm_version
+                    self.LOG.info(
+                        f"Version {version} in {image}!\Checking for image ..."
+                    )
+                    openstack_image = (
+                        self.get_active_image_by_os_version_and_slurm_version(
+                            os_version=version,
+                            os_distro="ubuntu",
+                            slurm_version=slurm_version,
+                        )
                     )
                     break
             if not openstack_image:
@@ -2294,7 +2289,6 @@ class VirtualMachineHandler(Iface):
 
         return server["id"]
 
-
     def get_cluster_info(self, cluster_id):
         infos = self.get_clusters_info()
         for info in infos:
@@ -2323,17 +2317,14 @@ class VirtualMachineHandler(Iface):
 
         return None
 
-
     def get_calculation_formulars(self):
         return {
             "ssh_port_calculation": self.SSH_FORMULAR,
             "udp_port_calculation": self.UDP_FORMULAR,
         }
 
-
     def get_gateway_ip(self):
         return {"gateway_ip": self.GATEWAY_IP}
-
 
     def start_cluster(self, public_keys, master_instance, worker_instances, user):
         master_instance = master_instance.__dict__
@@ -2363,7 +2354,6 @@ class VirtualMachineHandler(Iface):
         )
         self.LOG.info(response.json())
         return response.json()
-
 
     def create_snapshot(self, openstack_id, name, elixir_id, base_tags, description):
         """
@@ -2428,7 +2418,6 @@ class VirtualMachineHandler(Iface):
             )
             return None
 
-
     def delete_image(self, image_id):
         """
         Delete Image.
@@ -2447,7 +2436,6 @@ class VirtualMachineHandler(Iface):
         except Exception as e:
             self.LOG.exception(f"Delete Image {image_id} error : {e}")
             return False
-
 
     def add_floating_ip_to_server(self, openstack_id, network):
         """
@@ -2499,7 +2487,6 @@ class VirtualMachineHandler(Iface):
             )
             return None
 
-
     def netcat(self, host, port):
         """
         Try to connect to specific host:port.
@@ -2516,7 +2503,6 @@ class VirtualMachineHandler(Iface):
                 return True
             else:
                 return False
-
 
     def is_security_group_in_use(self, security_group_id):
         self.LOG.info(f"Checking if security group [{security_group_id}] is in use")
@@ -2552,7 +2538,6 @@ class VirtualMachineHandler(Iface):
 
         # If none of the above are true, the security group is no longer in use
         return False
-
 
     def delete_server(self, openstack_id):
         """
@@ -2615,7 +2600,6 @@ class VirtualMachineHandler(Iface):
             self.LOG.exception(f"Delete Server {openstack_id} error: {e}")
             return False
 
-
     def delete_volume_attachment(self, volume_id, server_id):
         """
         Delete volume attachment.
@@ -2640,7 +2624,6 @@ class VirtualMachineHandler(Iface):
             self.LOG.exception(f"Detachment of volume {volume_id} error")
             return False
 
-
     def delete_volume(self, volume_id):
         """
         Delete volume.
@@ -2660,7 +2643,6 @@ class VirtualMachineHandler(Iface):
         except Exception:
             self.LOG.exception(f"Delete Volume {volume_id} error")
             return False
-
 
     def stop_server(self, openstack_id):
         """
@@ -2690,7 +2672,6 @@ class VirtualMachineHandler(Iface):
 
             return False
 
-
     def reboot_server(self, server_id, reboot_type):
         """
         Reboot server.
@@ -2715,7 +2696,6 @@ class VirtualMachineHandler(Iface):
         except Exception:
             self.LOG.exception(f"Reboot Server {server_id} {reboot_type} Error")
             return False
-
 
     def resume_server(self, openstack_id):
         """
@@ -2743,7 +2723,6 @@ class VirtualMachineHandler(Iface):
             self.LOG.exception(f"Resume Server {openstack_id} error:")
             return False
 
-
     def validate_gateway_security_group(self):
         self.LOG.info(
             f"Check if gateway security group exists {self.GATEWAY_SECURITY_GROUP_ID}"
@@ -2761,7 +2740,6 @@ class VirtualMachineHandler(Iface):
                 f"Gateway Security Group ID {self.GATEWAY_SECURITY_GROUP_ID} found"
             )
 
-
     def create_or_get_default_ssh_security_group(self):
         self.LOG.info("Get default SimpleVM SSH Security Group")
         sec = self.conn.get_security_group(name_or_id=self.DEFAULT_SECURITY_GROUP_NAME)
@@ -2773,7 +2751,6 @@ class VirtualMachineHandler(Iface):
                 ssh=True,
                 description="Default SSH SimpleVM Security Group",
             )
-
 
     def create_security_group(
         self,
@@ -2902,7 +2879,6 @@ class VirtualMachineHandler(Iface):
 
         return new_security_group
 
-
     def get_limits(self):
         """
         Get the Limits.
@@ -2935,7 +2911,6 @@ class VirtualMachineHandler(Iface):
             "totalGigabytesUsed": str(limits["totalGigabytesUsed"]),
         }
 
-
     def install_ansible_galaxy_requirements(self):
         self.LOG.info("Installing Ansible galaxy requirements..")
         stream = os.popen(
@@ -2944,14 +2919,15 @@ class VirtualMachineHandler(Iface):
         output = stream.read()
         self.LOG.info(output)
 
-
     def update_playbooks(self):
         if self.GITHUB_PLAYBOOKS_REPO is None:
             self.LOG.info(
                 "Github playbooks repo url is None. Aborting download of playbooks."
             )
             return
-        self.LOG.info(f"STARTED update of playbooks from - {self.GITHUB_PLAYBOOKS_REPO}")
+        self.LOG.info(
+            f"STARTED update of playbooks from - {self.GITHUB_PLAYBOOKS_REPO}"
+        )
         r = req.get(self.GITHUB_PLAYBOOKS_REPO)
         filename = "resenv_repo"
         with open(filename, "wb") as output_file:
@@ -3019,7 +2995,6 @@ class VirtualMachineHandler(Iface):
         self.install_ansible_galaxy_requirements()
         self.LOG.info(self.loaded_resenv_metadata)
 
-
     def load_resenv_metadata(self):
         templates_metada = []
         for template in self.ALL_TEMPLATES:
@@ -3044,7 +3019,6 @@ class VirtualMachineHandler(Iface):
             except Exception as e:
                 self.LOG.exception(f"No Metadatafile found for {template} - {e}")
         return templates_metada
-
 
     def get_or_create_research_environment_security_group(
         self, resenv_metadata: ResearchEnvironmentMetadata
@@ -3080,7 +3054,6 @@ class VirtualMachineHandler(Iface):
             remote_group_id=self.FORC_REMOTE_ID,
         )
         return new_security_group["id"]
-
 
     def update_forc_allowed(self, template_metadata):
         if template_metadata["needs_forc_support"]:

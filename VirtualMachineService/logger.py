@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+
 DEFAULT_MAX_BYTES = 1073741824  # 1 GB in bytes
 
 
@@ -11,8 +12,9 @@ def setup_logger(config):
         max_bytes = DEFAULT_MAX_BYTES
         backup_count = 3
     else:
-
-        log_file_path = logger_config.get("log_file", "log/portal_client_debug.log")  ## default for not breaking things
+        log_file_path = logger_config.get(
+            "log_file", "log/portal_client_debug.log"
+        )  ## default for not breaking things
         max_bytes = logger_config.get("max_bytes", DEFAULT_MAX_BYTES)
         backup_count = logger_config.get("backup_count", 3)
     # Create a logger
@@ -21,9 +23,7 @@ def setup_logger(config):
 
     # Create a RotatingFileHandler for log rotation
     fh = RotatingFileHandler(
-        log_file_path,
-        maxBytes=max_bytes,
-        backupCount=backup_count
+        log_file_path, maxBytes=max_bytes, backupCount=backup_count
     )
     fh.setLevel(logging.DEBUG)
 
