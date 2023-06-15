@@ -14,19 +14,6 @@ MOSH = "mosh"
 
 ALL_TEMPLATES = [CONDA]
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
-fh = logging.FileHandler("log/portal_client_debug.log")
-fh.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - %(funcName)s  - %(levelname)s - %(message)s"
-)
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-LOG.addHandler(fh)
-LOG.addHandler(ch)
 CLOUD_SITE = ""
 
 
@@ -44,6 +31,7 @@ class Playbook(object):
         pool,
         loaded_metadata_keys,
         cloud_site,
+        logger 
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
         self.cloud_site = cloud_site
@@ -55,6 +43,7 @@ class Playbook(object):
         self.process = (
             None  # init process, returncode, standard output, standard error output
         )
+        self.logger=logger
         self.returncode = -1
         self.playbooks_information = playbooks_information
         self.stdout = ""
@@ -132,7 +121,7 @@ class Playbook(object):
 
     def copy_and_init(self, playbook_name, playbook_vars):
         def load_vars():
-            LOG.info(f" Playbook vars: {playbook_vars}")
+            self.logger.info(f" Playbook vars: {playbook_vars}")
             if playbook_name == CONDA:
                 for k, v in playbook_vars.items():
                     if k == "packages":
@@ -145,7 +134,7 @@ class Playbook(object):
                         data[playbook_name + "_vars"][k] = p_dict
             if playbook_name in self.loaded_metadata_keys:
                 for k, v in playbook_vars.items():
-                    LOG.info(playbook_vars)
+                    self.logger.info(playbook_vars)
                     if k == "template_version":
                         data[playbook_name + "_vars"][k] = v
                     if k == "create_only_backend":
@@ -162,7 +151,7 @@ class Playbook(object):
                     if k == MOSH:
                         data[playbook_name + "_defined"][k] = v
 
-            LOG.info(f"Playbook Data - {data}")
+            self.logger.info(f"Playbook Data - {data}")
 
         # copy whole directory
         shutil.copytree(
@@ -186,10 +175,10 @@ class Playbook(object):
                 self.yaml_exec.dump(data, variables)
             self.add_to_playbook_lists(playbook_name_local, playbook_name)
         except shutil.Error as e:
-            LOG.exception(e)
+            self.logger.exception(e)
             self.add_tasks_only(playbook_name_local)
         except IOError as e:
-            LOG.exception(e)
+            self.logger.exception(e)
             self.add_tasks_only(playbook_name_local)
 
     def add_to_playbook_lists(self, playbook_name_local, playbook_name):
@@ -200,7 +189,7 @@ class Playbook(object):
                 import_tasks=playbook_name_local + ".yml",
             )
         )
-        LOG.info(
+        self.logger.info(
             "Added playbook: "
             + playbook_name_local
             + ".yml"
@@ -238,7 +227,7 @@ class Playbook(object):
         command_string = "/usr/local/bin/ansible-playbook -v -i {0} {1}/{2}".format(
             self.inventory.name, self.directory.name, self.playbook_exec_name
         )
-        LOG.info(f"Run Playbook with command {command_string}")
+        self.logger.info(f"Run Playbook with command {command_string}")
         command_string = shlex.split(command_string)
         self.process = subprocess.Popen(
             command_string,
@@ -250,14 +239,14 @@ class Playbook(object):
     def check_status(self, openstack_id):
         done = self.process.poll()
         if done is None:
-            LOG.info(f"Playbook for (openstack_id) {openstack_id} still in progress.")
+            self.logger.info(f"Playbook for (openstack_id) {openstack_id} still in progress.")
         elif done != 0:
-            LOG.info(f"Playbook for (openstack_id) {openstack_id} has failed.")
+            self.logger.info(f"Playbook for (openstack_id) {openstack_id} has failed.")
             self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
             self.returncode = self.process.returncode
             self.process.wait()
         else:
-            LOG.info(f"Playbook for (openstack_id) {openstack_id} is successful.")
+            self.logger.info(f"Playbook for (openstack_id) {openstack_id} is successful.")
             self.redis.hset(openstack_id, "status", self.ACTIVE)
             self.returncode = self.process.returncode
             self.process.wait()
