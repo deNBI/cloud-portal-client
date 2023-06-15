@@ -31,7 +31,7 @@ class Playbook(object):
         pool,
         loaded_metadata_keys,
         cloud_site,
-        logger 
+        logger,
     ):
         self.loaded_metadata_keys = loaded_metadata_keys
         self.cloud_site = cloud_site
@@ -43,7 +43,7 @@ class Playbook(object):
         self.process = (
             None  # init process, returncode, standard output, standard error output
         )
-        self.logger=logger
+        self.logger = logger
         self.returncode = -1
         self.playbooks_information = playbooks_information
         self.stdout = ""
@@ -239,14 +239,18 @@ class Playbook(object):
     def check_status(self, openstack_id):
         done = self.process.poll()
         if done is None:
-            self.logger.info(f"Playbook for (openstack_id) {openstack_id} still in progress.")
+            self.logger.info(
+                f"Playbook for (openstack_id) {openstack_id} still in progress."
+            )
         elif done != 0:
             self.logger.info(f"Playbook for (openstack_id) {openstack_id} has failed.")
             self.redis.hset(openstack_id, "status", self.PLAYBOOK_FAILED)
             self.returncode = self.process.returncode
             self.process.wait()
         else:
-            self.logger.info(f"Playbook for (openstack_id) {openstack_id} is successful.")
+            self.logger.info(
+                f"Playbook for (openstack_id) {openstack_id} is successful."
+            )
             self.redis.hset(openstack_id, "status", self.ACTIVE)
             self.returncode = self.process.returncode
             self.process.wait()
