@@ -6,20 +6,13 @@
 #  options string: py
 #
 
-from thrift.Thrift import (
-    TType,
-    TMessageType,
-    TFrozenDict,
-    TException,
-    TApplicationException,
-)
+from thrift.Thrift import TType, TMessageType, TFrozenDict, TException, TApplicationException
 from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys
 
 from thrift.transport import TTransport
-
 all_structs = []
 
 
@@ -34,14 +27,8 @@ class Backend(object):
 
     """
 
-    def __init__(
-        self,
-        id=None,
-        owner=None,
-        location_url=None,
-        template=None,
-        template_version=None,
-    ):
+
+    def __init__(self, id=None, owner=None, location_url=None, template=None, template_version=None,):
         self.id = id
         self.owner = owner
         self.location_url = location_url
@@ -49,11 +36,7 @@ class Backend(object):
         self.template_version = template_version
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -68,38 +51,22 @@ class Backend(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.owner = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.owner = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.location_url = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.location_url = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.template = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.template = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.template_version = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.template_version = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -109,44 +76,28 @@ class Backend(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("Backend")
+        oprot.writeStructBegin('Backend')
         if self.id is not None:
-            oprot.writeFieldBegin("id", TType.I64, 1)
+            oprot.writeFieldBegin('id', TType.I64, 1)
             oprot.writeI64(self.id)
             oprot.writeFieldEnd()
         if self.owner is not None:
-            oprot.writeFieldBegin("owner", TType.STRING, 2)
-            oprot.writeString(
-                self.owner.encode("utf-8") if sys.version_info[0] == 2 else self.owner
-            )
+            oprot.writeFieldBegin('owner', TType.STRING, 2)
+            oprot.writeString(self.owner.encode('utf-8') if sys.version_info[0] == 2 else self.owner)
             oprot.writeFieldEnd()
         if self.location_url is not None:
-            oprot.writeFieldBegin("location_url", TType.STRING, 3)
-            oprot.writeString(
-                self.location_url.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.location_url
-            )
+            oprot.writeFieldBegin('location_url', TType.STRING, 3)
+            oprot.writeString(self.location_url.encode('utf-8') if sys.version_info[0] == 2 else self.location_url)
             oprot.writeFieldEnd()
         if self.template is not None:
-            oprot.writeFieldBegin("template", TType.STRING, 4)
-            oprot.writeString(
-                self.template.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.template
-            )
+            oprot.writeFieldBegin('template', TType.STRING, 4)
+            oprot.writeString(self.template.encode('utf-8') if sys.version_info[0] == 2 else self.template)
             oprot.writeFieldEnd()
         if self.template_version is not None:
-            oprot.writeFieldBegin("template_version", TType.STRING, 5)
-            oprot.writeString(
-                self.template_version.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.template_version
-            )
+            oprot.writeFieldBegin('template_version', TType.STRING, 5)
+            oprot.writeString(self.template_version.encode('utf-8') if sys.version_info[0] == 2 else self.template_version)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -155,8 +106,9 @@ class Backend(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -181,19 +133,8 @@ class ClusterInfo(object):
 
     """
 
-    def __init__(
-        self,
-        launch_date=None,
-        group_id=None,
-        network_id=None,
-        public_ip=None,
-        subnet_id=None,
-        user=None,
-        inst_counter=None,
-        cluster_id=None,
-        key_name=None,
-        pub_key=None,
-    ):
+
+    def __init__(self, launch_date=None, group_id=None, network_id=None, public_ip=None, subnet_id=None, user=None, inst_counter=None, cluster_id=None, key_name=None, pub_key=None,):
         self.launch_date = launch_date
         self.group_id = group_id
         self.network_id = network_id
@@ -206,11 +147,7 @@ class ClusterInfo(object):
         self.pub_key = pub_key
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -220,56 +157,32 @@ class ClusterInfo(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.launch_date = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.launch_date = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.group_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.group_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.network_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.network_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.public_ip = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.public_ip = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.subnet_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.subnet_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.user = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.user = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
@@ -279,29 +192,17 @@ class ClusterInfo(object):
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.cluster_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.cluster_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.key_name = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.key_name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 10:
                 if ftype == TType.STRING:
-                    self.pub_key = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.pub_key = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -311,84 +212,48 @@ class ClusterInfo(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("ClusterInfo")
+        oprot.writeStructBegin('ClusterInfo')
         if self.launch_date is not None:
-            oprot.writeFieldBegin("launch_date", TType.STRING, 1)
-            oprot.writeString(
-                self.launch_date.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.launch_date
-            )
+            oprot.writeFieldBegin('launch_date', TType.STRING, 1)
+            oprot.writeString(self.launch_date.encode('utf-8') if sys.version_info[0] == 2 else self.launch_date)
             oprot.writeFieldEnd()
         if self.group_id is not None:
-            oprot.writeFieldBegin("group_id", TType.STRING, 2)
-            oprot.writeString(
-                self.group_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.group_id
-            )
+            oprot.writeFieldBegin('group_id', TType.STRING, 2)
+            oprot.writeString(self.group_id.encode('utf-8') if sys.version_info[0] == 2 else self.group_id)
             oprot.writeFieldEnd()
         if self.network_id is not None:
-            oprot.writeFieldBegin("network_id", TType.STRING, 3)
-            oprot.writeString(
-                self.network_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.network_id
-            )
+            oprot.writeFieldBegin('network_id', TType.STRING, 3)
+            oprot.writeString(self.network_id.encode('utf-8') if sys.version_info[0] == 2 else self.network_id)
             oprot.writeFieldEnd()
         if self.public_ip is not None:
-            oprot.writeFieldBegin("public_ip", TType.STRING, 4)
-            oprot.writeString(
-                self.public_ip.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.public_ip
-            )
+            oprot.writeFieldBegin('public_ip', TType.STRING, 4)
+            oprot.writeString(self.public_ip.encode('utf-8') if sys.version_info[0] == 2 else self.public_ip)
             oprot.writeFieldEnd()
         if self.subnet_id is not None:
-            oprot.writeFieldBegin("subnet_id", TType.STRING, 5)
-            oprot.writeString(
-                self.subnet_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.subnet_id
-            )
+            oprot.writeFieldBegin('subnet_id', TType.STRING, 5)
+            oprot.writeString(self.subnet_id.encode('utf-8') if sys.version_info[0] == 2 else self.subnet_id)
             oprot.writeFieldEnd()
         if self.user is not None:
-            oprot.writeFieldBegin("user", TType.STRING, 6)
-            oprot.writeString(
-                self.user.encode("utf-8") if sys.version_info[0] == 2 else self.user
-            )
+            oprot.writeFieldBegin('user', TType.STRING, 6)
+            oprot.writeString(self.user.encode('utf-8') if sys.version_info[0] == 2 else self.user)
             oprot.writeFieldEnd()
         if self.inst_counter is not None:
-            oprot.writeFieldBegin("inst_counter", TType.I32, 7)
+            oprot.writeFieldBegin('inst_counter', TType.I32, 7)
             oprot.writeI32(self.inst_counter)
             oprot.writeFieldEnd()
         if self.cluster_id is not None:
-            oprot.writeFieldBegin("cluster_id", TType.STRING, 8)
-            oprot.writeString(
-                self.cluster_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.cluster_id
-            )
+            oprot.writeFieldBegin('cluster_id', TType.STRING, 8)
+            oprot.writeString(self.cluster_id.encode('utf-8') if sys.version_info[0] == 2 else self.cluster_id)
             oprot.writeFieldEnd()
         if self.key_name is not None:
-            oprot.writeFieldBegin("key_name", TType.STRING, 9)
-            oprot.writeString(
-                self.key_name.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.key_name
-            )
+            oprot.writeFieldBegin('key_name', TType.STRING, 9)
+            oprot.writeString(self.key_name.encode('utf-8') if sys.version_info[0] == 2 else self.key_name)
             oprot.writeFieldEnd()
         if self.pub_key is not None:
-            oprot.writeFieldBegin("pub_key", TType.STRING, 10)
-            oprot.writeString(
-                self.pub_key.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.pub_key
-            )
+            oprot.writeFieldBegin('pub_key', TType.STRING, 10)
+            oprot.writeString(self.pub_key.encode('utf-8') if sys.version_info[0] == 2 else self.pub_key)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -397,8 +262,9 @@ class ClusterInfo(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -420,16 +286,8 @@ class Volume(object):
 
     """
 
-    def __init__(
-        self,
-        id=None,
-        name=None,
-        description=None,
-        status=None,
-        created_at=None,
-        device=None,
-        size=None,
-    ):
+
+    def __init__(self, id=None, name=None, description=None, status=None, created_at=None, device=None, size=None,):
         self.id = id
         self.name = name
         self.description = description
@@ -439,11 +297,7 @@ class Volume(object):
         self.size = size
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -453,56 +307,32 @@ class Volume(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.name = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.description = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.description = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.status = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.status = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.created_at = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.created_at = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.device = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.device = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
@@ -517,53 +347,35 @@ class Volume(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("Volume")
+        oprot.writeStructBegin('Volume')
         if self.id is not None:
-            oprot.writeFieldBegin("id", TType.STRING, 1)
-            oprot.writeString(
-                self.id.encode("utf-8") if sys.version_info[0] == 2 else self.id
-            )
+            oprot.writeFieldBegin('id', TType.STRING, 1)
+            oprot.writeString(self.id.encode('utf-8') if sys.version_info[0] == 2 else self.id)
             oprot.writeFieldEnd()
         if self.name is not None:
-            oprot.writeFieldBegin("name", TType.STRING, 2)
-            oprot.writeString(
-                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
-            )
+            oprot.writeFieldBegin('name', TType.STRING, 2)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
             oprot.writeFieldEnd()
         if self.description is not None:
-            oprot.writeFieldBegin("description", TType.STRING, 3)
-            oprot.writeString(
-                self.description.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.description
-            )
+            oprot.writeFieldBegin('description', TType.STRING, 3)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         if self.status is not None:
-            oprot.writeFieldBegin("status", TType.STRING, 4)
-            oprot.writeString(
-                self.status.encode("utf-8") if sys.version_info[0] == 2 else self.status
-            )
+            oprot.writeFieldBegin('status', TType.STRING, 4)
+            oprot.writeString(self.status.encode('utf-8') if sys.version_info[0] == 2 else self.status)
             oprot.writeFieldEnd()
         if self.created_at is not None:
-            oprot.writeFieldBegin("created_at", TType.STRING, 5)
-            oprot.writeString(
-                self.created_at.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.created_at
-            )
+            oprot.writeFieldBegin('created_at', TType.STRING, 5)
+            oprot.writeString(self.created_at.encode('utf-8') if sys.version_info[0] == 2 else self.created_at)
             oprot.writeFieldEnd()
         if self.device is not None:
-            oprot.writeFieldBegin("device", TType.STRING, 6)
-            oprot.writeString(
-                self.device.encode("utf-8") if sys.version_info[0] == 2 else self.device
-            )
+            oprot.writeFieldBegin('device', TType.STRING, 6)
+            oprot.writeString(self.device.encode('utf-8') if sys.version_info[0] == 2 else self.device)
             oprot.writeFieldEnd()
         if self.size is not None:
-            oprot.writeFieldBegin("size", TType.I32, 7)
+            oprot.writeFieldBegin('size', TType.I32, 7)
             oprot.writeI32(self.size)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -573,8 +385,9 @@ class Volume(object):
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -599,17 +412,8 @@ class Flavor(object):
 
     """
 
-    def __init__(
-        self,
-        vcpus=None,
-        ram=None,
-        disk=None,
-        name=None,
-        openstack_id=None,
-        description=None,
-        tags=None,
-        ephemeral_disk=None,
-    ):
+
+    def __init__(self, vcpus=None, ram=None, disk=None, name=None, openstack_id=None, description=None, tags=None, ephemeral_disk=None,):
         self.vcpus = vcpus
         self.ram = ram
         self.disk = disk
@@ -620,11 +424,7 @@ class Flavor(object):
         self.ephemeral_disk = ephemeral_disk
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -649,29 +449,17 @@ class Flavor(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.name = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.openstack_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.openstack_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.description = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.description = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
@@ -679,11 +467,7 @@ class Flavor(object):
                     self.tags = []
                     (_etype3, _size0) = iprot.readListBegin()
                     for _i4 in range(_size0):
-                        _elem5 = (
-                            iprot.readString().decode("utf-8", errors="replace")
-                            if sys.version_info[0] == 2
-                            else iprot.readString()
-                        )
+                        _elem5 = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                         self.tags.append(_elem5)
                     iprot.readListEnd()
                 else:
@@ -700,56 +484,42 @@ class Flavor(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("Flavor")
+        oprot.writeStructBegin('Flavor')
         if self.vcpus is not None:
-            oprot.writeFieldBegin("vcpus", TType.I32, 1)
+            oprot.writeFieldBegin('vcpus', TType.I32, 1)
             oprot.writeI32(self.vcpus)
             oprot.writeFieldEnd()
         if self.ram is not None:
-            oprot.writeFieldBegin("ram", TType.I32, 2)
+            oprot.writeFieldBegin('ram', TType.I32, 2)
             oprot.writeI32(self.ram)
             oprot.writeFieldEnd()
         if self.disk is not None:
-            oprot.writeFieldBegin("disk", TType.I32, 3)
+            oprot.writeFieldBegin('disk', TType.I32, 3)
             oprot.writeI32(self.disk)
             oprot.writeFieldEnd()
         if self.name is not None:
-            oprot.writeFieldBegin("name", TType.STRING, 4)
-            oprot.writeString(
-                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
-            )
+            oprot.writeFieldBegin('name', TType.STRING, 4)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
             oprot.writeFieldEnd()
         if self.openstack_id is not None:
-            oprot.writeFieldBegin("openstack_id", TType.STRING, 5)
-            oprot.writeString(
-                self.openstack_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.openstack_id
-            )
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 5)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
         if self.description is not None:
-            oprot.writeFieldBegin("description", TType.STRING, 6)
-            oprot.writeString(
-                self.description.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.description
-            )
+            oprot.writeFieldBegin('description', TType.STRING, 6)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         if self.tags is not None:
-            oprot.writeFieldBegin("tags", TType.LIST, 7)
+            oprot.writeFieldBegin('tags', TType.LIST, 7)
             oprot.writeListBegin(TType.STRING, len(self.tags))
             for iter6 in self.tags:
-                oprot.writeString(
-                    iter6.encode("utf-8") if sys.version_info[0] == 2 else iter6
-                )
+                oprot.writeString(iter6.encode('utf-8') if sys.version_info[0] == 2 else iter6)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.ephemeral_disk is not None:
-            oprot.writeFieldBegin("ephemeral_disk", TType.I32, 8)
+            oprot.writeFieldBegin('ephemeral_disk', TType.I32, 8)
             oprot.writeI32(self.ephemeral_disk)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -757,22 +527,23 @@ class Flavor(object):
 
     def validate(self):
         if self.vcpus is None:
-            raise TProtocolException(message="Required field vcpus is unset!")
+            raise TProtocolException(message='Required field vcpus is unset!')
         if self.ram is None:
-            raise TProtocolException(message="Required field ram is unset!")
+            raise TProtocolException(message='Required field ram is unset!')
         if self.disk is None:
-            raise TProtocolException(message="Required field disk is unset!")
+            raise TProtocolException(message='Required field disk is unset!')
         if self.name is None:
-            raise TProtocolException(message="Required field name is unset!")
+            raise TProtocolException(message='Required field name is unset!')
         if self.openstack_id is None:
-            raise TProtocolException(message="Required field openstack_id is unset!")
+            raise TProtocolException(message='Required field openstack_id is unset!')
         if self.tags is None:
-            raise TProtocolException(message="Required field tags is unset!")
+            raise TProtocolException(message='Required field tags is unset!')
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -798,24 +569,12 @@ class Image(object):
      - is_snapshot: If the Image is a snapshot
      - os_version
      - os_distro
+     - slurm_version
 
     """
 
-    def __init__(
-        self,
-        name=None,
-        min_disk=None,
-        min_ram=None,
-        status=None,
-        created_at=None,
-        updated_at=None,
-        openstack_id=None,
-        description=None,
-        tag=None,
-        is_snapshot=None,
-        os_version=None,
-        os_distro=None,
-    ):
+
+    def __init__(self, name=None, min_disk=None, min_ram=None, status=None, created_at=None, updated_at=None, openstack_id=None, description=None, tag=None, is_snapshot=None, os_version=None, os_distro=None, slurm_version=None,):
         self.name = name
         self.min_disk = min_disk
         self.min_ram = min_ram
@@ -828,13 +587,10 @@ class Image(object):
         self.is_snapshot = is_snapshot
         self.os_version = os_version
         self.os_distro = os_distro
+        self.slurm_version = slurm_version
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -844,11 +600,7 @@ class Image(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.name = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
@@ -863,47 +615,27 @@ class Image(object):
                     iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.STRING:
-                    self.status = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.status = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.created_at = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.created_at = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.updated_at = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.updated_at = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.openstack_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.openstack_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.description = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.description = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
@@ -911,11 +643,7 @@ class Image(object):
                     self.tag = []
                     (_etype10, _size7) = iprot.readListBegin()
                     for _i11 in range(_size7):
-                        _elem12 = (
-                            iprot.readString().decode("utf-8", errors="replace")
-                            if sys.version_info[0] == 2
-                            else iprot.readString()
-                        )
+                        _elem12 = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                         self.tag.append(_elem12)
                     iprot.readListEnd()
                 else:
@@ -927,20 +655,17 @@ class Image(object):
                     iprot.skip(ftype)
             elif fid == 11:
                 if ftype == TType.STRING:
-                    self.os_version = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.os_version = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 12:
                 if ftype == TType.STRING:
-                    self.os_distro = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.os_distro = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 13:
+                if ftype == TType.STRING:
+                    self.slurm_version = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -950,113 +675,86 @@ class Image(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("Image")
+        oprot.writeStructBegin('Image')
         if self.name is not None:
-            oprot.writeFieldBegin("name", TType.STRING, 1)
-            oprot.writeString(
-                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
-            )
+            oprot.writeFieldBegin('name', TType.STRING, 1)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
             oprot.writeFieldEnd()
         if self.min_disk is not None:
-            oprot.writeFieldBegin("min_disk", TType.I32, 2)
+            oprot.writeFieldBegin('min_disk', TType.I32, 2)
             oprot.writeI32(self.min_disk)
             oprot.writeFieldEnd()
         if self.min_ram is not None:
-            oprot.writeFieldBegin("min_ram", TType.I32, 3)
+            oprot.writeFieldBegin('min_ram', TType.I32, 3)
             oprot.writeI32(self.min_ram)
             oprot.writeFieldEnd()
         if self.status is not None:
-            oprot.writeFieldBegin("status", TType.STRING, 4)
-            oprot.writeString(
-                self.status.encode("utf-8") if sys.version_info[0] == 2 else self.status
-            )
+            oprot.writeFieldBegin('status', TType.STRING, 4)
+            oprot.writeString(self.status.encode('utf-8') if sys.version_info[0] == 2 else self.status)
             oprot.writeFieldEnd()
         if self.created_at is not None:
-            oprot.writeFieldBegin("created_at", TType.STRING, 5)
-            oprot.writeString(
-                self.created_at.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.created_at
-            )
+            oprot.writeFieldBegin('created_at', TType.STRING, 5)
+            oprot.writeString(self.created_at.encode('utf-8') if sys.version_info[0] == 2 else self.created_at)
             oprot.writeFieldEnd()
         if self.updated_at is not None:
-            oprot.writeFieldBegin("updated_at", TType.STRING, 6)
-            oprot.writeString(
-                self.updated_at.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.updated_at
-            )
+            oprot.writeFieldBegin('updated_at', TType.STRING, 6)
+            oprot.writeString(self.updated_at.encode('utf-8') if sys.version_info[0] == 2 else self.updated_at)
             oprot.writeFieldEnd()
         if self.openstack_id is not None:
-            oprot.writeFieldBegin("openstack_id", TType.STRING, 7)
-            oprot.writeString(
-                self.openstack_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.openstack_id
-            )
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 7)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
         if self.description is not None:
-            oprot.writeFieldBegin("description", TType.STRING, 8)
-            oprot.writeString(
-                self.description.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.description
-            )
+            oprot.writeFieldBegin('description', TType.STRING, 8)
+            oprot.writeString(self.description.encode('utf-8') if sys.version_info[0] == 2 else self.description)
             oprot.writeFieldEnd()
         if self.tag is not None:
-            oprot.writeFieldBegin("tag", TType.LIST, 9)
+            oprot.writeFieldBegin('tag', TType.LIST, 9)
             oprot.writeListBegin(TType.STRING, len(self.tag))
             for iter13 in self.tag:
-                oprot.writeString(
-                    iter13.encode("utf-8") if sys.version_info[0] == 2 else iter13
-                )
+                oprot.writeString(iter13.encode('utf-8') if sys.version_info[0] == 2 else iter13)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.is_snapshot is not None:
-            oprot.writeFieldBegin("is_snapshot", TType.BOOL, 10)
+            oprot.writeFieldBegin('is_snapshot', TType.BOOL, 10)
             oprot.writeBool(self.is_snapshot)
             oprot.writeFieldEnd()
         if self.os_version is not None:
-            oprot.writeFieldBegin("os_version", TType.STRING, 11)
-            oprot.writeString(
-                self.os_version.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.os_version
-            )
+            oprot.writeFieldBegin('os_version', TType.STRING, 11)
+            oprot.writeString(self.os_version.encode('utf-8') if sys.version_info[0] == 2 else self.os_version)
             oprot.writeFieldEnd()
         if self.os_distro is not None:
-            oprot.writeFieldBegin("os_distro", TType.STRING, 12)
-            oprot.writeString(
-                self.os_distro.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.os_distro
-            )
+            oprot.writeFieldBegin('os_distro', TType.STRING, 12)
+            oprot.writeString(self.os_distro.encode('utf-8') if sys.version_info[0] == 2 else self.os_distro)
+            oprot.writeFieldEnd()
+        if self.slurm_version is not None:
+            oprot.writeFieldBegin('slurm_version', TType.STRING, 13)
+            oprot.writeString(self.slurm_version.encode('utf-8') if sys.version_info[0] == 2 else self.slurm_version)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
     def validate(self):
         if self.name is None:
-            raise TProtocolException(message="Required field name is unset!")
+            raise TProtocolException(message='Required field name is unset!')
         if self.min_disk is None:
-            raise TProtocolException(message="Required field min_disk is unset!")
+            raise TProtocolException(message='Required field min_disk is unset!')
         if self.min_ram is None:
-            raise TProtocolException(message="Required field min_ram is unset!")
+            raise TProtocolException(message='Required field min_ram is unset!')
         if self.status is None:
-            raise TProtocolException(message="Required field status is unset!")
+            raise TProtocolException(message='Required field status is unset!')
         if self.openstack_id is None:
-            raise TProtocolException(message="Required field openstack_id is unset!")
+            raise TProtocolException(message='Required field openstack_id is unset!')
         if self.tag is None:
-            raise TProtocolException(message="Required field tag is unset!")
+            raise TProtocolException(message='Required field tag is unset!')
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1086,22 +784,8 @@ class VM(object):
 
     """
 
-    def __init__(
-        self,
-        flav=None,
-        img=None,
-        status=None,
-        metadata=None,
-        project_id=None,
-        keyname=None,
-        openstack_id=None,
-        name=None,
-        created_at=None,
-        floating_ip=None,
-        fixed_ip=None,
-        diskspace=None,
-        volume_id=None,
-    ):
+
+    def __init__(self, flav=None, img=None, status=None, metadata=None, project_id=None, keyname=None, openstack_id=None, name=None, created_at=None, floating_ip=None, fixed_ip=None, diskspace=None, volume_id=None,):
         self.flav = flav
         self.img = img
         self.status = status
@@ -1117,11 +801,7 @@ class VM(object):
         self.volume_id = volume_id
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -1143,11 +823,7 @@ class VM(object):
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.status = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.status = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 4:
@@ -1155,81 +831,45 @@ class VM(object):
                     self.metadata = {}
                     (_ktype15, _vtype16, _size14) = iprot.readMapBegin()
                     for _i18 in range(_size14):
-                        _key19 = (
-                            iprot.readString().decode("utf-8", errors="replace")
-                            if sys.version_info[0] == 2
-                            else iprot.readString()
-                        )
-                        _val20 = (
-                            iprot.readString().decode("utf-8", errors="replace")
-                            if sys.version_info[0] == 2
-                            else iprot.readString()
-                        )
+                        _key19 = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
+                        _val20 = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                         self.metadata[_key19] = _val20
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.STRING:
-                    self.project_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.project_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 6:
                 if ftype == TType.STRING:
-                    self.keyname = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.keyname = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 7:
                 if ftype == TType.STRING:
-                    self.openstack_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.openstack_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 8:
                 if ftype == TType.STRING:
-                    self.name = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.name = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 9:
                 if ftype == TType.STRING:
-                    self.created_at = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.created_at = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 10:
                 if ftype == TType.STRING:
-                    self.floating_ip = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.floating_ip = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 11:
                 if ftype == TType.STRING:
-                    self.fixed_ip = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.fixed_ip = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 12:
@@ -1239,11 +879,7 @@ class VM(object):
                     iprot.skip(ftype)
             elif fid == 13:
                 if ftype == TType.STRING:
-                    self.volume_id = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.volume_id = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1253,128 +889,91 @@ class VM(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("VM")
+        oprot.writeStructBegin('VM')
         if self.flav is not None:
-            oprot.writeFieldBegin("flav", TType.STRUCT, 1)
+            oprot.writeFieldBegin('flav', TType.STRUCT, 1)
             self.flav.write(oprot)
             oprot.writeFieldEnd()
         if self.img is not None:
-            oprot.writeFieldBegin("img", TType.STRUCT, 2)
+            oprot.writeFieldBegin('img', TType.STRUCT, 2)
             self.img.write(oprot)
             oprot.writeFieldEnd()
         if self.status is not None:
-            oprot.writeFieldBegin("status", TType.STRING, 3)
-            oprot.writeString(
-                self.status.encode("utf-8") if sys.version_info[0] == 2 else self.status
-            )
+            oprot.writeFieldBegin('status', TType.STRING, 3)
+            oprot.writeString(self.status.encode('utf-8') if sys.version_info[0] == 2 else self.status)
             oprot.writeFieldEnd()
         if self.metadata is not None:
-            oprot.writeFieldBegin("metadata", TType.MAP, 4)
+            oprot.writeFieldBegin('metadata', TType.MAP, 4)
             oprot.writeMapBegin(TType.STRING, TType.STRING, len(self.metadata))
             for kiter21, viter22 in self.metadata.items():
-                oprot.writeString(
-                    kiter21.encode("utf-8") if sys.version_info[0] == 2 else kiter21
-                )
-                oprot.writeString(
-                    viter22.encode("utf-8") if sys.version_info[0] == 2 else viter22
-                )
+                oprot.writeString(kiter21.encode('utf-8') if sys.version_info[0] == 2 else kiter21)
+                oprot.writeString(viter22.encode('utf-8') if sys.version_info[0] == 2 else viter22)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         if self.project_id is not None:
-            oprot.writeFieldBegin("project_id", TType.STRING, 5)
-            oprot.writeString(
-                self.project_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.project_id
-            )
+            oprot.writeFieldBegin('project_id', TType.STRING, 5)
+            oprot.writeString(self.project_id.encode('utf-8') if sys.version_info[0] == 2 else self.project_id)
             oprot.writeFieldEnd()
         if self.keyname is not None:
-            oprot.writeFieldBegin("keyname", TType.STRING, 6)
-            oprot.writeString(
-                self.keyname.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.keyname
-            )
+            oprot.writeFieldBegin('keyname', TType.STRING, 6)
+            oprot.writeString(self.keyname.encode('utf-8') if sys.version_info[0] == 2 else self.keyname)
             oprot.writeFieldEnd()
         if self.openstack_id is not None:
-            oprot.writeFieldBegin("openstack_id", TType.STRING, 7)
-            oprot.writeString(
-                self.openstack_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.openstack_id
-            )
+            oprot.writeFieldBegin('openstack_id', TType.STRING, 7)
+            oprot.writeString(self.openstack_id.encode('utf-8') if sys.version_info[0] == 2 else self.openstack_id)
             oprot.writeFieldEnd()
         if self.name is not None:
-            oprot.writeFieldBegin("name", TType.STRING, 8)
-            oprot.writeString(
-                self.name.encode("utf-8") if sys.version_info[0] == 2 else self.name
-            )
+            oprot.writeFieldBegin('name', TType.STRING, 8)
+            oprot.writeString(self.name.encode('utf-8') if sys.version_info[0] == 2 else self.name)
             oprot.writeFieldEnd()
         if self.created_at is not None:
-            oprot.writeFieldBegin("created_at", TType.STRING, 9)
-            oprot.writeString(
-                self.created_at.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.created_at
-            )
+            oprot.writeFieldBegin('created_at', TType.STRING, 9)
+            oprot.writeString(self.created_at.encode('utf-8') if sys.version_info[0] == 2 else self.created_at)
             oprot.writeFieldEnd()
         if self.floating_ip is not None:
-            oprot.writeFieldBegin("floating_ip", TType.STRING, 10)
-            oprot.writeString(
-                self.floating_ip.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.floating_ip
-            )
+            oprot.writeFieldBegin('floating_ip', TType.STRING, 10)
+            oprot.writeString(self.floating_ip.encode('utf-8') if sys.version_info[0] == 2 else self.floating_ip)
             oprot.writeFieldEnd()
         if self.fixed_ip is not None:
-            oprot.writeFieldBegin("fixed_ip", TType.STRING, 11)
-            oprot.writeString(
-                self.fixed_ip.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.fixed_ip
-            )
+            oprot.writeFieldBegin('fixed_ip', TType.STRING, 11)
+            oprot.writeString(self.fixed_ip.encode('utf-8') if sys.version_info[0] == 2 else self.fixed_ip)
             oprot.writeFieldEnd()
         if self.diskspace is not None:
-            oprot.writeFieldBegin("diskspace", TType.I32, 12)
+            oprot.writeFieldBegin('diskspace', TType.I32, 12)
             oprot.writeI32(self.diskspace)
             oprot.writeFieldEnd()
         if self.volume_id is not None:
-            oprot.writeFieldBegin("volume_id", TType.STRING, 13)
-            oprot.writeString(
-                self.volume_id.encode("utf-8")
-                if sys.version_info[0] == 2
-                else self.volume_id
-            )
+            oprot.writeFieldBegin('volume_id', TType.STRING, 13)
+            oprot.writeString(self.volume_id.encode('utf-8') if sys.version_info[0] == 2 else self.volume_id)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
     def validate(self):
         if self.flav is None:
-            raise TProtocolException(message="Required field flav is unset!")
+            raise TProtocolException(message='Required field flav is unset!')
         if self.img is None:
-            raise TProtocolException(message="Required field img is unset!")
+            raise TProtocolException(message='Required field img is unset!')
         if self.status is None:
-            raise TProtocolException(message="Required field status is unset!")
+            raise TProtocolException(message='Required field status is unset!')
         if self.keyname is None:
-            raise TProtocolException(message="Required field keyname is unset!")
+            raise TProtocolException(message='Required field keyname is unset!')
         if self.openstack_id is None:
-            raise TProtocolException(message="Required field openstack_id is unset!")
+            raise TProtocolException(message='Required field openstack_id is unset!')
         if self.name is None:
-            raise TProtocolException(message="Required field name is unset!")
+            raise TProtocolException(message='Required field name is unset!')
         if self.created_at is None:
-            raise TProtocolException(message="Required field created_at is unset!")
+            raise TProtocolException(message='Required field created_at is unset!')
         if self.fixed_ip is None:
-            raise TProtocolException(message="Required field fixed_ip is unset!")
+            raise TProtocolException(message='Required field fixed_ip is unset!')
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1392,22 +991,14 @@ class ClusterInstance(object):
 
     """
 
-    def __init__(
-        self,
-        type=None,
-        image=None,
-        count=None,
-    ):
+
+    def __init__(self, type=None, image=None, count=None,):
         self.type = type
         self.image = image
         self.count = count
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -1417,20 +1008,12 @@ class ClusterInstance(object):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    self.type = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.type = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.image = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.image = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
@@ -1445,25 +1028,19 @@ class ClusterInstance(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("ClusterInstance")
+        oprot.writeStructBegin('ClusterInstance')
         if self.type is not None:
-            oprot.writeFieldBegin("type", TType.STRING, 1)
-            oprot.writeString(
-                self.type.encode("utf-8") if sys.version_info[0] == 2 else self.type
-            )
+            oprot.writeFieldBegin('type', TType.STRING, 1)
+            oprot.writeString(self.type.encode('utf-8') if sys.version_info[0] == 2 else self.type)
             oprot.writeFieldEnd()
         if self.image is not None:
-            oprot.writeFieldBegin("image", TType.STRING, 2)
-            oprot.writeString(
-                self.image.encode("utf-8") if sys.version_info[0] == 2 else self.image
-            )
+            oprot.writeFieldBegin('image', TType.STRING, 2)
+            oprot.writeString(self.image.encode('utf-8') if sys.version_info[0] == 2 else self.image)
             oprot.writeFieldEnd()
         if self.count is not None:
-            oprot.writeFieldBegin("count", TType.I32, 3)
+            oprot.writeFieldBegin('count', TType.I32, 3)
             oprot.writeI32(self.count)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -1471,14 +1048,15 @@ class ClusterInstance(object):
 
     def validate(self):
         if self.type is None:
-            raise TProtocolException(message="Required field type is unset!")
+            raise TProtocolException(message='Required field type is unset!')
         if self.image is None:
-            raise TProtocolException(message="Required field image is unset!")
+            raise TProtocolException(message='Required field image is unset!')
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1498,22 +1076,14 @@ class PlaybookResult(object):
 
     """
 
-    def __init__(
-        self,
-        status=None,
-        stdout=None,
-        stderr=None,
-    ):
+
+    def __init__(self, status=None, stdout=None, stderr=None,):
         self.status = status
         self.stdout = stdout
         self.stderr = stderr
 
     def read(self, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and self.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
             iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
             return
         iprot.readStructBegin()
@@ -1528,20 +1098,12 @@ class PlaybookResult(object):
                     iprot.skip(ftype)
             elif fid == 2:
                 if ftype == TType.STRING:
-                    self.stdout = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.stdout = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             elif fid == 3:
                 if ftype == TType.STRING:
-                    self.stderr = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    self.stderr = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1551,42 +1113,37 @@ class PlaybookResult(object):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("PlaybookResult")
+        oprot.writeStructBegin('PlaybookResult')
         if self.status is not None:
-            oprot.writeFieldBegin("status", TType.I32, 1)
+            oprot.writeFieldBegin('status', TType.I32, 1)
             oprot.writeI32(self.status)
             oprot.writeFieldEnd()
         if self.stdout is not None:
-            oprot.writeFieldBegin("stdout", TType.STRING, 2)
-            oprot.writeString(
-                self.stdout.encode("utf-8") if sys.version_info[0] == 2 else self.stdout
-            )
+            oprot.writeFieldBegin('stdout', TType.STRING, 2)
+            oprot.writeString(self.stdout.encode('utf-8') if sys.version_info[0] == 2 else self.stdout)
             oprot.writeFieldEnd()
         if self.stderr is not None:
-            oprot.writeFieldBegin("stderr", TType.STRING, 3)
-            oprot.writeString(
-                self.stderr.encode("utf-8") if sys.version_info[0] == 2 else self.stderr
-            )
+            oprot.writeFieldBegin('stderr', TType.STRING, 3)
+            oprot.writeString(self.stderr.encode('utf-8') if sys.version_info[0] == 2 else self.stderr)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
     def validate(self):
         if self.status is None:
-            raise TProtocolException(message="Required field status is unset!")
+            raise TProtocolException(message='Required field status is unset!')
         if self.stdout is None:
-            raise TProtocolException(message="Required field stdout is unset!")
+            raise TProtocolException(message='Required field stdout is unset!')
         if self.stderr is None:
-            raise TProtocolException(message="Required field stderr is unset!")
+            raise TProtocolException(message='Required field stderr is unset!')
         return
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1602,11 +1159,9 @@ class otherException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(otherException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(otherException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1615,15 +1170,11 @@ class otherException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -1633,11 +1184,7 @@ class otherException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1650,16 +1197,12 @@ class otherException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("otherException")
+        oprot.writeStructBegin('otherException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1671,8 +1214,9 @@ class otherException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1688,11 +1232,9 @@ class ressourceException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(ressourceException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(ressourceException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1701,15 +1243,11 @@ class ressourceException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -1719,11 +1257,7 @@ class ressourceException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1736,16 +1270,12 @@ class ressourceException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("ressourceException")
+        oprot.writeStructBegin('ressourceException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1757,8 +1287,9 @@ class ressourceException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1774,11 +1305,9 @@ class nameException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(nameException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(nameException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1787,15 +1316,11 @@ class nameException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -1805,11 +1330,7 @@ class nameException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1822,16 +1343,12 @@ class nameException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("nameException")
+        oprot.writeStructBegin('nameException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1843,8 +1360,9 @@ class nameException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1860,11 +1378,9 @@ class serverNotFoundException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(serverNotFoundException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(serverNotFoundException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1873,15 +1389,11 @@ class serverNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -1891,11 +1403,7 @@ class serverNotFoundException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1908,16 +1416,12 @@ class serverNotFoundException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("serverNotFoundException")
+        oprot.writeStructBegin('serverNotFoundException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -1929,8 +1433,9 @@ class serverNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -1946,11 +1451,9 @@ class networkNotFoundException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(networkNotFoundException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(networkNotFoundException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -1959,15 +1462,11 @@ class networkNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -1977,11 +1476,7 @@ class networkNotFoundException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -1994,16 +1489,12 @@ class networkNotFoundException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("networkNotFoundException")
+        oprot.writeStructBegin('networkNotFoundException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2015,8 +1506,9 @@ class networkNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2032,11 +1524,9 @@ class imageNotFoundException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(imageNotFoundException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(imageNotFoundException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2045,15 +1535,11 @@ class imageNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -2063,11 +1549,7 @@ class imageNotFoundException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2080,16 +1562,12 @@ class imageNotFoundException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("imageNotFoundException")
+        oprot.writeStructBegin('imageNotFoundException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2101,8 +1579,9 @@ class imageNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2118,11 +1597,9 @@ class flavorNotFoundException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(flavorNotFoundException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(flavorNotFoundException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2131,15 +1608,11 @@ class flavorNotFoundException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -2149,11 +1622,7 @@ class flavorNotFoundException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2166,16 +1635,12 @@ class flavorNotFoundException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("flavorNotFoundException")
+        oprot.writeStructBegin('flavorNotFoundException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2187,8 +1652,9 @@ class flavorNotFoundException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2206,11 +1672,9 @@ class authenticationException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(authenticationException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(authenticationException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2219,15 +1683,11 @@ class authenticationException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -2237,11 +1697,7 @@ class authenticationException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2254,16 +1710,12 @@ class authenticationException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("authenticationException")
+        oprot.writeStructBegin('authenticationException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2275,8 +1727,9 @@ class authenticationException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -2294,11 +1747,9 @@ class conflictException(TException):
 
     """
 
-    def __init__(
-        self,
-        Reason=None,
-    ):
-        super(conflictException, self).__setattr__("Reason", Reason)
+
+    def __init__(self, Reason=None,):
+        super(conflictException, self).__setattr__('Reason', Reason)
 
     def __setattr__(self, *args):
         raise TypeError("can't modify immutable instance")
@@ -2307,15 +1758,11 @@ class conflictException(TException):
         raise TypeError("can't modify immutable instance")
 
     def __hash__(self):
-        return hash(self.__class__) ^ hash((self.Reason,))
+        return hash(self.__class__) ^ hash((self.Reason, ))
 
     @classmethod
     def read(cls, iprot):
-        if (
-            iprot._fast_decode is not None
-            and isinstance(iprot.trans, TTransport.CReadableTransport)
-            and cls.thrift_spec is not None
-        ):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and cls.thrift_spec is not None:
             return iprot._fast_decode(None, iprot, [cls, cls.thrift_spec])
         iprot.readStructBegin()
         Reason = None
@@ -2325,11 +1772,7 @@ class conflictException(TException):
                 break
             if fid == 1:
                 if ftype == TType.STRING:
-                    Reason = (
-                        iprot.readString().decode("utf-8", errors="replace")
-                        if sys.version_info[0] == 2
-                        else iprot.readString()
-                    )
+                    Reason = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
                 else:
                     iprot.skip(ftype)
             else:
@@ -2342,16 +1785,12 @@ class conflictException(TException):
 
     def write(self, oprot):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
-            oprot.trans.write(
-                oprot._fast_encode(self, [self.__class__, self.thrift_spec])
-            )
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin("conflictException")
+        oprot.writeStructBegin('conflictException')
         if self.Reason is not None:
-            oprot.writeFieldBegin("Reason", TType.STRING, 1)
-            oprot.writeString(
-                self.Reason.encode("utf-8") if sys.version_info[0] == 2 else self.Reason
-            )
+            oprot.writeFieldBegin('Reason', TType.STRING, 1)
+            oprot.writeString(self.Reason.encode('utf-8') if sys.version_info[0] == 2 else self.Reason)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -2363,573 +1802,153 @@ class conflictException(TException):
         return repr(self)
 
     def __repr__(self):
-        L = ["%s=%r" % (key, value) for key, value in self.__dict__.items()]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(L))
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
 
     def __ne__(self, other):
         return not (self == other)
-
-
 all_structs.append(Backend)
 Backend.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.I64,
-        "id",
-        None,
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRING,
-        "owner",
-        "UTF8",
-        None,
-    ),  # 2
-    (
-        3,
-        TType.STRING,
-        "location_url",
-        "UTF8",
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRING,
-        "template",
-        "UTF8",
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "template_version",
-        "UTF8",
-        None,
-    ),  # 5
+    (1, TType.I64, 'id', None, None, ),  # 1
+    (2, TType.STRING, 'owner', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'location_url', 'UTF8', None, ),  # 3
+    (4, TType.STRING, 'template', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'template_version', 'UTF8', None, ),  # 5
 )
 all_structs.append(ClusterInfo)
 ClusterInfo.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "launch_date",
-        "UTF8",
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRING,
-        "group_id",
-        "UTF8",
-        None,
-    ),  # 2
-    (
-        3,
-        TType.STRING,
-        "network_id",
-        "UTF8",
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRING,
-        "public_ip",
-        "UTF8",
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "subnet_id",
-        "UTF8",
-        None,
-    ),  # 5
-    (
-        6,
-        TType.STRING,
-        "user",
-        "UTF8",
-        None,
-    ),  # 6
-    (
-        7,
-        TType.I32,
-        "inst_counter",
-        None,
-        None,
-    ),  # 7
-    (
-        8,
-        TType.STRING,
-        "cluster_id",
-        "UTF8",
-        None,
-    ),  # 8
-    (
-        9,
-        TType.STRING,
-        "key_name",
-        "UTF8",
-        None,
-    ),  # 9
-    (
-        10,
-        TType.STRING,
-        "pub_key",
-        "UTF8",
-        None,
-    ),  # 10
+    (1, TType.STRING, 'launch_date', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'group_id', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'network_id', 'UTF8', None, ),  # 3
+    (4, TType.STRING, 'public_ip', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'subnet_id', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'user', 'UTF8', None, ),  # 6
+    (7, TType.I32, 'inst_counter', None, None, ),  # 7
+    (8, TType.STRING, 'cluster_id', 'UTF8', None, ),  # 8
+    (9, TType.STRING, 'key_name', 'UTF8', None, ),  # 9
+    (10, TType.STRING, 'pub_key', 'UTF8', None, ),  # 10
 )
 all_structs.append(Volume)
 Volume.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "id",
-        "UTF8",
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRING,
-        "name",
-        "UTF8",
-        None,
-    ),  # 2
-    (
-        3,
-        TType.STRING,
-        "description",
-        "UTF8",
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRING,
-        "status",
-        "UTF8",
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "created_at",
-        "UTF8",
-        None,
-    ),  # 5
-    (
-        6,
-        TType.STRING,
-        "device",
-        "UTF8",
-        None,
-    ),  # 6
-    (
-        7,
-        TType.I32,
-        "size",
-        None,
-        None,
-    ),  # 7
+    (1, TType.STRING, 'id', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'name', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'description', 'UTF8', None, ),  # 3
+    (4, TType.STRING, 'status', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'created_at', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'device', 'UTF8', None, ),  # 6
+    (7, TType.I32, 'size', None, None, ),  # 7
 )
 all_structs.append(Flavor)
 Flavor.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.I32,
-        "vcpus",
-        None,
-        None,
-    ),  # 1
-    (
-        2,
-        TType.I32,
-        "ram",
-        None,
-        None,
-    ),  # 2
-    (
-        3,
-        TType.I32,
-        "disk",
-        None,
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRING,
-        "name",
-        "UTF8",
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "openstack_id",
-        "UTF8",
-        None,
-    ),  # 5
-    (
-        6,
-        TType.STRING,
-        "description",
-        "UTF8",
-        None,
-    ),  # 6
-    (
-        7,
-        TType.LIST,
-        "tags",
-        (TType.STRING, "UTF8", False),
-        None,
-    ),  # 7
-    (
-        8,
-        TType.I32,
-        "ephemeral_disk",
-        None,
-        None,
-    ),  # 8
+    (1, TType.I32, 'vcpus', None, None, ),  # 1
+    (2, TType.I32, 'ram', None, None, ),  # 2
+    (3, TType.I32, 'disk', None, None, ),  # 3
+    (4, TType.STRING, 'name', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'description', 'UTF8', None, ),  # 6
+    (7, TType.LIST, 'tags', (TType.STRING, 'UTF8', False), None, ),  # 7
+    (8, TType.I32, 'ephemeral_disk', None, None, ),  # 8
 )
 all_structs.append(Image)
 Image.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "name",
-        "UTF8",
-        None,
-    ),  # 1
-    (
-        2,
-        TType.I32,
-        "min_disk",
-        None,
-        None,
-    ),  # 2
-    (
-        3,
-        TType.I32,
-        "min_ram",
-        None,
-        None,
-    ),  # 3
-    (
-        4,
-        TType.STRING,
-        "status",
-        "UTF8",
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "created_at",
-        "UTF8",
-        None,
-    ),  # 5
-    (
-        6,
-        TType.STRING,
-        "updated_at",
-        "UTF8",
-        None,
-    ),  # 6
-    (
-        7,
-        TType.STRING,
-        "openstack_id",
-        "UTF8",
-        None,
-    ),  # 7
-    (
-        8,
-        TType.STRING,
-        "description",
-        "UTF8",
-        None,
-    ),  # 8
-    (
-        9,
-        TType.LIST,
-        "tag",
-        (TType.STRING, "UTF8", False),
-        None,
-    ),  # 9
-    (
-        10,
-        TType.BOOL,
-        "is_snapshot",
-        None,
-        None,
-    ),  # 10
-    (
-        11,
-        TType.STRING,
-        "os_version",
-        "UTF8",
-        None,
-    ),  # 11
-    (
-        12,
-        TType.STRING,
-        "os_distro",
-        "UTF8",
-        None,
-    ),  # 12
+    (1, TType.STRING, 'name', 'UTF8', None, ),  # 1
+    (2, TType.I32, 'min_disk', None, None, ),  # 2
+    (3, TType.I32, 'min_ram', None, None, ),  # 3
+    (4, TType.STRING, 'status', 'UTF8', None, ),  # 4
+    (5, TType.STRING, 'created_at', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'updated_at', 'UTF8', None, ),  # 6
+    (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
+    (8, TType.STRING, 'description', 'UTF8', None, ),  # 8
+    (9, TType.LIST, 'tag', (TType.STRING, 'UTF8', False), None, ),  # 9
+    (10, TType.BOOL, 'is_snapshot', None, None, ),  # 10
+    (11, TType.STRING, 'os_version', 'UTF8', None, ),  # 11
+    (12, TType.STRING, 'os_distro', 'UTF8', None, ),  # 12
+    (13, TType.STRING, 'slurm_version', 'UTF8', None, ),  # 13
 )
 all_structs.append(VM)
 VM.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRUCT,
-        "flav",
-        [Flavor, None],
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRUCT,
-        "img",
-        [Image, None],
-        None,
-    ),  # 2
-    (
-        3,
-        TType.STRING,
-        "status",
-        "UTF8",
-        None,
-    ),  # 3
-    (
-        4,
-        TType.MAP,
-        "metadata",
-        (TType.STRING, "UTF8", TType.STRING, "UTF8", False),
-        None,
-    ),  # 4
-    (
-        5,
-        TType.STRING,
-        "project_id",
-        "UTF8",
-        None,
-    ),  # 5
-    (
-        6,
-        TType.STRING,
-        "keyname",
-        "UTF8",
-        None,
-    ),  # 6
-    (
-        7,
-        TType.STRING,
-        "openstack_id",
-        "UTF8",
-        None,
-    ),  # 7
-    (
-        8,
-        TType.STRING,
-        "name",
-        "UTF8",
-        None,
-    ),  # 8
-    (
-        9,
-        TType.STRING,
-        "created_at",
-        "UTF8",
-        None,
-    ),  # 9
-    (
-        10,
-        TType.STRING,
-        "floating_ip",
-        "UTF8",
-        None,
-    ),  # 10
-    (
-        11,
-        TType.STRING,
-        "fixed_ip",
-        "UTF8",
-        None,
-    ),  # 11
-    (
-        12,
-        TType.I32,
-        "diskspace",
-        None,
-        None,
-    ),  # 12
-    (
-        13,
-        TType.STRING,
-        "volume_id",
-        "UTF8",
-        None,
-    ),  # 13
+    (1, TType.STRUCT, 'flav', [Flavor, None], None, ),  # 1
+    (2, TType.STRUCT, 'img', [Image, None], None, ),  # 2
+    (3, TType.STRING, 'status', 'UTF8', None, ),  # 3
+    (4, TType.MAP, 'metadata', (TType.STRING, 'UTF8', TType.STRING, 'UTF8', False), None, ),  # 4
+    (5, TType.STRING, 'project_id', 'UTF8', None, ),  # 5
+    (6, TType.STRING, 'keyname', 'UTF8', None, ),  # 6
+    (7, TType.STRING, 'openstack_id', 'UTF8', None, ),  # 7
+    (8, TType.STRING, 'name', 'UTF8', None, ),  # 8
+    (9, TType.STRING, 'created_at', 'UTF8', None, ),  # 9
+    (10, TType.STRING, 'floating_ip', 'UTF8', None, ),  # 10
+    (11, TType.STRING, 'fixed_ip', 'UTF8', None, ),  # 11
+    (12, TType.I32, 'diskspace', None, None, ),  # 12
+    (13, TType.STRING, 'volume_id', 'UTF8', None, ),  # 13
 )
 all_structs.append(ClusterInstance)
 ClusterInstance.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "type",
-        "UTF8",
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRING,
-        "image",
-        "UTF8",
-        None,
-    ),  # 2
-    (
-        3,
-        TType.I32,
-        "count",
-        None,
-        None,
-    ),  # 3
+    (1, TType.STRING, 'type', 'UTF8', None, ),  # 1
+    (2, TType.STRING, 'image', 'UTF8', None, ),  # 2
+    (3, TType.I32, 'count', None, None, ),  # 3
 )
 all_structs.append(PlaybookResult)
 PlaybookResult.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.I32,
-        "status",
-        None,
-        None,
-    ),  # 1
-    (
-        2,
-        TType.STRING,
-        "stdout",
-        "UTF8",
-        None,
-    ),  # 2
-    (
-        3,
-        TType.STRING,
-        "stderr",
-        "UTF8",
-        None,
-    ),  # 3
+    (1, TType.I32, 'status', None, None, ),  # 1
+    (2, TType.STRING, 'stdout', 'UTF8', None, ),  # 2
+    (3, TType.STRING, 'stderr', 'UTF8', None, ),  # 3
 )
 all_structs.append(otherException)
 otherException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(ressourceException)
 ressourceException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(nameException)
 nameException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(serverNotFoundException)
 serverNotFoundException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(networkNotFoundException)
 networkNotFoundException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(imageNotFoundException)
 imageNotFoundException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(flavorNotFoundException)
 flavorNotFoundException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(authenticationException)
 authenticationException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 all_structs.append(conflictException)
 conflictException.thrift_spec = (
     None,  # 0
-    (
-        1,
-        TType.STRING,
-        "Reason",
-        "UTF8",
-        None,
-    ),  # 1
+    (1, TType.STRING, 'Reason', 'UTF8', None, ),  # 1
 )
 fix_spec(all_structs)
 del all_structs
