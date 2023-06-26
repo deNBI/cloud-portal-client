@@ -13,6 +13,8 @@ services:
       - ./VirtualMachineService/config/config_local.yml:/code/VirtualMachineService/config.yml
       - ./VirtualMachineService/keys/localhost/server.pem:/code/VirtualMachineService/keys/server.pem
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    depends_on:
+      - client_redis
     networks:
       - portal
 
@@ -21,6 +23,8 @@ services:
     image: redis:7.0.11
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
       - portal
 
