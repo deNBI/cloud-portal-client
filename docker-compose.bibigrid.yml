@@ -13,6 +13,8 @@ services:
       -  ${client_PERSISTENT_PATH}/CA.pem:/code/VirtualMachineService/keys/CA.pem
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    depends_on:
+      - client_redis
     networks:
       - portal
 
@@ -21,6 +23,8 @@ services:
     image: redis:7.0.11
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
       - portal
 
