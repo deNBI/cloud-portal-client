@@ -798,6 +798,7 @@ class Image(object):
      - is_snapshot: If the Image is a snapshot
      - os_version
      - os_distro
+     - slurm_version
 
     """
 
@@ -815,6 +816,7 @@ class Image(object):
         is_snapshot=None,
         os_version=None,
         os_distro=None,
+        slurm_version=None,
     ):
         self.name = name
         self.min_disk = min_disk
@@ -828,6 +830,7 @@ class Image(object):
         self.is_snapshot = is_snapshot
         self.os_version = os_version
         self.os_distro = os_distro
+        self.slurm_version = slurm_version
 
     def read(self, iprot):
         if (
@@ -943,6 +946,15 @@ class Image(object):
                     )
                 else:
                     iprot.skip(ftype)
+            elif fid == 13:
+                if ftype == TType.STRING:
+                    self.slurm_version = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -1034,6 +1046,14 @@ class Image(object):
                 self.os_distro.encode("utf-8")
                 if sys.version_info[0] == 2
                 else self.os_distro
+            )
+            oprot.writeFieldEnd()
+        if self.slurm_version is not None:
+            oprot.writeFieldBegin("slurm_version", TType.STRING, 13)
+            oprot.writeString(
+                self.slurm_version.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.slurm_version
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -2686,6 +2706,13 @@ Image.thrift_spec = (
         "UTF8",
         None,
     ),  # 12
+    (
+        13,
+        TType.STRING,
+        "slurm_version",
+        "UTF8",
+        None,
+    ),  # 13
 )
 all_structs.append(VM)
 VM.thrift_spec = (

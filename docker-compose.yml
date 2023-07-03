@@ -2,7 +2,7 @@ version: '3.5'
 services:
   portal-client:
     container_name: client
-    image:quay.io/denbicloud/cloud-portal-client:${CLOUD_PORTAL_CLIENT_TAG}
+    image: quay.io/denbicloud/cloud-portal-client:${CLOUD_PORTAL_CLIENT_TAG}
     ports:
       - ${CLIENT_PORT}:9090
     env_file:
@@ -14,21 +14,25 @@ services:
 
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    depends_on:
+      - client_redis
     networks:
      - portal
 
   client_redis:
     container_name: client_redis
-    image: redis:7.0.9
+    image: redis:7.0.11
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
       - portal
 
   # filebeat
   filebeat:
     container_name: client_filebeat
-    image: docker.elastic.co/beats/filebeat:8.6.2
+    image: docker.elastic.co/beats/filebeat:8.8.1
     env_file:
       - .env
     volumes:

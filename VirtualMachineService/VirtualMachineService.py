@@ -604,6 +604,7 @@ class Iface(object):
         pub_key,
         project_name,
         project_id,
+        slurm_version,
     ):
         """
         Parameters:
@@ -619,6 +620,7 @@ class Iface(object):
          - pub_key
          - project_name
          - project_id
+         - slurm_version
 
         """
         pass
@@ -3069,6 +3071,7 @@ class Client(Iface):
         pub_key,
         project_name,
         project_id,
+        slurm_version,
     ):
         """
         Parameters:
@@ -3084,6 +3087,7 @@ class Client(Iface):
          - pub_key
          - project_name
          - project_id
+         - slurm_version
 
         """
         self.send_add_cluster_machine(
@@ -3099,6 +3103,7 @@ class Client(Iface):
             pub_key,
             project_name,
             project_id,
+            slurm_version,
         )
         return self.recv_add_cluster_machine()
 
@@ -3116,6 +3121,7 @@ class Client(Iface):
         pub_key,
         project_name,
         project_id,
+        slurm_version,
     ):
         self._oprot.writeMessageBegin(
             "add_cluster_machine", TMessageType.CALL, self._seqid
@@ -3133,6 +3139,7 @@ class Client(Iface):
         args.pub_key = pub_key
         args.project_name = project_name
         args.project_id = project_id
+        args.slurm_version = slurm_version
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -5512,6 +5519,7 @@ class Processor(Iface, TProcessor):
                 args.pub_key,
                 args.project_name,
                 args.project_id,
+                args.slurm_version,
             )
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
@@ -16845,6 +16853,7 @@ class add_cluster_machine_args(object):
      - pub_key
      - project_name
      - project_id
+     - slurm_version
 
     """
 
@@ -16862,6 +16871,7 @@ class add_cluster_machine_args(object):
         pub_key=None,
         project_name=None,
         project_id=None,
+        slurm_version=None,
     ):
         self.cluster_id = cluster_id
         self.cluster_user = cluster_user
@@ -16875,6 +16885,7 @@ class add_cluster_machine_args(object):
         self.pub_key = pub_key
         self.project_name = project_name
         self.project_id = project_id
+        self.slurm_version = slurm_version
 
     def read(self, iprot):
         if (
@@ -16989,6 +17000,15 @@ class add_cluster_machine_args(object):
                     )
                 else:
                     iprot.skip(ftype)
+            elif fid == 13:
+                if ftype == TType.STRING:
+                    self.slurm_version = (
+                        iprot.readString().decode("utf-8", errors="replace")
+                        if sys.version_info[0] == 2
+                        else iprot.readString()
+                    )
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -17081,6 +17101,14 @@ class add_cluster_machine_args(object):
                 self.project_id.encode("utf-8")
                 if sys.version_info[0] == 2
                 else self.project_id
+            )
+            oprot.writeFieldEnd()
+        if self.slurm_version is not None:
+            oprot.writeFieldBegin("slurm_version", TType.STRING, 13)
+            oprot.writeString(
+                self.slurm_version.encode("utf-8")
+                if sys.version_info[0] == 2
+                else self.slurm_version
             )
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -17187,6 +17215,13 @@ add_cluster_machine_args.thrift_spec = (
         "UTF8",
         None,
     ),  # 12
+    (
+        13,
+        TType.STRING,
+        "slurm_version",
+        "UTF8",
+        None,
+    ),  # 13
 )
 
 
