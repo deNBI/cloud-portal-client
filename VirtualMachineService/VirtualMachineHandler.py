@@ -2217,6 +2217,7 @@ class VirtualMachineHandler(Iface):
         pub_key,
         project_name,
         project_id,
+        slurm_version
     ):
         self.LOG.info(
             f"Add machine to [{name}] {cluster_id} - [Image: {image}] - {key_name}"
