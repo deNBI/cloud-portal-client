@@ -2119,7 +2119,7 @@ class VirtualMachineHandler(Iface):
             url=request_url, json=body, headers=headers, verify=self.PRODUCTION
         )
         json_resp = response.json(strict=False)
-        json_resp["self.LOG"] = str(json_resp.get("self.LOG", ""))
+        json_resp["log"] = str(json_resp.get("log", ""))
         json_resp["msg"] = str(json_resp.get("msg", ""))
         msg = json_resp["msg"]
         info = json_resp.get("info", "")
