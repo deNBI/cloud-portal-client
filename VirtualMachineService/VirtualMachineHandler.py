@@ -2438,8 +2438,7 @@ class VirtualMachineHandler(Iface):
             if image is None:
                 self.LOG.exception(f"Image {image} not found!")
                 raise imageNotFoundException(Reason=f"Image {image} not found")
-            self.conn.compute.delete_image(image)
-            return True
+            return self.conn.delete_image(image)
         except Exception as e:
             self.LOG.exception(f"Delete Image {image_id} error : {e}")
             return False
@@ -2594,11 +2593,9 @@ class VirtualMachineHandler(Iface):
                         self.LOG.info(f"Delete security group {sg['name']}")
 
                         self.conn.delete_security_group(name_or_id=sg)
-                self.conn.compute.delete_server(server)
-            else:
-                return False
 
-            return True
+            return self.conn.delete_server(server)
+
         except ConflictException as e:
             self.LOG.exception(f"Delete Server {openstack_id} error: {e}")
 
@@ -2641,8 +2638,7 @@ class VirtualMachineHandler(Iface):
 
         try:
             self.LOG.info(f"Delete Volume  {volume_id}")
-            self.conn.block_storage.delete_volume(volume=volume_id)
-            return True
+            return self.conn.delete_volume(volume=volume_id)
         except ConflictException:
             self.LOG.exception(f"Delete volume {volume_id} error")
 
