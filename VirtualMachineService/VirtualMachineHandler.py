@@ -1417,7 +1417,6 @@ class VirtualMachineHandler(Iface):
                     template_dict["name"] in self.FORC_ALLOWED
                     and template_dict["name"] in cross_tags
             ):
-                self.LOG("name matches")
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
         return False
