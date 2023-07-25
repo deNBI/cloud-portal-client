@@ -1417,6 +1417,7 @@ class VirtualMachineHandler(Iface):
                     template_dict["name"] in self.FORC_ALLOWED
                     and template_dict["name"] in cross_tags
             ):
+                self.LOG("name matches")
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
         return False
@@ -1778,8 +1779,10 @@ class VirtualMachineHandler(Iface):
             self.LOG.info(os_volume)
             if os_volume.attachments:
                 device = os_volume.attachments[0]["device"]
+                server_id = os_volume.attachments[0]["server_id"]
             else:
                 device = None
+                server_id = None
 
             thrift_volume = Volume(
                 status=os_volume.status,
@@ -1788,6 +1791,7 @@ class VirtualMachineHandler(Iface):
                 description=os_volume.description,
                 created_at=os_volume.created_at,
                 device=device,
+                server_id=server_id,
                 size=os_volume.size,
             )
             return thrift_volume
