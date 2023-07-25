@@ -2599,8 +2599,8 @@ class VirtualMachineHandler(Iface):
 
                         self.conn.delete_security_group(name_or_id=sg)
 
-                self.conn.compute.delete_server(server=server, force=True)
-                return True
+            self.conn.compute.delete_server(server=server, force=True)
+            return True
 
         except ConflictException as e:
             self.LOG.exception(f"Delete Server {openstack_id} error: {e}")
