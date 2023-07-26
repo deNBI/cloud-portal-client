@@ -1734,7 +1734,7 @@ class VirtualMachineHandler(Iface):
         if self.redis.exists(openstack_id) == 1 and openstack_id in active_playbooks:
             key_name = self.redis.hget(openstack_id, "name").decode("utf-8")
             playbook = active_playbooks.pop(openstack_id)
-            status, stdout, stderr = playbook.get_self.LOGs()
+            status, stdout, stderr = playbook.get_logs()
             self.LOG.info(f" Playbook self.LOGs{openstack_id} stattus: {status}")
 
             playbook.cleanup(openstack_id)
