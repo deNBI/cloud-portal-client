@@ -106,6 +106,7 @@ class VirtualMachineHandler(Iface):
     ERROR = "ERROR"
     SHUTOFF = "SHUTOFF"
     NOT_FOUND = "NOT_FOUND"
+    CHECKING_STATUS = "CHECKING_STATUS"
     PREPARE_PLAYBOOK_BUILD = "PREPARE_PLAYBOOK_BUILD"
     BUILD_PLAYBOOK = "BUILD_PLAYBOOK"
     PLAYBOOK_FAILED = "PLAYBOOK_FAILED"
@@ -385,7 +386,7 @@ class VirtualMachineHandler(Iface):
             return flavors
         except Exception as e:
             self.LOG.exception(f"Get Flavors Error: {e}")
-            return ()
+            return []
 
     @deprecated(
         version="1.0.0",
@@ -472,7 +473,7 @@ class VirtualMachineHandler(Iface):
             return images
         except Exception as e:
             self.LOG.exception(f"Get Images Error: {e}")
-            return ()
+            return []
 
     def prepare_image(self, img):
         try:
@@ -538,7 +539,7 @@ class VirtualMachineHandler(Iface):
             return images
         except Exception as e:
             self.LOG.exception(f"Get Images Error: {e}")
-            return ()
+            return []
 
     def get_private_Images(self):
         """
@@ -564,7 +565,7 @@ class VirtualMachineHandler(Iface):
             return images
         except Exception as e:
             self.LOG.exception(f"Get Images Error: {e}")
-            return ()
+            return []
 
     def get_Image_with_Tag(self, id):
         """
@@ -653,7 +654,7 @@ class VirtualMachineHandler(Iface):
             return images
         except Exception as e:
             self.LOG.exception(f"Get Images Error: {e}")
-            return ()
+            return []
 
     def delete_keypair(self, key_name):
         key_pair = self.conn.compute.find_keypair(key_name)
@@ -730,10 +731,15 @@ class VirtualMachineHandler(Iface):
         self.LOG.info(f"Get Server {openstack_id}")
         try:
             server: Server = self.conn.get_server_by_id(openstack_id)
+            if not server:
+                self.LOG.exception(f"No Server found {openstack_id}")
+                return VM(status=self.NOT_FOUND)
             return self.openstack_server_to_thrift_server(server=server)
-        except Exception as e:
-            self.LOG.exception(f"No Server found {openstack_id} | Error {e}")
-            return VM(status=self.NOT_FOUND)
+
+
+        except Exception:
+            self.LOG.exception(f"Could get server {openstack_id}")
+            return VM(status=self.CHECKING_STATUS)
 
     def get_servers_by_ids(self, ids):
         servers = []
@@ -741,7 +747,11 @@ class VirtualMachineHandler(Iface):
             self.LOG.info(f"Get server {id}")
             try:
                 server = self.conn.get_server_by_id(id)
-                servers.append(server)
+                if server:
+                    servers.append(server)
+                else:
+                    self.LOG.exception(f"No Server found {openstack_id}")
+
             except Exception as e:
                 self.LOG.exception(f"Requested VM {id} not found!\n {e}")
         server_list = []
@@ -1417,7 +1427,6 @@ class VirtualMachineHandler(Iface):
                 template_dict["name"] in self.FORC_ALLOWED
                 and template_dict["name"] in cross_tags
             ):
-                self.LOG("name matches")
                 if template_dict["version"] in self.FORC_ALLOWED[template_dict["name"]]:
                     return True
         return False
@@ -1735,7 +1744,7 @@ class VirtualMachineHandler(Iface):
         if self.redis.exists(openstack_id) == 1 and openstack_id in active_playbooks:
             key_name = self.redis.hget(openstack_id, "name").decode("utf-8")
             playbook = active_playbooks.pop(openstack_id)
-            status, stdout, stderr = playbook.get_self.LOGs()
+            status, stdout, stderr = playbook.get_logs()
             self.LOG.info(f" Playbook self.LOGs{openstack_id} stattus: {status}")
 
             playbook.cleanup(openstack_id)
@@ -1776,28 +1785,34 @@ class VirtualMachineHandler(Iface):
         self.LOG.info(f"Get Volume {volume_id}")
         try:
             os_volume = self.conn.get_volume_by_id(id=volume_id)
-            self.LOG.info(os_volume)
-            if os_volume.attachments:
-                device = os_volume.attachments[0]["device"]
-                server_id = os_volume.attachments[0]["server_id"]
-            else:
-                device = None
-                server_id = None
+            if os_volume:
+                self.LOG.info(os_volume)
+                if os_volume.attachments:
+                    device = os_volume.attachments[0]["device"]
+                    server_id = os_volume.attachments[0]["server_id"]
+                else:
+                    device = None
+                    server_id = None
 
-            thrift_volume = Volume(
-                status=os_volume.status,
-                id=os_volume.id,
-                name=os_volume.name,
-                description=os_volume.description,
-                created_at=os_volume.created_at,
-                device=device,
-                server_id=server_id,
-                size=os_volume.size,
-            )
-            return thrift_volume
+                thrift_volume = Volume(
+                    status=os_volume.status,
+                    id=os_volume.id,
+                    name=os_volume.name,
+                    description=os_volume.description,
+                    created_at=os_volume.created_at,
+                    device=device,
+                    server_id=server_id,
+                    size=os_volume.size,
+                )
+
+                return thrift_volume
+            else:
+                self.LOG.exception(f"Could not find volume {id}")
+                return Volume(status=self.NOT_FOUND)
+
         except Exception:
             self.LOG.exception(f"Could not find volume {id}")
-            return Volume(status=self.NOT_FOUND)
+            return Volume(status=self.CHECKING_STATUS)
 
     def attach_volume_to_server(self, openstack_id, volume_id):
         """
@@ -1847,13 +1862,13 @@ class VirtualMachineHandler(Iface):
         self.LOG.info(f"Check Status VM {openstack_id}")
         try:
             server = self.conn.compute.get_server(openstack_id)
+            if not server:
+                self.LOG.exception(f"No Server with id  {openstack_id} ")
+                return VM(status=self.NOT_FOUND)
         except Exception:
-            self.LOG.exception(f"No Server with id  {openstack_id} ")
-            return VM(status=self.NOT_FOUND)
+            self.LOG.exception(f"Could not get server {openstack_id} ")
+            return VM(status=self.CHECKING_STATUS)
 
-        if server is None:
-            self.LOG.exception(f"No Server with id {openstack_id} ")
-            return VM(status=self.NOT_FOUND)
 
         serv = server.to_dict()
 
