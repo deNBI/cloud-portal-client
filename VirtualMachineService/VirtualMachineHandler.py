@@ -735,7 +735,9 @@ class VirtualMachineHandler(Iface):
                 self.LOG.exception(f"No Server found {openstack_id}")
                 return VM(status=self.NOT_FOUND)
             return self.openstack_server_to_thrift_server(server=server)
-
+        except ResourceNotFound:
+            self.LOG.exception(f"Could not find server {id}")
+            return VM(status=self.NOT_FOUND)
         except Exception:
             self.LOG.exception(f"Could get server {openstack_id}")
             return VM(status=self.CHECKING_STATUS)
@@ -1809,6 +1811,9 @@ class VirtualMachineHandler(Iface):
                 self.LOG.exception(f"Could not find volume {id}")
                 return Volume(status=self.NOT_FOUND)
 
+        except ResourceNotFound:
+            self.LOG.exception(f"Could not find volume {id}")
+            return Volume(status=self.NOT_FOUND)
         except Exception:
             self.LOG.exception(f"Could not find volume {id}")
             return Volume(status=self.CHECKING_STATUS)
@@ -1864,6 +1869,9 @@ class VirtualMachineHandler(Iface):
             if not server:
                 self.LOG.exception(f"No Server with id  {openstack_id} ")
                 return VM(status=self.NOT_FOUND)
+        except ResourceNotFound:
+            self.LOG.exception(f"Could not find server {id}")
+            return VM(status=self.NOT_FOUND)
         except Exception:
             self.LOG.exception(f"Could not get server {openstack_id} ")
             return VM(status=self.CHECKING_STATUS)
