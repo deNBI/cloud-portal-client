@@ -2665,7 +2665,7 @@ class VirtualMachineHandler(Iface):
 
         try:
             self.LOG.info(f"Delete Volume  {volume_id}")
-            self.conn.block_storage.delete_volume(volume=volume_id, force=True)
+            self.conn.block_storage.delete_volume(volume=volume_id)
             return True
         except ConflictException:
             self.LOG.exception(f"Delete volume {volume_id} error")
