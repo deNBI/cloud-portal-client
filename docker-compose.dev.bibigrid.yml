@@ -13,14 +13,18 @@ services:
       - ./VirtualMachineService/config/config_local.yml:/code/VirtualMachineService/config.yml
       - ./VirtualMachineService/keys/localhost:/code/VirtualMachineService/keys
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    depends_on:
+      - client_redis
     networks:
       - portal
 
   client_redis:
     container_name: client_redis
-    image: redis:7.0.11
+    image: redis:7.2.0
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
       - portal
 

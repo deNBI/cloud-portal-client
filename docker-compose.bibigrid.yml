@@ -13,14 +13,18 @@ services:
       -  ${client_PERSISTENT_PATH}/CA.pem:/code/VirtualMachineService/keys/CA.pem
       - ./logs/client:/code/VirtualMachineService/log:rw
     command: python3 VirtualMachineServer.py /code/VirtualMachineService/config.yml
+    depends_on:
+      - client_redis
     networks:
       - portal
 
   client_redis:
     container_name: client_redis
-    image: redis:7.0.11
+    image: redis:7.2.0
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
     networks:
       - portal
 
@@ -41,7 +45,7 @@ services:
 
   # filebeat
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.7.1
+    image: docker.elastic.co/beats/filebeat:8.9.1
     env_file:
       - .env
     volumes:

@@ -35,6 +35,7 @@ struct Volume{
 5:optional string created_at,
 6:optional string device,
 7:optional int size,
+8:optional string server_id
 }
 
 /**
@@ -102,6 +103,7 @@ struct Image{
 
 	11:optional string os_version
 		12:optional string os_distro
+		13:optional string slurm_version
 
 }
 /**
@@ -633,7 +635,8 @@ service VirtualMachineService {
         9:int worker_idx,
         10:string pub_key
         11: string project_name,
-        12: string project_id
+        12: string project_id,
+        13:string slurm_version
     )
 
 	ClusterInfo get_cluster_info(1:string cluster_id)

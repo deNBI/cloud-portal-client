@@ -76,7 +76,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('   get_servers_by_bibigrid_id(string bibigrid_id)')
     print('  void add_server_metadata(string server_id,  metadata)')
     print('  void create_resenv_security_group_and_attach_to_server(string server_id, string resenv_template)')
-    print('  string add_cluster_machine(string cluster_id, string cluster_user, string cluster_group_id, string image, string flavor, string name, string key_name, int batch_idx, int worker_idx, string pub_key, string project_name, string project_id)')
+    print('  string add_cluster_machine(string cluster_id, string cluster_user, string cluster_group_id, string image, string flavor, string name, string key_name, int batch_idx, int worker_idx, string pub_key, string project_name, string project_id, string slurm_version)')
     print('  ClusterInfo get_cluster_info(string cluster_id)')
     print('   get_cluster_status(string cluster_id)')
     print('  VM get_server(string openstack_id)')
@@ -486,10 +486,10 @@ elif cmd == 'create_resenv_security_group_and_attach_to_server':
     pp.pprint(client.create_resenv_security_group_and_attach_to_server(args[0], args[1],))
 
 elif cmd == 'add_cluster_machine':
-    if len(args) != 12:
-        print('add_cluster_machine requires 12 args')
+    if len(args) != 13:
+        print('add_cluster_machine requires 13 args')
         sys.exit(1)
-    pp.pprint(client.add_cluster_machine(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]), eval(args[8]), args[9], args[10], args[11],))
+    pp.pprint(client.add_cluster_machine(args[0], args[1], args[2], args[3], args[4], args[5], args[6], eval(args[7]), eval(args[8]), args[9], args[10], args[11], args[12],))
 
 elif cmd == 'get_cluster_info':
     if len(args) != 1:

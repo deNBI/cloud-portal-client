@@ -2,23 +2,23 @@ default_stages: [ commit ]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.4.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
 
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: 'v1'  # Use the sha / tag you want to point at
+    rev: 'v1.0.1'  # Use the sha / tag you want to point at
     hooks:
       - id: upgrade-type-hints
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
   -   repo: https://github.com/neutrinoceros/flynt/
@@ -27,7 +27,7 @@ repos:
       -   id: flynt
 
   - repo: https://github.com/myint/autoflake
-    rev: v1.4
+    rev: v2.2.0
     hooks:
       - id: autoflake
         args:
@@ -35,7 +35,7 @@ repos:
           - --remove-all-unused-imports
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 6.1.0
     hooks:
       - id: flake8
         args: [ "--config=setup.cfg" ]
