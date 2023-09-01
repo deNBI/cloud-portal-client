@@ -3,7 +3,7 @@ roles:
     version: v4.1.0
 
   - name: oefenweb.latest_r
-    version: v3.1.4
+    version: v3.1.5
 
 
   - name: andrewrothstein.miniconda
