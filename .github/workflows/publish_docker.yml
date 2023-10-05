@@ -15,7 +15,7 @@ jobs:
         uses: rokroskar/workflow-run-cleanup-action@v0.3.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v3.6.0
+      - uses: actions/checkout@v4.1.0
       - name: Extract branch name
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -27,15 +27,15 @@ jobs:
       - name: Get tag
         run: echo "The selected tag is ${{ steps.tag.outputs.TAG }}"
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to Quay.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_TOKEN }}
       - name: Build and publish image to Quay
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: Dockerfile
           push: true
