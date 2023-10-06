@@ -42,11 +42,11 @@ environment_variables = [
 ]
 
 
-def _load_ss_context(certfile, ca_path):
+def _load_ss_context(certfile, ca_path=None):
     click.echo("Use SSL - Loading SSL Context")
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain(certfile)
-    if CA_CERTS_PATH:
+    if ca_path:
         click.echo(f"CA Certs present. Verify...")
         ssl_context.load_verify_locations(ca_path)
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
