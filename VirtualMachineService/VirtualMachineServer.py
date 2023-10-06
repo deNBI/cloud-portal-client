@@ -42,6 +42,18 @@ environment_variables = [
 ]
 
 
+def _load_ss_context(certfile, ca_path):
+    click.echo("Use SSL - Loading SSL Context")
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_context.load_cert_chain(certfile)
+    if CA_CERTS_PATH:
+        click.echo(f"CA Certs present. Verify...")
+        ssl_context.load_verify_locations(ca_path)
+    ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
+
+    return ssl_context
+
+
 @click.command()
 @click.argument("config")
 def startServer(config):
@@ -68,13 +80,7 @@ def startServer(config):
     handler = VirtualMachineHandler(CONFIG_FILE)
     processor = Processor(handler)
     if USE_SSL:
-        click.echo("Use SSL")
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain(CERTFILE)
-        if CA_CERTS_PATH:
-            click.echo(f"CA Certs present. Verify...")
-            ssl_context.load_verify_locations(CA_CERTS_PATH)
-
+        ssl_context = _load_ss_context(certfile=CERTFILE, ca_path=CA_CERTS_PATH)
         transport = TSSLSocket.TSSLServerSocket(
             host=HOST, port=PORT, ssl_context=ssl_context
         )
