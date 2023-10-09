@@ -1,4 +1,4 @@
-FROM python:3.11.4-buster
+FROM python:3.11.5-bookworm
 RUN  apt-get update -y
 RUN apt-get install -y build-essential
 WORKDIR /code
