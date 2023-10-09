@@ -1469,7 +1469,7 @@ class VirtualMachineHandler(Iface):
                 return {}
             self.LOG.info(f"Backend created {data}")
             return Backend(
-                id=data["id"],
+                id=int(data["id"]),
                 owner=data["owner"],
                 location_url=data["location_url"],
                 template=data["template"],
