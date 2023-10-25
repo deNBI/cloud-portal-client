@@ -1917,7 +1917,8 @@ class VirtualMachineHandler(Iface):
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
-                    server.status = "PORT_CLOSED"
+                    if server.status != "SHUTDOWN":
+                        server.status = "PORT_CLOSED"
                     return server
             elif serv["status"] == self.ERROR:
                 server = self.get_server(openstack_id)
@@ -2528,7 +2529,7 @@ class VirtualMachineHandler(Iface):
         """
         self.LOG.info(f"Checking SSH Connection {host}:{port}")
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            sock.settimeout(5000)
+            sock.settimeout(2500)
             try:
                 r = sock.connect_ex((host, port))
                 self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
