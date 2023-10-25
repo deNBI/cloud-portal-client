@@ -1897,7 +1897,6 @@ class VirtualMachineHandler(Iface):
                     )
                 if self.netcat(host, port):
                     server = self.get_server(openstack_id)
-
                     if self.redis.exists(openstack_id) == 1:
                         global active_playbooks
                         if openstack_id in active_playbooks:
@@ -2529,11 +2528,16 @@ class VirtualMachineHandler(Iface):
         """
         self.LOG.info(f"Checking SSH Connection {host}:{port}")
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            r = sock.connect_ex((host, port))
-            self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
-            if r == 0:
-                return True
-            else:
+            sock.settimeout(5000)
+            try:
+                r = sock.connect_ex((host, port))
+                self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
+                if r == 0:
+                    return True
+                else:
+                    return False
+            except socket.timeout:
+                self.LOG.info(f"Connection to {host}:{port} timed out")
                 return False
 
     def is_security_group_in_use(self, security_group_id):
