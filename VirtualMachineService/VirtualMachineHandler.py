@@ -2528,7 +2528,6 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.LOG.info(f"Checking SSH Connection {host}:{port}")
-        if serv["status"] == self.ACTIVE and serv["task_state"] not in ["powering-off", "powering-on"]:
 
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
             sock.settimeout(5)
