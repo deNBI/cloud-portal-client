@@ -20,7 +20,7 @@ services:
 
   client_redis:
     container_name: client_redis
-    image: redis:7.2.1
+    image: redis:7.2.2
     expose:
       - "6379"
     healthcheck:
@@ -45,7 +45,7 @@ services:
 
   # filebeat
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.10.2
+    image: docker.elastic.co/beats/filebeat:8.10.4
     env_file:
       - .env
     volumes:
