@@ -1879,7 +1879,7 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv["status"] == self.ACTIVE:
+            if serv["status"] == self.ACTIVE and serv["task_state"] not in ["powering-off", "powering-on"]:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
@@ -2528,8 +2528,10 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.LOG.info(f"Checking SSH Connection {host}:{port}")
+        if serv["status"] == self.ACTIVE and serv["task_state"] not in ["powering-off", "powering-on"]:
+
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            sock.settimeout(2500)
+            sock.settimeout(5)
             try:
                 r = sock.connect_ex((host, port))
                 self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
