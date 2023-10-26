@@ -1879,7 +1879,10 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv["status"] == self.ACTIVE and serv["task_state"] not in ["powering-off", "powering-on"]:
+            if serv["status"] == self.ACTIVE and serv["task_state"] not in [
+                "powering-off",
+                "powering-on",
+            ]:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
