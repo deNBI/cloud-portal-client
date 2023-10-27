@@ -1880,7 +1880,10 @@ class VirtualMachineHandler(Iface):
         serv = server.to_dict()
 
         try:
-            if serv["status"] == self.ACTIVE:
+            if serv["status"] == self.ACTIVE and serv["task_state"] not in [
+                "powering-off",
+                "powering-on",
+            ]:
                 host = self.get_server(openstack_id).floating_ip
                 port = self.SSH_PORT
 
@@ -1898,7 +1901,6 @@ class VirtualMachineHandler(Iface):
                     )
                 if self.netcat(host, port):
                     server = self.get_server(openstack_id)
-
                     if self.redis.exists(openstack_id) == 1:
                         global active_playbooks
                         if openstack_id in active_playbooks:
@@ -1919,7 +1921,8 @@ class VirtualMachineHandler(Iface):
                     return self.get_server(openstack_id)
                 else:
                     server = self.get_server(openstack_id)
-                    server.status = "PORT_CLOSED"
+                    if server.status != "SHUTDOWN":
+                        server.status = "PORT_CLOSED"
                     return server
             elif serv["status"] == self.ERROR:
                 server = self.get_server(openstack_id)
@@ -2534,12 +2537,18 @@ class VirtualMachineHandler(Iface):
         :return: True if successfully connected, False if not
         """
         self.LOG.info(f"Checking SSH Connection {host}:{port}")
+
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            r = sock.connect_ex((host, port))
-            self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
-            if r == 0:
-                return True
-            else:
+            sock.settimeout(5)
+            try:
+                r = sock.connect_ex((host, port))
+                self.LOG.info(f"Checking SSH Connection {host}:{port} Result = {r}")
+                if r == 0:
+                    return True
+                else:
+                    return False
+            except socket.timeout:
+                self.LOG.info(f"Connection to {host}:{port} timed out")
                 return False
 
     def is_security_group_in_use(self, security_group_id):
