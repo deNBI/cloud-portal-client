@@ -11,5 +11,5 @@ from thrift.protocol.TProtocol import TProtocolException
 from thrift.TRecursive import fix_spec
 
 import sys
-from .ttypes import *
+from ttypes import *
 VERSION = "1.0.0"
