@@ -45,7 +45,7 @@ services:
 
   # filebeat
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.11.1
+    image: docker.elastic.co/beats/filebeat:8.11.3
     env_file:
       - .env
     volumes:
