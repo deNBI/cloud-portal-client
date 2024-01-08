@@ -2933,11 +2933,11 @@ class VirtualMachineHandler(Iface):
         maxTotalInstances,totalRamUsed,totalInstancesUsed)
         of the OpenStack Project from the Client.
 
-        :return: {'maxTotalVolumes': maxTotalVolumes, '
-                maxTotalVolumeGigabytes': maxTotalVolumeGigabytes,
-                'maxTotalInstances': maxTotalInstances,
-                 'totalRamUsed': totalRamUsed,
-                'totalInstancesUsed': totalFlInstancesUsed}
+        :return: {'max_total_volumes': max_total_volumes, '
+                max_total_volume_gigabytes': max_total_volume_gigabytes,
+                'max_total_istances': max_total_instances,
+                 'total_ram_used': total_ram_used,
+                'total_instances_used': total_instances_used}
         """
         self.LOG.info("Get Limits")
         limits = {}
@@ -2951,10 +2951,10 @@ class VirtualMachineHandler(Iface):
             "total_cores_used": str(limits["total_cores_used"]),
             "total_instances_used": str(limits["total_instances_used"]),
             "total_ram_used": str(math.ceil(limits["total_ram_used"] / 1024)),
-            "maxTotalVolumes": str(limits["maxTotalVolumes"]),
-            "maxTotalVolumeGigabytes": str(limits["maxTotalVolumeGigabytes"]),
-            "totalVolumesUsed": str(limits["totalVolumesUsed"]),
-            "totalGigabytesUsed": str(limits["totalGigabytesUsed"]),
+            "max_total_volumes": str(limits["max_total_volumes"]),
+            "max_total_volume_gigabytes": str(limits["max_total_volume_gigabytes"]),
+            "total_volumes_used": str(limits["total_volumes_used"]),
+            "total_gigabytes_used": str(limits["total_gigabytes_used"]),
         }
 
     def install_ansible_galaxy_requirements(self):
