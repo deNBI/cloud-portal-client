@@ -20,7 +20,7 @@ services:
 
   client_redis:
     container_name: client_redis
-    image: redis:7.2.3
+    image: redis:7.2.4
     expose:
       - "6379"
     healthcheck:
