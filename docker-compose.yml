@@ -32,7 +32,7 @@ services:
   # filebeat
   filebeat:
     container_name: client_filebeat
-    image: docker.elastic.co/beats/filebeat:8.11.4
+    image: docker.elastic.co/beats/filebeat:8.12.0
     env_file:
       - .env
     volumes:
