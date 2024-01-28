@@ -3872,9 +3872,9 @@ class Processor(Iface, TProcessor):
         self._processMap["check_Version"] = Processor.process_check_Version
         self._processMap["get_client_version"] = Processor.process_get_client_version
         self._processMap["get_gateway_ip"] = Processor.process_get_gateway_ip
-        self._processMap[
-            "get_calculation_formulars"
-        ] = Processor.process_get_calculation_formulars
+        self._processMap["get_calculation_formulars"] = (
+            Processor.process_get_calculation_formulars
+        )
         self._processMap["import_keypair"] = Processor.process_import_keypair
         self._processMap["get_vm_ports"] = Processor.process_get_vm_ports
         self._processMap["get_Flavors"] = Processor.process_get_Flavors
@@ -3882,87 +3882,87 @@ class Processor(Iface, TProcessor):
         self._processMap["get_public_Images"] = Processor.process_get_public_Images
         self._processMap["get_private_Images"] = Processor.process_get_private_Images
         self._processMap["get_Image_with_Tag"] = Processor.process_get_Image_with_Tag
-        self._processMap[
-            "get_Images_by_filter"
-        ] = Processor.process_get_Images_by_filter
+        self._processMap["get_Images_by_filter"] = (
+            Processor.process_get_Images_by_filter
+        )
         self._processMap["get_volume"] = Processor.process_get_volume
         self._processMap["get_volumes_by_ids"] = Processor.process_get_volumes_by_ids
         self._processMap["resize_volume"] = Processor.process_resize_volume
         self._processMap["delete_server"] = Processor.process_delete_server
-        self._processMap[
-            "add_metadata_to_server"
-        ] = Processor.process_add_metadata_to_server
-        self._processMap[
-            "delete_metadata_from_server"
-        ] = Processor.process_delete_metadata_from_server
-        self._processMap[
-            "add_floating_ip_to_server"
-        ] = Processor.process_add_floating_ip_to_server
+        self._processMap["add_metadata_to_server"] = (
+            Processor.process_add_metadata_to_server
+        )
+        self._processMap["delete_metadata_from_server"] = (
+            Processor.process_delete_metadata_from_server
+        )
+        self._processMap["add_floating_ip_to_server"] = (
+            Processor.process_add_floating_ip_to_server
+        )
         self._processMap["create_connection"] = Processor.process_create_connection
-        self._processMap[
-            "start_server_without_playbook"
-        ] = Processor.process_start_server_without_playbook
+        self._processMap["start_server_without_playbook"] = (
+            Processor.process_start_server_without_playbook
+        )
         self._processMap["bibigrid_available"] = Processor.process_bibigrid_available
-        self._processMap[
-            "detach_ip_from_server"
-        ] = Processor.process_detach_ip_from_server
-        self._processMap[
-            "start_server_with_mounted_volume"
-        ] = Processor.process_start_server_with_mounted_volume
+        self._processMap["detach_ip_from_server"] = (
+            Processor.process_detach_ip_from_server
+        )
+        self._processMap["start_server_with_mounted_volume"] = (
+            Processor.process_start_server_with_mounted_volume
+        )
         self._processMap["start_server"] = Processor.process_start_server
-        self._processMap[
-            "start_server_with_custom_key"
-        ] = Processor.process_start_server_with_custom_key
+        self._processMap["start_server_with_custom_key"] = (
+            Processor.process_start_server_with_custom_key
+        )
         self._processMap["exist_server"] = Processor.process_exist_server
-        self._processMap[
-            "create_and_deploy_playbook"
-        ] = Processor.process_create_and_deploy_playbook
+        self._processMap["create_and_deploy_playbook"] = (
+            Processor.process_create_and_deploy_playbook
+        )
         self._processMap["get_playbook_logs"] = Processor.process_get_playbook_logs
         self._processMap["has_forc"] = Processor.process_has_forc
         self._processMap["get_forc_url"] = Processor.process_get_forc_url
         self._processMap["create_backend"] = Processor.process_create_backend
         self._processMap["get_backends"] = Processor.process_get_backends
-        self._processMap[
-            "get_backends_by_owner"
-        ] = Processor.process_get_backends_by_owner
-        self._processMap[
-            "get_backends_by_template"
-        ] = Processor.process_get_backends_by_template
+        self._processMap["get_backends_by_owner"] = (
+            Processor.process_get_backends_by_owner
+        )
+        self._processMap["get_backends_by_template"] = (
+            Processor.process_get_backends_by_template
+        )
         self._processMap["get_backend_by_id"] = Processor.process_get_backend_by_id
         self._processMap["delete_backend"] = Processor.process_delete_backend
         self._processMap["add_user_to_backend"] = Processor.process_add_user_to_backend
-        self._processMap[
-            "get_users_from_backend"
-        ] = Processor.process_get_users_from_backend
-        self._processMap[
-            "delete_user_from_backend"
-        ] = Processor.process_delete_user_from_backend
+        self._processMap["get_users_from_backend"] = (
+            Processor.process_get_users_from_backend
+        )
+        self._processMap["delete_user_from_backend"] = (
+            Processor.process_delete_user_from_backend
+        )
         self._processMap["get_templates"] = Processor.process_get_templates
-        self._processMap[
-            "get_allowed_templates"
-        ] = Processor.process_get_allowed_templates
-        self._processMap[
-            "get_templates_by_template"
-        ] = Processor.process_get_templates_by_template
+        self._processMap["get_allowed_templates"] = (
+            Processor.process_get_allowed_templates
+        )
+        self._processMap["get_templates_by_template"] = (
+            Processor.process_get_templates_by_template
+        )
         self._processMap["check_template"] = Processor.process_check_template
-        self._processMap[
-            "add_udp_security_group"
-        ] = Processor.process_add_udp_security_group
+        self._processMap["add_udp_security_group"] = (
+            Processor.process_add_udp_security_group
+        )
         self._processMap["get_servers"] = Processor.process_get_servers
-        self._processMap[
-            "get_server_openstack_ids"
-        ] = Processor.process_get_server_openstack_ids
+        self._processMap["get_server_openstack_ids"] = (
+            Processor.process_get_server_openstack_ids
+        )
         self._processMap["get_servers_by_ids"] = Processor.process_get_servers_by_ids
-        self._processMap[
-            "check_server_task_state"
-        ] = Processor.process_check_server_task_state
-        self._processMap[
-            "get_servers_by_bibigrid_id"
-        ] = Processor.process_get_servers_by_bibigrid_id
+        self._processMap["check_server_task_state"] = (
+            Processor.process_check_server_task_state
+        )
+        self._processMap["get_servers_by_bibigrid_id"] = (
+            Processor.process_get_servers_by_bibigrid_id
+        )
         self._processMap["add_server_metadata"] = Processor.process_add_server_metadata
-        self._processMap[
-            "create_resenv_security_group_and_attach_to_server"
-        ] = Processor.process_create_resenv_security_group_and_attach_to_server
+        self._processMap["create_resenv_security_group_and_attach_to_server"] = (
+            Processor.process_create_resenv_security_group_and_attach_to_server
+        )
         self._processMap["add_cluster_machine"] = Processor.process_add_cluster_machine
         self._processMap["get_cluster_info"] = Processor.process_get_cluster_info
         self._processMap["get_cluster_status"] = Processor.process_get_cluster_status
@@ -3973,13 +3973,13 @@ class Processor(Iface, TProcessor):
         self._processMap["start_cluster"] = Processor.process_start_cluster
         self._processMap["terminate_cluster"] = Processor.process_terminate_cluster
         self._processMap["delete_image"] = Processor.process_delete_image
-        self._processMap[
-            "delete_volume_attachment"
-        ] = Processor.process_delete_volume_attachment
+        self._processMap["delete_volume_attachment"] = (
+            Processor.process_delete_volume_attachment
+        )
         self._processMap["delete_volume"] = Processor.process_delete_volume
-        self._processMap[
-            "attach_volume_to_server"
-        ] = Processor.process_attach_volume_to_server
+        self._processMap["attach_volume_to_server"] = (
+            Processor.process_attach_volume_to_server
+        )
         self._processMap["check_server_status"] = Processor.process_check_server_status
         self._processMap["setUserPassword"] = Processor.process_setUserPassword
         self._processMap["resume_server"] = Processor.process_resume_server
